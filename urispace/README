@@ -1,0 +1,60 @@
+Uri space manager
+-----------------
+
+
+This set of SWI-Prolog modules aims at managing content-negotiation 
+in a URI space.
+
+This program handles both RDF representation or HTML representation
+of resources held within a SPARQL end point (perhaps hosted
+remotely).
+
+
+For example: 
+
+ - http://dbtune.org/jamendo/artist/5 is redirecting towards a HTML
+ representation when requested through a `classic' browser (eg. Firefox)
+ and towards a RDF representation when requested through a Semantic
+ Web browser:
+
+  $ curl -L -H "Accept: application/rdf+xml" http://dbtune.org/jamendo/artist/5
+
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE rdf:RDF [
+    <!ENTITY foaf 'http://xmlns.com/foaf/0.1/'>
+    <!ENTITY mo 'http://purl.org/ontology/mo/'>
+    <!ENTITY owl 'http://www.w3.org/2002/07/owl#'>
+    <!ENTITY rdf 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
+    <!ENTITY xsd 'http://www.w3.org/2001/XMLSchema#'>
+]>
+
+<rdf:RDF
+    xmlns:foaf="&foaf;"
+    xmlns:mo="&mo;"
+    xmlns:owl="&owl;"
+    xmlns:rdf="&rdf;"
+    xmlns:xsd="&xsd;"
+>
+<mo:MusicArtist rdf:about="http://dbtune.org/jamendo/artist/5">
+  <foaf:made rdf:resource="http://dbtune.org/jamendo/record/174"/>
+  <foaf:made rdf:resource="http://dbtune.org/jamendo/record/33"/>
+  <owl:sameAs rdf:resource="http://zitgist.com/music/artist/0781a3f3-645c-45d1-a84f-76b4e4decf6d"/>
+  <foaf:based_near rdf:resource="http://sws.geonames.org/2991627/"/>
+  <foaf:homepage rdf:resource="http://www.both-world.com"/>
+  <foaf:img rdf:resource="http://img.jamendo.com/artists/b/both.jpg"/>
+  <foaf:name rdf:datatype="&xsd;string">Both</foaf:name>
+</mo:MusicArtist>
+
+<rdf:Description rdf:about="http://dbtune.org/jamendo/record/174">
+  <foaf:maker rdf:resource="http://dbtune.org/jamendo/artist/5"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="http://dbtune.org/jamendo/record/33">
+  <foaf:maker rdf:resource="http://dbtune.org/jamendo/artist/5"/>
+</rdf:Description>
+
+</rdf:RDF>
+
+
+An example of the mapping file leading to such results is jamendo_mapping.pl.
+
