@@ -1,0 +1,29 @@
+P2R
+----
+
+A set of modules allowing you to export
+prolog predicates as RDF just by declaring
+mappings, and access them through a SPARQL 
+end-point.
+
+Yves Raimond (c) 2007
+Centre for Digital Music, Queen Mary, 
+University of London
+
+
+Installation & running
+--
+
+ 1) Get the SeRQL library from here:
+ http://gollem.science.uva.nl/twiki/pl/bin/view/Library/SeRQL
+ and copy the SeRQL/ directory in the p2r/ one.
+ Replace the sparql.pl and http_sparql.pl files in SeRQL using the one provided in P2R.
+
+ 2) Write your mappings, and load them into run.pl, as
+ well as your prolog stuff.
+
+ 3) Access the SPARQL end point from here:
+ http://localhost:3020/
+ and use "p2r" entailment
+
+

@@ -1,0 +1,15 @@
+
+Here is an example of how to wrap the Jamendo data set
+(creative commons music collection) in a SPARQL end-point
+using p2r. 
+
+The following modules are available:
+
+ * jamendo_xml: load the jamendo xml dump, you can get it from:
+ http://wiki.jamendo.com/index.php/EnXMLDumps
+
+ * jamendo: prolog representation of the jamendo data set
+
+ * jamendo_match: mapping between this prolog representation and the
+ RDF representation
+
