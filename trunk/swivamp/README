@@ -1,0 +1,91 @@
+                                                           VampSwi Interface Documentation
+								David Pastor Escuredo
+				                                       2007
+1. "vamp" Module
+
+This module defines public predicates to deal with Vamp Plugins from a SWI-Prog machine.
+
+:- module(vamp,[plugins/1, 
+		availablePlugin/1,
+		plugin_for_audioFile/3, 
+		plugin_for_information/1, 
+		metaData/8,  
+		plugin_outputs/2, 
+		plugin_parameters/2, 
+		plugin_programs/2, 
+		initialize_plugin/1,
+		prefInitPlugin_for_audioFile/2, 
+		run_plugin_for_audioFile/4]).
+
+run_plugin_for_audioFile(+pluginKey, +pathToAudioFile, +#output(starting from 0), -ListofFeatures)
+
+	ListofFeatures:  [outputName, #values/output, [sublist of features for input block 1], [sublist block 2]....]
+	sublist:         [sec, nsec, values, sec, nsec, values, ...]
+
+	For given audio file, plugin and the desired output of such plugin (use plugin_outputs/2), this predicate returns a list with the features 		obtained as described above.
+	The Vamp Feature is an structure composed by: name, timestamp (sec, nsec) and vector of values.
+	Each sublist is a list of the timestamps and values of the features obtained from an input block of data. If the feature does not feature  		timestamp we will find "no sec" and "no nsec" as timestamp values.
+	Then, the sublists are grouped on a bigger list with two fiels of information: name of the output and number of values/output.
+	IMP: This predicate could be stored and we would have the necessary information tabled (right?)
+
+plugins(-ListofPlugins)
+	
+	Returns a list of all the available plugins on the system named by their keys. 
+
+plugin_outputs(+pluginKey, -ListofOutputs)
+	
+	Returns a list of the name of the outputs of a plugin. Thus, it is possible to know which output we want to obtain for a plugin. For N outputs	
+	we need to insert a number from 0 to N-1.
+
+***THE REST OF PREDICATES ARE NOT USEFUL BY NOW
+
+
+2. VampSwi.cpp
+
+This is communication layer between SWI-Prolog and the Vamp API (Chris Cannam and c4dm) for audio features extraction. This interface wraps the methods of the class Plugin (that wraps the C API into a more friendly C++ implementation for development) allowing the management of the plugin lifecyle (see Plugin documentation) from a SWI-prolog host.
+This source file is implemented on the Jan Wielemeker's C++/SWI-Prolog and enhanced with the C/SWI-Prolog foreign interface.
+
+LIST OF C/Prolog FUNCTIONS
+	
+term_t
+features_to_prologList(Vamp::Plugin::FeatureSet, int);
+	
+	This function creates a prolog list from the FeatureList Vamp::Plugin::FeatureSet fs[int output]
+
+Vamp::RealTime 
+get_timeStamp(term_t);
+
+	This function creates a Vamp::RealTime object from a prolog list [sec, nsec]
+
+term_t
+prolog_timeStamp(Vamp::RealTime);
+
+	This function creates a prolog list [sec, nsec] from a Vamp::RealTime object
+
+term_t
+plugin_remainingFeatures(int);
+
+	This process wrapps the Vamp::Plugin::getRemainingFeatures() returning a prolog list for the given output instead of a FeatureSet
+
+term_t
+plugin_process(const float* const*, Vamp::RealTime, int);
+	
+
+	This process wrapss the Vamp::Plugin::process(const float* const*, Vamp::RealTime) function returning a prolog list for a given output 
+	instead of a Vamp::Plugin::FeatureSet
+
+**VERY IMPORTANT**: his last two functions are hybrids as they has C++ types as input and a Prolog term as output. They have been implemented this way because it is easier to pass the input blocks of data inside the loop of run_plugin than pass the input as prolog list. However I can try to change it if required.
+
+LIST OF FOREIGN PREDICATES
+
+PREDICATE(run_plugin, 3)
+{	
+	//+the audio file passed as input
+	//+the output selected. 
+	//-big prolog list: [output, number of values/output, [sublists of features for each input block],....]
+	//the working plugin pointed by the global pointer: plugin.
+
+	*implementation...
+}
+
+***THE REST OF PREDICATES ARE NOT IMPORTANT BY NOW
