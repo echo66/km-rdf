@@ -10,10 +10,10 @@ CFLAGS = -Wall -v
 # Define your platform-specific options here
 #######################################################################
 
-swi_dir = /usr/local/lib/pl-5.6.34
+swi_dir = /usr/local/lib/pl-5.6.39
 
-swivamp_dir = /home/moustaki/eclipse_workspace/rdfctr/swivamp/swivamp
-vamp_dir = /home/moustaki/eclipse_workspace/rdfctr/swivamp/vamp-plugin-sdk-v1.1pre1
+swivamp_dir = /home/moustaki/eclipse_workspace/km-rdf/swivamp/
+vamp_dir = /home/moustaki/eclipse_workspace/km-rdf/swivamp/vamp-plugin-sdk-v1.1pre1/
 #It is not necessary to set the vamp_dir as the library is included in swivamp 
 
 SWIVAMP_LIB = $(swivamp_dir)/vampswi.so
@@ -36,24 +36,24 @@ INCLUDE_SWIVAMP = -I$(swi_dir)/include/ \
 
 #Objects
 
-OBJ_SWIVAMP = vampswi.o
+OBJ_SWIVAMP = swivamp.o
 
 #DLIB
 
-VAMP_SWI = vampswi.so
+SWI_VAMP = swivamp.so
 
 #Targets
-all : $(VAMP_SWI)
+all : $(SWI_VAMP)
 
 $(OBJ_SWIVAMP) : 
-	$(CPP) -c $(CFLAGS) $(INCLUDE_SWIVAMP) VampSwi.cpp -o $(OBJ_SWIVAMP)
+	$(CPP) -c $(CFLAGS) $(INCLUDE_SWIVAMP) swivamp.cpp -o $(OBJ_SWIVAMP)
 
 #This procedure links vampswi.o to the vamp-sdk library for hosts
 #$(VAMP_SWI) : $(OBJ_SWIVAMP) Makefile
 #	$(CPP) -static -shared -o $(VAMP_SWI) $(OBJ_SWIVAMP) $(LIBS_SWIVAMP) $(VAMPHOSTSDK_LIB) 
 
-$(VAMP_SWI) : $(OBJ_SWIVAMP) Makefile
-	$(CPP) -shared $(swivamp_dir)/vamp-sdk/libvamp-hostsdk.so $(SNDFILE_PATH)/libsndfile.so $(OBJ_SWIVAMP) -o $(VAMP_SWI) 
+$(SWI_VAMP) : $(OBJ_SWIVAMP) Makefile
+	$(CPP) -shared $(vamp_dir)/vamp-sdk/libvamp-hostsdk.so $(SNDFILE_PATH)/libsndfile.so $(OBJ_SWIVAMP) -o $(SWI_VAMP) 
 
 #The vamp library could be accessed also from the vamp_dir
 

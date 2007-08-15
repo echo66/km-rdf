@@ -29,7 +29,7 @@
 	*/
 
 :- style_check(-discontiguous).
-:- load_foreign_library(vampswi).
+:- load_foreign_library(swivamp).
 
 /**
 	It loads the interface "vampswi" for Vamp that integrates the host definition libvamp-hostsdk (Chris Cannam)
