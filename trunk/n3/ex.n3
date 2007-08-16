@@ -1,0 +1,6 @@
+@prefix : <#>.
+
+{(:test) :grab ()} :seq 
+{{?af a :AudioFile; :encodes ?signal} :seq 
+{?signal :key_detector (?tonics ?keys)}}.
+
