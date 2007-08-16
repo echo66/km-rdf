@@ -33,10 +33,10 @@ set_base_uri(URI) :-
 :- use_module(meta).
 
 %det case
-table A :- match_pre(A,Post,det) >> (lookup(A) or \+lookup(A) >> statistics(real_time,[Start,_]) >> A >> statistics(real_time,[_,Duration]) >> check_mode(A,Post) >> writeln(store(A,Start,Duration)),store(A,Start,Duration)).
+table A :- match(A,_,_,det) >> lookup(A) or match_pre(A,Post,det) >> \+lookup(A) >> statistics(real_time,[Start,_]) >> A >> statistics(real_time,[_,Duration]) >> check_mode(A,Post) >> writeln(store(A,Start,Duration)),store(A,Start,Duration).
 
 %nondet case
-table A :- match_pre(A,Post,nondet) >> (lookup(A) or ((\+lookup(A) >> statistics(real_time,[Start,_]) >> A >> statistics(real_time,[_,Duration]) >> check_mode(A,Post)) =>> store(A,Start,Duration))).
+table A :- match(A,_,_,nondet) >> lookup(A) or match_pre(A,Post,nondet) >> ((\+lookup(A) >> statistics(real_time,[Start,_]) >> A >> statistics(real_time,[_,Duration]) >> check_mode(A,Post)) =>> store(A,Start,Duration)) >> lookup(A).
 
 
 /**
