@@ -1,2 +1,4 @@
 
 - Fails to parse """literal"""
+  I wonder if it is broken in the turtle SWI parser as well
+   --> FIXED

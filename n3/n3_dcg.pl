@@ -12,9 +12,6 @@
 %in the n3.n3 grammar, doesn't "zeroOrMore" overlaps with
 %() or ...?
 document -->
-	%declarations,
-	%universals,
-	%existentials,
 	statements_optional.
 
 statements_optional -->
@@ -24,25 +21,8 @@ statements_optional -->
 statements_optional --> [].
 
 formulacontent -->
-	%declarations,
-	%universals,
-	%existentials,
 	statementlist.
 
-%declarations -->
-%	declaration,!,
-%	declarations.
-%declarations --> [].
-
-%universals -->
-%	universal,!,
-%	universals.
-%universals --> [].
-
-%existentials --> 
-%	existential,!,
-%	existentials.
-%existentials --> [].
 
 statementlist -->
 	statement,!,
@@ -324,8 +304,14 @@ turtle_token(0'-, In, C, Number) :- !,
 turtle_token(0'+, In, C, Number) :- !,
 	turtle_number(0'+, In, C, Number).
 turtle_token(0'", In, C, Literal) :- !,
-	get_code(In, C1),
-	turtle_string(C1, In, C2, Codes),
+	(peek_code(In,34) ->
+		(get_code(In,34),get_code(In,34),
+		get_code(In,C1),
+		turtle_dq_string(C1, In, C2, Codes))
+		;
+		(get_code(In, C1),
+		turtle_string(C1, In, C2, Codes))
+		),
 	atom_codes(Atom, Codes),
 	(   C2 == 0'@
 	->  get_code(In, C3),
@@ -421,6 +407,18 @@ e(0'E).
 
 sign(0'-).
 sign(0'+).
+
+turtle_dq_string(-1, In, _, []) :- !,
+	syntax_error(In, -1, unexpected_end_of_input).
+turtle_dq_string(0'", In, C, []) :- !,
+	get_code(In, 34),get_code(In,34),get_code(In,C).
+turtle_dq_string(0'\\, In, C, [H|T]) :- !,
+        get_code(In, C1),
+        string_escape(C1, In, C2, H),
+        turtle_dq_string(C2, In, C, T).
+turtle_dq_string(C0, In, C, [C0|T]) :-
+        get_code(In, C1),
+        turtle_dq_string(C1, In, C, T).
 
 					% string
 turtle_string(-1, In, _, []) :- !,
