@@ -12,16 +12,16 @@
 %in the n3.n3 grammar, doesn't "zeroOrMore" overlaps with
 %() or ...?
 document -->
-	declaration,
-	universal,
-	existential,
+	declarations,
+	universals,
+	existentials,
 	statements_optional.
 
 statements_optional -->
 	statement,
 	['.'],!,
 	statements_optional.
-statements_optional.
+statements_optional --> [].
 
 formulacontent -->
 	declarations,
@@ -32,43 +32,43 @@ formulacontent -->
 declarations -->
 	declaration,!,
 	declarations.
-declarations.
+declarations --> [].
 
 universals -->
 	universal,!,
 	universals.
-universals.
+universals --> [].
 
 existentials --> 
 	existential,!,
 	existentials.
-existentials.
+existentials --> [].
 
 statementlist -->
 	statement,!,
 	statementtail.
-statementlist.
+statementlist --> [].
 
 statementtail -->
 	['.'],!,
 	statementlist.
-statementtail.
+statementtail --> [].
 
 universal --> 
-	['@forAll'],
+	['@',name(forAll)],!,
 	csl_symbol.
 
 existential --> 
-	['@forSome'],
+	['@',name(forSome)],!,
 	csl_symbol.
 
 declaration -->
-	['@prefix'],
+	['@',name(prefix)],!,
 	qname,
 	explicituri,
 	['.'].
 declaration -->
-	['@keywords'],
+	['@',name(keywords)],!,
 	csl_barename.
 
 statement -->
@@ -81,36 +81,47 @@ propertylist -->
 	object,
 	objecttail,
 	propertylisttail.
-propertylist.
+propertylist --> [].
 
 propertylisttail -->
 	[';'],!,
 	propertylist.
-propertylisttail.
+propertylisttail --> [].
 
 objecttail --> 
 	[','],!,
 	object,
 	objecttail.
-objecttail.
+objecttail --> [].
 
 verb -->
+	['@',name(has)],!,
+	path.
+%i am not sure if it is ok without the @, but cwm seems to 
+%handle this
+verb --> 
+	[name(has)],!,
 	path.
 verb -->
-	['@has'],
-	path.
-verb -->
-	['@is'],
+	['@',name('is')],!,
 	path,
-	['@of'].
+	['@,',name(of)].
+verb --> 
+	[name('is')],!,
+	path,
+	[name(of)].
 verb -->
-	['@a'].
+	['@',name(a)],!.
 verb -->
-	['='].
+	[name(a)],!.
 verb -->
-	['=>'].
+	['='],!.
 verb -->
-	['<='].
+	['=','>'],!.
+verb -->
+	['<','='],!.
+verb -->
+        path.
 
 prop -->
 	node.
@@ -131,48 +142,46 @@ pathtail -->
 pathtail -->
 	['^'],!,
 	path.
-pathtail.
+pathtail --> [].
 
 node -->
-	symbol.
+	symbol,!.
 node -->
-	['{'],
+	['{'],!,
 	formulacontent,
 	['}'].
 node -->
-	variable.
+	['?'],!,variable.
 node -->
-	numericliteral.
+	numericliteral,!.
 node --> 
-	literal.
+	literal,!.
 node -->
-	['['],
+	['['],!,
 	propertylist,
 	[']'].
 node --> 
-	['('],
+	['('],!,
 	pathlist,
 	[')'].
+
 %node -->
 %	['@this']. %deprecated
 
 pathlist --> 
 	path,!,pathlist.
-pathlist.
+pathlist --> [].
 
 symbol --> 
-	explicituri,
+	explicituri.
+symbol -->
 	qname.
-
-literal --> 
-	string,
-	dtlang.
 
 dtlang -->
 	['@'],!,langcode.
 dtlang -->
-	['^^'],!,symbol.
-dtlang.
+	['^','^'],!,symbol.
+dtlang --> [].
 
 /**
  * Coma separated period terminated list grammar
@@ -198,32 +207,40 @@ csl_barename -->
  */
 
 numericliteral -->
-	[NumericLiteral],
-	{matches(NumericLiteral,'[-+]?[0-9]+(\\.[0-9]+)?(e[-+]?[0-9]+)?')}.
+	[numeric(_,NumC)],
+	number_codes(_Num,NumC).
+	%{matches(NumericLiteral,'[-+]?[0-9]+(\\.[0-9]+)?(e[-+]?[0-9]+)?')}.
 
 explicituri -->
-	[ExplicitURI],
-	{matches(ExplicitURI,'<[^>]*>')}.
+	[relative_uri(ExplicitURI)],
+	{matches(ExplicitURI,'[^>]*')}.
 
+qname --> [':'],!.
 qname -->
-	[QName],
-	{matches(QName,'(([a-zA-Z_][a-zA-Z0-9_]*)?:)?([a-zA-Z_][a-zA-Z0-9_]*)?')}.
+	[':'(NS,Name)],!,
+	{ matches(Name,'([a-zA-Z_][a-zA-Z0-9_]*)?'),
+	  matches(NS,'([a-zA-Z_][a-zA-Z0-9_]*)?')
+	}.
+qname -->
+	[':'(Name)],
+	{matches(Name,'([a-zA-Z_][a-zA-Z0-9_]*)?')}.
+
 
 barename -->
-	[BareName],
+	[name(BareName)],
 	{matches(BareName,'[a-zA-Z_][a-zA-Z0-9_]*')}.
 
 variable -->
-	[Variable],
-	{matches(Variable,'\\?[a-zA-Z_][a-zA-Z0-9_]*')}.
+	[name(Variable)],
+	{matches(Variable,'[a-zA-Z_][a-zA-Z0-9_]*')}.
 
 langcode -->
 	[Langcode],
 	{matches(Langcode,'[a-z]+(-[a-z0-9]+)*')}.
 
-string -->
-	[String],
-	{matches(String,'(\"\"\"[^\"\\\\]*(?:(?:\\\\.|\"(?!\"\"))[^\"\\\\]*)*\"\"\")|(\"[^\"\\\\]*(?:\\\\.[^\"\\\\]*)*\")')}.
+literal -->
+	[literal(_Literal)]. %FALSE REGEXP
+	%{matches(String,'(\"\"\"[^\"\\\\]*(?:(?:\\\\.|\"(?!\"\"))[^\"\\\\]*)*\"\"\")|(\"[^\"\\\\]*(?:\\\\.[^\"\\\\]*)*\")')}.
 
 /**
  * RegExp match
@@ -232,6 +249,14 @@ matches(Atom,RegEx) :-
 	new(S,string(Atom)),
 	new(R,regex(string(RegEx))),
 	send(R,match,S).
+
+
+/**
+ * Parsing exception handling
+ */
+grammar_error(Which) :- 
+        throw(error(grammar_error(Which))).
+
 
 /**
  * Tokenizer - stolen from rdf_turtle.pl
@@ -252,7 +277,7 @@ turtle_tokens(C0, In, List) :-
 	;   syntax_error(In, -1, illegal_token)
 	),
 	(   H == '.'
-	->  List = []
+	->  List = ['.']
 	;   H == end_of_file
 	->  syntax_error(In, -1, unexpected_end_of_input)
 	;   List = [H|T],
@@ -525,11 +550,12 @@ punctuation(0':, ':').
 punctuation(0';, ';').
 punctuation(0'{, '{').
 punctuation(0'},'}').
-%punctuation(0'@,'@').
+punctuation(0'?,'?').
 punctuation(0'!,'!').
 punctuation(0'^,'^').	
 punctuation(0'=,'=').
-
+punctuation(0'<,'<').
+punctuation(0'>,'>').
 
 skip_line(0xA, In, C) :- !,
 	get_code(In, C).
