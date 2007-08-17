@@ -5,3 +5,5 @@
 {{?af a :AudioFile; :encodes ?signal} :seq 
 {?signal :key_detector (?tonics ?keys)}}.
 
+{:test a :AudioFile} => {:test :is :AudioFile}.
+
