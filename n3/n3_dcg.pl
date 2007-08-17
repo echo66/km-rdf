@@ -12,9 +12,9 @@
 %in the n3.n3 grammar, doesn't "zeroOrMore" overlaps with
 %() or ...?
 document -->
-	declarations,
-	universals,
-	existentials,
+	%declarations,
+	%universals,
+	%existentials,
 	statements_optional.
 
 statements_optional -->
@@ -24,30 +24,39 @@ statements_optional -->
 statements_optional --> [].
 
 formulacontent -->
-	declarations,
-	universals,
-	existentials,
+	%declarations,
+	%universals,
+	%existentials,
 	statementlist.
 
-declarations -->
-	declaration,!,
-	declarations.
-declarations --> [].
+%declarations -->
+%	declaration,!,
+%	declarations.
+%declarations --> [].
 
-universals -->
-	universal,!,
-	universals.
-universals --> [].
+%universals -->
+%	universal,!,
+%	universals.
+%universals --> [].
 
-existentials --> 
-	existential,!,
-	existentials.
-existentials --> [].
+%existentials --> 
+%	existential,!,
+%	existentials.
+%existentials --> [].
 
 statementlist -->
 	statement,!,
 	statementtail.
 statementlist --> [].
+
+statement --> 
+	declaration.
+statement -->
+	universal.
+statement --> 
+	existential.
+statement -->
+	simpleStatement.
 
 statementtail -->
 	['.'],!,
@@ -63,15 +72,18 @@ existential -->
 	csl_symbol.
 
 declaration -->
-	['@',name(prefix)],!,
-	qname,
-	explicituri,
-	['.'].
+	['@',name(prefix)],
+	prefix,[':'],!,
+	explicituri.
+declaration -->
+	['@',name(prefix),':'],!,
+	explicituri.
+
 declaration -->
 	['@',name(keywords)],!,
 	csl_barename.
 
-statement -->
+simpleStatement -->
 	subject,
 	propertylist.
 
@@ -115,6 +127,8 @@ verb -->
 verb -->
 	[name(a)],!.
 verb -->
+        ['=','>'],!. %this order *is* important:)
+verb -->
 	['='],!.
 verb -->
 	['=','>'],!.
@@ -157,6 +171,8 @@ node -->
 node --> 
 	literal,!.
 node -->
+	boolean,!.
+node -->
 	['['],!,
 	propertylist,
 	[']'].
@@ -191,20 +207,23 @@ csl_symbol -->
 	[','],!,
 	csl_symbol.
 csl_symbol -->
-	symbol,
-	['.'].
+	symbol.
 csl_barename -->
 	barename,
 	[','],!,
 	csl_barename.
 csl_barename -->
-	barename,
-	['.'].
+	barename.
 
 
 /**
  * TERMINALS
  */
+
+boolean -->
+	['@',name('true')].
+boolean -->
+	['@',name('false')].
 
 numericliteral -->
 	[numeric(_,NumC)],
@@ -214,6 +233,9 @@ numericliteral -->
 explicituri -->
 	[relative_uri(ExplicitURI)],
 	{matches(ExplicitURI,'[^>]*')}.
+
+prefix -->
+	[name(_Prefix)]. %should add a regexp match
 
 qname --> [':'],!.
 qname -->
@@ -276,10 +298,9 @@ turtle_tokens(C0, In, List) :-
 	->  debug(turtle(token), 'Token: ~q', [H])
 	;   syntax_error(In, -1, illegal_token)
 	),
-	(   H == '.'
-	->  List = ['.']
-	;   H == end_of_file
-	->  syntax_error(In, -1, unexpected_end_of_input)
+	(   
+	H == end_of_file
+	->  List=[]
 	;   List = [H|T],
 	    turtle_tokens(C1, In, T)
 	).
@@ -325,8 +346,9 @@ turtle_token(0'_, In, C, nodeId(NodeID)) :-
 	get_code(In, _),
 	get_code(In, C1),
 	name(C1, In, C, NodeID).
-turtle_token(0'<, In, C, URI) :- !,
-	resource_token(0'<, In, C, URI).
+turtle_token(0'<, In, C, URI) :- 
+	peek_code(In, C1),C1\=61,!, %do not match <=
+	resource_token(0'<, In, C, URI),!.
 turtle_token(0':, In, C, URI) :- !,
 	resource_token(0':, In, C, URI).
 turtle_token(C0, In, C, Token) :-
@@ -473,8 +495,8 @@ lwrdigs(C0, In, C, [C0|T0], T) :-
 lwrdigs(C, _, C, T, T).
 
 					% resource_token
-resource_token(0'<, In, C, relative_uri(URI)) :- !,
-	get_code(In, C1),
+resource_token(0'<, In, C, relative_uri(URI)) :- 
+	get_code(In,C1),
 	uri_chars(C1, In, C, Codes),
 	atom_codes(URI, Codes).
 resource_token(0':, In, C, Token) :- !,
@@ -549,7 +571,7 @@ punctuation(0'@, '@').
 punctuation(0':, ':').
 punctuation(0';, ';').
 punctuation(0'{, '{').
-punctuation(0'},'}').
+punctuation(0'}, '}').
 punctuation(0'?,'?').
 punctuation(0'!,'!').
 punctuation(0'^,'^').	
