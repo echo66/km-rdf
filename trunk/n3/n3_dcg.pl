@@ -413,8 +413,8 @@ sign(0'+).
 
 turtle_dq_string(-1, In, _, []) :- !,
 	syntax_error(In, -1, unexpected_end_of_input).
-turtle_dq_string(0'", In, C, []) :- !,
-	get_code(In, 34),get_code(In,34),get_code(In,C).
+turtle_dq_string(0'", In, C, []) :- 
+	get_code(In, 34),get_code(In,34),!,get_code(In,C).
 turtle_dq_string(0'\\, In, C, [H|T]) :- !,
         get_code(In, C1),
         string_escape(C1, In, C2, H),
