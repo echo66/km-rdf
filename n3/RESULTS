@@ -1,0 +1,25 @@
+
+ - On all the N3 available in swap/test/
+ http://dev.w3.org/cvsweb/2000/10/swap/test/
+
+ 98 files successfully parsed
+ 8 failed
+
+Reasons of failure:
+
+ * gentest.n3 - triple quoted literal ended by a single quote
+ * one_trip_per_month.n3 - use of symbols which are just plain keywords (eg. `OneTripPerMonthAgent'), it looks like cwm.py succeed to parse it though, but it doesn't seem to fit the reference grammar... (same problem with parsing the grammar itself)
+ * powder4.n3 - same thing ( `suitableFor')
+ * rdfcore-tests.n3 - 
+ 	:entailmentRules rdf:, rdfs:, dat:
+	the dcg does not handle direct ref to the namespace URI
+ * t10.n3 -
+ 	@prefix default <#> .
+	the `default' keyword is not handled
+ * t2.n3 - 
+ 	>- and -> symbols not supported 
+ * t7.n3 - 
+ 	same thing
+ * weird-syntax.n3
+ 	quite obvious:-) 
+
