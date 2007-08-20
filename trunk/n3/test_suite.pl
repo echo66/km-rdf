@@ -1,4 +1,4 @@
-:- module(test_suite,[run/0,tokenise_and_parse/1,tokenise/2]).
+:- module(test_suite,[run/0,tokenise_and_parse/1,tokenise/2,failure/1,success/1]).
 
 /**
  * Some N3 parsing tests
@@ -8,9 +8,10 @@
 
 :- use_module(n3_dcg).
 
+% point it to your local SWAP installation
 n3_dir('/home/moustaki/work/workspace/swap/test').
 
-
+:- dynamic failure/1,success/1.
 run :-
 	forall(n3_dir(Dir),
 		(
@@ -27,11 +28,11 @@ run :-
 	results.
 
 results :-
-	bagof(F,failure(F),Failures),
-	bagof(S,success(S),Success),
+	bagof(F,failure(F),Failures),length(Failures,NF),
+	bagof(S,success(S),Success),length(Success,NS),
 	nl,
-	format(' - ~w files successfully parsed\n',[Success]),
-	format(' - ~w files not parsed\n',[Failures]).
+	format(' - ~w files successfully parsed\n',[NS]),
+	format(' - ~w files not parsed\n',[NF]).
 
 tokenise_and_parse(File) :-
         tokenise(File,Tokens),
