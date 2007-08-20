@@ -172,6 +172,8 @@ symbol -->
 	explicituri.
 symbol -->
 	qname.
+symbol -->
+	bnode.
 
 dtlang -->
 	['@'],!,langcode.
@@ -219,14 +221,15 @@ prefix -->
 
 qname --> [':'],!.
 qname -->
-	[':'(NS,Name)],!,
-	{ matches(Name,'([a-zA-Z_][a-zA-Z0-9_]*)?'),
-	  matches(NS,'([a-zA-Z_][a-zA-Z0-9_]*)?')
-	}.
+	[':'(_NS,_Name)],!.
+	%{ matches(Name,'([a-zA-Z_][a-zA-Z0-9_]*)?'),
+	%  matches(NS,'([a-zA-Z_][a-zA-Z0-9_]*)?')
+	%}.
 qname -->
-	[':'(Name)],
-	{matches(Name,'([a-zA-Z_][a-zA-Z0-9_]*)?')}.
-
+	[':'(_Name)].
+	%{matches(_Name,'([a-zA-Z_][a-zA-Z0-9_]*)?')}.
+bnode -->
+	[nodeId(_BNodeID)].
 
 barename -->
 	[name(BareName)],
