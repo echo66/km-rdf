@@ -209,7 +209,7 @@ boolean -->
 
 numericliteral -->
 	[numeric(_,NumC)],
-	number_codes(_Num,NumC).
+	{number_codes(_Num,NumC)}.
 	%{matches(NumericLiteral,'[-+]?[0-9]+(\\.[0-9]+)?(e[-+]?[0-9]+)?')}.
 
 explicituri -->
@@ -417,8 +417,7 @@ turtle_dq_string(0'", In, C, []) :-
 	get_code(In, 34),get_code(In,34),!,get_code(In,C).
 turtle_dq_string(0'\\, In, C, [H|T]) :- 
 	get_code(In, C1),
-	string_escape(C1, In, C2, H),!,
-        writeln(a),
+	string_escape(C1, In, C2, H),!,writeln(C2),
 	turtle_dq_string(C2, In, C, T).
 turtle_dq_string(C0, In, C, [C0|T]) :-
 	get_code(In, C1),
