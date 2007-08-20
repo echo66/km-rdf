@@ -1,4 +1,4 @@
-:- module(test_suite,[run]).
+:- module(test_suite,[run/0,tokenise_and_parse/1,tokenise/2]).
 
 /**
  * Some N3 parsing tests
