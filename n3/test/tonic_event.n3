@@ -16,6 +16,23 @@
 # non interpreted, it means: 
 # exists _:chromagram / <test.wav> qm:chromagram _:chromagram
 
+# rule giving instrument in similar tracks (what happens if i specify the
+# "determinism" of a property defined in the head of a rule?)
+{
+	?track :instrument_in_similar_tracks ?instrument
+} <= {
+	{?track mo:encodes ?signal} tr:seq
+		{
+		{
+		?signal qm:sb_similar_to ?signal2
+		} tr:seq 
+			{
+			?signal2 qm:chetry_instrument ?instrument
+			}
+		}
+	}.
+
+
 
 # this "rule" wraps a transaction using the qm:key-detector VAMP
 # plugin, and spits out tonic events on the timeline of the 
@@ -41,5 +58,16 @@
 		}
      }.
 
+# This query, when interpreted, will fire the above defined rule (well, if
+# the proof mechanism is bw, otherwise it will just get back results that were
+# computed when interpreting the rule)
 
+<test.wav> mo:encodes _:signal.
+_:signal mo:time _:sigtime.
+_:sigtime tl:onTimeLine _:tl.
+_:tonicevent a event:Event;
+	event:time [
+		tl:onTimeLine _:tl 
+	];
+	.
 
