@@ -11,6 +11,9 @@ qm:chromagram a owl:FunctionalProperty;
 	""";
 	dc:copyrigth """Copyright (c) 2006 - All Rights Reserved""";
 	foaf:maker <http://www.elec.qmul.ac.uk/digitalmusic/>;
+	vamp:linux_binary <http://www.elec.qmul.ac.uk/digitalmusic/downloads/qm-vamp-plugins-1.1-i686-linux.tar.gz>;
+	vamp:osx_binary <http://www.elec.qmul.ac.uk/digitalmusic/downloads/qm-vamp-plugins-1.1-osx-universal.zip>;
+	vamp:win32_binary <http://www.elec.qmul.ac.uk/digitalmusic/downloads/qm-vamp-plugins-1.1-win32.zip> ;
 	rdfs:subPropertyOf mp:chromagram;
 	rdfs:subPropertyOf vamp:plugin;
 	rdfs:domain mo:Signal; # accept a signal as a domain
@@ -23,6 +26,9 @@ qm:keydetector a owl:FunctionalProperty;
 		""";
 	foaf:maker <http://www.elec.qmul.ac.uk/people/katyn>;
 	rdfs:domain mo:Signal;
+	vamp:linux_binary <http://www.elec.qmul.ac.uk/digitalmusic/downloads/qm-vamp-plugins-1.1-i686-linux.tar.gz>;
+	vamp:win32_binary <http://www.elec.qmul.ac.uk/digitalmusic/downloads/qm-vamp-plugins-1.1-win32.zip> ;
+	vamp:osx_binary <http://www.elec.qmul.ac.uk/digitalmusic/downloads/qm-vamp-plugins-1.1-osx-universal.zip>;
 	rdfs:range (mp:tonic mp:mode mp:key); # not sure if it means what i want it to mean :-) list as a range seems to be forgotten in CWM builtins
 	.
 
