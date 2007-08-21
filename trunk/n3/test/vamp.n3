@@ -18,6 +18,7 @@ qm:chromagram a owl:FunctionalProperty;
 	rdfs:subPropertyOf vamp:plugin;
 	rdfs:domain mo:Signal; # accept a signal as a domain
 	rdfs:range mp:Chromagram; # and a chromagram as a range
+	mp:cacheable "true"^^xsd:boolean;
 	.
 
 qm:keydetector a owl:FunctionalProperty;
@@ -29,7 +30,8 @@ qm:keydetector a owl:FunctionalProperty;
 	vamp:linux_binary <http://www.elec.qmul.ac.uk/digitalmusic/downloads/qm-vamp-plugins-1.1-i686-linux.tar.gz>;
 	vamp:win32_binary <http://www.elec.qmul.ac.uk/digitalmusic/downloads/qm-vamp-plugins-1.1-win32.zip> ;
 	vamp:osx_binary <http://www.elec.qmul.ac.uk/digitalmusic/downloads/qm-vamp-plugins-1.1-osx-universal.zip>;
-	rdfs:range (mp:tonic mp:mode mp:key); # not sure if it means what i want it to mean :-) list as a range seems to be forgotten in CWM builtins
+	rdfs:range (mp:Tonic mp:Mode mp:Key); # not sure if it means what i want it to mean :-) list as a range seems to be forgotten in CWM builtins
+	mp:cacheable "true"^^xsd:boolean;
 	.
 
 
