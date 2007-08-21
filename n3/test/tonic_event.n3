@@ -1,0 +1,45 @@
+@prefix qm: <http://www.elec.qmul.ac.uk/digitalmusic/vamp/>.
+@prefix vamp: <http://www.vamp-plugins.org/>.
+@prefix mp: <http://purl.org/ontology/mp/>.
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
+@prefix mo: <http://purl.org/ontology/mo/>.
+@prefix tl: <http://purl.org/NET/c4dm/timeline.owl#>.
+@prefix event: <http://purl.org/NET/c4dm/event.owl#>.
+@prefix tr: <http://purl.org/NET/c4dm/rdftr.n3#>.
+@prefix list: <http://www.w3.org/2000/10/swap/list#>.
+@prefix : <#>.
+
+# this `query', when interpreted, dereferences qm:chromagram, gets 
+# the corresponding plugin, and compute the chromagram using this particular
+# algorithm on the <test.wav> audio file
+<test.wav> qm:chromagram _:chromagram.
+# non interpreted, it means: 
+# exists _:chromagram / <test.wav> qm:chromagram _:chromagram
+
+
+# this "rule" wraps a transaction using the qm:key-detector VAMP
+# plugin, and spits out tonic events on the timeline of the 
+# corresponding signal
+{
+?tonicevent a event:Event;
+	event:time [
+		tl:onTimeLine [
+			is tl:onTimeLine of [is mo:time of ?signal]
+			];
+		tl:startsAt ?start;
+	];
+	mp:note ?note;
+	.
+} <= {
+	{?af a mo:AudioFile; mo:encodes ?signal.} tr:seq
+		{
+		?signal qm:keydetector (?tonics _:modes _:keys).
+		?tonic list:in ?tonics;
+			qm:startsAt ?start;
+			qm:note ?note;
+			.
+		}
+     }.
+
+
+
