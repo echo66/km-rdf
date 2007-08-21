@@ -1,0 +1,31 @@
+@prefix qm: <http://www.elec.qmul.ac.uk/digitalmusic/vamp/>.
+@prefix vamp: <http://www.vamp-plugins.org/>.
+@prefix mp: <http://purl.org/ontology/mp/>.
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
+@prefix mo: <http://purl.org/ontology/mo/>.
+
+# Functional property <=> deterministic predicate
+qm:chromagram a owl:FunctionalProperty;
+	dc:title """
+		A chromagram plugin
+	""";
+	dc:copyrigth """Copyright (c) 2006 - All Rights Reserved""";
+	foaf:maker <http://www.elec.qmul.ac.uk/digitalmusic/>;
+	rdfs:subPropertyOf mp:chromagram;
+	rdfs:subPropertyOf vamp:plugin;
+	rdfs:domain mo:Signal; # accept a signal as a domain
+	rdfs:range mp:Chromagram; # and a chromagram as a range
+	.
+
+qm:keydetector a owl:FunctionalProperty;
+	dc:title """
+		A key detection VAMP plugin
+		""";
+	foaf:maker <http://www.elec.qmul.ac.uk/people/katyn>;
+	rdfs:domain mo:Signal;
+	rdfs:range (mp:tonic mp:mode mp:key); # not sure if it means what i want it to mean :-) list as a range seems to be forgotten in CWM builtins
+	.
+
+
+
+
