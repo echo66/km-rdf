@@ -38,15 +38,10 @@
 # plugin, and spits out tonic events on the timeline of the 
 # corresponding signal
 {
-?tonicevent a event:Event;
-	event:time [
-		tl:onTimeLine [
-			is tl:onTimeLine of [is mo:time of ?signal]
-			];
-		tl:startsAt ?start;
-	];
-	mp:note ?note;
-	.
+?tonicevent a event:Event.
+?tonicevent.event:time.tl:onTimeLine=?signal.mo:time.tl:onTimeLine.
+?tonicevent tl:startsAt ?start.
+?tonicevent mp:note ?note.
 } <= {
 	{?af a mo:AudioFile; mo:encodes ?signal.} tr:seq
 		{
