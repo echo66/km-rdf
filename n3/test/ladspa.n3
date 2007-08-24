@@ -12,7 +12,7 @@
 	rdfs:domain rdfs:Literal; 
 	rdfs:range mo:Signal; # 
 	dc:title "bandlimited sawtooth oscillator";
-	:ladspa_plugin ladspa:1641;
+	:ladspa_plugin ladspa:plugin_1641; #should be ladspa:1641, which is not n3
 	.
 
 # generates 5 seconds of sound in ?b, and play ?b
