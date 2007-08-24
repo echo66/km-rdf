@@ -9,242 +9,243 @@
  */
 
 
+:- op(100,xfx,':').
+:- op(100,fx,':').
+
 %in the n3.n3 grammar, doesn't "zeroOrMore" overlaps with
 %() or ...?
-document -->
-	statements_optional.
+document(Document) -->
+	statements_optional(Document).
 
-statements_optional -->
-	statement,
+statements_optional([H|T]) -->
+	statement(H),
 	['.'],!,
-	statements_optional.
-statements_optional --> [].
+	statements_optional(T).
+statements_optional([]) --> [].
 
-formulacontent -->
-	statementlist.
+formulacontent(Formula) -->
+	statementlist(Formula).
 
 
-statementlist -->
-	statement,!,
-	statementtail.
-statementlist --> [].
+statementlist([H|T]) -->
+	statement(H),!,
+	statementtail(T).
+statementlist([]) --> [].
 
-statement --> 
-	declaration.
-statement -->
-	universal.
-statement --> 
-	existential.
-statement -->
-	simpleStatement.
+statement(D) --> 
+	declaration(D).
+statement(U) -->
+	universal(U).
+statement(E) --> 
+	existential(E).
+statement(Statement) -->
+	simpleStatement(Statement).
 
-statementtail -->
+statementtail(T) -->
 	['.'],!,
-	statementlist.
-statementtail --> [].
+	statementlist(T).
+statementtail([]) --> [].
 
-universal --> 
+universal(universal(Symbols)) --> 
 	['@',name(forAll)],!,
-	csl_symbol.
+	csl_symbol(Symbols).
 
-existential --> 
+existential(existential(Symbols)) --> 
 	['@',name(forSome)],!,
-	csl_symbol.
+	csl_symbol(Symbols).
 
-declaration -->
+declaration(namespace(Prefix,URI)) -->
 	['@',name(prefix)],
-	prefix,[':'],!,
-	explicituri.
-declaration -->
+	prefix(Prefix),[':'],!,
+	explicituri(URI).
+declaration(namespace(base,URI)) -->
 	['@',name(prefix),':'],!,
-	explicituri.
+	explicituri(URI).
 
-declaration -->
+declaration(keywords(List)) -->
 	['@',name(keywords)],!,
-	csl_barename.
+	csl_barename(List).
 
-simpleStatement -->
-	subject,
-	propertylist.
+simpleStatement(statement(Subject,PropList)) -->
+	subject(Subject),
+	propertylist(PropList).
 
-propertylist -->
-	verb,
+propertylist([property(Verb,[Object|Tail])|T]) -->
+	verb(Verb),
 	!,
-	object,
-	objecttail,
-	propertylisttail.
-propertylist --> [].
+	object(Object),
+	objecttail(Tail),
+	propertylisttail(T).
+propertylist([]) --> [].
 
-propertylisttail -->
+propertylisttail(T) -->
 	[';'],!,
-	propertylist.
-propertylisttail --> [].
+	propertylist(T).
+propertylisttail([]) --> [].
 
-objecttail --> 
+objecttail([H|T]) --> 
 	[','],!,
-	object,
-	objecttail.
-objecttail --> [].
+	object(H),
+	objecttail(T).
+objecttail([]) --> [].
 
-verb -->
+verb(Path) -->
 	['@',name(has)],!,
-	path.
+	path(Path).
 %i am not sure if it is ok without the @, but cwm seems to 
 %handle this
-verb --> 
+verb(Path) --> 
 	[name(has)],!,
-	path.
-verb -->
+	path(Path).
+verb(inverse(Path)) -->
 	['@',name('is')],!,
-	path,
+	path(Path),
 	['@,',name(of)].
-verb --> 
+verb(inverse(Path)) --> 
 	[name('is')],!,
-	path,
+	path(Path),
 	[name(of)].
-verb -->
+verb('http://www.w3.org/1999/02/22-rdf-syntax-ns#type') -->
 	['@',name(a)],!.
-verb -->
+verb('http://www.w3.org/1999/02/22-rdf-syntax-ns#type') -->
 	[name(a)],!.
-verb -->
+verb('http://www.w3.org/2000/10/swap/log#implies') -->
         ['=','>'],!. %this order *is* important:)
-verb -->
+verb('http://www.w3.org/2002/07/owl#') -->
 	['='],!.
-verb -->
-	['=','>'],!.
-verb -->
+verb(inverse('http://www.w3.org/2000/10/swap/log#implies')) -->
 	['<','='],!.
-verb -->
-        path.
+verb(Path) -->
+        path(Path).
 
-prop -->
-	node.
+prop(Node) -->
+	node(Node).
 
-subject --> 
-	path.
+subject(Path) --> 
+	path(Path).
 
-object -->
-	path.
+object(Path) -->
+	path(Path).
 
-path -->
-	node,
-	pathtail.
+path([Node|T]) -->
+	node(Node),
+	pathtail(T).
 
-pathtail -->
+pathtail(['!'|T]) -->
 	['!'],!,
-	path.
-pathtail -->
+	path(T).
+pathtail(['^'|T]) -->
 	['^'],!,
-	path.
-pathtail --> [].
+	path(T).
+pathtail([]) --> [].
 
-node -->
-	symbol,!.
-node -->
+node(Symbol) -->
+	symbol(Symbol),!.
+node(Formula) -->
 	['{'],!,
-	formulacontent,
+	formulacontent(Formula),
 	['}'].
-node -->
-	['?'],!,variable.
-node -->
-	numericliteral,!.
-node --> 
-	literal,!.
-node -->
-	boolean,!.
-node -->
+node(Variable) -->
+	['?'],!,variable(Variable).
+node(Number) -->
+	numericliteral(Number),!.
+node(Literal) --> 
+	literal(Literal),!.
+node(Boolean) -->
+	boolean(Boolean),!.
+node(PropertyList) -->
 	['['],!,
-	propertylist,
+	propertylist(PropertyList),
 	[']'].
-node --> 
+node(PathList) --> 
 	['('],!,
-	pathlist,
+	pathlist(PathList),
 	[')'].
 
 %node -->
 %	['@this']. %deprecated
 
-pathlist --> 
-	path,!,pathlist.
-pathlist --> [].
+pathlist([Path|T]) --> 
+	path(Path),!,pathlist(T).
+pathlist([]) --> [].
 
-symbol --> 
-	explicituri.
-symbol -->
-	qname.
-symbol -->
-	bnode.
+symbol(URI) --> 
+	explicituri(URI).
+symbol(QName) -->
+	qname(QName).
+symbol(BNode) -->
+	bnode(BNode).
 
-dtlang -->
-	['@'],!,langcode.
-dtlang -->
-	['^','^'],!,symbol.
-dtlang --> [].
+%dtlang(Lang) -->
+%	['@'],!,langcode(Lang).
+%dtlang(Datatype) -->
+%	['^','^'],!,symbol(Datatype).
+%dtlang --> [].
 
 /**
  * Coma separated period terminated list grammar
  */
-csl_symbol -->
-	symbol,
+csl_symbol([Symbol|T]) -->
+	symbol(Symbol),
 	[','],!,
-	csl_symbol.
-csl_symbol -->
-	symbol.
-csl_barename -->
-	barename,
+	csl_symbol(T).
+csl_symbol([Symbol]) -->
+	symbol(Symbol).
+csl_barename([BareName|T]) -->
+	barename(BareName),
 	[','],!,
-	csl_barename.
-csl_barename -->
-	barename.
+	csl_barename(T).
+csl_barename([BareName]) -->
+	barename(BareName).
 
 
 /**
  * TERMINALS
  */
 
-boolean -->
+boolean(true) -->
 	['@',name('true')].
-boolean -->
+boolean(fail) -->
 	['@',name('false')].
 
-numericliteral -->
+numericliteral(Num) -->
 	[numeric(_,NumC)],
-	{number_codes(_Num,NumC)}.
+	{number_codes(Num,NumC)}.
 	%{matches(NumericLiteral,'[-+]?[0-9]+(\\.[0-9]+)?(e[-+]?[0-9]+)?')}.
 
-explicituri -->
+explicituri(ExplicitURI) -->
 	[relative_uri(ExplicitURI)],
 	{matches(ExplicitURI,'[^>]*')}.
 
-prefix -->
-	[name(_Prefix)]. %should add a regexp match
+prefix(Prefix) -->
+	[name(Prefix)]. %should add a regexp match
 
-qname --> [':'],!.
-qname -->
-	[':'(_NS,_Name)],!.
+qname(:) --> [':'],!.
+qname(NS:Name) -->
+	[':'(NS,Name)],!.
 	%{ matches(Name,'([a-zA-Z_][a-zA-Z0-9_]*)?'),
 	%  matches(NS,'([a-zA-Z_][a-zA-Z0-9_]*)?')
 	%}.
-qname -->
-	[':'(_Name)].
+qname(:Name) -->
+	[':'(Name)].
 	%{matches(_Name,'([a-zA-Z_][a-zA-Z0-9_]*)?')}.
-bnode -->
-	[nodeId(_BNodeID)].
+bnode(BNodeID) -->
+	[nodeId(BNodeID)].
 
-barename -->
+barename(BareName) -->
 	[name(BareName)],
 	{matches(BareName,'[a-zA-Z_][a-zA-Z0-9_]*')}.
 
-variable -->
+variable(Variable) -->
 	[name(Variable)],
 	{matches(Variable,'[a-zA-Z_][a-zA-Z0-9_]*')}.
 
-langcode -->
-	[Langcode],
-	{matches(Langcode,'[a-z]+(-[a-z0-9]+)*')}.
+%langcode(Langcode) -->
+%	[Langcode],
+%	{matches(Langcode,'[a-z]+(-[a-z0-9]+)*')}.
 
-literal -->
-	[literal(_Literal)]. %FALSE REGEXP
+literal(Literal) -->
+	[literal(Literal)]. %FALSE REGEXP
 	%{matches(String,'(\"\"\"[^\"\\\\]*(?:(?:\\\\.|\"(?!\"\"))[^\"\\\\]*)*\"\"\")|(\"[^\"\\\\]*(?:\\\\.[^\"\\\\]*)*\")')}.
 
 /**
