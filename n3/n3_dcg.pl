@@ -145,7 +145,7 @@ node(Formula) -->
 	['{'],!,
 	formulacontent(Formula),
 	['}'].
-node(Variable) -->
+node(variable(Variable)) -->
 	['?'],!,variable(Variable).
 node(Number) -->
 	numericliteral(Number),!.
