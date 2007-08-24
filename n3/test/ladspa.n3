@@ -1,0 +1,27 @@
+@prefix ladspa: <http://ladspa.org/ontology#>.
+@prefix dc: <http://purl.org/dc/elements/1.1/>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
+@prefix mo: <http://purl.org/ontology/mo/>.
+@prefix tl: <http://purl.org/NET/c4dm/timeline.owl#>.
+@prefix : <>.
+
+
+:sawtooth_oscillator a owl:FunctionalProperty;
+	rdfs:domain rdfs:Literal; 
+	rdfs:range mo:Signal; # 
+	dc:title "bandlimited sawtooth oscillator";
+	:ladspa_plugin ladspa:1641;
+	.
+
+# generates 5 seconds of sound in ?b, and play ?b
+# {"880" :sawtooth_oscillator ?b. ?b mo:time ?t. ?t tl:durationXSD "PT5S".} km:seq {?b :play ()}.
+
+{?sig a :NiceSignal} <=
+	{ "880" :sawtooth_oscillator ?sig.
+	  ?sig mo:time ?time.
+	  ?time tl:durationXSD "PT5S".
+	}.
+# {?sig a :NiceSignal} km:seq {?sig :play ()}.
+
