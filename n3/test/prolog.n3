@@ -1,0 +1,12 @@
+@prefix pl: <http://purl.org/ontology/swipl/>.
+@prefix : <>.
+
+
+#atom_concat/3
+{ ("yv" "es") pl:atom_concat ?c}.
+
+#member/2
+{ ?a pl:member ("a" "b" "c")}.
+
+
+
