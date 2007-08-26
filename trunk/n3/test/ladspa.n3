@@ -24,4 +24,5 @@
 	  ?time tl:durationXSD "PT5S".
 	}.
 # {?sig a :NiceSignal} km:seq {?sig :play ()}.
-
+# 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'(Sig,:'NiceSignal') :-
+# 	

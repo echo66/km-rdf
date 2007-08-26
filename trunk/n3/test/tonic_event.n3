@@ -33,15 +33,14 @@
 	}.
 
 
-
 # this "rule" wraps a transaction using the qm:key-detector VAMP
 # plugin, and spits out tonic events on the timeline of the 
 # corresponding signal
 {
-?tonicevent a event:Event.
-?tonicevent.event:time.tl:onTimeLine=?signal.mo:time.tl:onTimeLine.
-?tonicevent tl:startsAt ?start.
-?tonicevent mp:note ?note.
+_:tonicevent a event:Event.
+_:tonicevent!event:time!tl:onTimeLine=?signal!mo:time!tl:onTimeLine.
+_:tonicevent tl:startsAt ?start.
+_:tonicevent mp:note ?note.
 } <= {
 	{?af a mo:AudioFile; mo:encodes ?signal.} tr:seq
 		{

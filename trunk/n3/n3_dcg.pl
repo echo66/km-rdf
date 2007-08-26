@@ -1,4 +1,4 @@
-:- module(n3_dcg,[document/1]).
+:- module(n3_dcg,[document/3]).
 
 /**
  * A second attempt to create a DCG grammar for
