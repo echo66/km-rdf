@@ -1,4 +1,4 @@
-:- module(n3_dcg,[document/3]).
+:- module(n3_dcg,[document/3,tokenise/2]).
 
 /**
  * A second attempt to create a DCG grammar for
@@ -11,6 +11,21 @@
 
 :- op(100,xfx,':').
 :- op(100,fx,':').
+
+
+tokenise(File,Tokens) :-
+        open(File,read,S),
+        grab_tokens(S,Tokens).
+
+grab_tokens(S,Tokens) :-
+        grab_tokens(S,[],Tokens).
+
+grab_tokens(S,SoFar,Tokens) :-
+        n3_dcg:turtle_tokens(S,T),
+        (T = end_of_file -> (SoFar=Tokens);(
+                append(SoFar,T,T2),
+                grab_tokens(S,T2,Tokens)
+                )).
 
 %in the n3.n3 grammar, doesn't "zeroOrMore" overlaps with
 %() or ...?
