@@ -188,10 +188,6 @@ path(_Base,Node,Node,[]) --> [].
 
 node(_Base,Symbol,[]) -->
 	symbol(Symbol),!.
-node(Base,Node,Triples) -->
-	['{'],!,
-	formulacontent(Base,Node,Triples),
-	['}'].
 node(_Base,variable(Variable),[]) -->
 	['?'],!,variable(Variable).
 node(_Base,literal(Number),[]) -->
@@ -208,12 +204,16 @@ node(Base,List,Triples) -->
 	['('],!,
 	pathlist(Base,List,Triples),
 	[')'].
+node(Base,Node,Triples) -->
+        ['{'],!,
+        formulacontent(Base,Node,Triples),
+        ['}'].
 
 %node -->
 %	['@this']. %deprecated
 
 pathlist(Base,BNode,[rdf(BNode,'http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://www.w3.org/1999/02/22-rdf-syntax-ns#List',Base),rdf(BNode,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',Node,Base),rdf(BNode,'http://www.w3.org/1999/02/22-rdf-syntax-ns#next',Rest,Base)|Triples]) --> 
-	path(Base,Node,T),!,{rdf_bnode(BNode)},pathlist(Base,Rest,Tail),
+	path(Base,Node,T),!,pathlist(Base,Rest,Tail),{rdf_bnode(BNode)},
 	{append(T,Tail,Triples)}.
 pathlist(_Base,'http://www.w3.org/1999/02/22-rdf-syntax-ns#nil',[]) --> [].
 
