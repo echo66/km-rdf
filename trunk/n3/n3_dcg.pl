@@ -1,4 +1,4 @@
-:- module(n3_dcg,[document/3,tokenise/2]).
+:- module(n3_dcg,[document/4,tokenise/2]).
 
 /**
  * A second attempt to create a DCG grammar for
@@ -28,40 +28,52 @@ grab_tokens(S,SoFar,Tokens) :-
                 grab_tokens(S,T2,Tokens)
                 )).
 
+graph_id(BaseURI,GraphID) :-
+	count(N),
+	format(atom(GraphID),'~w~w~w',[BaseURI,'__graph',N]).
+
+:- dynamic counter/1.
+counter(0).
+count(N) :-
+	counter(M),
+	retractall(counter(M)),
+	N is M+1,
+	assert(counter(N)).
+
 %in the n3.n3 grammar, doesn't "zeroOrMore" overlaps with
 %() or ...?
-document(Document) -->
-	statements_optional(Document).
+document(BaseURI,Document) -->
+	statements_optional(BaseURI,Document).
 
-statements_optional([H|T]) -->
-	statement(H),
+statements_optional(BaseURI,Triples) -->
+	statement(BaseURI,Tr),{append(Tr,T,Triples)},
 	['.'],!,
-	statements_optional(T).
-statements_optional([]) --> [].
+	statements_optional(BaseURI,T).
+statements_optional(_,[]) --> [].
 
-formulacontent(Node,Formula) -->
-	{rdf_bnode(Node)},
-	statementlist(Formula).
+formulacontent(BaseURI,GraphURI,Formula) -->
+	{graph_id(BaseURI,GraphURI)},
+	statementlist(GraphURI,Formula).
 
 
-statementlist([H|T]) -->
-	statement(H),!,
-	statementtail(T).
-statementlist([]) --> [].
+statementlist(BaseURI,Triples) -->
+	statement(BaseURI,Tr),{append(Tr,T,Triples)},!,
+	statementtail(BaseURI,T).
+statementlist(_,[]) --> [].
 
-statement(D) --> 
+statement(_Base,[D]) --> 
 	declaration(D).
-statement(U) -->
+statement(_Base,[U]) -->
 	universal(U).
-statement(E) --> 
+statement(_Base,[E]) --> 
 	existential(E).
-statement(Statement) -->
-	simpleStatement(Statement).
+statement(BaseURI,Statement) -->
+	simpleStatement(BaseURI,Statement).
 
-statementtail(T) -->
+statementtail(Base,T) -->
 	['.'],!,
-	statementlist(T).
-statementtail([]) --> [].
+	statementlist(Base,T).
+statementtail(_,[]) --> [].
 
 universal(universal(Symbols)) --> 
 	['@',name(forAll)],!,
@@ -83,127 +95,127 @@ declaration(keywords(List)) -->
 	['@',name(keywords)],!,
 	csl_barename(List).
 
-simpleStatement(Triples) -->
-	subject(Subject,Triples1),
-	propertylist(Subject,Triples2),
+simpleStatement(Base,Triples) -->
+	subject(Base,Subject,Triples1),
+	propertylist(Base,Subject,Triples2),
 	{append(Triples1,Triples2,Triples)}.
 
-propertylist(Subject,[rdf(Subject,Verb,Object)|Triples]) -->
-	verb(Verb,Triples1),
+propertylist(Base,Subject,[rdf(Subject,Verb,Object,Base)|Triples]) -->
+	verb(Base,Verb,Triples1),
 	!,
-	object(Object,Triples2),
-	objecttail(Subject,Verb,Triples3),
-	propertylisttail(Subject,Triples4),
+	object(Base,Object,Triples2),
+	objecttail(Base,Subject,Verb,Triples3),
+	propertylisttail(Base,Subject,Triples4),
 	{append(Triples1,Triples2,Triples12),
 	 append(Triples12,Triples3,Triples123),
 	 append(Triples123,Triples4,Triples)}.
-propertylist(_,[]) --> [].
+propertylist(_Base,_,[]) --> [].
 
-propertylisttail(Subject,Triples) -->
+propertylisttail(Base,Subject,Triples) -->
 	[';'],!,
-	propertylist(Subject,Triples).
-propertylisttail(_,[]) --> [].
+	propertylist(Base,Subject,Triples).
+propertylisttail(_Base,_,[]) --> [].
 
-objecttail(Subject,Verb,[rdf(Subject,Verb,Node)|T]) --> 
+objecttail(Base,Subject,Verb,[rdf(Subject,Verb,Node,Base)|T]) --> 
 	[','],!,
-	object(Node,Triples),
+	object(Base,Node,Triples),
 	{append(Triples,Tail,T)},
-	objecttail(Subject,Verb,Tail).
-objecttail(_,_,[]) --> [].
+	objecttail(Base,Subject,Verb,Tail).
+objecttail(_Base,_,_,[]) --> [].
 
-verb(Node,Triples) -->
+verb(Base,Node,Triples) -->
 	['@',name(has)],!,
-	path(Node,Triples).
+	path(Base,Node,Triples).
 %i am not sure if it is ok without the @, but cwm seems to 
 %handle this
-verb(Node,Triples) --> 
+verb(Base,Node,Triples) --> 
 	[name(has)],!,
-	path(Node,Triples).
-verb(BNode,[rdf(BNode,'http://www.w3.org/2002/07/owl#inverseOf',Node)|Triples]) -->
+	path(Base,Node,Triples).
+verb(Base,BNode,[rdf(BNode,'http://www.w3.org/2002/07/owl#inverseOf',Node,Base)|Triples]) -->
 	['@',name('is')],!,
-	path(Node,Triples),
+	path(Base,Node,Triples),
 	['@,',name(of)],
 	{rdf_bnode(BNode)}.
-verb(BNode,[rdf(BNode,'http://www.w3.org/2002/07/owl#inverseOf',Node)|Triples]) --> 
+verb(Base,BNode,[rdf(BNode,'http://www.w3.org/2002/07/owl#inverseOf',Node,Base)|Triples]) --> 
 	[name('is')],!,
-	path(Node,Triples),
+	path(Base,Node,Triples),
 	[name(of)],
 	{rdf_bnode(BNode)}.
-verb('http://www.w3.org/1999/02/22-rdf-syntax-ns#type',[]) -->
+verb(_Base,'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',[]) -->
 	['@',name(a)],!.
-verb('http://www.w3.org/1999/02/22-rdf-syntax-ns#type',[]) -->
+verb(_Base,'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',[]) -->
 	[name(a)],!.
-verb('http://www.w3.org/2000/10/swap/log#implies',[]) -->
+verb(_Base,'http://www.w3.org/2000/10/swap/log#implies',[]) -->
         ['=','>'],!. %this order *is* important:)
-verb('http://www.w3.org/2002/07/owl#sameAs',[]) -->
+verb(_Base,'http://www.w3.org/2002/07/owl#sameAs',[]) -->
 	['='],!.
-verb(BNode,[rdf(BNode,'http://www.w3.org/2002/07/owl#inverseOf','http://www.w3.org/2000/10/swap/log#implies')]) -->
+verb(Base,BNode,[rdf(BNode,'http://www.w3.org/2002/07/owl#inverseOf','http://www.w3.org/2000/10/swap/log#implies',Base)]) -->
 	['<','='],!,{rdf_bnode(BNode)}.
-verb(Node,Triples) -->
-        path(Node,Triples).
+verb(Base,Node,Triples) -->
+        path(Base,Node,Triples).
 
-subject(Node,Triples) --> 
-	path(Node,Triples).
+subject(Base,Node,Triples) --> 
+	path(Base,Node,Triples).
 
-object(Node,Triples) -->
-	path(Node,Triples).
+object(Base,Node,Triples) -->
+	path(Base,Node,Triples).
 
-path(Node,[rdf(N1,N2,BNode)|Triples]) -->
-	node(N1,Triples1),['!'],!,
-	node(N2,Triples2), {rdf_bnode(BNode)},
+path(Base,Node,[rdf(N1,N2,BNode,Base)|Triples]) -->
+	node(Base,N1,Triples1),['!'],!,
+	node(Base,N2,Triples2), {rdf_bnode(BNode)},
 	{append(Triples1,Triples2,Triples12),
 	append(Triples12,Tail,Triples)},
-	path(Node,BNode,Tail).
-path(Node,[rdf(BNode,N2,N1)|Triples]) -->
-	node(N1,Triples1),['^'],!,
-	node(N2,Triples2), {rdf_bnode(BNode)},
+	path(Base,Node,BNode,Tail).
+path(Base,Node,[rdf(BNode,N2,N1,Base)|Triples]) -->
+	node(Base,N1,Triples1),['^'],!,
+	node(Base,N2,Triples2), {rdf_bnode(BNode)},
 	{append(Triples1,Triples2,Triples12),
 	 append(Triples12,Tail,Triples)},
-	path(Node,BNode,Tail).
-path(Node,Triples) --> node(Node,Triples).
-path(Node,BNode,[rdf(BNode,N2,BNode2)|Triples]) -->
+	path(Base,Node,BNode,Tail).
+path(Base,Node,Triples) --> node(Base,Node,Triples).
+path(Base,Node,BNode,[rdf(BNode,N2,BNode2,Base)|Triples]) -->
 	['!'],!,
-	node(N2,Triples2), {rdf_bnode(BNode2)},
+	node(Base,N2,Triples2), {rdf_bnode(BNode2)},
 	{append(Triples2,Tail,Triples)},
-	path(Node,BNode2,Tail).
-path(Node,BNode,[rdf(BNode2,N2,BNode)|Triples]) -->
+	path(Base,Node,BNode2,Tail).
+path(Base,Node,BNode,[rdf(BNode2,N2,BNode,Base)|Triples]) -->
 	['^'],!,
-	node(N2,Triples2), {rdf_bnode(BNode2)},
+	node(Base,N2,Triples2), {rdf_bnode(BNode2)},
 	{append(Triples2,Tail,Triples)},
-	path(Node,BNode2,Tail).
-path(Node,Node,[]) --> [].
+	path(Base,Node,BNode2,Tail).
+path(_Base,Node,Node,[]) --> [].
 
 
-node(Symbol,[]) -->
+node(_Base,Symbol,[]) -->
 	symbol(Symbol),!.
-node(Node,Triples) -->
+node(Base,Node,Triples) -->
 	['{'],!,
-	formulacontent(Node,Triples),
+	formulacontent(Base,Node,Triples),
 	['}'].
-node(variable(Variable),[]) -->
+node(_Base,variable(Variable),[]) -->
 	['?'],!,variable(Variable).
-node(literal(Number),[]) -->
+node(_Base,literal(Number),[]) -->
 	numericliteral(Number),!.
-node(literal(Literal),[]) --> 
+node(_Base,literal(Literal),[]) --> 
 	literal(Literal),!.
-node(literal(type(Boolean,'http://www.w3.org/2001/XMLSchema#boolean')),[]) -->
+node(_Base,literal(type(Boolean,'http://www.w3.org/2001/XMLSchema#boolean')),[]) -->
 	boolean(Boolean),!.
-node(BNode,Triples) -->
+node(Base,BNode,Triples) -->
 	['['],!,{rdf_bnode(BNode)},
-	propertylist(BNode,Triples),
+	propertylist(Base,BNode,Triples),
 	[']'].
-node(List,Triples) --> 
+node(Base,List,Triples) --> 
 	['('],!,
-	pathlist(List,Triples),
+	pathlist(Base,List,Triples),
 	[')'].
 
 %node -->
 %	['@this']. %deprecated
 
-pathlist(BNode,[rdf(BNode,'http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://www.w3.org/1999/02/22-rdf-syntax-ns#List'),rdf(BNode,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',Node),rdf(BNode,'http://www.w3.org/1999/02/22-rdf-syntax-ns#next',Rest)|Triples]) --> 
-	path(Node,T),!,{rdf_bnode(BNode)},pathlist(Rest,Tail),
+pathlist(Base,BNode,[rdf(BNode,'http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://www.w3.org/1999/02/22-rdf-syntax-ns#List',Base),rdf(BNode,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',Node,Base),rdf(BNode,'http://www.w3.org/1999/02/22-rdf-syntax-ns#next',Rest,Base)|Triples]) --> 
+	path(Base,Node,T),!,{rdf_bnode(BNode)},pathlist(Base,Rest,Tail),
 	{append(T,Tail,Triples)}.
-pathlist('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil',[]) --> [].
+pathlist(_Base,'http://www.w3.org/1999/02/22-rdf-syntax-ns#nil',[]) --> [].
 
 symbol(URI) --> 
 	explicituri(URI).
