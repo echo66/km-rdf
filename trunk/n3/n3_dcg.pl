@@ -32,17 +32,23 @@ graph_id(BaseURI,GraphID) :-
 	count(N),
 	format(atom(GraphID),'~w~w~w',[BaseURI,'__graph',N]).
 
+uqv_id(Base,Name,UQV) :-
+	format(atom(UQV),'~w__uqv_~w',[Base,Name]).
+
 :- dynamic counter/1.
-counter(0).
 count(N) :-
 	counter(M),
-	retractall(counter(M)),
+	retractall(counter(_)),
 	N is M+1,
 	assert(counter(N)).
+init_counter :- 
+	retractall(counter(_)),
+	assert(counter(0)).
 
 %in the n3.n3 grammar, doesn't "zeroOrMore" overlaps with
 %() or ...?
 document(BaseURI,Document) -->
+	{init_counter},
 	statements_optional(BaseURI,Document).
 
 statements_optional(BaseURI,Triples) -->
@@ -188,13 +194,14 @@ path(_Base,Node,Node,[]) --> [].
 
 node(_Base,Symbol,[]) -->
 	symbol(Symbol),!.
-node(_Base,variable(Variable),[]) -->
-	['?'],!,variable(Variable).
+node(Base,VarID,[rdf(VarID,'http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://purl.org/ontology/km/UQVar',Base)]) -->
+	['?'],!,variable(Variable),
+	{uqv_id(Base,Variable,VarID)}.
 node(_Base,literal(Number),[]) -->
 	numericliteral(Number),!.
 node(_Base,literal(Literal),[]) --> 
 	literal(Literal),!.
-node(_Base,literal(type(Boolean,'http://www.w3.org/2001/XMLSchema#boolean')),[]) -->
+node(_Base,literal(Boolean),[]) -->
 	boolean(Boolean),!.
 node(Base,BNode,Triples) -->
 	['['],!,{rdf_bnode(BNode)},
