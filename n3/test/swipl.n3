@@ -1,0 +1,10 @@
+@prefix pl: <http://purl.org/ontology/swipl/>.
+@prefix : <>.
+
+
+
+{(?a ?b ?c) :concat ?d} <=
+	{(?a ?b) pl:concat ?t.
+	 (?t ?c) pl:concat ?d.}.
+
+
