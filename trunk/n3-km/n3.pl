@@ -1,5 +1,7 @@
 :- module(n3,[
 		parse/3
+	,	load/2
+	,	interp/0
 	]).
 
 /**
@@ -10,9 +12,42 @@
 
 
 :- use_module(library('semweb/rdf_db')).
-:- use_module(n3_dcg).
+:- use_module('../n3/n3_dcg').
+:- use_module('namespaces').
+:- use_module(library('semweb/rdfs')).
+
+/**
+ * Some Prolog wrappers for common N3 constructs
+ */
+
+:- op(1110,xfy,'<=').
+
+HeadGraph <= TailGraph :- 
+	rdf(If,owl:inverseOf,log:implies),
+	rdf(HeadGraph,If,TailGraph).
+HeadGraph <= TailGraph :-
+	rdf(TailGraph,log:implies,HeadGraph).
+
+		
+interp :- 
+	n3_dcg:turtle_tokens(user_input,Tokens),
+	phrase(document('http://example.org/',N3),Tokens),
+	writeln(N3).
+
+rdf_uq_var(UQVar) :-
+	rdf(UQVar,rdf:type,'http://purl.org/ontology/km/UQVar').
 
 
+prove(triple(S,P,O)) :-
+	((rdfs_list_to_prolog_list(S,NewS),!);S=NewS),
+	((rdfs_list_to_prolog_list(O,NewO),!);O=NewO), %lists as properties?
+	P=NewP,
+	prove(NewS,NewP,NewO).
+
+
+/**
+ * Parsing/Loading tools
+ */
 parse(Document,Triples,Options) :-
 	tokenise(Document,Tokens),
 	(member(base_uri(Base),Options) ->

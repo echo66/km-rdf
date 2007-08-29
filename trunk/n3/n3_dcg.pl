@@ -19,14 +19,7 @@ tokenise(File,Tokens) :-
         grab_tokens(S,Tokens).
 
 grab_tokens(S,Tokens) :-
-        grab_tokens(S,[],Tokens).
-
-grab_tokens(S,SoFar,Tokens) :-
-        n3_dcg:turtle_tokens(S,T),
-        (T = end_of_file -> (SoFar=Tokens);(
-                append(SoFar,T,T2),
-                grab_tokens(S,T2,Tokens)
-                )).
+        turtle_tokens(S,Tokens).
 
 graph_id(BaseURI,GraphID) :-
 	count(N),
@@ -219,7 +212,7 @@ node(Base,Node,Triples) -->
 %node -->
 %	['@this']. %deprecated
 
-pathlist(Base,BNode,[rdf(BNode,'http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://www.w3.org/1999/02/22-rdf-syntax-ns#List',Base),rdf(BNode,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',Node,Base),rdf(BNode,'http://www.w3.org/1999/02/22-rdf-syntax-ns#next',Rest,Base)|Triples]) --> 
+pathlist(Base,BNode,[rdf(BNode,'http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://www.w3.org/1999/02/22-rdf-syntax-ns#List',Base),rdf(BNode,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',Node,Base),rdf(BNode,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',Rest,Base)|Triples]) --> 
 	path(Base,Node,T),!,pathlist(Base,Rest,Tail),{rdf_bnode(BNode)},
 	{append(T,Tail,Triples)}.
 pathlist(_Base,'http://www.w3.org/1999/02/22-rdf-syntax-ns#nil',[]) --> [].
@@ -325,7 +318,7 @@ grammar_error(Which) :-
 
 turtle_tokens(In, List) :-
 	get_code(In, C0),
-	turtle_token(C0, In, C1, Tok1),
+	turtle_token(C0, In, C1, Tok1), 
 	(   Tok1 == end_of_file
 	->  List = end_of_file
 	;   List = [Tok1|Tokens],
