@@ -4,6 +4,10 @@
  * A second attempt to create a DCG grammar for
  * SWI - this time I hope I won't loose all
  * my data... :-(
+ * 
+ * It outputs a list of RDF "quads" rdf(Subject,Predicate,Object,Context)
+ * Existentially quantified variables are bnodes (eg. __bnode* atoms)
+ * Universally quantified variables are bnodes of the form __bnode_*_uqvar
  *
  * Yves Raimond, C4DM, Queen Mary, University of London
  */
@@ -21,12 +25,12 @@ tokenise(File,Tokens) :-
 grab_tokens(S,Tokens) :-
         turtle_tokens(S,Tokens).
 
-graph_id(BaseURI,GraphID) :-
+graph_id(GraphID) :-
 	count(N),
-	format(atom(GraphID),'~w~w~w',[BaseURI,'__graph',N]).
+	format(atom(GraphID),'__bnode_graph_~w',[N]).
 
 uqv_id(Name,UQV) :-
-	format(atom(UQV),'__bnode_~w',[Name]).
+	format(atom(UQV),'__bnode_~w_uqvar',[Name]).
 
 :- dynamic counter/1.
 count(N) :-
@@ -38,10 +42,11 @@ init_counter :-
 	retractall(counter(_)),
 	assert(counter(0)).
 
+:- dynamic base_uri/1.
 %in the n3.n3 grammar, doesn't "zeroOrMore" overlaps with
 %() or ...?
 document(BaseURI,Document) -->
-	{init_counter},
+	{init_counter,retractall(base_uri(_)),assert(base_uri(BaseURI))},
 	statements_optional(BaseURI,Document).
 
 statements_optional(BaseURI,Triples) -->
@@ -50,8 +55,8 @@ statements_optional(BaseURI,Triples) -->
 	statements_optional(BaseURI,T).
 statements_optional(_,[]) --> [].
 
-formulacontent(BaseURI,GraphURI,Formula) -->
-	{graph_id(BaseURI,GraphURI)},
+formulacontent(_BaseURI,GraphURI,Formula) -->
+	{graph_id(GraphURI)},
 	statementlist(GraphURI,Formula).
 
 
@@ -88,7 +93,7 @@ declaration(namespace(Prefix,URI)) -->
 	explicituri(URI).
 declaration(namespace(base,URI)) -->
 	['@',name(prefix),':'],!,
-	explicituri(URI).
+	explicituri(URI),{retractall(base_uri(_)),assert(base_uri(URI))}.
 
 declaration(keywords(List)) -->
 	['@',name(keywords)],!,
@@ -185,9 +190,11 @@ path(Base,Node,BNode,[rdf(BNode2,N2,BNode,Base)|Triples]) -->
 path(_Base,Node,Node,[]) --> [].
 
 
+node(Base,Symbol,[]) -->
+	symbol(:A),!,{base_uri(URI)->atom_concat(URI,A,Symbol);atom_concat(Base,A,Symbol)}.
 node(_Base,Symbol,[]) -->
 	symbol(Symbol),!.
-node(Base,VarID,[rdf(VarID,'http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://purl.org/ontology/km/UQVar',Base)]) -->
+node(_Base,VarID,[]) -->
 	['?'],!,variable(Variable),
 	{uqv_id(Variable,VarID)}.
 node(_Base,literal(Number),[]) -->

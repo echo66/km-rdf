@@ -30,8 +30,8 @@ HeadGraph <= TailGraph :-
 	rdf(TailGraph,log:implies,HeadGraph).
 
 uqv(UQVar) :-
-        rdf(UQVar,rdf:type,'http://purl.org/ontology/km/UQVar').
-
+	atomic(UQVar),
+	atom_concat(_,'_uqvar',UQVar).
 	
 
 /**
@@ -45,7 +45,7 @@ interp(BaseURI) :-
 	n3_dcg:turtle_tokens(user_input,Tokens),
 	phrase(document(BaseURI,N3),Tokens),
 	writeln(N3),
-	prove(N3).
+	prove(N3,Binding),(writeln(Binding)).
 
 /**
  * Proof mechanims, 2nd attempt
@@ -105,46 +105,64 @@ bnodes_to_vars([triple(S,P,O)|Tail],[triple(SV,PV,OV)|Tail2],BSF,Bindings) :-
         append(BSF,NewB,NewBSF),
         bnodes_to_vars(Tail,Tail2,NewBSF,Bindings).
 
-%prove(Query,Bindings) :-
-%	to_graph(Query,Graph),
-%	clean_vars(Graph,Cleaned,Bindings),
-%	bnodes_to_vars(Cleaned,Q,_),writeln(Q),
-%	p(Q),writeln(Bindings).
 
 to_graph([],[]).
 to_graph([rdf(S,P,O,_)|T],[triple(S,P,O)|T2]) :- to_graph(T,T2).
 
-%p([]).
-%p([triple(S,P,O)|T]) :-
-%	rdf(S,P,O,_),
-%	p(T).
-%p([triple(S,P,O)|T]) :-
-%	pl_clause(clause(graph(Graph1),graph(Graph2)),_),
-%	member(triple(S,P,O),Graph1),
-%	p(Graph2),
-%	p(T).
 
-prove(N3Query) :-
+prove(N3Query,Bindings) :-
+	match(N3Query,Q,_,Bindings),
+	ground(Bindings),writeln(Q),ground(Q). %ground solution
+prove(N3Query,Bindings) :-
+	match(N3Query,Q,Graphs,Bindings),
+	forall(
+		member(Graph,Graphs)
+	    ,
+	    	(
+		  (Graph <= Graph2),
+		  graph_triples(Graph2,Triples),
+		  prove(Triples,_)
+		)
+	     ),
+	ground(Bindings),ground(Q).
+
+
+match(N3Query,Q,Graphs,Bindings) :-
 	to_graph(N3Query,Query),
-	clean_vars(Query,T,Bindings),
+	clean_vars(Query,T,_),
 	bnodes_to_vars(T,Q,_),
-	trace,
-	p(Q,Graphs,Bindings2),
-	writeln(p(Query,Graphs,Bindings)).
+	p(Q,Graphs2,Bindings2),
+	list_to_set(Graphs2,Graphs),
+	list_to_set(Bindings2,Bindings),
+	\+conflict(Bindings).
 p([],[],[]).
 p([triple(S,P,O)|T],[Graph|GraphTail],Bindings) :-
-	writeln(triple(S,P,O)),
 	p(triple(S,P,O),Graph,Binding),
 	append(Binding,BindingTail,Bindings),
-	writeln(T),
 	p(T,GraphTail,BindingTail).
 
 p(triple(S,P,O),Graph,Binding) :-
-	rdf(SS,PP,OO,Graph),
-	((uqv(SS),SB=[binding(S,SS)]);(S=SS,SB=[])),
-	((uqv(PP),PB=[binding(P,PP)]);(P=PP,PB=[])),
-	((uqv(OO),OB=[binding(O,OO)]);(O=OO,OB=[])),
+	quad(SS,PP,OO,Graph),
+	((uqv(SS),SB=[binding(S,SS)]);(S=SS,\+uqv(S),SB=[])),
+	((uqv(PP),PB=[binding(P,PP)]);(P=PP,\+uqv(P),PB=[])),
+	((uqv(OO),OB=[binding(O,OO)]);(O=OO,\+uqv(O),OB=[])),
 	append(SB,PB,T),append(T,OB,Binding).
+
+conflict([]) :- fail.
+conflict([binding(A,B)|T]) :-
+	member(binding(D,B),T),
+	A\==D,!.
+conflict([_|T]) :-
+	conflict(T).
+
+/**
+ * Builtins
+ */
+
+quad(S,P,O,G) :-
+	rdf(S,P,O,G).
+quad([A,B],'http://purl.org/ontology/swipl/concat',D) :-
+	atom_concat(A,B,D).
 
 /**
  * Parsing/Loading tools

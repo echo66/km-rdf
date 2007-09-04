@@ -19,15 +19,15 @@
 # rule giving instrument in similar tracks (what happens if i specify the
 # "determinism" of a property defined in the head of a rule?)
 {
-	?track :instrument_in_similar_tracks ?instrument
+	?track :instrument_in_similar_tracks _:instrument
 } <= {
-	{?track mo:encodes ?signal} tr:seq
+	{?track mo:encodes _:signal} tr:seq
 		{
 		{
-		?signal qm:sb_similar_to ?signal2
+		_:signal qm:sb_similar_to _:signal2
 		} tr:seq 
 			{
-			?signal2 qm:chetry_instrument ?instrument
+			_:signal2 qm:chetry_instrument _:instrument
 			}
 		}
 	}.
@@ -51,6 +51,16 @@ _:tonicevent mp:note ?note.
 			.
 		}
      }.
+
+#
+# triple(TonicEvent,rdf:type,event:Event,__graph1) :-
+#	rdf_bnode(TonicEvent),
+#	triple(
+#
+#
+#
+#
+
 
 # This query, when interpreted, will fire the above defined rule (well, if
 # the proof mechanism is bw, otherwise it will just get back results that were
