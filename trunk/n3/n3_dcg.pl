@@ -25,8 +25,8 @@ graph_id(BaseURI,GraphID) :-
 	count(N),
 	format(atom(GraphID),'~w~w~w',[BaseURI,'__graph',N]).
 
-uqv_id(Base,Name,UQV) :-
-	format(atom(UQV),'~w__uqv_~w',[Base,Name]).
+uqv_id(Name,UQV) :-
+	format(atom(UQV),'__bnode_~w',[Name]).
 
 :- dynamic counter/1.
 count(N) :-
@@ -189,7 +189,7 @@ node(_Base,Symbol,[]) -->
 	symbol(Symbol),!.
 node(Base,VarID,[rdf(VarID,'http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://purl.org/ontology/km/UQVar',Base)]) -->
 	['?'],!,variable(Variable),
-	{uqv_id(Base,Variable,VarID)}.
+	{uqv_id(Variable,VarID)}.
 node(_Base,literal(Number),[]) -->
 	numericliteral(Number),!.
 node(_Base,literal(Literal),[]) --> 
