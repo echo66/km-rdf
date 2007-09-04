@@ -8,6 +8,12 @@
 	 (?t ?c) pl:concat ?d.}.
 
 #
+#
+# triple([a,b,c],:concat,D).
+#
+#
+#
+#
 # part_of(Query,Graph,Bindings). 
 # Graph <= GraphCond ?
 # prove(GraphCond,Bindings)
