@@ -2,6 +2,7 @@
 		parse/3
 	,	load/2
 	,	interp/0
+	,	interp/1
 	]).
 
 /**
@@ -28,22 +29,58 @@ HeadGraph <= TailGraph :-
 HeadGraph <= TailGraph :-
 	rdf(TailGraph,log:implies,HeadGraph).
 
-		
-interp :- 
+uqvar(UQVar) :-
+        rdf(UQVar,rdf:type,'http://purl.org/ontology/km/UQVar').
+
+	
+
+/**
+ * N3 interpreter - top-level predicates
+ */
+interp :-
+	interp('').
+interp(BaseURI) :- 
 	n3_dcg:turtle_tokens(user_input,Tokens),
-	phrase(document('http://example.org/',N3),Tokens),
+	phrase(document(BaseURI,N3),Tokens),
 	writeln(N3).
 
-rdf_uq_var(UQVar) :-
-	rdf(UQVar,rdf:type,'http://purl.org/ontology/km/UQVar').
+
+/**
+ * Proof mechanims, 2nd attempt
+ */
+graph(Graph) :-
+	rdf(_,_,_,Graph),!.
+
+n3_clause_to_pl_clause('<='(Graph1,Graph2), clause(graph(TriplesHead,Bindings),graph(TriplesBody,Bindings))) :-
+	graph_triples(Graph1,Triples1),
+	graph_triples(Graph2,Triples2),
+	clean_vars(Triples1,TriplesHead,Bindings1),writeln(Bindings1),
+	clean_vars(Triples2,TriplesBody,Bindings1,Bindings),
+	append(Bindings1,T,Bindings),writeln(T).
+	%clean_lists(T1,TriplesHead),
+	%clean_lists(T2,TriplesBody).
 
 
-prove(triple(S,P,O)) :-
-	((rdfs_list_to_prolog_list(S,NewS),!);S=NewS),
-	((rdfs_list_to_prolog_list(O,NewO),!);O=NewO), %lists as properties?
-	P=NewP,
-	prove(NewS,NewP,NewO).
+graph_triples(GraphURI,Triples) :-
+	bagof(triple(S,P,O),rdf(S,P,O,GraphURI),Triples).
 
+%clean_lists([],[]).
+%clean_lists([triple(S,P,O)|Tail],[triple(SL,PL,OL)|Tail2]) :-
+%	((rdfs_list_to_prolog_list(S,SL),!);S=SL),
+%	((rdfs_list_to_prolog_list(P,PL),!);P=PL),
+%	((rdfs_list_to_prolog_list(O,OL),!);O=OL),
+%	clean_lists(Tail,Tail2).
+
+clean_vars(Triples,Cleaned,Bindings) :-
+	clean_vars(Triples,Cleaned,[],Bindings).
+clean_vars([],[],Bindings,Bindings):- !.
+clean_vars([triple(S,P,O)|Tail],[triple(SV,PV,OV)|Tail2],BSF,Bindings) :-
+	((uqvar(S),!,((member(binding(S,SV),BSF),!,SB=[]);SB=[binding(S,SV)]));(S=SV,SB=[])),
+	((uqvar(P),!,((member(binding(P,PV),BSF),!,PB=[]);PB=[binding(P,PV)]));(P=PV,PB=[])),
+	((uqvar(O),!,((member(binding(O,OV),BSF),!,OB=[]);OB=[binding(O,OV)]));(O=OV,OB=[])),
+	append(SB,PB,T),append(T,OB,NewB),
+	append(BSF,NewB,NewBSF),
+	clean_vars(Tail,Tail2,NewBSF,Bindings).
 
 /**
  * Parsing/Loading tools
