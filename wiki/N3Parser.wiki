@@ -7,8 +7,3 @@ This Wiki page details the [http://www.w3.org/DesignIssues/Notation3.html N3] pa
 
 
 = Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
