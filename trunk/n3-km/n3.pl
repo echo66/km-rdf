@@ -69,18 +69,26 @@ graph_triples(GraphURI,Triples) :-
 	bagof(triple(S,P,O),rdf(S,P,O,GraphURI),Triples).
 
 clean_lists([],[]).
-clean_lists([rdf(_,_,'http://www.w3.org/1999/02/22-rdf-syntax-ns#List',_)|T],T2) :-
+clean_lists([triple(_,_,'http://www.w3.org/1999/02/22-rdf-syntax-ns#List')|T],T2) :-
 	!,clean_lists(T,T2).
-clean_lists([rdf(_,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',_,_)|T],T2) :-
+clean_lists([triple(_,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',_)|T],T2) :-
 	!,clean_lists(T,T2).
-clean_lists([rdf(_,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',_,_)|T],T2) :-
+clean_lists([triple(_,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',_)|T],T2) :-
 	!,clean_lists(T,T2).
-clean_lists([rdf(S,P,O,G)|Tail],[rdf(SL,PL,OL,G)|Tail2]) :-
-	((rdfs_list_to_prolog_list(S,SL),!);S=SL),
-	((rdfs_list_to_prolog_list(P,PL),!);P=PL),
-	((rdfs_list_to_prolog_list(O,OL),!);O=OL),
+clean_lists([triple(S,P,O)|Tail],[triple(SL,PL,OL)|Tail2]) :-
+	((rdf_list_to_prolog_list(S,Tail,SL,R1),!);(S=SL,R1=Tail)),
+	((rdf_list_to_prolog_list(P,R1,PL,R2),!);(P=PL,R2=R1)),
+	((rdf_list_to_prolog_list(O,R2,OL,R3),!);(O=OL,R3=R2)),
 	clean_lists(Tail,Tail2).
 	
+rdf_list_to_prolog_list(URI,Triples,[],Rest) :-
+	select(triple(URI,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest','http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),Triples,Rest).
+rdf_list_to_prolog_list(URI,Triples,[H|T],Rest) :-
+	select(triple(URI,'http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://www.w3.org/1999/02/22-rdf-syntax-ns#List'),Triples,R1),
+	select(triple(URI,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',H),R1,R2),
+	select(triple(URI,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',Rest),R2,R3),
+	rdf_list_to_prolog_list(Rest,R3,T,Rest).
+
 
 clean_vars(Triples,Cleaned,Bindings) :-
 	clean_vars(Triples,Cleaned,[],Bindings).
@@ -130,6 +138,7 @@ prove(N3Query,Bindings) :-
 match(N3Query,Q,Graphs,Bindings) :-
 	to_graph(N3Query,Query),
 	clean_vars(Query,T,_),
+	clean_lists(Query,TT),writeln(TT),
 	bnodes_to_vars(T,Q,_),
 	p(Q,Graphs2,Bindings2),
 	list_to_set(Graphs2,Graphs),

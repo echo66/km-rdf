@@ -1,4 +1,4 @@
-:- module(test_suite,[run/0,tokenise_and_parse/1,tokenise/2,failure/1,success/1]).
+:- module(test_suite,[run/0,tokenise_and_parse/1,failure/1,success/1]).
 
 /**
  * Some N3 parsing tests
@@ -9,7 +9,7 @@
 :- use_module(n3_dcg).
 
 % point it to your local SWAP installation
-n3_dir('/home/moustaki/work/workspace/swap/test').
+n3_dir('/home/moustaki/work/software/swap/test').
 
 :- dynamic failure/1,success/1.
 run :-
@@ -36,21 +36,8 @@ results :-
 
 tokenise_and_parse(File) :-
         tokenise(File,Tokens),
-        phrase(n3_dcg:document,Tokens).
+        phrase(n3_dcg:document('',_Document),Tokens).
 
-tokenise(File,Tokens) :-
-        open(File,read,S),
-        grab_tokens(S,Tokens).
-
-grab_tokens(S,Tokens) :-
-        grab_tokens(S,[],Tokens).
-
-grab_tokens(S,SoFar,Tokens) :-
-        n3_dcg:turtle_tokens(S,T),
-        (T = end_of_file -> (SoFar=Tokens);(
-                append(SoFar,T,T2),
-                grab_tokens(S,T2,Tokens)
-                )).
 
 
 
