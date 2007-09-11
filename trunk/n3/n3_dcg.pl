@@ -94,6 +94,9 @@ declaration(namespace(Prefix,URI)) -->
 declaration(namespace(base,URI)) -->
 	['@',name(prefix),':'],!,
 	explicituri(URI),{retractall(base_uri(_)),assert(base_uri(URI))}.
+declaration(namespace(base,URI)) -->
+	['@',name(base)],!,
+	explicituri(URI),{retractall(base_uri(_)),assert(base_uri(URI))}.
 
 declaration(keywords(List)) -->
 	['@',name(keywords)],!,
