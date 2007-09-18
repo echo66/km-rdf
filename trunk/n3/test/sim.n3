@@ -1,0 +1,18 @@
+@prefix ctr: <http://purl.org/ontology/ctr/>.
+@prefix mo: <http://purl.org/ontology/mo/>.
+@prefix sig: <http://purl.org/ontology/sigproc/>.
+@prefix m: <http://purl.org/ontology/maths/>.
+@prefix math: <http://www.w3.org/2000/10/swap/math#>.
+
+sig:mfcc a ctr:TabledPredicate.
+sig:fit_gaussian a ctr:TabledPredicate.
+
+:threshold = 1.
+
+{?signal1 mo:similar_to ?signal2} <=
+  {
+	{{?signal1 sig:mfcc ?mfcclist1} ctr:cc {?signal2 sig:mfcc ?mfcclist2}} ctr:sc
+	{{?mfcclist1 sig:fit_gaussian (?mean1 ?variance1)} ctr:cc {?mfcclist2 sig:fit_gaussian (?mean2 ?variance2)}}.
+	((?mean1 ?variance1) (?mean2 ?variance2)) m:kl_divergence ?distance. 
+	?distance math:greaterThan :threshold.
+  }.
