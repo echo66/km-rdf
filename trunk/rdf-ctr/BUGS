@@ -1,0 +1,2 @@
+(assert_t(a,b,c,d)#true) >> (assert_t(e,r,t,y)#true) >> fail.
+
