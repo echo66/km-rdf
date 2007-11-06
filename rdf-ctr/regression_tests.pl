@@ -44,6 +44,10 @@ test(' - 5th test: tabling a determinist predicate: ',(
 	(assert(mode sum(in,in,out) is det) and assert(sum(A,B,C) :- C is A+B) >> table sum(1,2,D) >> lookup(sum(1,2,D)))
 	)).
 
+test(' - 6th test: sequence of concurrent conjunctions: ',(
+	(\+((assert_t(a,b,c,d)#true) >> (assert_t(e,r,t,y)#true) >> fail))
+	)).
+
 run :-
         forall(test(Description,Test),
                 ((writeln(Description), writeln(Test), call(Test) ->
