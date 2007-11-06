@@ -68,35 +68,81 @@ tr.
 :- use_module(library('semweb/rdf_db')).
 
 A >> B :- 
-	tr,
+	(tr,
 	A,
-	B.
+	B);allfail.
 
 A and B :- (A, B) *-> true;(B, A). %should be A,B -> true;B,A ? perhaps with a soft cut?
 
 A or B :- A; B.
 
-A # B :-
-	concconj_to_list((A#B),List),length(List,N),
+%max_threads(1).
+%A # B :-
+%	concconj_to_list((A#B),List),
+%	max_threads(Max),
+%	cut_list(Max,List,Lists),writeln(Lists),
+%	(member(L,Lists) =>> (ctr:execute_list_concurrently(L))).
+:- dynamic status_queue/1.
+:- dynamic feedback_queue/1.
+:- dynamic waiting_thread/1.
+
+reset_queues :-
+	retractall(status_queue(Status)),
+	retractall(feedback_queue(Feedback)),
 	message_queue_create(Status),
-	message_queue_create(Gstatus),
-	findall(Id,(
-			member(G,List),
-			thread_create((
-				(G,thread_send_message(Status,ok),thread_get_message(Gstatus,Msg),((Msg=allfail,fail);(Msg=allok)),!);(thread_send_message(Status,failed),fail)
+	assert(status_queue(Status)),
+	message_queue_create(Feedback),
+	assert(feedback_queue(Feedback)).
+:- reset_queues.
+
+A # B :- 
+	(concconj_to_list((A#B),List),
+	execute_list_concurrently(List),allok);allfail.
+
+execute_list_concurrently(List) :-
+	status_queue(Status),
+	feedback_queue(Feedback),
+	length(List,N),
+	forall(
+		member(G,List),
+			(thread_create((
+				(G,thread_send_message(Status,ok),thread_get_message(Feedback,Msg),((Msg=allfail,fail);(Msg=allok)),!);(thread_send_message(Status,failed),fail)
 			),Id,[]),
-			format('created thread ~w for ~w\n',[Id,G])
-		
-		),Ids),
-	receive_ok_failed(Status,N,_,Ok),
-	(Ok=N->send_n_message(N,Gstatus,allok);send_n_message(Ok,Gstatus,allfail)),
-	forall(member(Id,Ids),(
-			format('joining thread ~w\n',[Id]),
-			thread_join(Id,true)
-		)),
-	message_queue_destroy(Status),
-	message_queue_destroy(Gstatus).
-	
+			assert(waiting_thread(Id)),
+			format('- Created thread ~w for ~w\n',[Id,G])
+			)
+		),
+	receive_ok_failed(Status,N,F,Ok),writeln(N),writeln(Ok),writeln(F),
+	(Ok < N -> 
+		( writeln(' - One failure: rolling back all transactions'),
+		  allfail
+		  );
+		( writeln(' - Concurrent Conjunction succeeded'),
+		  true)
+	).
+
+allok :- 
+	bagof(Id,waiting_thread(Id),ThreadBag),
+	length(ThreadBag,N),
+	feedback_queue(Feedback),
+	send_n_message(N,Feedback,allok),
+	joinall.
+
+allfail :- 
+	bagof(Id,waiting_thread(Id),ThreadBag),
+	length(ThreadBag,N),
+	feedback_queue(Feedback),
+	send_n_message(N,Feedback,allfail),
+	joinall,
+	fail.
+
+joinall :-
+	forall(
+		waiting_thread(Id),
+			( thread_join(Id,_), format(' - Cleaned thread ~w\n',Id),retractall(waiting_thread(Id)))
+		),
+	reset_queues.
+
 
 o A :- A. %does not work for now - i need to know how to stop every other threads
 
@@ -191,6 +237,15 @@ send_n_message(N,K,Channel,Msg) :-
 assign_l([],_).
 assign_l([H|T],H) :-
 	assign_l(T,H).
+
+cut_list(N,List,[List]) :-
+	length(List,M),
+	M < N,!.
+cut_list(N,List,[H|T]) :-
+	length(H,N),
+	append(H,Tail,List),
+	cut_list(N,Tail,T).
+
 
 
 %state
