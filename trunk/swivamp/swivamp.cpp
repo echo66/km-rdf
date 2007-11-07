@@ -87,7 +87,7 @@ static PL_blob_t vamp_blob =
  * list is returned as Prolog list of Keys (Prolog atoms)
  */
 
-PREDICATE(vmpl_pluginsList, 1)
+PREDICATE(vmpl_plugins, 1)
 {
 	//-PluginsList: list of Prolog atoms containing the plugin keys.
 
