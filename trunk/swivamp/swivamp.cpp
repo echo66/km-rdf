@@ -1,13 +1,14 @@
 /**
  * SWI-Prolog external interface to Vamp Plugins
- * This C/C++ source defines the module swivamp that is loaded by the vamp module (direct interface with prolog).
- * This interface integrates the libvamp-hostsdk library for vamp host definition written by Chris Cannam 
+ * This C/C++ source defines foreign prediactes loaded by the vamp module (direct interface with prolog).
+ * This interface integrates the libvamp-hostsdk library for vamp hosts definition written by Chris Cannam (c4dm)
  * David Pastor Escuredo 2007
  *
  */
 
-#include <SWI-cpp.h>
-#include <iostream>
+#include <swiaudioblob.h>
+#include <swimo.h>
+
 #include <string>
 #include <sndfile.h>
 #include <cmath>
@@ -19,43 +20,74 @@
 using namespace Vamp::HostExt;
 using namespace std;
 
-//These are functions written on the C interface with SWI-Prolog to enhance the C++ interface
+
+			/***************************************************************************************************
+			***** Prototypes of the C functions used in this interface to enhance the simpler C++ interface ****
+			***************************************************************************************************/
+
+int
+vmpl_plugin_to_blob(Vamp::Plugin *, term_t);//Vamp::Plugin* to blob so we can refer it later on
+
+Vamp::Plugin *
+vmpl_blob_to_plugin(term_t);//We get the pointer to plugin from the blob
+
+const float* const*
+vmpl_frame_to_input(term_t);//Constructs a valid block of data as vamp plugin input from a MO::frame
+
 term_t
-features_to_prologList(Vamp::Plugin::FeatureSet, int, Vamp::RealTime);
+vmpl_features_to_prolog(Vamp::Plugin::FeatureSet, int, Vamp::RealTime);//Converts the FutureSet object extracted from the plugins into a complex Prolog term
 
 Vamp::RealTime 
-get_timeStamp(term_t);
+vmpl_prolog_to_timeStamp(term_t);//Takes a prolog term representing the timestamp and creates a Vamp::RealTime object
 
 term_t
-prolog_timeStamp(Vamp::RealTime);
+vmpl_prolog_from_timeStamp(Vamp::RealTime);//Creates a prolog representation of the Vamp::RealTime object representing the timestamp
 
 term_t
-plugin_remainingFeatures(int, int, int);
+vmpl_timestamp_humanReadable(Vamp::RealTime);//From the Vamp::RealTime object to a human-readable timestamp wrapped into a prolog term
 
 term_t
-plugin_process(const float* const*, Vamp::RealTime, int);
-
-term_t
-timestamp_humanReadable(Vamp::RealTime);
-
-term_t
-timestamp_float(Vamp::RealTime);
+vmpl_timestamp_float(Vamp::RealTime);//Simplest prolog representation of the timestamp as float
 
 Vamp::RealTime
-float_timestamp(term_t);
+vmpl_float_timestamp(term_t);//From a float to timestamp as Vamp::RealTime
 
-//Variables
+
+				/***********************************************************************
+				**************************** Variables definition **********************
+				***********************************************************************/
+
+/*
+ * Singleton loader for every plugin
+ */
 PluginLoader *prolog_loader=0;
-Vamp::Plugin *plugin=0; //working plugin
 
+/*
+ * Prolog blob wrapping a pointer to a vamp plugin. Check this has not bugs if the same plugin
+ */
+static PL_blob_t vamp_blob = 
+{ PL_BLOB_MAGIC,
+  PL_BLOB_UNIQUE,
+					/* unique representation for a vamp plugin*/
+  "vamp_plugin",
+  NULL,					/* release */
+  NULL,					/* compare */
+  NULL,					/* write */
+  NULL,					/* acquire */
+  NULL,					/* save load*/
+  NULL,
+};
+
+				/************************************************************************
+ 				********************* Foreign predicates (deterministic) ****************
+				************************************************************************/
 
 /**
- * SWIVAMP: LIST OF PREDICATES
+ * This predicate retrieves the list of Plugin Keys (system specific identifications of plugins) available in the system and compatible with Vamp. The
+ * list is returned as Prolog list of Keys (Prolog atoms)
  */
 
-//This predicate retrieves the list of Plugin Keys (system specific identifications of plugins) available in the system and compatible with Vamp. The
-//list is returned as Prolog list of Keys (Prolog atoms)
-PREDICATE(pluginsList, 1)
+PREDICATE(vmpl_pluginsList, 1)
 {
 	//-PluginsList: list of Prolog atoms containing the plugin keys.
 
@@ -92,125 +124,114 @@ PREDICATE(pluginsList, 1)
   	}
 }
 
-//Prolog predicate to create an instance of the plugin wrapping the function loadPlugin of the class Loader: When the plugin is loaded, the global 
-//pointer *plugin is pointing to this plugin until destroy_plugin/0 is called and the pointer is freed. Otherwise, every function will be executed by
-//this plugin although we are using another plugin key.
-//This is the first step of the plugin lifecycle.
-PREDICATE(instantiate_plugin, 3)
+/***  NOTE: following predicates do follow the plugin lifecycle, so the documentation can be found at Plugin.h file ****/
+
+/***  First step of the plugin lifecycle ****/
+
+/*
+	vmpl_load_plugin(+PluginKey, +SampleRate, -Plugin). Loads any plugin available given its name and specifying the input sample rate. The plugin	
+	in pointed by the returned prolog term
+*/
+
+PREDICATE(vmpl_load_plugin, 3)
 {	
-	//+name of the plugin = Plugin key (see hostExt of Vamp-SDK) 
-	//+Input Sample Rate: the sample rate of the audio file given or any sample rate if we just want to query data of the plugin and not execute it
-	//+Flag for adapters: we set adapt all, so we do not take care about the channels and input domain
+	//+ name of the plugin = Plugin key (see hostExt of Vamp-SDK)
+	//+ input sample rate
+	//+ Flag for adapters (to set)
+	//- Pointer to plugin as a vamp_blob
 	
+	//This is a pointer to the plugin that will be wrapped and returned to prolog for later queries.
+	Vamp::Plugin *plugin=0; 
 	try{
-		string pluginName((char *)A1);
-		double isr= A2;
+		//Getting data from terms
+		string pluginName((char *)A1);//plugin key
+		float isr = float(double(A2));		
 		//A3 would be the adapter flag in case we dont want to adapt all by default
-		if(!prolog_loader) prolog_loader = PluginLoader::getInstance();//just one loader
-		plugin = prolog_loader->loadPlugin(pluginName,(float)isr,PluginLoader::ADAPT_ALL);//All adapters active by default
- 
+		
+		//just one prolog loader for every plugin
+		if(!prolog_loader) prolog_loader = PluginLoader::getInstance();
+		
+		//load plugin 	
+		plugin = prolog_loader->loadPlugin(pluginName, isr, PluginLoader::ADAPT_ALL);//All adapters active by default
 		if (!plugin) {
         		cerr << "ERROR: Failed to load plugin" << endl;
         		return FALSE;
 		}		
-		return TRUE;
-
+		//Now we wrap the pointer into a blob so we can use it later on to fullfil the lifecycle
+		term_t prolog_plugin = PL_new_term_ref();
+		vmpl_plugin_to_blob(plugin, prolog_plugin);
+		return A3 = PlTerm(prolog_plugin);		
+		
 	} catch ( PlException &ex )
   	{ cerr << (char *) ex << endl;
 	  return FALSE;
  	}
 }
 
-//Free the space and pointer of the previous working plugin. This predicate MUST be called every time we want to change the working plugin and query or
-//execute another plugin.
-PREDICATE(destroy_plugin, 0)
-{
-	try{ 
-		delete plugin;
-		plugin = 0;
-		return TRUE;
 
- 	} catch ( PlException &ex )
+/**
+ *  vmpl_load_plugin_for(+PluginKey, +MO::signal or MO::frame, -Plugin). This is an optional predicate to load the plugin given an MO::element 	  
+ *  containing audio data to be processed
+ */
+
+PREDICATE(vmpl_load_plugin_for, 3)
+{	
+	//+ name of the plugin = Plugin key (see hostExt of Vamp-SDK)
+	//+ MO::signal or MO::frame
+	//+ Flag for adapters (to set)
+	//- Pointer to plugin as a vamp_blob
+	
+	//This is a pointer to the plugin that will be wrapped and returned to prolog for later queries.
+	Vamp::Plugin *plugin=0; 
+	try{
+		//Getting data from terms
+		string pluginName((char *)A1);//plugin
+
+		//We get the data and check if we are passing a MO::signal or MO::frame
+		term_t data = PL_new_term_ref();//signal and get the isr
+		data = term_t(PlTerm(A2));
+		
+		//A3 would be the adapter flag in case we dont want to adapt all by default
+		
+		//just one prolog loader for every plugin
+		if(!prolog_loader) prolog_loader = PluginLoader::getInstance();
+		
+		float isr = MO::GET::sample_rate(data);//see swimo.h
+		if(isr<0){//incorrect input data
+			return false;
+		}
+		//get instance of a plugin for the correct isr
+		plugin = prolog_loader->loadPlugin(pluginName, isr, PluginLoader::ADAPT_ALL);//All adapters active by default
+		if (!plugin) {
+        		cerr << "ERROR: Failed to load plugin" << endl;
+        		return FALSE;
+		}		
+		//Now we wrap the pointer into a blob so we can use it later on to fullfil the lifecycle
+		term_t prolog_plugin = PL_new_term_ref();
+		vmpl_plugin_to_blob(plugin, prolog_plugin);
+		return A3 = PlTerm(prolog_plugin);		
+		
+	} catch ( PlException &ex )
   	{ cerr << (char *) ex << endl;
 	  return FALSE;
-  	}
-
+ 	}
 }
 
-//The following predicates retrieve meta data of the working plugin 
-PREDICATE(pluginMaker, 1)
+/***  Second step of the plugin lifecycle ****/
+
+/*
+	We just query available outputs (returns a list with the names)
+*/
+
+PREDICATE(vmpl_pluginOutputs, 2)
 {	
-	string author = plugin->getMaker();
-	char maker[author.size()+1];
-	for(unsigned int j=0;j<author.size();j++){
-		maker[j]=author[j];
-	}
-	maker[author.size()] = '\000';
-	return A1 = PlAtom(maker);
-}
-
-PREDICATE(pluginIdentifier, 1)
-{
-	string id = plugin->getIdentifier();
-	char identifier[id.size()+1];
-	for(unsigned int j=0;j<id.size();j++){
-		identifier[j]=id[j];
-	}
-	identifier[id.size()] = '\000';
-	return A1 = PlAtom(identifier);
-}
-
-PREDICATE(pluginName, 1)
-{
-	string name = plugin->getName();
-	char cname[name.size()+1];
-	for(unsigned int j=0;j<name.size();j++){
-		cname[j]=name[j];
-	}
-	cname[name.size()] = '\000';
-	return A1 = PlAtom(cname);
-}
-PREDICATE(pluginDescription, 1)
-{
-	string des = plugin->getDescription();
-	char cdes[des.size()+1];
-	for(unsigned int j=0;j<des.size();j++){
-		cdes[j]=des[j];
-	}
-	cdes[des.size()] = '\000';
-	return A1 = PlAtom(cdes);
-}
-
-PREDICATE(pluginCopyright, 1)
-{
-	string copy = plugin->getCopyright();
-	char ccopy[copy.size()+1];
-	for(unsigned int j=0;j<copy.size();j++){
-		ccopy[j]=copy[j];
-	}
-	ccopy[copy.size()] = '\000';
-	return A1 = PlAtom(ccopy);
-}
-
-PREDICATE(pluginVampVersion, 1)
-{
-	int vamp = plugin->getVampApiVersion();
-	return (A1 = vamp);
-}
-
-PREDICATE(pluginVersion, 1)
-{
-	int version = plugin -> getPluginVersion();
-	return (A1=version);
-}
-
-//The host may query outputs of the plugin. The plugin process call requires the selection of a certain output to be retrieved. We will retrieve now a 
-//list of Prolog atoms with the name of the outputs, but we will use a number (0-N) to select them for the execution.
-//This is the second step of the plugin lifecycle
-PREDICATE(pluginOutputs, 1)
-{
+	//+plugin (already loaded, so we just have a pointer to it)
 	//-outputsList of the working plugin (just the names)
 
+	term_t blob = PL_new_term_ref();
+	blob = term_t(PlTerm(A1));
+	Vamp::Plugin *plugin;
+	plugin = vmpl_blob_to_plugin(blob);
 	try{
 		Vamp::Plugin::OutputList out = plugin -> getOutputDescriptors();
 		cerr << (int)out.size() << " outputs." << endl;
@@ -229,7 +250,7 @@ PREDICATE(pluginOutputs, 1)
 			tail.append(PlAtom(o));
 		}
 		tail.close();
-		return A1 = prologOutputList;
+		return A2 = prologOutputList;
 
 	} catch ( PlException &ex )
   	{ cerr << (char *) ex << endl;
@@ -237,13 +258,20 @@ PREDICATE(pluginOutputs, 1)
  	}
 }
 
-//Retrieve programs and parameters to be set. 
-//NOTE: There is not a full predicate to run the plugin setting the programs and parameters!
-//This is the third step the lifecycle
-PREDICATE(pluginPrograms, 1)
+/***  Third step of the plugin lifecycle ****/
+
+/*
+	We just query available programs (returns a list with the names)
+*/
+
+PREDICATE(vmpl_pluginPrograms, 2)
 {
+	//+ plugin
 	//- list of the available programs for the working plugin.
-	
+	term_t blob = PL_new_term_ref();
+	blob = term_t(PlTerm(A1));
+	Vamp::Plugin *plugin;
+	plugin = vmpl_blob_to_plugin(blob);
 	try{
 		Vamp::PluginBase::ProgramList progList = plugin -> getPrograms();
 		//cerr << (int)progList.size() << " programs: " << endl;
@@ -263,7 +291,7 @@ PREDICATE(pluginPrograms, 1)
 			tail.append(PlAtom(p));
 		}
 		tail.close();
-		return A1 = prologProgList;
+		return A2 = prologProgList;
 		
 	} catch ( PlException &ex )
   	{ cerr << (char *) ex << endl;
@@ -271,10 +299,37 @@ PREDICATE(pluginPrograms, 1)
  	}
 }
 
-PREDICATE(pluginParameters, 1)
+/*
+	This predicate sets the program specified as argument.
+*/
+
+PREDICATE(vmpl_select_program, 2)
 {
-	//-List of the parameters that need be set for the working plugin
+	//+plugin
+	//+name of the program to set for the plugin. 
 	
+	term_t blob = PL_new_term_ref();
+	blob = term_t(PlTerm(A1));
+	Vamp::Plugin *plugin;
+	plugin = vmpl_blob_to_plugin(blob);
+	string program((char *)A2);
+	plugin-> selectProgram(program);//if not program, do nothing
+	return TRUE;
+}
+
+/*
+	Query programs. The default values can't be retrieved (so far).
+*/
+
+PREDICATE(vmpl_pluginParameters, 2)
+{
+	//+ plugin
+	//- List of the parameters that need be set for the working plugin
+	
+	term_t blob = PL_new_term_ref();
+	blob = term_t(PlTerm(A1));
+	Vamp::Plugin *plugin;
+	plugin = vmpl_blob_to_plugin(blob);
 	try{
 		Vamp::PluginBase::ParameterList parList = plugin -> getParameterDescriptors();
 		//cerr << (int)parList.size() << " parameters" << endl;
@@ -294,7 +349,7 @@ PREDICATE(pluginParameters, 1)
 			tail.append(PlAtom(p));
 		}
 		tail.close();
-		return A1 = prologParamList;
+		return A2 = prologParamList;
 		
 	} catch ( PlException &ex )
   	{ cerr << (char *) ex << endl;
@@ -302,217 +357,240 @@ PREDICATE(pluginParameters, 1)
  	}
 }
 
-//Returns the Sample Rate for the given audio file (path to it). We need the sample rate for the instantiation of the plugin already, so from here on
-//we should work only on the working plugin.
-//We may want to retrieve only data about the plugin without executing it. Then, we can create a plugin with a random sample rate to query some data.
-//Please notice that some data depends on the audio file and its sample rate. This should be managed with the public predicates of the vamp module.
-PREDICATE(inputSampleRate, 2)
+/*
+	Setting parameters. If not, default ones will be used as normal
+*/
+PREDICATE(vmpl_set_parameter, 3)
 {
-	//+ audio path: Absolut path in the file system
-	//- input sample rate: We obtain the sample rate of the audio file. Then, we close the sndile.
+	//+plugin
+	//+parameter to set
+	//+value of the parameter. 
+	
+	term_t blob = PL_new_term_ref();
+	blob = term_t(PlTerm(A1));
+	Vamp::Plugin *plugin;
+	plugin = vmpl_blob_to_plugin(blob);
+	string parameter((char *)A2);
+	float value = float((double)A3);
+	plugin-> setParameter(parameter, value);
+	return TRUE;
+}
+
+/***  Fourth step of the plugin lifecycle ****/
+
+/*
+	Query preferred block size
+*/
+
+PREDICATE(vmpl_get_blockSize, 2)
+{
+	//+ plugin
+	//- pref block size
+
+	term_t blob = PL_new_term_ref();
+	blob = term_t(PlTerm(A1));
+	Vamp::Plugin *plugin;
+	plugin = vmpl_blob_to_plugin(blob);
+	size_t bs = plugin -> getPreferredBlockSize();
+	return A2 = PlTerm(long(bs));
+}
+
+/*
+	Query preferred step size
+*/
+
+PREDICATE(vmpl_get_stepSize, 2)
+{
+	//+ plugin
+	//- pref step size
+
+	term_t blob = PL_new_term_ref();
+	blob = term_t(PlTerm(A1));
+	Vamp::Plugin *plugin;
+	plugin = vmpl_blob_to_plugin(blob);
+	size_t ss = plugin -> getPreferredStepSize();
+	return A2 = PlTerm(long(ss));
+}
+
+/*
+	Query channel limits. Well, it is not so important as by default we use a ChannelAdapter plugin.
+*/
+
+PREDICATE(vmpl_get_min_channel, 2)
+{
+	//+ plugin
+	//- min channels
+
+	term_t blob = PL_new_term_ref();
+	blob = term_t(PlTerm(A1));
+	Vamp::Plugin *plugin;
+	plugin = vmpl_blob_to_plugin(blob);
+	size_t min = plugin -> getMinChannelCount();
+	return A2 = PlTerm(long(min));
+}
+
+PREDICATE(vmpl_get_max_channel, 2)
+{
+	//+ plugin
+	//- max channels
+
+	term_t blob = PL_new_term_ref();
+	blob = term_t(PlTerm(A1));
+	Vamp::Plugin *plugin;
+	plugin = vmpl_blob_to_plugin(blob);
+	size_t max = plugin -> getMaxChannelCount();
+	return A2 = PlTerm(long(max));
+}
+
+/***  Fifth step of the plugin lifecycle ****/
+
+/*
+	Initializing the plugin. We give freedom to set it, but should be done with the preferred ones.
+*/
+
+PREDICATE(vmpl_initialize_plugin, 4)
+{
+	//+plugin
+	//+number of channels
+	//+step size
+	//+block size
 
 	try{
-		
-		SNDFILE *sndfile;
-		SF_INFO sfinfo;
-		memset(&sfinfo, 0, sizeof(SF_INFO));	
-		string wavname((char *)A1);
-		sndfile = sf_open(wavname.c_str(), SFM_READ, &sfinfo);
+		//getting parameters
+		term_t blob = PL_new_term_ref();
+		blob = term_t(PlTerm(A1));
+		Vamp::Plugin *plugin;
+		plugin = vmpl_blob_to_plugin(blob);
+		int channels = (int)A2;
+		size_t stepSize = (size_t)(double)A3;
+		size_t blockSize = (size_t)(double)A4;
+		return plugin -> initialise(channels, stepSize, blockSize);
 
-		if (!sndfile) {
-			cerr << "ERROR: Failed to open input file \""
-		             << wavname << "\": " << sf_strerror(sndfile) << endl;
+	} catch ( PlException &ex )
+  	{ cerr << (char *) ex << endl;
+	  return FALSE;
+  	}
+}
+
+/***  Fifth step of the plugin lifecycle: MISSING as we don't care about the number of values/output now ****/
+
+/***  Sixth step of the plugin lifecycle ****/
+
+/*
+	vmpl_run_plugin(+plugin, +block, -features) Minimum predicate calling the process of the plugin
+*/
+
+PREDICATE(vmpl_process_block, 4)
+{
+	//+plugin
+	//+Block of data to process (both channels) passed as MO::frame!!!
+	//+input
+	//-Set of Features
+	
+	//getting input arguments
+	term_t blob = PL_new_term_ref();
+	blob = term_t(PlTerm(A1));
+	Vamp::Plugin *plugin;
+	plugin = vmpl_blob_to_plugin(blob);
+ 
+	//Frame and the necessary arguments
+	term_t frame = PL_new_term_ref();
+	frame = term_t(PlTerm(A2));
+	float isr = MO::GET::sample_rate(frame);
+	size_t initSample = MO::GET::first_sample(frame);
+	
+	const float* const* input;
+	input = vmpl_frame_to_input(frame);
+
+	//process the frame after having converted it into a valid block of data for vamp plugins
+	
+	Vamp::RealTime rt = Vamp::RealTime::frame2RealTime(initSample, (int)isr);
+	PlTerm feature(vmpl_features_to_prolog(plugin->process(input, rt), (int)A3, rt));
+	
+	//delete input
+	return A4= feature;
+}
+
+				/************************************************************************
+ 				******************* C Interface functions implementation ****************
+				************************************************************************/
+
+/*
+ * This one returns a term reference to a blob containing a pointer to a plugin, so we can refer to it within a context
+ */
+int
+vmpl_plugin_to_blob(Vamp::Plugin *plugin, term_t blob){
+
+	return PL_unify_blob(blob, (void **)&plugin, sizeof(plugin), &vamp_blob);
+}
+
+/*
+ * This one gives back the Vamp::Plugin pointer
+ */
+
+Vamp::Plugin *
+vmpl_blob_to_plugin(term_t blob){
+
+	PL_blob_t *type;        //type
+	void *plugin;		//void pointer to plugin
+	size_t size;
+	PL_get_blob(blob, &plugin, &size, &type);
+	if(type != &vamp_blob){
+		throw PlException("Not Vamp Plugin Blob");
+	}
+	return *(Vamp::Plugin **)(plugin);
+}
+
+/*
+ * This function converts a MO::frame into a proper block of data SPECIFIC for Vamp Plugins input type. There is no need to the other way around in this
+ * type
+ */
+
+const float* const*
+vmpl_frame_to_input(term_t frame){
+
+	term_t sample_rate = PL_new_term_ref();
+	term_t channel_count = PL_new_term_ref();
+	term_t initpos = PL_new_term_ref();
+	term_t ch1 = PL_new_term_ref();//blobs containing the data of the frame
+	term_t ch2 = PL_new_term_ref();
+	MO::frame(channel_count, sample_rate, initpos, ch1, ch2, frame);
+	
+	//parameters to initialize the block of input data
+	int channels;
+	PL_get_integer(channel_count, &channels);
+
+	vector<float> vector_ch1 = AudioDataConversion::term_to_audio_vector(ch1);
+	vector<float> vector_ch2;
+	if(channels==2){
+		vector_ch2 = AudioDataConversion::term_to_audio_vector(ch2);
+	}
+
+	//Creating the multidimensional array as input
+	float **plugbuf = new float*[channels];
+	for (int c = 0; c < channels; ++c){
+		plugbuf[c] = new float[vector_ch1.size() + 2];//why + 2??????
+	}
+    
+	size_t j = 0;
+	//Channel 1
+        while (j < vector_ch1.size()) {
+                plugbuf[1][j] = vector_ch1.at(j);
+                ++j;
+        }
+	if(channels==2){
+		j=0;
+		while (j < vector_ch1.size()){
+			plugbuf[1][j] = vector_ch2.at(j);
+                	++j;
 		}
-		int sr = sfinfo.samplerate;
-		sf_close(sndfile);//close the audiofile
-		return A2=sr;
-
-	} catch ( PlException &ex )
-  	{ cerr << (char *) ex << endl;
-	  return FALSE;
-  	}
-}
-
-//Retrieves the number of channels of the audioFile. The limits of the plugin does not matter as the plugin is configured as a channel adapter. 
-//We just need to pass the value to the plugin channel adapter and it will be in charge of mixing or multiplexing.
-PREDICATE(channels_information, 2)
-{
-	//+ audio file: absolut file path to the audio file
-	//- number of channels of the audio file. We close the audio file again.
-	
-	try{
-
-		SNDFILE *sndfile;
-		SF_INFO sfinfo;
-		memset(&sfinfo, 0, sizeof(SF_INFO));	
-		string wavname((char *)A1);
-		sndfile = sf_open(wavname.c_str(), SFM_READ, &sfinfo);
-
-		if (!sndfile) {
-			cerr << "ERROR: Failed to open input file \""
-		             << wavname << "\": " << sf_strerror(sndfile) << endl;
-		}		
-		int audio = sfinfo.channels;
-		sf_close(sndfile);//close the audio file
-		return A2=audio;
-
-	} catch ( PlException &ex )
-  	{ cerr << (char *) ex << endl;
-	  return FALSE;
- 	}
-}
-
-//Initialization of the working plugin. This means that we must have instantiated it correctly before calling this predicate. 
-//The initialization requires 3 parameters:
-//1- step size: preferred step size queried once the plugin is instantiated with the correct sample rate!
-//2- block size: preferred block size queried once the plugin is instantiated with the correct sample rate!
-//Both step and bloc size may be set with other values, but this is discouraged in general, so the interface only allows the preferred intialization.
-//3- channels: the number of audio file channels are passed to allow the adapter perform the necessary pre-processing.
-//Steps fourth and fifth of the lifecycle.
-PREDICATE(initialize_plugin, 1)
-{
-	//-number of channels: if the adapter is flagged, then it is enough with the audio channels argument
-	//For convenience, the stepSize and the blockSize are always intialized as the preferred settings.
-	
-	try{
-		int channels = (int)A1;
-		int stepSize = plugin -> getPreferredStepSize();//always preferred step and block size!
-		int blockSize = plugin -> getPreferredBlockSize();
-		bool init = plugin -> initialise(channels, stepSize, blockSize);
-		return init;
-
-	} catch ( PlException &ex )
-  	{ cerr << (char *) ex << endl;
-	  return FALSE;
-  	}
-}
-
-//This predicate calls the predicate plugin_process iteratively passing blocks of data for a given audio file and retrieving a prolog list of sublists
-//that correspond to the features extracted for each of input frame. The process method belongs to the working plugin, so we have to ensure that we 
-//completed the lifecycle till this point.
-PREDICATE(run_plugin, 3)
-{	
-	//+the audio file passed as input. This predicates chunks the audio file passing frames to the plugin process function.
-	//+the output selected: Remember a number between [0,number of outputs-1]. If we want to create the whole set of features, we must retrieve each
-	//feature list and create a map of features.
-	//-big prolog list: [output, number of values/output, [sublists of features for each input frame]|...]
-	//the working plugin pointed by the global pointer: plugin.
-	
-	SNDFILE *sndfile;
-	SF_INFO sfinfo;
-	memset(&sfinfo, 0, sizeof(SF_INFO));	
-	string wavname((char *)A1);
-	sndfile = sf_open(wavname.c_str(), SFM_READ, &sfinfo);
-
-	if (!sndfile) {
-		cerr << "ERROR: Failed to open input file \""
-	             << wavname << "\": " << sf_strerror(sndfile) << endl;
-	}
-
-	//setting the input stream.
-	int blockSize = plugin -> getPreferredBlockSize();//We need these parameters again to make an accurate buffering
-	int stepSize = plugin -> getPreferredStepSize();
-	int channels = sfinfo.channels;
-        float *fileBuf = new float[blockSize * channels];
-    	float **plugbuf = new float*[channels];
-	for (int c = 0; c < channels; ++c) plugbuf[c] = new float[blockSize + 2];
-	
-	//Setting the prolog list
-	PlTerm featureList;
-	PlTail tail(featureList);
-
-	//Information about the output has head of the list
-	Vamp::Plugin::OutputList out = plugin -> getOutputDescriptors();
-	string x = out[(int)A2].name;
-	char selecOutput[x.size()+1];
-	for(unsigned int m=0;m<x.size();m++){
-		selecOutput[m]=x[m];
-	}
-	selecOutput[x.size()] = '\000';
-	PlAtom poutput(selecOutput);
-	tail.append(poutput);
-
-	//the number of values/output depends on the initialization.
-	if(out[(int)A2].hasFixedBinCount){
-		tail.append((long)out[(int)A2].binCount);//This parameter can only be queried after the instantiation and intialization as it may vary.
-	}else{
-		tail.append(PlAtom("No fixed bin count!"));//unusual case
-	}
-    	
-	//passing the input to the plugin and retrieving a prolog list
-	for (size_t i = 0; i < sfinfo.frames; i += stepSize) {
-
-        int count;
-
-        if (sf_seek(sndfile, i, SEEK_SET) < 0) {
-           cerr << "ERROR: sf_seek failed: " << sf_strerror(sndfile) << endl;
-           break;
-        }
-        
-        if ((count = sf_readf_float(sndfile, fileBuf, blockSize)) < 0) {
-          cerr << "ERROR: sf_readf_float failed: " << sf_strerror(sndfile) << endl;
-          break;
-        }
-
-        for (int c = 0; c < channels; ++c) {
-            int j = 0;
-            while (j < count) {
-                plugbuf[c][j] = fileBuf[j * sfinfo.channels + c];
-                ++j;
-            }
-            while (j < blockSize) {
-                plugbuf[c][j] = 0.0f;
-                ++j;
-            }
-        }
-	//the process of the plugin is wrapped into an hybrid method (C/Prolog) that has C inpit and Prolog output.
-	//we only process the output selected.
-	PlTerm result = plugin_process(plugbuf, Vamp::RealTime::frame2RealTime(i, sfinfo.samplerate),int(A2));
-	if(result!=PlTerm((long)0)){//avoid empty list
-		tail.append(result);
-	}
-	}
-    //at the end, we retrieve the remaining features if any.
-    PlTerm remaining = plugin_remainingFeatures(int(A2), sfinfo.frames, sfinfo.samplerate);
-    if(remaining!=PlTerm((long)0)){
-    	tail.append(remaining); 
-    }
-    tail.close();
-    return A3 = featureList;
-}
-
-//These two functions wrap the plugin feature extraction functions returning a prolog representation of the feature set instead of a
-//Vamp::Plugin::FeatureSet for each input block of data passed and a Vamp::RealTime object. The input for this hybrid function is still on C++,
-//so can not be called as prolog predicate itself but from a predicate that calls it iteratively
-//The returned list created by the function features_to_prologList only contains a list of the whole set according to the argument int ouput.
-term_t
-plugin_process(const float* const* input, Vamp::RealTime rt, int output){
-
-	try{
-		return features_to_prologList(plugin -> process(input, rt), output, rt);//conver the Feature object into a prolog list.	
-	
-	}catch ( PlException &ex )
-  	{ cerr << (char *) ex << endl;
-	  return FALSE;
-  	}
-}
-
-term_t
-plugin_remainingFeatures(int output, int lastFrame, int sr){
-
-	try{
-		Vamp::RealTime rt(lastFrame, sr);//we need to associate the timestamp of the last frame for remaining features.
-		return features_to_prologList(plugin -> getRemainingFeatures(), output, rt);
-
-	}catch ( PlException &ex )
-  	{ cerr << (char *) ex << endl;
-	  return FALSE;
-  	}
+	}	
+	return plugbuf;
 }
 
 //Returns a prolog list that represents a Vamp::Plugin::FeatureList for the output passed as argument (create the vice-versa typeconversion).
 term_t
-features_to_prologList(Vamp::Plugin::FeatureSet fs, int output, Vamp::RealTime rt){
+vmpl_features_to_prolog(Vamp::Plugin::FeatureSet fs, int output, Vamp::RealTime rt){
 
 	//The feature set for a certain input block of data is a map with n list of feature where n is the number of the outputs that the plugin
 	//provides. Each feature is a structure: label, timeStamp, vector of values.
@@ -534,10 +612,10 @@ features_to_prologList(Vamp::Plugin::FeatureSet fs, int output, Vamp::RealTime r
 				//feature is the vector of arguments: timestamp and values
 				PlTermv feature(fl[j].values.size()+1);				
 				if(fl[j].hasTimestamp){						
-					PlTerm timestamp = timestamp_float(fl[j].timestamp); 
+					PlTerm timestamp = vmpl_timestamp_float(fl[j].timestamp); 
 					feature[0] = timestamp;
 				}else{
-					PlTerm timestamp = timestamp_float(rt);//if hasTimeStamp = false, we use the frame timestamp
+					PlTerm timestamp = vmpl_timestamp_float(rt);//if hasTimeStamp = false, we use the frame timestamp
 					feature[0] = timestamp;
 				}		
 				for(unsigned int v=0; v<fl[j].values.size(); v++){
@@ -560,7 +638,7 @@ features_to_prologList(Vamp::Plugin::FeatureSet fs, int output, Vamp::RealTime r
 
 //A float represeting the timestamp in sec for better management as prolog term
 term_t
-timestamp_float(Vamp::RealTime rt){
+vmpl_timestamp_float(Vamp::RealTime rt){
 
 	float timestamp = (float)rt.sec + ((float)rt.nsec)/1000000000;
 	return PlTerm(timestamp);
@@ -568,7 +646,7 @@ timestamp_float(Vamp::RealTime rt){
 
 //Returning a Real Time object representig the timestamp.
 Vamp::RealTime
-float_timestamp(float timestamp){
+vmpl_float_timestamp(float timestamp){
 	
 	int sec = (int)timestamp; //look out! maybe it may round up and it would be wrong!!
 	int nsec = (int)((timestamp-sec)*1000000000);
@@ -577,7 +655,7 @@ float_timestamp(float timestamp){
 
 //Converts the RealTime object into a human-readable prolog term to be displayed in case.
 term_t
-timestamp_humanReadable(Vamp::RealTime rt){
+vmpl_timestamp_humanReadable(Vamp::RealTime rt){
 
 	string timestamp = rt.toString();
 	int length = timestamp.size();	
@@ -593,7 +671,7 @@ timestamp_humanReadable(Vamp::RealTime rt){
 //The following two predicates are useful if we need to pass the realtime object as argument. Type conversion.
 //from a prolog list [sec, nsec], this function creates a RealTime object.
 Vamp::RealTime 
-get_timeStamp(term_t in){
+vmpl_prolog_from_timeStamp(term_t in){
 
 	term_t head = PL_new_term_ref();
 	term_t tail = PL_new_term_ref();
@@ -610,7 +688,7 @@ get_timeStamp(term_t in){
 
 //This predicate creates a list [sec,  nsec] as Prolog representation of a Vamp::RealTime object
 term_t
-prolog_timeStamp(Vamp::RealTime rt){
+vmpl_prolog_to_timeStamp(Vamp::RealTime rt){
 
 	try{
 		PlTerm realTimeList;

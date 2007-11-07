@@ -1,0 +1,6 @@
+1. Predicate to run plugin over audio file and specifying parameters and programs
+2. Predicate for type conversion featuresprologlist -> Vamp::FeatureList
+3. Predicate that wraps the plugin process with prolog terms as input and output.
+4. Type conversion predicates for input buffer of data to a prolog thing and the other way around.
+
+TONAL CHANGE HACE COSAS RARAS!!!
