@@ -1,0 +1,7 @@
+This folder contains libraries providing general purpose tools for the foreign interfaces designed as evaluation engine of the KM
+
+-swiaudioblob: type conversion vector<float> <-> PL_blob_t
+
+-swimo: definition and analysis of prog terms represeting Music Ontology entities
+
+
