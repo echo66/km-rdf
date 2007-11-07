@@ -11,4 +11,5 @@
 	,	op(300,xfy,'=&>') %for all (conjunction)
 	,	op(300,xfx,'rs') %repeat n times (sequence)
 	,       op(300,xfx,'rc') %repeat n times (concurrent conjunction)
+	,	op(1100,fx,'trans') %meta interpreter
 	]).
