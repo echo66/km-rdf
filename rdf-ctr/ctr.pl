@@ -12,6 +12,7 @@
 	,	'rs'/2
 	,	'rc'/2
 	,	s/0
+	,	trans/1
 	,	send/2
 	,	peek/2
 	,	receive/2
@@ -31,6 +32,7 @@
 	,	'<='/1
 	,	'rs'/2
         ,       'rc'/2
+	,	'trans'/1
 	]).
 
 /**
@@ -47,8 +49,6 @@
 
 :- set_prolog_flag(history, 50).
 
-%enable transactions - retract this term to disable them
-tr.
 
 %enable namespace expansion
 :- rdf_meta('>>'(t,t)).
@@ -67,10 +67,13 @@ tr.
 :- use_module(meta).
 :- use_module(library('semweb/rdf_db')).
 
+% handle thread clean up - should be used as trans a # b, for example.
+(trans A) :-
+	A -> (writeln(allok),allok,commit);(writeln(failing),allfail).
+
+
 A >> B :- 
-	(tr,
-	A,
-	B);allfail.
+	A,B.
 
 A and B :- (A, B) *-> true;(B, A). %should be A,B -> true;B,A ? perhaps with a soft cut?
 
@@ -95,9 +98,10 @@ reset_queues :-
 	assert(feedback_queue(Feedback)).
 :- reset_queues.
 
+% only ok for deterministic predicates, for now (i would have to play with thread_exit to handle non determinism).
 A # B :- 
 	(concconj_to_list((A#B),List),
-	execute_list_concurrently(List),allok);allfail.
+	execute_list_concurrently(List)).
 
 execute_list_concurrently(List) :-
 	status_queue(Status),
@@ -106,30 +110,31 @@ execute_list_concurrently(List) :-
 	forall(
 		member(G,List),
 			(thread_create((
-				(G,thread_send_message(Status,ok),thread_get_message(Feedback,Msg),((Msg=allfail,fail);(Msg=allok)),!);(thread_send_message(Status,failed),fail)
+				(catch(G,Exc,(writeln(Exc),thread_send_message(Status,failed),fail)),writeln('I did succeed'),thread_send_message(Status,ok),thread_get_message(Feedback,Msg),((Msg=allfail,fail);(Msg=allok)),!);(thread_send_message(Status,failed),fail)
 			),Id,[]),
 			assert(waiting_thread(Id)),
 			format('- Created thread ~w for ~w\n',[Id,G])
 			)
 		),
+	writeln(' - Checking if current concurrent conjunction succeeds'),
 	receive_ok_failed(Status,N,F,Ok),writeln(N),writeln(Ok),writeln(F),
 	(Ok < N -> 
-		( writeln(' - One failure: rolling back all transactions'),
-		  allfail
+		( writeln(' - At least one failure'),
+		  !,fail
 		  );
 		( writeln(' - Concurrent Conjunction succeeded'),
 		  true)
 	).
 
 allok :- 
-	bagof(Id,waiting_thread(Id),ThreadBag),
+	findall(Id,ctr:waiting_thread(Id),ThreadBag),
 	length(ThreadBag,N),
 	feedback_queue(Feedback),
 	send_n_message(N,Feedback,allok),
 	joinall.
 
 allfail :- 
-	bagof(Id,waiting_thread(Id),ThreadBag),
+	findall(Id,ctr:waiting_thread(Id),ThreadBag),
 	length(ThreadBag,N),
 	feedback_queue(Feedback),
 	send_n_message(N,Feedback,allfail),
@@ -168,7 +173,7 @@ Cond =>> Goal :-
 Cond =#> Goal :-
 	findall(Goal,Cond,Goals),
 	ctr:construct_cseq(Goals,GoalCSeq),
-	GoalCSeq.
+	trans(GoalCSeq).
 
 %for all (create and execute std conjunction)
 Cond =&> Goal :-
