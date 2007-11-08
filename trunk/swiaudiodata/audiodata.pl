@@ -7,6 +7,7 @@
 
 :- module(audiodata,[get_sample_rate/2,
 			get_channels/2,
+			get_samples_per_channel/2,
 			get_frame/4,
 			get_frame_timestamp/2]).
 
@@ -20,6 +21,11 @@
 
 /**
 	get_channels(+Signal or Frame, -Channels). Check mopl.cpp
+
+*/
+
+/**
+	get_samples_per_channel(+Signal, -SamplesPerChannels). Check mopl.cpp
 
 */
 
