@@ -247,7 +247,7 @@ sample_rate(term_t data){
  * This function returns the channels of the audio data given a term reference to a MO::frame or MO::signal
  */
 int
-channels(term_t data){
+channels_count(term_t data){
 
 	//Tests which term we have as input
 	if(PL_is_functor(data, signal_t) !=0){
@@ -283,8 +283,8 @@ channels(term_t data){
  * This function returns the samples_channel of the audio data given a term reference to a MO::signal  
  * This value should be interpreted as the length of a PCM vector of a frame or signal
  */
-size_t
-samples_channels(term_t data){
+long
+samples(term_t data){
 
 	//Tests which term we have as input
 	if(PL_is_functor(data, signal_t) !=0){
@@ -296,8 +296,7 @@ samples_channels(term_t data){
 		MO::signal(c, sr, samples, ch1, ch2, data);
 		long sc;
 		PL_get_long(samples, &sc);
-		return (size_t)sc;
-		
+		return (size_t)sc;		
 	}
 	else{
 		std::cerr<<"Not expected input data"<<std::endl;
@@ -310,7 +309,7 @@ samples_channels(term_t data){
 /*
  * Gets the first_sample position from MO::frame. This is a very important parameter to get the timestamp of the frame.
  */
-size_t
+long
 first_sample(term_t data){
 
 	if(PL_is_functor(data, frame_t) !=0){
