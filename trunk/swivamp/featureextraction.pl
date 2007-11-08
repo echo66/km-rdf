@@ -2,11 +2,11 @@
 	This is a prolog program that uses the "vamp" module for simple feature extraction as testing.
 	*/
 
-:-use_module('/home/david/swivamp/vamp').
+:-use_module(vamp).
 :- style_check(-discontiguous).
 
-vampPlugins(PluginsList):-
-	vamp_plugins(PluginsList).
+vamp_plugins(PluginsList):-
+	vamp:vmpl_plugins(PluginsList).
 
 
 /**
