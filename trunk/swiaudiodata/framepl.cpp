@@ -32,8 +32,8 @@ PREDICATE(get_frame, 4){
 	//+start (=+StepSize)
 	//+size (BlockSize)
 	//-MO::frame
-
 	//getting input
+
 	term_t signal = PL_new_term_ref();
 	signal = term_t(PlTerm(A1));
 	size_t start = (size_t)(long)A2;
@@ -92,11 +92,10 @@ PREDICATE(get_frame_timestamp, 2){
 	term_t initpos = PL_new_term_ref();
 	term_t ch1 = PL_new_term_ref();//blobs containing the data of the frame
 	term_t ch2 = PL_new_term_ref();
-	MO::signal(channel_count, sample_rate, initpos, ch1, ch2, frame);//gets the parameters for MO::frame (swimo.h)
+	MO::frame(channel_count, sample_rate, initpos, ch1, ch2, frame);//gets the parameters for MO::frame (swimo.h)
 	
 	long sr;
 	PL_get_long(sample_rate, &sr);
-	
 	long init;
 	PL_get_long(initpos, &init);
 	
@@ -105,12 +104,28 @@ PREDICATE(get_frame_timestamp, 2){
 
 	//gets the number of samples for one channel (size of the frame).
 	term_t duration = PL_new_term_ref();
-	PL_put_float(duration, AudioDataConversion::term_to_audio_vector(ch1).size()/float(sr));		
+	size_t size = AudioDataConversion::term_to_audio_vector(ch1).size();
+	PL_put_float(duration, (float)size/float(sr));		
 	
 	term_t timestamp_term = PL_new_term_ref();
 	MO::timestamp(start, duration, timestamp_term);
 	
 	return A2 = PlTerm(timestamp_term);
+}
+
+/*
+ * This predicate calculates the number of frames that will be retrieved in the framing for the specific signal and the StepSize of the framing process
+ */
+
+PREDICATE(set_limit_framing, 3)
+{
+	//+samples per channel
+	//+StepSize
+	//-Limit
+	
+	long limit = long((long)A1/(long)A2);
+	return A3 = PlTerm(limit);
+
 }
 
 						/***************************************************						 * Implementation of the foreign interface functions

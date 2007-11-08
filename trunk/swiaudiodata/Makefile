@@ -10,10 +10,10 @@ CFLAGS = -Wall -fPIC
 # Define your platform-specific options here
 #######################################################################
 
-swi_dir = /usr/local/lib/pl-5.6.46
+swi_dir = /usr/local/lib/pl-5.6.34
 
-swiaudiodata_dir = ../swiaudiodata
-swilib_dir = ../swilib
+swiaudiodata_dir = /home/david/km-rdf/swiaudiodata
+swilib_dir = /home/david/km-rdf/swilib
 
 lib_suf = .so
 obj_suf = .o
