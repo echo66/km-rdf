@@ -34,6 +34,20 @@ PREDICATE(get_channels, 2)
 	else{return A2 = PlTerm((long)channels);}
 }
 
+/*
+	Extracts the number of samples per channel of a MO::signal relying on MO::GET::samples_channel
+	This is the actual length of the PCM data contained inside a signal 
+*/
+PREDICATE(get_samples_per_channel, 2)
+{
+	term_t element = PL_new_term_ref();
+	element = term_t(A1);
+	size_t samples_channel;
+	samples_channel = MO::GET::samples_channel(element);
+	if(samples_channel<0){return false;}
+	else{return A2 = PlTerm((long)samples_channel);}
+}
+
 /*	TODO:
 	Build a predicate for each argument in MO::elements
 	Build a predicate to buld MO::elements from prolog
