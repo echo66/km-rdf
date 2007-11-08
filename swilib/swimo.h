@@ -30,7 +30,7 @@ void
 frame(term_t, term_t, term_t, term_t, term_t, term_t);
 
 /**
-	Defines and analyzes MO:signal/4. 
+	Defines and analyzes MO::signal/4. 
 	'Signal'(NumberOfChannels, SampleRate, SamplesPerChannel, [ListOfPCMBlobs])
 	Check the source for more details
 */
@@ -38,12 +38,20 @@ void
 signal(term_t, term_t, term_t, term_t, term_t, term_t);
 
 /**
-	Defines and analyzes MO:timestamp/2. 
+	Defines and analyzes MO::timestamp/2. 
 	'timestamp'(start, duration)
 	Check the source for more details
 */
 void
 timestamp(term_t, term_t, term_t);
+
+/**
+	Defines and analyzes MO::Feature/3
+	'Feature'(featureType, timestamp, FeatureEvent)
+	Check source for details
+*/
+void
+feature(term_t, term_t, term_t, term_t);
 
 /**
 	Namespace to read terms from the MO::elements and return them as C types
@@ -55,6 +63,13 @@ namespace GET{
 */	
 int
 channels(term_t);
+
+/**
+	Gets the samples_channel (length of PCM data) from MO::signal just by telling MO::GET::samples_channel
+	In MO::signal this is obtained as direct parameter of the term
+*/	
+size_t
+samples_channel(term_t);
 
 /**
 	Gets the sample_rate from MO::signal or MO::frame
