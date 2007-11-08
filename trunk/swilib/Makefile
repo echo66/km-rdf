@@ -10,9 +10,9 @@ CFLAGS = -Wall -fPIC
 # Define your platform-specific options here
 #######################################################################
 
-swi_dir = /usr/local/lib/pl-5.6.46
+swi_dir = /usr/local/lib/pl-5.6.34
 
-swilib_dir = /home/david/swilib
+swilib_dir = /home/david/km-rdf/swilib
 
 lib_suf = .so
 obj_suf = .o
@@ -39,13 +39,7 @@ MO = swimo.so
 AUDIOBLOB = swiaudioblob.so
 
 #Targets
-all : $(MO) $(AUDIOBLOB) $(AUDIODATA)
-
-$(OBJ_MOPL) :
-	$(CPP) -c $(CFLAGS) $(INCLUDE) $(SWI_MOPL) -o $(OBJ_MOPL)
-
-$(OBJ_FRAME) :
-	$(CPP) -c $(CFLAGS) $(INCLUDE) $(SWI_FRAME) -o $(OBJ_FRAME)
+all : $(AUDIOBLOB) $(MO) 
 
 $(OBJ_MO) :
 	$(CPP) -c $(CFLAGS) $(INCLUDE) $(SWI_MO) -o $(OBJ_MO)
@@ -54,10 +48,12 @@ $(OBJ_AUDIOBLOB) :
 	$(CPP) -c $(CFLAGS) $(INCLUDE) $(SWI_AUDIOBLOB) -o $(OBJ_AUDIOBLOB)
 
 $(MO) : $(OBJ_MO) Makefile
-	$(CPP) -shared $(OBJ_MO) -o $(MO) 
+	$(CPP) -shared $(OBJ_MO) -o $(MO)
 
 $(AUDIOBLOB) : $(OBJ_AUDIOBLOB) Makefile
 	$(CPP) -shared $(OBJ_AUDIOBLOB) -o $(AUDIOBLOB) 
+
+
 
 clean :
 	rm *.o *.so

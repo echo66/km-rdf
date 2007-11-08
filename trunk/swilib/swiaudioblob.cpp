@@ -101,7 +101,6 @@ term_to_audio_vector(term_t t){
 	void *data;		//void pointer to data
 	AudioVector vector;
 	PL_get_blob(t, &data, &size_AudioBlob, &type);
-	cerr<<size_AudioBlob<<endl;
 	if(type != &audio_blob){
 		throw PlException("Not Audio Data Blob");
 	}
