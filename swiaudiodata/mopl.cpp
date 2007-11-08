@@ -29,7 +29,7 @@ PREDICATE(get_channels, 2)
 	term_t element = PL_new_term_ref();
 	element = term_t(A1);
 	int channels;
-	channels = MO::GET::channels(element);
+	channels = MO::GET::channels_count(element);
 	if(channels<0){return false;}
 	else{return A2 = PlTerm((long)channels);}
 }
@@ -42,10 +42,10 @@ PREDICATE(get_samples_per_channel, 2)
 {
 	term_t element = PL_new_term_ref();
 	element = term_t(A1);
-	size_t samples_channel;
-	samples_channel = MO::GET::samples_channel(element);
-	if(samples_channel<0){return false;}
-	else{return A2 = PlTerm((long)samples_channel);}
+	size_t samplesChannel;
+	samplesChannel = MO::GET::samples(element);
+	if(samplesChannel<0){return false;}
+	else{return A2 = PlTerm((long)samplesChannel);}
 }
 
 /*	TODO:
