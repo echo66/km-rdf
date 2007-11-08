@@ -15,9 +15,26 @@
 		-/swiaudiodata/audiodata
 	*/
 
-:- module(vamp,[vamp_plugin_system/1,
-		vamp_feature_system/1,
-		vamp_plugin_for/3]).
+:- module(vamp,[
+		vamp_plugin_system/1
+	,	vamp_feature_system/1
+	,	vamp_plugin_for/3
+	,	vmpl_plugins/1
+	,	vmpl_load_plugin/3
+	,	vmpl_load_plugin_for/3
+	,	vmpl_pluginOutputs/2
+	,	vmpl_pluginPrograms/2
+	,	vmpl_select_program/2
+	,	vmpl_pluginParameters/2
+	,	vmpl_set_parameter/3
+	,	vmpl_get_blockSize/2
+	,	vmpl_get_stepSize/2
+	,	vmpl_get_min_channel/2
+	,	vmpl_get_max_channel/2
+	,	vmpl_initialize_plugin/4
+	,	vmpl_process_block/5
+	,	vmpl_remaining_features/5
+	]).
 
 
 
