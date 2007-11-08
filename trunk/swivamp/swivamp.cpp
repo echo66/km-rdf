@@ -35,23 +35,10 @@ const float* const*
 vmpl_frame_to_input(term_t);//Constructs a valid block of data as vamp plugin input from a MO::frame
 
 term_t
-vmpl_features_to_prolog(Vamp::Plugin::FeatureSet, int, Vamp::RealTime);//Converts the FutureSet object extracted from the plugins into a complex Prolog term
-
-Vamp::RealTime 
-vmpl_prolog_to_timeStamp(term_t);//Takes a prolog term representing the timestamp and creates a Vamp::RealTime object
+vmpl_frame_features_to_prolog(Vamp::Plugin::FeatureSet , int , term_t , term_t);//Converts the FutureSet object extracted from the plugins into a complex Prolog term
 
 term_t
-vmpl_prolog_from_timeStamp(Vamp::RealTime);//Creates a prolog representation of the Vamp::RealTime object representing the timestamp
-
-term_t
-vmpl_timestamp_humanReadable(Vamp::RealTime);//From the Vamp::RealTime object to a human-readable timestamp wrapped into a prolog term
-
-term_t
-vmpl_timestamp_float(Vamp::RealTime);//Simplest prolog representation of the timestamp as float
-
-Vamp::RealTime
-vmpl_float_timestamp(term_t);//From a float to timestamp as Vamp::RealTime
-
+vmpl_timestamp_float(Vamp::RealTime );//put the timestamp as a float
 
 				/***********************************************************************
 				**************************** Variables definition **********************
@@ -477,14 +464,15 @@ PREDICATE(vmpl_initialize_plugin, 4)
 /***  Sixth step of the plugin lifecycle ****/
 
 /*
-	vmpl_run_plugin(+plugin, +block, -features) Minimum predicate calling the process of the plugin
+	vmpl_run_plugin(+plugin, +MO::frame, +MO::timestamp, output, -features) Minimum predicate calling the process of the plugin for a MO::frame 		object as input
 */
 
-PREDICATE(vmpl_process_block, 4)
+PREDICATE(vmpl_process_block, 5)
 {
 	//+plugin
 	//+Block of data to process (both channels) passed as MO::frame!!!
-	//+input
+	//+MO::timestamp of the MO::frame
+	//+output of the plugin we select
 	//-Set of Features
 	
 	//getting input arguments
@@ -502,15 +490,34 @@ PREDICATE(vmpl_process_block, 4)
 	const float* const* input;
 	input = vmpl_frame_to_input(frame);
 
-	//process the frame after having converted it into a valid block of data for vamp plugins
+	//Timestamp of the frame. This is important, but careful!!! the feature may not have the same timestamp of its frame!!!
+	term_t framets = PL_new_term_ref();
+	framets = term_t(PlTerm(A3));
 	
-	Vamp::RealTime rt = Vamp::RealTime::frame2RealTime(initSample, (int)isr);
-	PlTerm feature(vmpl_features_to_prolog(plugin->process(input, rt), (int)A3, rt));
+	//Getting the feature type	
+	term_t featureType = PL_new_term_ref();
+	Vamp::Plugin::OutputList out = plugin -> getOutputDescriptors();
+	string output = out[(int)A4].identifier;
+	int length = output.size();
+	char o[length+1];
+	for(int j=0; j<length; j++){
+		o[j]=output[j];
+	}	
+	o[length] = '\000';
+	featureType = term_t(PlTerm(PlAtom(o)));
 	
-	//delete input
-	return A4= feature;
-}
+	//wraps the plugin process and returns a list of MO::feature elements for each frame
+	PlTerm feature(vmpl_frame_features_to_prolog(plugin->process(input, Vamp::RealTime::frame2RealTime(initSample, (int)isr)), (int)A4, framets, featureType));
+	
+	//free memory of the block of data
+	for(size_t k=0; k<(size_t)MO::GET::channels(frame); k++){
+		delete[] input[k];
+	}
+	delete[] input;
 
+	return A5 = feature;
+
+}
 				/************************************************************************
  				******************* C Interface functions implementation ****************
 				************************************************************************/
@@ -573,7 +580,6 @@ vmpl_frame_to_input(term_t frame){
 	}
     
 	size_t j = 0;
-	//Channel 1
         while (j < vector_ch1.size()) {
                 plugbuf[1][j] = vector_ch1.at(j);
                 ++j;
@@ -585,45 +591,48 @@ vmpl_frame_to_input(term_t frame){
                 	++j;
 		}
 	}	
-	return plugbuf;
+
+	return plugbuf;//the memory is freed afterwards
 }
 
-//Returns a prolog list that represents a Vamp::Plugin::FeatureList for the output passed as argument (create the vice-versa typeconversion).
-term_t
-vmpl_features_to_prolog(Vamp::Plugin::FeatureSet fs, int output, Vamp::RealTime rt){
+/*
+ * Returns a prolog list of MO::feature for a passed frame of data
+ * Our MO::feature is a single feature for one frame and one output. In other words Vamp::FeatureSet[a][b]
+ * MO::feature is 'Feature'(type, MO::timestamp, FeatureEvent) where FeatureEvent is (by now) a vector
+ */
 
-	//The feature set for a certain input block of data is a map with n list of feature where n is the number of the outputs that the plugin
-	//provides. Each feature is a structure: label, timeStamp, vector of values.
-	//We need to return a prolog thing that represents only a FeatureList for the given output.
-	//For each feature we obtain a Prolog Compound Term:
-	//event(timestamp, vectorOfValues)
-	//The number of values is specific for each output and it is retrieved before.
-	//The feature set is returned as prolog list which is a list of compound terms for a given input frame.
+term_t
+vmpl_frame_features_to_prolog(Vamp::Plugin::FeatureSet fs, int output, term_t framets, term_t featureType){
+
+	//Vamp::FeatureSet (map of a list of features for each frame/output. 
+	//output is the concrete feature selected for this plugin
+	//framets is the MO::timestamp of the passed frame
+
 	try{
 		PlTerm prologFeatList;
 		PlTail tail(prologFeatList);	
 		Vamp::Plugin::FeatureList fl = fs[output];
-		//cout<<fl.size()<<endl;
 		if(fl.size()>0){//avoiding empty lists when there are no features for an input frame
+			
 			for(unsigned int j=0; j<fl.size();j++){
-				//Create a functor that represents a Vamp::Plugin::Feature
-				//with this structure: event(timestamp, values)				
-				//This structure is a compound term which functor is "event" and 
-				//feature is the vector of arguments: timestamp and values
-				PlTermv feature(fl[j].values.size()+1);				
+				term_t feature_term = PL_new_term_ref();//MO::feature
+				term_t featurets = PL_new_term_ref();//MO::timestamp
+				term_t feature_event = PL_new_term_ref();//FeatureEvent, (a blob)
+
 				if(fl[j].hasTimestamp){						
-					PlTerm timestamp = vmpl_timestamp_float(fl[j].timestamp); 
-					feature[0] = timestamp;
+					//The feature has its own timestamp, so we dont use the framets
+					//vamp timestamp only gives starting of the timestamp. duration = 0???????????
+					term_t start = PL_new_term_ref();
+					term_t duration = PL_new_term_ref();
+					PL_put_float(start, vmpl_timestamp_float(fl[j].timestamp));
+					PL_put_float(duration, 0.0f);
+					MO::timestamp(start, duration, featurets);
 				}else{
-					PlTerm timestamp = vmpl_timestamp_float(rt);//if hasTimeStamp = false, we use the frame timestamp
-					feature[0] = timestamp;
+					featurets = framets;//if hasTimeStamp = false, we use the frame timestamp
 				}		
-				for(unsigned int v=0; v<fl[j].values.size(); v++){
-					
-					feature[v+1] = ((float)fl[j].values[v]);
-				}
-				PlCompound prologFeature("event",feature);	
-				tail.append(prologFeature);
+				AudioDataConversion::vector_to_audio_blob(fl[j].values, feature_event);
+				MO::feature(featureType, featurets, feature_event, feature_term);
+				tail.append(PlTerm(feature_term));
 			}
 			tail.close();
 			return prologFeatList;
@@ -636,7 +645,10 @@ vmpl_features_to_prolog(Vamp::Plugin::FeatureSet fs, int output, Vamp::RealTime 
   	}
 }
 
-//A float represeting the timestamp in sec for better management as prolog term
+/*
+ * A float represeting the timestamp in sec for better management as prolog term
+ */
+
 term_t
 vmpl_timestamp_float(Vamp::RealTime rt){
 
@@ -644,64 +656,6 @@ vmpl_timestamp_float(Vamp::RealTime rt){
 	return PlTerm(timestamp);
 }
 
-//Returning a Real Time object representig the timestamp.
-Vamp::RealTime
-vmpl_float_timestamp(float timestamp){
-	
-	int sec = (int)timestamp; //look out! maybe it may round up and it would be wrong!!
-	int nsec = (int)((timestamp-sec)*1000000000);
-	return Vamp::RealTime(sec, nsec);
-}
 
-//Converts the RealTime object into a human-readable prolog term to be displayed in case.
-term_t
-vmpl_timestamp_humanReadable(Vamp::RealTime rt){
-
-	string timestamp = rt.toString();
-	int length = timestamp.size();	
-	char ts[length+1];
-	for(int j=0;j<length;j++){
-		ts[j]=timestamp[j];
-	}	
-	ts[length] = '\000';
-	return PlTerm(ts);
-}
-
-
-//The following two predicates are useful if we need to pass the realtime object as argument. Type conversion.
-//from a prolog list [sec, nsec], this function creates a RealTime object.
-Vamp::RealTime 
-vmpl_prolog_from_timeStamp(term_t in){
-
-	term_t head = PL_new_term_ref();
-	term_t tail = PL_new_term_ref();
-	term_t templist = in;
-		
-	int sec;
-	int nsec;
-	PL_get_list(templist, head, tail);
-	sec = (int)head;
-	nsec = (int)tail;
-
-	return Vamp::RealTime(sec,nsec);
-}
-
-//This predicate creates a list [sec,  nsec] as Prolog representation of a Vamp::RealTime object
-term_t
-vmpl_prolog_to_timeStamp(Vamp::RealTime rt){
-
-	try{
-		PlTerm realTimeList;
-		PlTail tail(realTimeList);
-		tail.append((long)rt.sec);
-		tail.append((long)rt.nsec);
-		tail.close();
-		return realTimeList;
-
-	}catch ( PlException &ex )
-  	{ cerr << (char *) ex << endl;
-	  return FALSE;
-  	}
-}
 
 
