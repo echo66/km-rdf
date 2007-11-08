@@ -62,14 +62,14 @@ namespace GET{
 	Gets the channels from MO::signal or MO::frame just by telling MO::GET::channels
 */	
 int
-channels(term_t);
+channels_count(term_t);
 
 /**
 	Gets the samples_channel (length of PCM data) from MO::signal just by telling MO::GET::samples_channel
 	In MO::signal this is obtained as direct parameter of the term
 */	
-size_t
-samples_channel(term_t);
+long
+samples(term_t);
 
 /**
 	Gets the sample_rate from MO::signal or MO::frame
@@ -80,7 +80,7 @@ sample_rate(term_t);
 /**
 	Gets the first_sample position from MO::frame. This is a very important parameter to get the timestamp of the frame (beginning of it).
 */
-size_t
+long
 first_sample(term_t);
 
 }
