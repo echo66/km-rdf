@@ -15,8 +15,8 @@
 		-/swiaudiodata/audiodata
 	*/
 
-:- module(vamp,[vamp_plugin_system/1
-		vamp_feature_system/1
+:- module(vamp,[vamp_plugin_system/1,
+		vamp_feature_system/1,
 		vamp_plugin_for/3]).
 
 
