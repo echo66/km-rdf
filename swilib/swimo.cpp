@@ -20,6 +20,7 @@ namespace MO{
 functor_t frame_t = PL_new_functor(PL_new_atom("Frame"), 4);//MO::frame
 functor_t signal_t = PL_new_functor(PL_new_atom("Signal"), 4);//MO::signal
 functor_t timestamp_t = PL_new_functor(PL_new_atom("Timestamp"), 2);//MO::timestamp
+functor_t feature_t = PL_new_functor(PL_new_atom("Feature"), 3);//MO::feature
 
 /**
 	MO::frame Both ways are supported by this function:
@@ -140,7 +141,7 @@ signal(term_t channel_count, term_t sample_rate, term_t samples_channel, term_t 
 	MO:timestamp both ways are supported by this function:
 
 	1. timestamp(+start, +duration, -timestamp_term)
-	If signal_term is not a compound term, it creates a "timestamp" compound term given: 	
+	If timestamp_term is not a compound term, it creates a "timestamp" compound term given: 	
         	-starting time point (sec)
 		-duration (sec)
 		
@@ -168,6 +169,42 @@ timestamp(term_t start, term_t duration, term_t timestamp_term){
 		PL_get_arg(2, timestamp_term, duration);		//duration
 	}
 }
+
+/**
+	MO:feature both ways are supported by this function:
+	
+	1. feature(+type, +timestamp, +featureEvent, -feature)
+	 	
+        	-feature type
+		-MO::timestamp. Can be the one for the frame or a specific one!!!
+		-featureEvent: Encapsulates the values of the feature!!
+		
+	and unifies to feature_term obtaining:
+										
+					'feature'(type, MO::timestamp, Event)
+
+	2. feature(-type, -timestamp, -featureEvent, +feature)
+	This way it analyzes and extracts the data from the term if feature_term does refer to a compound term 
+	(cheking that it is the correct name)
+*/
+void
+feature(term_t type, term_t timestamp, term_t featureEvent, term_t feature_term){
+
+	//now, signal_term is checked out. If the results ==0, it means that there is no compound term, so the term is created and unified to it
+	if(PL_is_functor(feature_term, feature_t)==0){
+		
+		//Construct and unifies the term
+		PL_cons_functor(feature_term, feature_t, type, timestamp, featureEvent);
+		
+	//otherwise the term is read
+	}else{
+		//should check name and arity for security
+		PL_get_arg(1, feature_term, type);		
+		PL_get_arg(2, feature_term, timestamp);	
+		PL_get_arg(3, feature_term, featureEvent);			
+	}
+}
+
 
 namespace GET{
 /*
@@ -241,6 +278,34 @@ channels(term_t data){
 		return -1;
 	}
 }
+
+/*
+ * This function returns the samples_channel of the audio data given a term reference to a MO::signal  
+ * This value should be interpreted as the length of a PCM vector of a frame or signal
+ */
+size_t
+samples_channels(term_t data){
+
+	//Tests which term we have as input
+	if(PL_is_functor(data, signal_t) !=0){
+		term_t c = PL_new_term_ref(); 
+		term_t sr = PL_new_term_ref();
+		term_t samples = PL_new_term_ref();
+		term_t ch1 = PL_new_term_ref();
+		term_t ch2 = PL_new_term_ref();
+		MO::signal(c, sr, samples, ch1, ch2, data);
+		long sc;
+		PL_get_long(samples, &sc);
+		return (size_t)sc;
+		
+	}
+	else{
+		std::cerr<<"Not expected input data"<<std::endl;
+		return -1;
+	}
+}
+
+
 
 /*
  * Gets the first_sample position from MO::frame. This is a very important parameter to get the timestamp of the frame.
