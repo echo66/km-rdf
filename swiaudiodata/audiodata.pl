@@ -10,7 +10,8 @@
 			get_samples_per_channel/2,
 			get_frame/4,
 			get_frame_timestamp/2,
-			set_limit_framing/3]).
+			set_limit_framing/3,
+			audio_blob_to_list/2]).
 
 :- style_check(-discontiguous).
 :- load_foreign_library(swiaudiodata).

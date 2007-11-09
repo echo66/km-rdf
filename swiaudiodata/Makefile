@@ -34,11 +34,13 @@ LIB = $(swilib_dir)/swimo.so \
 
 SWI_MOPL = mopl.cpp
 SWI_FRAME = framepl.cpp
+SWI_ABPL = audioblobpl.cpp
 
 #Objects
 
 OBJ_MOPL = mopl.o
 OBJ_FRAME = framepl.o
+OBJ_ABPL = abpl.o
 
 #DLIB
 
@@ -53,8 +55,12 @@ $(OBJ_MOPL) :
 $(OBJ_FRAME) :
 	$(CPP) -c $(CFLAGS) $(INCLUDE) $(SWI_FRAME) -o $(OBJ_FRAME)
 
-$(AUDIODATA) : $(OBJ_FRAME) $(OBJ_MOPL) Makefile
-	$(CPP) -shared $(LIB) $(OBJ_MOPL) $(OBJ_FRAME) -o $(AUDIODATA) 
+$(OBJ_ABPL) :
+	$(CPP) -c $(CFLAGS) $(INCLUDE) $(SWI_ABPL) -o $(OBJ_ABPL)
+
+
+$(AUDIODATA) : $(OBJ_FRAME) $(OBJ_MOPL) $(OBJ_ABPL) Makefile
+	$(CPP) -shared $(LIB) $(OBJ_MOPL) $(OBJ_FRAME) $(OBJ_ABPL) -o $(AUDIODATA) 
 
 clean :
 	rm *.o *.so
