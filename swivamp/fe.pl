@@ -1,12 +1,12 @@
 
 /**
+	FEATURE EXTRACTION PROGRAM FOR VAMP PLUGINS
 	Loading KM modules (paths of the system). Should be compilled together later on
 	*/
 
 :-use_module('/home/david/km-rdf/swiaudiodata/audiodata').
 :-use_module('vamp').
 :-use_module('/home/david/km-rdf/swiaudiosource/audiosource').
-
 
 :-style_check(-discontiguous).
 
@@ -26,8 +26,19 @@ feature('tctransform').
 feature('tcfunction').
 feature('changepositions').
 
+set('/home/david/Repository/OggTest.ogg').
+set('/home/david/Repository/VampTest.wav').
+set('/home/david/Repository/Mp3Test.mp3').
 
-feature_of(FeatureType, AudioFile, Features, Remaining) :-
+features_of_set(File, Feature):-
+	set(File),
+	feature_of(_, File, Feature).
+
+feature_of(FeatureType, AudioFile, Feature):-
+	findall([Features, Remaining], get_feature_of(FeatureType, AudioFile, Features, Remaining), RawList),
+	flatten(RawList, Feature).
+
+get_feature_of(FeatureType, AudioFile, Features, Remaining) :-
 	feature(FeatureType),
 	vamp_plugin_for(FeatureType, PluginKey, Output),
 	vamp_output(PluginKey,AudioFile,Output,Features, Remaining).
@@ -47,19 +58,23 @@ vamp_output(PluginKey,AudioFile,Output,Features, Remaining) :-
 	vmpl_process_block(Plugin, Frame, FrameTimeStamp, Output, Features),
 	get_remaining_features(Start, StepSize, Limit, Plugin, Samples, SampleRate, Output, Remaining).
 	
-
 get_remaining_features(Start, StepSize, Limit, Plugin, Samples, SampleRate, Output, Features):-
 	LastStart is StepSize * Limit,
 	Start = LastStart,
 	!,
 	vmpl_remaining_features(Plugin, Samples, SampleRate, Output, Features);
-	true.
+	Features = [].
 
 set_framing(StepSize, Samples, Limit, Start):-
 	set_limit_framing(Samples, StepSize, Limit),
 	between(0, Limit, N),
 	Start is StepSize * N.
 	
+
+
+
+
+
 /**
 	Extract a feature from an already decoded frame. Unlikely to be useful
 	*/
