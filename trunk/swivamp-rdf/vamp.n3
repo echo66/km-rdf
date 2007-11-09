@@ -1,0 +1,30 @@
+@prefix vamp: <http://vamp-plugins.org/plugin/>.
+@prefix vo : <http://vamp-plugins/onto/>.
+@prefix : <>.
+
+
+vamp:qm-vamp-plugins a  vo:PluginLibrary;
+	rdfs:label """
+		A set of VAMP plugins developed
+		in the C4DM, Queen Mary, University
+		of London
+	""";
+	vo:plugin vamp:qm-chromagram;
+	vo:plugin vamp:qm-constantq;
+	vo:plugin vamp:qm-keydetector;
+	vo:plugin vamp:qm-onsetdetector;
+	vo:plugin vamp:qm-tempotracker;
+	vo:plugin vamp:qm-tonalchange;
+	.
+
+vamp:vamp-example-plugins a vo:PluginLibrary;
+	rdfs:label """
+		A set of examples VAMP plugins
+		""";
+	vo:plugin vamp:amplitudefollower;
+	vo:plugin vamp:percussiononsets;
+	vo:plugin vamp:spectralcentroid;
+	vo:plugin vamp:zerocrossing;
+	.
+
+
