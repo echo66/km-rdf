@@ -45,7 +45,7 @@ vamp_output(PluginKey,AudioFile,Output,Features) :-
 	get_frame_timestamp(Frame, FrameTimeStamp),
 	get_sample_rate(Signal, SampleRate),
 	vmpl_process_block(Plugin, Frame, FrameTimeStamp, Output, Features),
-	vmpl_remaining_features(Start, StepSize, Limit, Plugin, Samples, SampleRate, Output, Features).
+	get_remaining_features(Start, StepSize, Limit, Plugin, Samples, SampleRate, Output, Features).
 	
 
 get_remaining_features(Start, StepSize, Limit, Plugin, Samples, SampleRate, Output, Features):-
