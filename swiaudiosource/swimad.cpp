@@ -301,9 +301,9 @@ error(void *dt, struct mad_stream *stream, struct mad_frame *frame){
   
 	MadReader::buffer *data = (MadReader::buffer *)dt;
 
-	fprintf(stderr, "decoding error 0x%04x (%s) at byte offset %u\n",
-	stream->error, mad_stream_errorstr(stream),
-	stream->this_frame - data->start);
+	//fprintf(stderr, "decoding error 0x%04x (%s) at byte offset %u\n",
+	//stream->error, mad_stream_errorstr(stream),
+	//stream->this_frame - data->start);
 
   	return MAD_FLOW_CONTINUE;
 }
