@@ -10,11 +10,11 @@ CFLAGS = -Wall -fPIC
 # Define your platform-specific options here. For non-linux machines, some more arrangements should be done!
 #######################################################################
 
-swi_dir = /usr/local/lib/pl-5.6.46
+swi_dir = /usr/local/lib/pl-5.6.34
 
-swiaudio_dir = ../swiaudiosource
+swiaudio_dir = /home/david/km-rdf/swiaudiosource
 
-swilib_dir = ../swilib
+swilib_dir = /home/david/km-rdf/swilib
 
 SWAUDIOSOURCE_LIB = $(swiaudiosource_dir)/swiaudiosource.so
 
