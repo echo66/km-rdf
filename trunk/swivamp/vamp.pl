@@ -133,31 +133,31 @@ vamp_plugin_for(PluginKey, FeatureType, Index):-
 	*/
 
 vamp_plugin_maker(PluginKey, Maker):-
-	vamp_load_plugin(PluginKey, 44100, Plugin),
+	vmpl_load_plugin(PluginKey, 44100, Plugin),
 	vmpl_get_maker(Plugin, Maker).
 
 vamp_plugin_identifier(PluginKey, Identifier):-
-	vamp_load_plugin(PluginKey, 44100, Plugin),
+	vmpl_load_plugin(PluginKey, 44100, Plugin),
 	vmpl_get_identifier(Plugin, Identifier).
 
 vamp_plugin_name(PluginKey, Name):-
-	vamp_load_plugin(PluginKey, 44100, Plugin),
+	vmpl_load_plugin(PluginKey, 44100, Plugin),
 	vmpl_get_name(Plugin, Name).
 
 vamp_plugin_copyright(PluginKey, Copyright):-
-	vamp_load_plugin(PluginKey, 44100, Plugin),
+	vmpl_load_plugin(PluginKey, 44100, Plugin),
 	vmpl_get_copyright(Plugin, Copyright).
 
 vamp_plugin_description(PluginKey, Description):-
-	vamp_load_plugin(PluginKey, 44100, Plugin),
+	vmpl_load_plugin(PluginKey, 44100, Plugin),
 	vmpl_get_description(Plugin, Description).
 
 vamp_plugin_vampVersion(PluginKey, VampVersion):-
-	vamp_load_plugin(PluginKey, 44100, Plugin),
+	vmpl_load_plugin(PluginKey, 44100, Plugin),
 	vmpl_get_vampVersion(Plugin, VampVersion).
 
 vamp_plugin_version(PluginKey, Version):-
-	vamp_load_plugin(PluginKey, 44100, Plugin),
+	vmpl_load_plugin(PluginKey, 44100, Plugin),
 	vmpl_get_pluginVersion(Plugin, Version).
 
 /**	
@@ -175,7 +175,7 @@ vamp_plugin_version(PluginKey, Version):-
 
 vamp_plugin_output_sampleType(PluginKey, FeatureType, SampleType):-
 	vamp_plugin_system(PluginKey),
-	vamp_load_plugin(PluginKey, 44100, Plugin),
+	vmpl_load_plugin(PluginKey, 44100, Plugin),
 	vamp_plugin_for(PluginKey, FeatureType, Index),
 	vmpl_outputDescriptor_sampleType(Plugin, Index, SampleTypeIndex),
 	vamp_sampleTypes(SampleTypeIndex, SampleType).
@@ -198,7 +198,7 @@ vamp_sampleTypes(SampleTypeIndex, SampleType):-
 
 vamp_plugin_output_metadata(PluginKey, FeatureType, OutputName, Description, Unit, OutputIndex):-
 	vamp_plugin_system(PluginKey),
-	vamp_load_plugin(PluginKey, 44100, Plugin),
+	vmpl_load_plugin(PluginKey, 44100, Plugin),
 	vamp_plugin_for(PluginKey, FeatureType, OutputIndex),
 	vmpl_outputDescriptor_name(Plugin, OutputIndex, OutputName),
 	vmpl_outputDescriptor_description(Plugin, OutputIndex, Description),
