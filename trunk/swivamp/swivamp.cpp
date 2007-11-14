@@ -164,7 +164,7 @@ vmpl_frame_features_to_prolog(Vamp::Plugin::FeatureSet fs, int output, term_t fr
 					//Start: reads feature.timestamp
 					//Duration checks osr. 1/osr if any or 0 if not defined
 					//osr may exist to give some resolution to the feature(optional), BUT the real output rate is variable
-					cerr<<osr<<endl;
+					
 					float d = 0.0f;
 					if(osr!= 0.0f){
 						d = 1/osr;
