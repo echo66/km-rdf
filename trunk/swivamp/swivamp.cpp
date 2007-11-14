@@ -111,16 +111,29 @@ vmpl_frame_to_input(term_t frame){
  */
 
 term_t
-vmpl_frame_features_to_prolog(Vamp::Plugin::FeatureSet fs, int output, term_t framets, term_t featureType){
+vmpl_frame_features_to_prolog(Vamp::Plugin::FeatureSet fs, int output, term_t framets, Vamp::Plugin::OutputDescriptor od){
 
 	//Vamp::FeatureSet (map of a list of features for each frame/output. 
-	//output is the concrete feature selected for this plugin
 	//framets is the MO::timestamp of the passed frame
+	//od is the outputdescriptor for ouput
 
 	try{
+		//Description of the output
+		term_t featureType = PL_new_term_ref();
+		featureType = term_t((PlTerm)vmpl_string_to_atom(od.identifier));
+		//SampleType
+		int stype = od.sampleType; //We rely on this to assign the correct timestamp
+		//stype 0 -> one sample per output
+		//stype 1 -> fixed output sample rate
+		//stype 2 -> variable output sample rate
+		float osr = 0.0f;
+		if(stype!=0){
+			osr = od.sampleRate; //We use this to calculate the timestamps when there is more than one sample per step
+		}
 		PlTerm prologFeatList;
 		PlTail tail(prologFeatList);	
 		Vamp::Plugin::FeatureList fl = fs[output];
+
 		if(fl.size()>0){//avoiding empty lists when there are no features for an input frame
 			
 			for(unsigned int j=0; j<fl.size();j++){
@@ -128,17 +141,44 @@ vmpl_frame_features_to_prolog(Vamp::Plugin::FeatureSet fs, int output, term_t fr
 				term_t featurets = PL_new_term_ref();//MO::timestamp
 				term_t feature_event = PL_new_term_ref();//FeatureEvent, (a blob)
 
-				if(fl[j].hasTimestamp){						
-					//The feature has its own timestamp, so we dont use the framets
-					//vamp timestamp only gives starting of the timestamp. duration = 0???????????
+				//Different MO::timestamp algorithm for each sample type
+				if(stype==0){
+					//the MO::timestamp of the frame as there is only one feature in the frame
+
+					featurets = framets; 
+				}
+				else if(stype==1){
+					//Start: the first one will have the same that the input frame and the rest will increase 1/osr
+					//Duration: constant duration 1/osr	
+				
+					float frameStart = MO::GET::start(framets);
+					float start_point=frameStart + (j*(1/osr));
+
 					term_t start = PL_new_term_ref();
 					term_t duration = PL_new_term_ref();
-					PL_put_float(start, vmpl_timestamp_float(fl[j].timestamp));
-					PL_put_float(duration, 0.0f);
+					PL_put_float(start, start_point);	
+					PL_put_float(duration, 1/osr);		
 					MO::timestamp(start, duration, featurets);
-				}else{
-					featurets = framets;//if hasTimeStamp = false, we use the frame timestamp
-				}		
+				}	
+				else if(stype==2){ 
+					//Start: reads feature.timestamp
+					//Duration checks osr. 1/osr if any or 0 if not defined
+					//osr may exist to give some resolution to the feature(optional), BUT the real output rate is variable
+					cerr<<osr<<endl;
+					float d = 0.0f;
+					if(osr!= 0.0f){
+						d = 1/osr;
+					}			
+					term_t start = PL_new_term_ref();
+					term_t duration = PL_new_term_ref();
+					PL_put_float(start, vmpl_timestamp_float(fl[j].timestamp));	
+					PL_put_float(duration, d);		
+					MO::timestamp(start, duration, featurets);
+
+				}
+				else{ cerr<<"Unexpected sample type"<<endl; }
+
+				//get values of the event	
 				AudioDataConversion::vector_to_audio_blob(fl[j].values, feature_event);
 				MO::feature(featureType, featurets, feature_event, feature_term);
 				tail.append(PlTerm(feature_term));
@@ -154,14 +194,14 @@ vmpl_frame_features_to_prolog(Vamp::Plugin::FeatureSet fs, int output, term_t fr
 }
 
 /*
- * A float represeting the timestamp in sec for better management as prolog term. CREO Q ESTA MAL
+ * A float represeting the timestamp in sec for better management as prolog term. 
  */
 
-term_t
+float
 vmpl_timestamp_float(Vamp::RealTime rt){
 
-	float timestamp = (float)rt.sec + ((float)rt.nsec)/1000000000;
-	return PlTerm(timestamp);
+	return ((float)rt.sec + (float)((float)rt.nsec)/1000000000);
+	
 }
 
 /*

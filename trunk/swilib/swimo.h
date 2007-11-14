@@ -83,6 +83,18 @@ sample_rate(term_t);
 long
 first_sample(term_t);
 
+/**
+	Gets the start point time of a MO::timestamp
+*/
+float
+start(term_t);
+
+/**
+	Gets the duration in time of a MO::timestamp
+*/
+float
+duration(term_t);
+
 }
 }
 

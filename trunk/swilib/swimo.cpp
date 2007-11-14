@@ -328,6 +328,47 @@ first_sample(term_t data){
 		return -1;
 	}
 }
+
+/**
+	Gets the start point time of a MO::timestamp
+*/
+float 
+start(term_t timestamp){
+
+	if(PL_is_functor(timestamp, timestamp_t) !=0){
+
+		term_t start = PL_new_term_ref();
+		term_t duration = PL_new_term_ref();
+		MO::timestamp(start, duration, timestamp);
+		double start_point;
+		PL_get_float(start, &start_point);
+		return (float)start_point;
+	}else{
+		std::cerr<<"Not expected input data"<<std::endl;
+		return -1;
+	}
+}
+
+/**
+	Gets the duration in time of a MO::timestamp
+*/
+float 
+duration(term_t timestamp){
+
+	if(PL_is_functor(timestamp, timestamp_t) !=0){
+
+		term_t start = PL_new_term_ref();
+		term_t duration = PL_new_term_ref();
+		MO::timestamp(start, duration, timestamp);
+		double d;
+		PL_get_float(duration, &d);
+		return (float)d;
+	}else{
+		std::cerr<<"Not expected input data"<<std::endl;
+		return -1;
+	}
+}
+
 }
 }
 

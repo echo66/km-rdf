@@ -28,9 +28,9 @@ const float* const*
 vmpl_frame_to_input(term_t);//Constructs a valid block of data as vamp plugin input from a MO::frame
 
 term_t
-vmpl_frame_features_to_prolog(Vamp::Plugin::FeatureSet , int , term_t , term_t);//Converts the FutureSet object extracted from the plugins into a complex Prolog term
+vmpl_frame_features_to_prolog(Vamp::Plugin::FeatureSet , int, term_t , Vamp::Plugin::OutputDescriptor);//Converts the FutureSet object extracted from the plugins into a complex Prolog term
 
-term_t
+float
 vmpl_timestamp_float(Vamp::RealTime );//put the timestamp as a float
 
 PlAtom
