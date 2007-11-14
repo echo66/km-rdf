@@ -32,6 +32,7 @@
 	,	vmpl_plugin_numberOutputs/2
 	,	vamp_feature_system/1
 	,	vamp_plugin_for/3
+	, 	vamp_plugin_numberOutputs/2
 
 		/** 2nd step lifecycle: loading. We need the sample rate*/			
 	,	vmpl_load_plugin/3
@@ -125,8 +126,21 @@ vamp_plugin_for(PluginKey, FeatureType, Index):-
 	vamp_plugin_system(PluginKey),
 	vmpl_load_plugin(PluginKey, 44100, Plugin),
 	vmpl_plugin_numberOutputs(Plugin, Size),
-	between(0, Size, Index),
+	vamp_plugin_features(Plugin, Size, FeatureType, Index).
+
+vamp_plugin_features(Plugin, Size, FeatureType, Index):-
+	Limit is Size-1,
+	between(0, Limit, Index),
 	vmpl_outputDescriptor_identifier(Plugin, Index, FeatureType).
+
+/**
+	vamp_plugin_numberOutputs(?PluginKey, -Size): Gets the number of outputs of each plugin on the system given the key (difference with vmpl_x)
+	*/
+
+vamp_plugin_numberOutputs(PluginKey, Size):-
+	vamp_plugin_system(PluginKey),
+	vmpl_load_plugin(PluginKey, 44100, Plugin),
+	vmpl_plugin_numberOutputs(Plugin, Size).
 
 /**
 	Predicates to query about the metadata of the plugin. First is necessary to load an arbitrary plugin (44100 sr).
