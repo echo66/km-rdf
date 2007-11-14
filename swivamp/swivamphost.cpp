@@ -343,20 +343,8 @@ PREDICATE(vmpl_process_block, 5)
 	term_t framets = PL_new_term_ref();
 	framets = term_t(PlTerm(A3));
 	
-	//Getting the feature type	
-	term_t featureType = PL_new_term_ref();
-	Vamp::Plugin::OutputList out = plugin -> getOutputDescriptors();
-	string output = out[(int)A4].identifier;
-	int length = output.size();
-	char o[length+1];
-	for(int j=0; j<length; j++){
-		o[j]=output[j];
-	}	
-	o[length] = '\000';
-	featureType = term_t(PlTerm(PlAtom(o)));
-	
 	//wraps the plugin process and returns a list of MO::feature elements for each frame
-	PlTerm feature(vmpl_frame_features_to_prolog(plugin->process(input, Vamp::RealTime::frame2RealTime(initSample, (int)isr)), (int)A4, framets, featureType));
+	PlTerm feature(vmpl_frame_features_to_prolog(plugin->process(input, Vamp::RealTime::frame2RealTime(initSample, (int)isr)), (int)A4, framets, plugin -> getOutputDescriptors()[(int)A4]));
 	
 	//free memory of the block of data
 	for(size_t k=0; k<(size_t)MO::GET::channels_count(frame); k++){
@@ -400,21 +388,8 @@ PREDICATE(vmpl_remaining_features, 5)
 	PL_put_float(duration, 0.0f);
 	MO::timestamp(start, duration, endts);
 	
-	//Getting the feature type	
-	term_t featureType = PL_new_term_ref();
-	Vamp::Plugin::OutputList out = plugin -> getOutputDescriptors();
-	string output = out[(int)A4].identifier;
-	//cerr<<output<<endl;
-	int length = output.size();
-	char o[length+1];
-	for(int j=0; j<length; j++){
-		o[j]=output[j];
-	}	
-	o[length] = '\000';
-	featureType = term_t(PlTerm(PlAtom(o)));
-	
 	//wraps the plugin process and returns a list of MO::feature elements for each frame
-	return A5 = PlTerm(vmpl_frame_features_to_prolog(plugin->getRemainingFeatures(), (int)A4, endts, featureType));
+	return A5 = PlTerm(vmpl_frame_features_to_prolog(plugin->getRemainingFeatures(), (int)A4, endts, plugin -> getOutputDescriptors()[(int)A4]));
 }
 
 /*** Ninth step lifecycle ***/
