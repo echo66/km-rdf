@@ -3,6 +3,16 @@
 
 Here is a brief description of the module predicates for their use. A context of this module can be found in README and further details in the source (audiosource.pl and the foreign libraries)
 
+List of Files Extensions supported:
+
+.wav
+.aif
+.aiff
+.mp3
+.ogg
+.m4a
+.aac
+
 1. Module predicates.
 
 
@@ -36,3 +46,7 @@ This is the simplest way to extract a frame. For a frame extraction using HopSiz
 This predicate deletes the audio data in memory when longer needed. One interesting feature of this module is that it allows to work with several MO::signal objects at the same time as they contain pointers to data in memory, but after the use of the data, this should be cleared from memory by using this predicate. A future extension will be a predicate to store the data in an external support
 
 Check out aspl.cpp for the source code
+
+
+
+
