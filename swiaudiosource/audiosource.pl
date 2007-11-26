@@ -56,6 +56,7 @@ aspl_supported_file('ogg').
 aspl_supported_file('wav').
 aspl_supported_file('aif').
 aspl_supported_file('aiff').
+aspl_supported_file('m4a').
 
 /**
 	aspl_decode(+AudioFilePath, -Signal). Main predicate and the only one that should be called. Thus, we hide which interface and library we are 
@@ -108,12 +109,17 @@ aspl_decode(Extension, AudioFile, Signal):-
 	sfpl_decode(AudioFile),
 	sfpl_get_decoded_signal(Signal).
 
+aspl_decode(Extension, AudioFile, Signal):-
+	Extension = 'm4a',
+	fdpl_decode(AudioFile),
+	fdpl_get_decoded_signal(Signal).
+
 /**
 	End of "audiosource" module  
 */
 	
 /**ToDo: 
-	-Add to the module new libraries for decoding of: FLAC,  AAC
+	-Add to the module new libraries for decoding of: FLAC
 	-WHAT TO DO WITH THE NAME OF THE FILE????
 */
 

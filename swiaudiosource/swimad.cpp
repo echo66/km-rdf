@@ -131,7 +131,7 @@ PREDICATE(mdpl_decode,1)
 			return TRUE;	//successful decoding. mad_reader is already containing the decoded data.
 		}	
 	}
-	//fdm must be deleted??
+	
 	return FALSE;
 }
 
