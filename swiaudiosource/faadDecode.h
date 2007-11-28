@@ -1,9 +1,6 @@
 /*
- *
- * This program is distributed under the GNU General Public License, version 2.
- * A copy of this license is included with this source.
- *
- * Copyright (C) 2002 John Edwards
+ * AAC decoder using the FAAD library based on the sources package. 
+ * David Pastor 2007 for c4dm, Queen Mary, University of London
  */
 
 #ifndef __FAADDECODE_H__

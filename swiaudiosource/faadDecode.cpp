@@ -1,3 +1,9 @@
+/*
+ * AAC decoder using the FAAD library based on the sources package. 
+ * David Pastor 2007 for c4dm, Queen Mary, University of London
+ */
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
