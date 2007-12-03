@@ -81,7 +81,7 @@ prove_body(Context,Bindings) :-
 
 
 check(Bindings) :-
-	member(match(_,G),Bindings),
+	member(match(_,G),Bindings),G\=literal(_),
 	rdf_db:rdf(_,_,_,G),!,
 	fail.
 check(Bindings) :-
