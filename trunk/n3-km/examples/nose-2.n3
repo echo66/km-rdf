@@ -1,0 +1,9 @@
+@prefix : <http://example.org/>.
+
+:joe a :Person.
+:mary a :Person.
+
+{?a a :Person} => {?a :has _:nose. _:nose :label "nose"}.
+
+
+

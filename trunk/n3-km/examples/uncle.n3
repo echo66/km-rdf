@@ -1,0 +1,7 @@
+@prefix : <http://example.org/> .
+
+:yves :parent :fabienne.
+:fabienne :brother :olivier.
+
+{?c :parent ?f. ?f :brother ?u} => {?c :uncle ?u}.
+
