@@ -43,6 +43,7 @@ init_counter :-
 	assert(counter(0)).
 
 :- dynamic base_uri/1.
+:- dynamic ns/2.
 %in the n3.n3 grammar, doesn't "zeroOrMore" overlaps with
 %() or ...?
 document(BaseURI,Document) -->
@@ -90,7 +91,7 @@ existential(existential(Symbols)) -->
 declaration(namespace(Prefix,URI)) -->
 	['@',name(prefix)],
 	prefix(Prefix),[':'],!,
-	explicituri(URI).
+	explicituri(URI),{assert(ns(Prefix,URI))}.
 declaration(namespace(base,URI)) -->
 	['@',name(prefix),':'],!,
 	explicituri(URI),{retractall(base_uri(_)),assert(base_uri(URI))}.
@@ -279,14 +280,14 @@ explicituri(ExplicitURI) -->
 prefix(Prefix) -->
 	[name(Prefix)]. %should add a regexp match
 
-qname(:) --> [':'],!.
-qname(NS:Name) -->
-	[':'(NS,Name)],!.
+qname(URI) --> [':'],{base_uri(URI)},!.
+qname(URI) -->
+	[':'(NS,Name)],{ns(NS,Base),atom_concat(Base,Name,URI)},!.
 	%{ matches(Name,'([a-zA-Z_][a-zA-Z0-9_]*)?'),
 	%  matches(NS,'([a-zA-Z_][a-zA-Z0-9_]*)?')
 	%}.
-qname(:Name) -->
-	[':'(Name)].
+qname(URI) -->
+	[':'(Name)],{base_uri(Base),atom_concat(Base,Name,URI)}.
 	%{matches(_Name,'([a-zA-Z_][a-zA-Z0-9_]*)?')}.
 bnode(BNode) -->
 	[nodeId(BNode)].
