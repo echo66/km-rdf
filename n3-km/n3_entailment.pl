@@ -36,7 +36,7 @@ in_formulae(_,P,_) :-
 rdf_with_formulae(S,P,O) :-
 	copy_term(rdf(S,P,O),rdf(SQ,PQ,OQ)),
 	prove_triple(rdf(SQ,PQ,OQ),rdf(SS,PP,OO),Bindings),
-	writeln(Bindings),
+	%writeln(Bindings),
 	check(Bindings),
 	replace(rdf(SS,PP,OO),Bindings,rdf(S,P,O)),
 	nonvar(S),nonvar(P),nonvar(O).
