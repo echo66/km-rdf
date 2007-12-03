@@ -1,0 +1,15 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
+@prefix : <http://example.org/>.
+
+:john1 
+   a :Person; 
+   owl:sameAs :john2;
+   :name "john";
+   .
+
+
+
+{?a owl:sameAs ?b} => {?b owl:sameAs ?a}.
+{?a owl:sameAs ?b. ?a :name ?o} => {?b :name ?o}.
+{?a owl:sameAs ?b. ?s ?p ?a} => {?s ?p ?b}.
+
