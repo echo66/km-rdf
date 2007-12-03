@@ -194,7 +194,7 @@ path(_Base,Node,Node,[]) --> [].
 
 
 node(Base,Symbol,[]) -->
-	symbol(:A),!,{base_uri(URI)->atom_concat(URI,A,Symbol);atom_concat(Base,A,Symbol)}.
+	symbol(S),{S=(:A)},!,{base_uri(URI)->atom_concat(URI,A,Symbol);atom_concat(Base,A,Symbol)}.
 node(_Base,Symbol,[]) -->
 	symbol(Symbol),!.
 node(_Base,VarID,[]) -->
@@ -232,7 +232,8 @@ symbol(URI) -->
 symbol(QName) -->
 	qname(QName).
 symbol(BNode) -->
-	bnode(BNode).
+	bnode(BN),
+	{atom_concat('__bnode_',BN,BNode)}.
 
 %dtlang(Lang) -->
 %	['@'],!,langcode(Lang).
@@ -287,8 +288,8 @@ qname(NS:Name) -->
 qname(:Name) -->
 	[':'(Name)].
 	%{matches(_Name,'([a-zA-Z_][a-zA-Z0-9_]*)?')}.
-bnode(BNodeID) -->
-	[nodeId(BNodeID)].
+bnode(BNode) -->
+	[nodeId(BNode)].
 
 barename(BareName) -->
 	[name(BareName)],
