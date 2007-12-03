@@ -11,8 +11,17 @@ sig:fit_gaussian a ctr:TabledPredicate.
 
 {?signal1 mo:similar_to ?signal2} <=
   {
-	{{?signal1 sig:mfcc ?mfcclist1} ctr:cc {?signal2 sig:mfcc ?mfcclist2}} ctr:sc
-	{{?mfcclist1 sig:fit_gaussian (?mean1 ?variance1)} ctr:cc {?mfcclist2 sig:fit_gaussian (?mean2 ?variance2)}}.
-	((?mean1 ?variance1) (?mean2 ?variance2)) m:kl_divergence ?distance. 
-	?distance math:greaterThan :threshold.
+    {
+     {?signal1 sig:mfcc ?mfcclist1} 
+        ctr:cc {?signal2 sig:mfcc ?mfcclist2}
+     } ctr:sc
+    {
+     {?mfcclist1 sig:fit_gaussian (?mean1 ?variance1)} 
+        ctr:cc {?mfcclist2 sig:fit_gaussian (?mean2 ?variance2)}
+     }.
+    ((?mean1 ?variance1) (?mean2 ?variance2)) m:kl_divergence ?distance. 
+    ?distance math:greaterThan _:threshold.
   }.
+
+
+
