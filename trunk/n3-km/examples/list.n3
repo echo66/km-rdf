@@ -1,0 +1,6 @@
+@prefix : <http://example.org/>.
+@prefix swi: <http://purl.org/ontology/swi/>.
+
+{?m swi:member (:a1 :a2 :a3)} => {?m a :Member}.
+
+

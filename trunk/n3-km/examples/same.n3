@@ -4,12 +4,12 @@
 :john1 
    a :Person; 
    owl:sameAs :john2;
-   :name "john";
+   :name "jon";
    .
 
 
 
-{?a owl:sameAs ?b} => {?b owl:sameAs ?a}.
-{?a owl:sameAs ?b. ?a :name ?o} => {?b :name ?o}.
-{?a owl:sameAs ?b. ?s ?p ?a} => {?s ?p ?b}.
+#{?a owl:sameAs ?b} => {?b owl:sameAs ?a}.
+{?a owl:sameAs ?b. ?a :name ?o} => {?b :nam ?o}.
+#{?a owl:sameAs ?b. ?s ?p ?a} => {?s ?p ?b}.
 
