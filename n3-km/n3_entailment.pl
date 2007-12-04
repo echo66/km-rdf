@@ -1,4 +1,4 @@
-:- module(n3_entailment,[]).
+:- module(n3_entailment,[n3_load/1]).
 
 
 :- use_module(n3_dcg).
@@ -10,6 +10,8 @@
                 rdf_equal/2
               ]).
 :- use_module(namespaces).
+:- use_module(builtins).
+
 
 term_expansion((rdf(S0, P0, O0) :- Body),
                (rdf(S,  P,  O)  :- Body)) :-
@@ -41,11 +43,15 @@ rdf_with_formulae(S,P,O) :-
 	replace(rdf(SS,PP,OO),Bindings,rdf(S,P,O)),
 	nonvar(S),nonvar(P),nonvar(O).
 
-
+prove_triple(rdf(S,P,O),rdf(SS,PP,OO),B) :-
+	builtin(P,PlPred), %!
+	convert(rdf(S,P,O),rdf(SS,PP,OO),Args,B),
+	catch(apply(PlPred,Args),_,fail).
 prove_triple(rdf(S,P,O),rdf(SS,PP,OO),Bindings) :-
 	match(rdf(S,P,O),rdf(SS,PP,OO),B1,Context),
 	prove(Context,B2),
 	flatten([B1,B2],Bindings).
+
 
 match(rdf(S,P,O),rdf(SS,PP,OO),B,Context) :-
 	rdf_db:rdf(SS,PP,OO,Context), %slow
@@ -80,15 +86,15 @@ prove_body(Context,Bindings) :-
 	flatten(Bss,Bindings).
 
 
-check(Bindings) :-
-	member(match(_,G),Bindings),G\=literal(_),
-	rdf_db:rdf(_,_,_,G),!,
-	fail.
-check(Bindings) :-
-	member(match(V,BNode),Bindings),
-	\+var(V),
-	existential(BNode),!,
-	fail.
+%check(Bindings) :-
+%	member(match(_,G),Bindings),G\=literal(_),
+%	rdf_db:rdf(_,_,_,G),!,
+%	fail.
+%check(Bindings) :-
+%	member(match(V,BNode),Bindings),
+%	\+var(V),
+%	existential(BNode),!,
+%	fail.
 check(_).	
 
 
