@@ -1,8 +1,17 @@
 #!/usr/local/bin/pl -q -s 
 
+% Just a small script, equivalent
+% of cwm $1 --think --rdf --data
+% 
+% Syntax: swicwm.pl <path_to_n3_file>
+%
+% A couple of examples are available
+% in examples/.
+
 :- use_module(n3_entailment).
 :- use_module(library('semweb/rdf_db')).
 :- use_module(library(rdf)).
+
 
 
 think(File) :-

@@ -1,6 +1,10 @@
 @prefix : <http://example.org/>.
 @prefix swi: <http://purl.org/ontology/swi/>.
 
+
+# Testing builtin predicates (swi:member corresponds
+# to list:member in SWI (see builtins.pl)
+
 {?m swi:member (:a1 :a2 :a3)} => {?m a :Member}.
 
 

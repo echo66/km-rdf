@@ -1,6 +1,19 @@
 :- module(builtins,[builtin/2,convert/4]).
 
 
+/**
+ * This modules provides anchors for builtin predicates.
+ * By registering a new builtin(Predicate,CorrespondingPrologPredicate)
+ * clause, proving Predicate using the n3_entailment
+ * module will call CorrespondingPrologPredicate.
+ *
+ * The file examples/list.n3 gives an illustration of that, 
+ * and uses the list:member/2 SWI predicate.
+ *
+ * Copyright Yves Raimond (c) 2007
+ * Centre for Digital Music, Queen Mary, University of London
+ */
+
 
 :- use_module(library('semweb/rdf_db')).
 :- use_module(library('semweb/rdfs')).
@@ -8,6 +21,10 @@
 :- rdf_meta builtin(r,?).
 
 
+/**
+ * Switch between a RDF representation and a Prolog one,
+ * that might actually be used to call a Prolog predicate
+ */
 convert(rdf(S,P,O),rdf(SS,P,OO),Args,Bindings) :-
 	convert_node(S,SS,SL,SB),
 	convert_node(O,OO,OL,OB),
@@ -29,7 +46,11 @@ convert_node(literal(Lit),literal(Lit),[SL],[]) :-
 	atom_to_term(Lit,SL,[]),!.
 convert_node(S,[S],[]).
 
-
+/**
+ *
+ * Declaration of builtin predicates
+ *
+ */
 
 builtin('http://purl.org/ontology/swi/member',list:member).
 
