@@ -1,15 +1,27 @@
 :- module(n3_dcg,[document/4,tokenise/2]).
 
 /**
- * A second attempt to create a DCG grammar for
- * SWI - this time I hope I won't loose all
- * my data... :-(
- * 
- * It outputs a list of RDF "quads" rdf(Subject,Predicate,Object,Context)
- * Existentially quantified variables are bnodes (eg. __bnode* atoms)
- * Universally quantified variables are bnodes of the form __bnode_*_uqvar
+ * This module implements a DCG to parse N3 in SWI.
+ * The parsing is done in two steps. First
+ * the N3 file is tokenised (using a tokeniser
+ * similar to the turtle one available in SWI' rdf_turtle.pl).
+ * Then, a DCG gives back a quad representation of the parsed
+ * N3. 
  *
- * Yves Raimond, C4DM, Queen Mary, University of London
+ * Basically, each quad is of the form rdf(Subject,Predicate,Object,Context).
+ * Existentially quantified variables are modeled as blank nodes (eg. __bnode* atoms).
+ * Universally quantified variables are also modeled as blank nodes, but of the form
+ * __bnode_*_uqvar.
+ *
+ * This is a nasty hack, but it allows to use the really efficient SWI RDF
+ * store for storage of N3 formulae :-)
+ * 
+ * In the same directory, a test suite is available (taken from CWM CVS 
+ * repository), as well as the scripts allowing to run it and the results
+ * as of now.
+ *
+ * Copyright Yves Raimond (c) 2007
+ * Centre for Digital Music, Queen Mary, University of London
  */
 
 

@@ -1,6 +1,10 @@
 @prefix owl: <http://www.w3.org/2002/07/owl#>.
 @prefix : <http://example.org/>.
 
+# A typical example of something that
+# doesn't work - recursive rules
+
+
 :john1 
    a :Person; 
    owl:sameAs :john2;
@@ -9,7 +13,7 @@
 
 
 
-#{?a owl:sameAs ?b} => {?b owl:sameAs ?a}.
-{?a owl:sameAs ?b. ?a :name ?o} => {?b :nam ?o}.
-#{?a owl:sameAs ?b. ?s ?p ?a} => {?s ?p ?b}.
+{?a owl:sameAs ?b} => {?b owl:sameAs ?a}.
+{?a owl:sameAs ?b. ?a ?p ?o} => {?b ?p ?o}.
+{?a owl:sameAs ?b. ?s ?p ?a} => {?s ?p ?b}.
 

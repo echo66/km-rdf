@@ -1,5 +1,8 @@
 @prefix : <http://example.org/>.
 
+# "Nested" rules (this might not be the
+# right word)
+
 :yves :parent :jm.
 
 {?a :parent ?p} => {?p a :Parent}.
