@@ -1,0 +1,7 @@
+@prefix : <http://example.org/>.
+
+:yves :parent :jm.
+
+{?a :parent ?p} => {?p a :Parent}.
+{?a a :Parent} => {?p :has _:child}.
+
