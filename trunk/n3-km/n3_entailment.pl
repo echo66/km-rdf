@@ -64,14 +64,37 @@ n3_load(File) :-
 
 :- dynamic rdf_e/3.
 
+
+/**
+ * Top-level predicate
+ * This predicate hides entailment
+ * triggered by N3 formulae, without
+ * giving access to the formulae themselves
+ * (therefore hiding their "RDF" representation).
+ */
 rdf(S,P,O) :- 
 	rdf_e(S,P,O),
 	\+in_formulae(rdf(S,P,O)).
 
+/**
+ * Mid-level predicate
+ * This also holds "RDF" representation
+ * of formulae
+ */
 rdf_e(S,P,O) :-
 	rdf_db:rdf(S,P,O).
 
-
+/**
+ * Compiling predicates.
+ * This translates available in-store N3 rules
+ * to nice and fast Prolog code (hopefully :) )
+ *
+ * Two steps:
+ *   1- Compile builtins (translate a rdf_e/3 query to 
+ *   calling an arbitrary Prolog predicate, as defined in 
+ *   builtins.pl
+ *   2- Compile formulae
+ */
 compile :- compile_builtins,compile_rules.
 compile_builtins :-
 	forall(builtin(P,PlPred),
@@ -99,18 +122,36 @@ compile_rules :-
 		)
 	).
 
+/**
+ * Just a dummy predicate checking wether all three given
+ * variables are instantiated
+ */
 check(S,P,O) :-
 	nonvar(S),nonvar(P),nonvar(O).
 
+/**
+ * Is the given triple part of a N3 forumlae?
+ *
+ * TODO: to enhance this... this is the crappiest
+ * test ever
+ */
 in_formulae(rdf(S,P,O)) :-
 	(rdf_db:rdf(S,P,O,G),rdf_db:rdf_is_bnode(G),!);
+	universal(S);universal(P);universal(O);
 	P='http://www.w3.org/2000/10/swap/log#implies'. %loose
 in_formulae(_) :- fail.
 
+/**
+ * Get back two named graph identifiers linked
+ * together through log:implies
+ */
 implies(Body,Head) :-
 	rdf_db:rdf(Body,log:implies,Head).
 
 
+/**
+ * Convert a N3 graph to a bag of Prolog terms
+ */
 n3_pl(Head,PredList,Bindings) :-
 	findall(rdf_e(S,P,O),rdf_db:rdf(S,P,O,Head),Triples),
 	n3_pl2(Triples,PredList,Bindings).
@@ -126,9 +167,13 @@ n3_pl2([rdf_e(S,P,O)|T],[rdf_e(SS,PP,OO)|T2],Bindings) :-
 rdf_to_pl_n(N,T,[binding(N,T)]) :-
 	universal(N),!.
 rdf_to_pl_n(N,N,[]).
-%list
+%TODO: list handling
 
 
+/**
+ * Given a list of terms bindings(Node,Term), make
+ * sure all pairs of Terms are equal
+ */
 merge_bindings([]).
 merge_bindings([binding(Node,Term)|T]) :-
 	associate(binding(Node,Term),T),
