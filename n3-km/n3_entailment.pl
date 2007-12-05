@@ -26,10 +26,14 @@
  * of 
  * $ cwm $1 --think --rdf --data
  *
- * The biggest limitation is perhaps the lack of recursive rule
- * handling (see examples/same.n3), which results
- * in a stack overflow. Will I have to implement
- * a XSB-style tabling system?
+ * TODO:
+ *    - The biggest limitation is perhaps the lack of recursive rule
+ * 	handling (see examples/same.n3), which results
+ *	 in a stack overflow. Will I have to implement
+ * 	a XSB-style tabling system?
+ *    - The second annoying thing is that, when deriving all possible
+ *      entailments, all the registered builtins are triggered (is 
+ *      that a bug or a feature?)
  *
  * Copyright Yves Raimond (c) 2007
  * Centre for Digital Music, Queen Mary, University of London
@@ -99,8 +103,16 @@ rdf_s(S,P,O) :-
  * N3/builtin entailment
  */
 rdf_e(S,P,O) :-
-	rdf_db:rdf(S,P,O).
+	rdf_b(S,P,O).
 
+
+/**
+ * Finally... Fourth level predicate, handling
+ * calls to the backing rdf store, and builtins
+ */
+:- dynamic rdf_b/3.
+rdf_b(S,P,O) :-
+	rdf_db:rdf(S,P,O).
 
 /**
  * Compiling predicates.
@@ -118,8 +130,8 @@ compile_builtins :-
 	forall(builtin(P,PlPred),
 		(
 			
-			format('~w :- ~w\n',[rdf_e(S,P,O),(convert(S,O,Args,B),merge_bindings(B),catch(apply(PlPred,Args),_,fail))]),
-			assert(':-'(rdf_e(S,P,O),(convert(S,O,Args,B),merge_bindings(B),writeln(apply(PlPred,Args)),catch(apply(PlPred,Args),_,fail))))
+			format('~w :- ~w\n',[rdf_b(S,P,O),(convert(S,O,Args,B),merge_bindings(B),catch(apply(PlPred,Args),_,fail))]),
+			assert(':-'(rdf_b(S,P,O),(convert(S,O,Args,B),merge_bindings(B),writeln(apply(PlPred,Args)),catch(apply(PlPred,Args),_,fail))))
 		)
 	).
 compile_rules :-
@@ -128,7 +140,6 @@ compile_rules :-
 		(
 			n3_pl(Head,PredListH,Bindings1),
 			n3_pl(Body,PredListB,Bindings2),
-			writeln(Bindings1),writeln(Bindings2),
 			append(Bindings1,Bindings2,Bindings),
 			merge_bindings(Bindings),
 			list_to_conj(PredListB,PlB),
@@ -154,8 +165,8 @@ check(S,P,O) :-
  * test ever
  */
 in_formulae(rdf(S,P,O)) :-
-	(rdf_db:rdf(S,P,O,G),rdf_db:rdf_is_bnode(G),!);
-	universal(S);universal(P);universal(O);
+	%(rdf_db:rdf(S,P,O,G),\+((existential(S),existential(P),existential(O))),rdf_db:rdf_is_bnode(G),!);
+	(universal(S),!);(universal(P),!);(universal(O),!);
 	P='http://www.w3.org/2000/10/swap/log#implies'. %loose
 in_formulae(_) :- fail.
 
