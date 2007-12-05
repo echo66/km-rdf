@@ -1,0 +1,11 @@
+@prefix : <http://example.org/>.
+@prefix list: <http://www.w3.org/2000/10/swap/list#>.
+
+
+# This illustrates a bug - special care 
+# needs to be taken in that case (eg. replacing
+# :b by the list before sending it to the builtin)
+
+:b = (:a1 :a2 :a3).
+
+{?m list:in :b} => {?m a :Member}.
