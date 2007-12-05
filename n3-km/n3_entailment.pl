@@ -1,4 +1,4 @@
-:- module(n3_entailment,[n3_load/1]).
+:- module(n3_entailment,[n3_load/1,compile/0]).
 
 /**
  * This module provides entailment 
@@ -60,137 +60,91 @@ n3_load(File) :-
 	phrase(n3_dcg:document('',Doc),Tokens),
 	forall(member(rdf(A,B,C,D),Doc),rdf_db:rdf_assert(A,B,C,D)).
 
-/**
- * Top-level predicate, encapsulating the N3 entailment
- */
-rdf(S,P,O) :-
-	rdf_with_formulae(S,P,O),
-	\+in_formulae(S,P,O).
-in_formulae(S,P,O) :-
-	universal(S);universal(P);universal(O). %loose...
-in_formulae(_,P,_) :-
-	rdf_db:rdf_global_id(log:implies,D),
-	P=D.
+:- dynamic rdf/3.
 
-/**
- * If you want to get back the RDF representation
- * of the formulae (see rdf_dcg.pl) along with 
- * the results of the 
- * entailment, this one's for you
- */
-rdf_with_formulae(S,P,O) :-
-	copy_term(rdf(S,P,O),rdf(SQ,PQ,OQ)),
-	prove_triple(rdf(SQ,PQ,OQ),rdf(SS,PP,OO),Bindings),
-	%writeln(Bindings),
-	check(Bindings),
-	replace(rdf(SS,PP,OO),Bindings,rdf(S,P,O)),
+rdf(S,P,O) :- 
+	rdf_db:rdf(S,P,O,G),
+	\+in_formulae(rdf(S,P,O,G)).
+
+compile :- compile_builtins,compile_rules.
+compile_builtins.
+%compile_builtins :-
+%	forall(builtin(P,PlPred),
+%		(
+%			format('~w :- ~w\n',[rdf(S,P,O),(to_args(S,O,Args),catch(apply(PlPred,Args)))]),
+%			assert(':-'(rdf(S,P,O),(to_args(S,O,Args),catch(apply(PlPred,Args)))))
+%		)
+%	).
+compile_rules :-
+	forall(
+		implies(Body,Head),
+		(
+			n3_pl(Head,PredListH,Bindings1),
+			n3_pl(Body,PredListB,Bindings2),
+			merge_bindings(Bindings1,Bindings2),
+			list_to_conj(PredListB,PlB),
+			forall(member(rdf(S,P,O),PredListH),
+				(
+					format('~w :- ~w\n',[rdf(S,P,O),(PlB)]),
+					assert(':-'(rdf(S,P,O),(PlB,check(S,P,O))))
+				))
+		)
+	).
+
+check(S,P,O) :-
 	nonvar(S),nonvar(P),nonvar(O).
 
-/**
- * Builtin support
- */
-prove_triple(rdf(S,P,O),rdf(SS,PP,OO),B) :-
-	builtin(P,PlPred), %!
-	convert(rdf(S,P,O),rdf(SS,PP,OO),Args,B),
-	catch(apply(PlPred,Args),_,fail).
-/**
- * Standard entailment
- */
-prove_triple(rdf(S,P,O),rdf(SS,PP,OO),Bindings) :-
-	match(rdf(S,P,O),rdf(SS,PP,OO),B1,Context),
-	prove(Context,B2),
-	flatten([B1,B2],Bindings).
+in_formulae(rdf(_,P,_,G)) :-
+	rdf_db:rdf(G,_,_,_);
+	rdf_db:rdf(_,_,G,_);
+	P='http://www.w3.org/2000/10/swap/log#implies'. %loose
+in_formulae(_) :- fail.
 
-/**
- * Binding triples that could be equivalent in
- * a given context Context,
- * according to the substitutions mentioned in B
- */
-match(rdf(S,P,O),rdf(SS,PP,OO),B,Context) :-
-	rdf_db:rdf(SS,PP,OO,Context), %slow
-	match_node(S,SS,B1),
-	match_node(P,PP,B2),
-	match_node(O,OO,B3),
-	flatten([B1,B2,B3],B).
+implies(Body,Head) :-
+	rdf_db:rdf(Body,log:implies,Head).
 
 
-match_node(N,N,[]).
-match_node(N,NN,[match(N,NN)]) :-
-	rdf_db:rdf_is_bnode(NN),
-	N\=NN.
-match_node(N,NN,[match(N,NN)]) :-
-	rdf_db:rdf_is_bnode(N),
-	N\=NN.
+n3_pl(Head,PredList,Bindings) :-
+	findall(rdf(S,P,O),rdf_db:rdf(S,P,O,Head),Triples),
+	n3_pl2(Triples,PredList,Bindings).
+n3_pl2([],[],[]).
+n3_pl2([rdf(S,P,O)|T],[rdf(SS,PP,OO)|T2],Bindings) :-
+	rdf_to_pl_n(S,SS,B1),
+	rdf_to_pl_n(P,PP,B2),
+	rdf_to_pl_n(O,OO,B3),
+	flatten([B1,B2,B3],BH),
+	n3_pl2(T,T2,BT),
+	append(BH,BT,Bindings).
 
+rdf_to_pl_n(N,T,[binding(N,T)]) :-
+	universal(N),!.
+rdf_to_pl_n(N,N,[]).
+%list
 
-/**
- * Proves a context (eg. proves the body when wanting
- * to prove something in the head of a rule)
- */
-%prove(Context,_) :- rdf_db:rdf(Context,log:implies,_),!,fail.
-prove(Context,Bindings) :-
-	rdf_db:rdf(BodyC,log:implies,Context),!,
-	prove_body(BodyC,Bindings).
-prove(_,[]).
-prove_body(Context,Bindings) :-
-	findall(Bindings,
-		(
-			rdf_db:rdf(S,P,O,Context),
-			prove_triple(rdf(S,P,O),_,Bindings)
-		),
-		Bss
-	),
-	flatten(Bss,Bindings).
+merge_bindings([],_).
+merge_bindings([binding(Node,Term)|T],B2) :-
+	member(binding(Node,Term),B2),!,
+	merge_bindings(T,B2).
+merge_bindings([_|T],B2) :-
+	merge_bindings(T,B2).
 
-
-/**
- * This should be better written.
- * This is an achor, to check wether we have some inconsistencies
- * in the binding. I'll recode it when I find an example
- * which needs it.
- */
-%check(Bindings) :-
-%	member(match(_,G),Bindings),G\=literal(_),
-%	rdf_db:rdf(_,_,_,G),!,
-%	fail.
-%check(Bindings) :-
-%	member(match(V,BNode),Bindings),
-%	\+var(V),
-%	existential(BNode),!,
-%	fail.
-check(_).	
-
-
-/**
- * Does the substitutions, according to 
- * a set of bindings and an original triples.
- *
- * No support for transitive substitution, so far
- */
-replace(rdf(S,P,O),Bindings,rdf(SS,PP,OO)) :-
-	%writeln(binding(rdf(S,P,O),rdf(SS,PP,OO))),
-	replace_n(S,Bindings,SS),
-	replace_n(P,Bindings,PP),
-	replace_n(O,Bindings,OO).
-replace_n(S,Bindings,SS) :-
-	member(match(SS,S),Bindings).
-replace_n(SS,Bindings,S) :-
-	member(match(SS,S),Bindings).
-replace_n(S,_,S).
-
+list_to_conj([H],H) :- !.
+list_to_conj([H,T],(H,T)) :- !.
+list_to_conj([H|T],(H,T2)) :-
+	list_to_conj(T,T2).
 
 /**
  * Check the quantification of a variable
  */
 existential(Node) :-
-	quantification(Node,Q),
-	Q=existential.
+        quantification(Node,Q),
+        Q=existential.
 universal(Node) :-
-	quantification(Node,Q),
-	Q=universal.
+        quantification(Node,Q),
+        Q=universal.
 quantification(Node,universal) :-
-	rdf_db:rdf_is_bnode(Node),
-	atom_concat(_,'_uqvar',Node),!.
+        rdf_db:rdf_is_bnode(Node),
+        atom_concat(_,'_uqvar',Node),!.
 quantification(Node,existential) :-
-	rdf_db:rdf_is_bnode(Node).
+        rdf_db:rdf_is_bnode(Node).
 

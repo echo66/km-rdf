@@ -6,5 +6,5 @@
 :yves :parent :jm.
 
 {?a :parent ?p} => {?p a :Parent}.
-{?a a :Parent} => {?p :has _:child}.
+{?a a :Parent} => {?a :has _:child}.
 
