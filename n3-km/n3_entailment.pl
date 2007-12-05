@@ -81,7 +81,9 @@ compile_rules :-
 		(
 			n3_pl(Head,PredListH,Bindings1),
 			n3_pl(Body,PredListB,Bindings2),
-			merge_bindings(Bindings1,Bindings2),
+			writeln(Bindings1),writeln(Bindings2),
+			append(Bindings1,Bindings2,Bindings),
+			merge_bindings(Bindings),
 			list_to_conj(PredListB,PlB),
 			forall(member(rdf(S,P,O),PredListH),
 				(
@@ -121,12 +123,19 @@ rdf_to_pl_n(N,T,[binding(N,T)]) :-
 rdf_to_pl_n(N,N,[]).
 %list
 
-merge_bindings([],_).
-merge_bindings([binding(Node,Term)|T],B2) :-
-	member(binding(Node,Term),B2),!,
-	merge_bindings(T,B2).
-merge_bindings([_|T],B2) :-
-	merge_bindings(T,B2).
+
+merge_bindings([]).
+merge_bindings([binding(Node,Term)|T]) :-
+	associate(binding(Node,Term),T),
+	merge_bindings(T).
+
+associate(_,[]).
+associate(binding(Node,Term),[binding(Node,Term)|T]) :-
+	!,
+	associate(binding(Node,Term),T).
+associate(binding(Node,Term),[_|T]) :-
+	associate(binding(Node,Term),T).
+
 
 list_to_conj([H],H) :- !.
 list_to_conj([H,T],(H,T)) :- !.
