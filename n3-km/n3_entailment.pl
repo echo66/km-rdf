@@ -73,16 +73,34 @@ n3_load(File) :-
  * (therefore hiding their "RDF" representation).
  */
 rdf(S,P,O) :- 
-	rdf_e(S,P,O),
+	rdf_s(S,P,O),
 	\+in_formulae(rdf(S,P,O)).
 
 /**
- * Mid-level predicate
+ * Second-level predicate
  * This also holds "RDF" representation
- * of formulae
+ * of formulae, and handles 
+ * owl:sameAs
+ */
+% special handling of owl:sameAs
+rdf_s(S,P,O) :-
+	sameAs(S,SS),
+	rdf_e(SS,P,O),
+	P\='http://www.w3.org/2002/07/owl#sameAs'.
+rdf_s(S,P,O) :-
+	sameAs(O,OO),
+	rdf_e(S,P,OO),
+	P\='http://www.w3.org/2002/07/owl#sameAs'.
+rdf_s(S,P,O) :-
+	rdf_e(S,P,O).
+
+/**
+ * And third level predicate. Just do the
+ * N3/builtin entailment
  */
 rdf_e(S,P,O) :-
 	rdf_db:rdf(S,P,O).
+
 
 /**
  * Compiling predicates.
@@ -148,6 +166,13 @@ in_formulae(_) :- fail.
 implies(Body,Head) :-
 	rdf_db:rdf(Body,log:implies,Head).
 
+/**
+ * Get back two named considered as equal (owl:sameAs)
+ */
+sameAs(A,B) :-
+	rdf_db:rdf(A,owl:sameAs,B).
+sameAs(A,B) :-
+	 rdf_db:rdf(B,owl:sameAs,A).
 
 /**
  * Convert a N3 graph to a bag of Prolog terms
