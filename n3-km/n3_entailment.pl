@@ -44,6 +44,8 @@
                 rdf_subject/1,
                 rdf_equal/2
               ]).
+:- use_module(library('semweb/rdfs'),
+	      [ rdfs_list_to_prolog_list/2 ]).
 :- use_module(namespaces).
 :- use_module(builtins).
 
@@ -60,21 +62,25 @@ n3_load(File) :-
 	phrase(n3_dcg:document('',Doc),Tokens),
 	forall(member(rdf(A,B,C,D),Doc),rdf_db:rdf_assert(A,B,C,D)).
 
-:- dynamic rdf/3.
+:- dynamic rdf_e/3.
 
 rdf(S,P,O) :- 
-	rdf_db:rdf(S,P,O,G),
-	\+in_formulae(rdf(S,P,O,G)).
+	rdf_e(S,P,O),
+	\+in_formulae(rdf(S,P,O)).
+
+rdf_e(S,P,O) :-
+	rdf_db:rdf(S,P,O).
+
 
 compile :- compile_builtins,compile_rules.
-compile_builtins.
-%compile_builtins :-
-%	forall(builtin(P,PlPred),
-%		(
-%			format('~w :- ~w\n',[rdf(S,P,O),(to_args(S,O,Args),catch(apply(PlPred,Args)))]),
-%			assert(':-'(rdf(S,P,O),(to_args(S,O,Args),catch(apply(PlPred,Args)))))
-%		)
-%	).
+compile_builtins :-
+	forall(builtin(P,PlPred),
+		(
+			
+			format('~w :- ~w\n',[rdf_e(S,P,O),(convert(S,O,Args,B),merge_bindings(B),catch(apply(PlPred,Args),_,fail))]),
+			assert(':-'(rdf_e(S,P,O),(convert(S,O,Args,B),merge_bindings(B),writeln(apply(PlPred,Args)),catch(apply(PlPred,Args),_,fail))))
+		)
+	).
 compile_rules :-
 	forall(
 		implies(Body,Head),
@@ -85,10 +91,10 @@ compile_rules :-
 			append(Bindings1,Bindings2,Bindings),
 			merge_bindings(Bindings),
 			list_to_conj(PredListB,PlB),
-			forall(member(rdf(S,P,O),PredListH),
+			forall(member(rdf_e(S,P,O),PredListH),
 				(
-					format('~w :- ~w\n',[rdf(S,P,O),(PlB)]),
-					assert(':-'(rdf(S,P,O),(PlB,check(S,P,O))))
+					format('~w :- ~w\n',[rdf_e(S,P,O),(PlB)]),
+					assert(':-'(rdf_e(S,P,O),(PlB,check(S,P,O))))
 				))
 		)
 	).
@@ -96,9 +102,8 @@ compile_rules :-
 check(S,P,O) :-
 	nonvar(S),nonvar(P),nonvar(O).
 
-in_formulae(rdf(_,P,_,G)) :-
-	rdf_db:rdf(G,_,_,_);
-	rdf_db:rdf(_,_,G,_);
+in_formulae(rdf(S,P,O)) :-
+	(rdf_db:rdf(S,P,O,G),rdf_db:rdf_is_bnode(G),!);
 	P='http://www.w3.org/2000/10/swap/log#implies'. %loose
 in_formulae(_) :- fail.
 
@@ -107,10 +112,10 @@ implies(Body,Head) :-
 
 
 n3_pl(Head,PredList,Bindings) :-
-	findall(rdf(S,P,O),rdf_db:rdf(S,P,O,Head),Triples),
+	findall(rdf_e(S,P,O),rdf_db:rdf(S,P,O,Head),Triples),
 	n3_pl2(Triples,PredList,Bindings).
 n3_pl2([],[],[]).
-n3_pl2([rdf(S,P,O)|T],[rdf(SS,PP,OO)|T2],Bindings) :-
+n3_pl2([rdf_e(S,P,O)|T],[rdf_e(SS,PP,OO)|T2],Bindings) :-
 	rdf_to_pl_n(S,SS,B1),
 	rdf_to_pl_n(P,PP,B2),
 	rdf_to_pl_n(O,OO,B3),
@@ -136,11 +141,38 @@ associate(binding(Node,Term),[binding(Node,Term)|T]) :-
 associate(binding(Node,Term),[_|T]) :-
 	associate(binding(Node,Term),T).
 
+/**
+ * Builtin - (Subject,Object) to Prolog argument list
+ */
+convert(S,O,Args,Bindings) :-
+	convert_n(S,SL,B1),
+	convert_n(O,OL,B2),
+	append(SL,OL,Args),
+	append(B1,B2,Bindings).
+convert_all([],[],[]).
+convert_all([H|T],[H2|T2],Bindings) :-
+	convert_n(H,[H2],BH),
+	convert_all(T,T2,BT),
+	append(BH,BT,Bindings).
+convert_n(S,[SL],Bindings) :-
+	atomic(S),
+	rdfs_list_to_prolog_list(S,SLT),!,
+	convert_all(SLT,SL,Bindings).
+convert_n(S,T,[binding(S,T)]) :-
+	universal(S).
+convert_n(S,[S],[]).
+
+
+/**
+ * Cheap utils
+ */
 
 list_to_conj([H],H) :- !.
 list_to_conj([H,T],(H,T)) :- !.
 list_to_conj([H|T],(H,T2)) :-
 	list_to_conj(T,T2).
+
+
 
 /**
  * Check the quantification of a variable

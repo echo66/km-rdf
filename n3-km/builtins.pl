@@ -1,4 +1,4 @@
-:- module(builtins,[builtin/2,convert/4]).
+:- module(builtins,[builtin/2]).
 
 
 /**
@@ -52,7 +52,8 @@ convert_node(S,[S],[]).
  *
  */
 
-builtin('http://purl.org/ontology/swi/member',list:member).
+builtin('http://www.w3.org/2000/10/swap/list#in',builtin:member).
 
+builtin:member(A,B) :- nonvar(B),member(A,B).
 
 
