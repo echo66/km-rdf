@@ -20,32 +20,6 @@
 
 :- rdf_meta builtin(r,?).
 
-
-/**
- * Switch between a RDF representation and a Prolog one,
- * that might actually be used to call a Prolog predicate
- */
-convert(rdf(S,P,O),rdf(SS,P,OO),Args,Bindings) :-
-	convert_node(S,SS,SL,SB),
-	convert_node(O,OO,OL,OB),
-	append(SL,OL,Args),
-	append(SB,OB,Bindings).
-convert_node(S,S,[SL],[]) :-
-	rdfs_list_to_prolog_list(S,SL),!.
-	%findall(t(C,B),(member(M,SL),convert(M,C,B)),T),
-	%findall(C,member(t(C,_),T),SL),
-	%findall(B,member(t(_,B),T),T2),
-	%flatten(T2,Bindings),!.
-convert_node(S,T,[T],[match(S,T)]) :-
-	rdf_is_bnode(S),!.
-convert_node(literal(type(_,Lit)),literal(type(_,Lit)),[SL],[]) :-
-	atom_to_term(Lit,SL,[]),!.
-convert_node(literal(lang(_,Lit)),literal(lang(_,Lit)),[SL],[]) :-
-	atom_to_term(Lit,SL,[]),!.
-convert_node(literal(Lit),literal(Lit),[SL],[]) :-
-	atom_to_term(Lit,SL,[]),!.
-convert_node(S,[S],[]).
-
 /**
  *
  * Declaration of builtin predicates
