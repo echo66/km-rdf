@@ -1,0 +1,11 @@
+@prefix tr: <http://purl.org/ontology/ctr/>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>. 
+@prefix : <>.
+
+
+:entail <=
+	{
+		{?c1 rdfs:subPropertyOf ?c2. ?i a ?c1} tr:forall
+		{{?i a ?c2} tr:add (:entailed)}
+	}.
+
