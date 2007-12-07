@@ -1,0 +1,41 @@
+@prefix mo: <http://purl.org/ontology/mo/>.
+@prefix tl: <http://purl.org/NET/c4dm/timeline.owl#>.
+@prefix tr: <http://purl.org/ontology/ctr/>.
+@prefix list: <http://www.w3.org/2000/10/swap/list#>.
+@prefix qvp: <http://vamp-plugins.org/plugin/qm-vamp-plugins/>.
+@prefix event: <http://purl.org/NET/c4dm/event.owl#>.
+@prefix : <>.
+
+
+
+{
+{?af 
+	a mo:AudioFile;
+	mo:encodes ?sig.} tr:seq
+{
+?sig
+	mo:time ?time.
+?time
+	tl:onTimeLine ?tl.
+(1024 512) 
+	:frame ?frames.
+(?framestart ?duration) 
+	list:in ?frames.
+}
+} => {
+?framedsig a :Frame.
+?framedsig mo:time [tl:start ?framestart;tl:duration ?duration;tl:onTimeLine ?tl].
+}.
+
+
+{
+?framedsig a :Frame.
+?framedsig mo:time ?frametime.
+?framedsig qvp:qm-keydetector ?key.
+} => {
+_:key_event a :KeyEvent.
+_:key_event event:time ?frametime.
+_:key_event event:factor ?key.
+}.
+
+
