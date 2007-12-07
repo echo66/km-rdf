@@ -3,9 +3,16 @@
 @prefix : <>.
 
 
+# Forces fw entailment
 :entail <=
 	{
-		{?c1 rdfs:subPropertyOf ?c2. ?i a ?c1} tr:forall
+		{?c1 rdfs:subClassOf ?c2. ?i a ?c1} tr:forall
 		{{?i a ?c2} tr:add (:entailed)}
+	}.
+
+
+{?i a ?c2} <=
+	{
+		?c1 rdfs:subClassOf ?c2. ?i a ?c1
 	}.
 
