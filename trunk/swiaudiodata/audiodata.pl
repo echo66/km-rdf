@@ -1,6 +1,6 @@
 /**
-	Prolog module to work with audiodata extracted from the audiosource module. It handles the data as blobs, and the blobs are handled by BlobIDs
-	that make transparent the <#...> invalid terms.
+	Prolog module to work with audiodata extracted from the audiosource module. 
+	It handles the data as blobs, and the blobs are handled by BlobIDs that make transparent the <#...> invalid terms.
 	David Pastor 2007, c4dm, Queen Mary, University of London
 */
 
@@ -10,6 +10,7 @@
 			get_frame/4,
 			pointerBlob_to_list/2,
 			vectorBlob_to_list/2,
+			list_to_pointerBlob/2,
 			get_frame_timestamp/2,
 			set_limit_framing/3,
 			clean_pointedVector/1,
@@ -19,17 +20,50 @@
 			blob_id/2,
 			id_blob/2,
 			is_blob_id/2,
-			active_id/2,
-			desactive_entry/2,
-			desactive_id/2,
-			reserve_id/2
+			active_id/1,
+			desactive_entry/1,
+			desactive_id/1,
+			reserve_id/1,
 			/*and the combination of audioblobpl and blobidpl gives us a new way to handle data that fits better to sem web/n3 structure*/
-			
+			blob/1,		
+			audio_blob/1,	
+			blob_data/2,
 			]).
 
 :- style_check(-discontiguous).
 :- load_foreign_library(swiaudiodata).
  
+/**
+	blob(+BlobID): True if this is a blob (the interpretation is that we have it stored in our blob_id_db, check out swilib/). It just checks
+	if the blob is registered but may be active or not!!!
+*/
+blob(BlobID):-
+	is_blob_id(BlobID, _).
+
+/**
+	audio_blob(+BlobID): This is a different and more specific way to look at blob/1. We get the real blob and checks it against the audioblob 		library
+*/
+audio_blob(BlobID):-
+	id_blob(BlobID, Blob),
+	is_audio_blob(Blob).
+
+/**
+	blob_data(+BlobID, -ListData): This predicate gets the blob identified by the id and decodes it in a prolog list. Fails in case the ID is not
+	registered or desactived. (no need to call blob/1)
+*/
+blob_data(BlobID, ListData):-
+	id_blob(BlobID, Blob),
+	pointerBlob_to_list(Blob, ListData).
+
+/**
+	data_blob(+ListData, +BlobID): For the given prolog list with raw data and id to be unified, we retrieve a blob (pointing to raw data in memory 	named by its ID. The ID must be desactived before and activated from here on.
+*/
+data_blob(ListData, BlobID):-
+	list_to_pointerVector(ListData, Blob),
+	blob_id(Blob, BlobID).	
+
+/**Short explanation of imported predicates**/
+
 /**
 	get_sample_rate(+Signal or Frame, -SampleRate). Check mopl.cpp
 
@@ -48,6 +82,11 @@
 /**
 	pointerBlob_to_list(+Blob, -PrologList). Check audioblobpl.cpp. It basically gets a <#..> blob term and decodes it to get the data in memory
 	pointed by the blob and returns a prolog list. It can be also done for blob containing vectors with real raw data.
+*/
+
+/**
+	list_to_pointerVector(+List, -Blob): Creates a blob from the list and unifies it with the argument. There is no definition to return a blob 
+	containing a real vector with the raw data
 */
 
 /**
