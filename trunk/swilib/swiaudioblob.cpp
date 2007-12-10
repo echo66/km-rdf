@@ -145,6 +145,7 @@ audio_blob_to_pointer(AudioBlob blob){
 	return *(AudioVector **)(data);
 }
 
+
 int
 is_audio_vector(term_t blob){
 
