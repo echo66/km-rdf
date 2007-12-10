@@ -6,7 +6,9 @@
 	ToDo: we delete specific blobs types from here adding libraries or from prolog???? what to do exactly with the blob terms and their references!
 */
 
+#ifndef _FLI_H_INCLUDED
 #include <SWI-cpp.h>
+#endif
 #include <qstring.h>
 
 #define MAX_BLOBS 10000
