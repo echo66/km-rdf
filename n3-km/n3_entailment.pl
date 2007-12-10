@@ -52,7 +52,7 @@
 	      [ rdfs_list_to_prolog_list/2 ]).
 :- use_module(namespaces).
 :- use_module(builtins).
-
+:- use_module(log).
 
 term_expansion((rdf(S0, P0, O0) :- Body),
                (rdf(S,  P,  O)  :- Body)) :-
@@ -76,9 +76,11 @@ n3_load(File) :-
  * giving access to the formulae themselves
  * (therefore hiding their "RDF" representation).
  */
-rdf(S,P,O) :- 
+rdf(S,P,O) :-
+	log(rdf(S,P,O)),
 	rdf_s(S,P,O),
 	\+in_formulae(rdf(S,P,O)).
+	%\+list(S),\+list(P),\+list(O).
 
 /**
  * Second-level predicate
@@ -112,6 +114,9 @@ rdf_e(S,P,O) :-
  */
 :- dynamic rdf_b/3.
 rdf_b(S,P,O) :-
+	rdf_l(S,P,O).
+rdf_b(S,P,O) :-
+	\+list(S),\+list(O),
 	rdf_db:rdf(S,P,O).
 
 /**
@@ -131,7 +136,7 @@ compile_builtins :-
 		(
 			
 			format('~w :- ~w\n',[rdf_b(S,P,O),(convert(S,O,Args,B),merge_bindings(B),catch(apply(PlPred,Args),_,fail))]),
-			assert(':-'(rdf_b(S,P,O),(convert(S,O,Args,B),merge_bindings(B),writeln(apply(PlPred,Args)),catch(apply(PlPred,Args),_,fail))))
+			assert(':-'(rdf_b(S,P,O),(Args=[[S],[O]],write_canonical(apply(PlPred,Args)),catch(apply(PlPred,Args),_,fail))))
 		)
 	).
 compile_rules :-
@@ -181,30 +186,47 @@ implies(Body,Head) :-
  * Get back two named considered as equal (owl:sameAs)
  */
 sameAs(A,B) :-
+	\+list(A),\+list(B),
 	rdf_db:rdf(A,owl:sameAs,B).
 sameAs(A,B) :-
-	 rdf_db:rdf(B,owl:sameAs,A).
+	\+list(A),\+list(B),
+	rdf_db:rdf(B,owl:sameAs,A).
 
 /**
- * Convert a N3 graph to a bag of Prolog terms
+ * Convert a N3 graph to a bag of Prolog terms (RDF lists are converted to Prolog lists)
  */
 n3_pl(Head,PredList,Bindings) :-
 	findall(rdf_e(S,P,O),rdf_db:rdf(S,P,O,Head),Triples),
 	n3_pl2(Triples,PredList,Bindings).
 n3_pl2([],[],[]).
+n3_pl2([rdf_e(_,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',_)|T],T2,B) :-
+	!,n3_pl2(T,T2,B).
+n3_pl2([rdf_e(_,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',_)|T],T2,B) :-
+        !,n3_pl2(T,T2,B).
+n3_pl2([rdf_e(_,'http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://www.w3.org/1999/02/22-rdf-syntax-ns#List')|T],T2,B) :-
+        !,n3_pl2(T,T2,B).
 n3_pl2([rdf_e(S,P,O)|T],[rdf_e(SS,PP,OO)|T2],Bindings) :-
-	rdf_to_pl_n(S,SS,B1),
-	rdf_to_pl_n(P,PP,B2),
-	rdf_to_pl_n(O,OO,B3),
+	convert_n(S,SS,B1),
+	convert_n(P,PP,B2),
+	convert_n(O,OO,B3),
 	flatten([B1,B2,B3],BH),
 	n3_pl2(T,T2,BT),
 	append(BH,BT,Bindings).
 
-rdf_to_pl_n(N,T,[binding(N,T)]) :-
-	universal(N),!.
-rdf_to_pl_n(N,N,[]).
-%TODO: list handling
-
+convert_all([],[],[]).
+convert_all([H|T],[H2|T2],Bindings) :-
+        convert_n(H,H2,BH),
+        convert_all(T,T2,BT),
+        append(BH,BT,Bindings).
+convert_n(S,SL,Bindings) :-
+        atomic(S),
+        rdfs_list_to_prolog_list(S,SLT),!,
+        convert_all(SLT,SL,Bindings).
+convert_n(S,T,[binding(S,T)]) :-
+        universal(S),!.
+convert_n(S,T,[binding(S,T)]) :-
+	existential(S),!.
+convert_n(S,S,[]).
 
 /**
  * Given a list of terms bindings(Node,Term), make
@@ -222,26 +244,6 @@ associate(binding(Node,Term),[binding(Node,Term)|T]) :-
 associate(binding(Node,Term),[_|T]) :-
 	associate(binding(Node,Term),T).
 
-/**
- * Builtin - (Subject,Object) to Prolog argument list
- */
-convert(S,O,Args,Bindings) :-
-	convert_n(S,SL,B1),
-	convert_n(O,OL,B2),
-	append(SL,OL,Args),
-	append(B1,B2,Bindings).
-convert_all([],[],[]).
-convert_all([H|T],[H2|T2],Bindings) :-
-	convert_n(H,[H2],BH),
-	convert_all(T,T2,BT),
-	append(BH,BT,Bindings).
-convert_n(S,[SL],Bindings) :-
-	atomic(S),
-	rdfs_list_to_prolog_list(S,SLT),!,
-	convert_all(SLT,SL,Bindings).
-convert_n(S,T,[binding(S,T)]) :-
-	universal(S).
-convert_n(S,[S],[]).
 
 
 /**
@@ -254,6 +256,26 @@ list_to_conj([H|T],(H,T2)) :-
 	list_to_conj(T,T2).
 
 
+pl_list_to_rdf_list([H],[rdf(H2,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',H),rdf(H2,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest','http://www.w3.org/1999/02/22-rdf-syntax-ns#nil')],H2) :- !.
+pl_list_to_rdf_list([H|T],[rdf(H2,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',H),rdf(H2,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',T2)|Triples],H2) :-
+	pl_list_to_rdf_list(T,Triples,T2).
+
+/**
+ * A couple of list-related builtins 
+ */
+rdf_l(S,P,O) :-
+        S\=[_|_],P\=[_|_],O\=[_|_],
+        rdf_db:rdf(S,P,O).
+rdf_l(_,P,_) :- (P\=='http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',P\=='http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),!,fail.
+rdf_l(S,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',L) :-
+	S = [L|_].
+rdf_l(S,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest','http://www.w3.org/1999/02/22-rdf-syntax-ns#nil') :- S=[_].
+rdf_l(S,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',L) :-
+	\+L=='http://www.w3.org/1999/02/22-rdf-syntax-ns#nil',
+	S = [_|L].
+	
+list(L) :- nonvar(L),L=[_|_].
+
 
 /**
  * Check the quantification of a variable
@@ -265,8 +287,22 @@ universal(Node) :-
         quantification(Node,Q),
         Q=universal.
 quantification(Node,universal) :-
-        rdf_db:rdf_is_bnode(Node),
+        Node\=[_|_],
+	rdf_db:rdf_is_bnode(Node),
         atom_concat(_,'_uqvar',Node),!.
 quantification(Node,existential) :-
+	Node\=[_|_],
         rdf_db:rdf_is_bnode(Node).
+
+
+
+                 /*******************************
+                 *             REGISTER         *
+                 *******************************/
+
+:- multifile
+        serql:entailment/2.
+
+serql:entailment(n3, n3_entailment).
+
 
