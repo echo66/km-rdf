@@ -27,7 +27,7 @@
 			/*and the combination of audioblobpl and blobidpl gives us a new way to handle data that fits better to sem web/n3 structure*/
 			blob/1,		
 			audio_blob/1,	
-			blob_data/2,
+			blob_data/2
 			]).
 
 :- style_check(-discontiguous).
@@ -59,7 +59,7 @@ blob_data(BlobID, ListData):-
 	data_blob(+ListData, +BlobID): For the given prolog list with raw data and id to be unified, we retrieve a blob (pointing to raw data in memory 	named by its ID. The ID must be desactived before and activated from here on.
 */
 data_blob(ListData, BlobID):-
-	list_to_pointerVector(ListData, Blob),
+	list_to_pointerBlob(ListData, Blob),
 	blob_id(Blob, BlobID).	
 
 /**Short explanation of imported predicates**/
