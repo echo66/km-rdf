@@ -4,8 +4,16 @@
 
 :- use_module('../../swiaudiosource/audiosource').
 
-builtins:builtin('http://purl.org/ontology/mo/encodes',audiosource:aspl_decode).
 
+encodes(File,Signal) :-
+	aspl_decode(File,Signal).
+
+
+/**
+ * Registering the builtin
+ */
+
+builtins:builtin('http://purl.org/ontology/mo/encodes',aspl_builtins:aspl_decode).
 
 
 
