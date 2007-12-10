@@ -39,7 +39,7 @@ blob_id_db[MAX_BLOBS];
  */
 size_t blobs_id_in_system;
 
-
+namespace BlobID{
 /**** Implementation of functions *****/
 
 
@@ -274,7 +274,7 @@ desactive_id(size_t pos){
 	}
 }
 
-
+}
 
 
 
