@@ -145,6 +145,19 @@ audio_blob_to_pointer(AudioBlob blob){
 	return *(AudioVector **)(data);
 }
 
+int
+is_audio_vector(term_t blob){
+
+	PL_blob_t *type;  
+	void *data;
+	size_t size;
+	PL_get_blob(blob, &data, &size, &type);
+	if(type != &audio_blob){
+		return 1;
+	}
+	return 0;
+}
+
 }
 
 
