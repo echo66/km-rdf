@@ -27,19 +27,22 @@ INCLUDE= 		-I$(swi_dir)/include/ \
 #Sources
 SWI_AUDIOBLOB = swiaudioblob.cpp
 SWI_MO = swimo.cpp
+B_ID = blobid.cpp
 
 #Objects
 
 OBJ_AUDIOBLOB = swiaudioblob.o
 OBJ_MO = swimo.o
+OBJ_BI = blobid.o
 
 #DLIB
 
 MO = swimo.so
 AUDIOBLOB = swiaudioblob.so
+BLOBID = blobid.so
 
 #Targets
-all : $(AUDIOBLOB) $(MO) 
+all : $(AUDIOBLOB) $(MO) $(BLOBID)
 
 $(OBJ_MO) :
 	$(CPP) -c $(CFLAGS) $(INCLUDE) $(SWI_MO) -o $(OBJ_MO)
@@ -47,13 +50,17 @@ $(OBJ_MO) :
 $(OBJ_AUDIOBLOB) :
 	$(CPP) -c $(CFLAGS) $(INCLUDE) $(SWI_AUDIOBLOB) -o $(OBJ_AUDIOBLOB)
 
+$(OBJ_BI) :
+	$(CPP) -c $(CFLAGS) $(INCLUDE) $(B_ID) -o $(OBJ_BI)
+
 $(MO) : $(OBJ_MO) Makefile
 	$(CPP) -shared $(OBJ_MO) -o $(MO)
 
 $(AUDIOBLOB) : $(OBJ_AUDIOBLOB) Makefile
 	$(CPP) -shared $(OBJ_AUDIOBLOB) -o $(AUDIOBLOB) 
 
-
+$(BLOBID) : $(OBJ_BI) Makefile
+	$(CPP) -shared $(OBJ_BI) -o $(BLOBID)
 
 clean :
 	rm *.o *.so

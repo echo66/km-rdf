@@ -85,6 +85,13 @@ get_AudioBlob_size();
 void
 init_audio_blob();
 
+/**
+	Checks if it is audio blob (0 yes, 1 not)
+*/
+int 
+is_audio_blob(term_t);
+
 }
+
 #endif
 
