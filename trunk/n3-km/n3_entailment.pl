@@ -295,6 +295,12 @@ quantification(Node,existential) :-
         rdf_db:rdf_is_bnode(Node).
 
 
+/**
+ * We'll know register the rdf/3 predicate to 
+ * be used as an entailment module within the
+ * SeRQL SWI Semantic Web server.
+ */
+
 
                  /*******************************
                  *             REGISTER         *
