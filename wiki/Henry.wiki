@@ -1,5 +1,5 @@
 #labels Featured,Phase-Deploy
-HENRY (N3 parser and reasoner for SWI-Prolog)
+[http://km-rdf.googlecode.com/files/henry.tar.gz HENRY] (N3 parser and reasoner for SWI-Prolog)
 ------------------------------------------------
 
 First: 
