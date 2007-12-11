@@ -19,9 +19,9 @@ No.
 
 ==Install==
 
-* Make sure you have [http://www.swi-prolog.org/ SWI-Prolog] installed.
+ * Make sure you have [http://www.swi-prolog.org/ SWI-Prolog] installed.
 
-* If you want to query your N3-entailed store
+ * If you want to query your N3-entailed store
    using SPARQL, get SeRQL from:
 
    http://e-culture.multimedian.nl/software/ClioPatria.shtml
