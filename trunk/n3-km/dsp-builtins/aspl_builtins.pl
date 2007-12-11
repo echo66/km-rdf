@@ -3,7 +3,7 @@
 :- use_module('../builtins').
 
 :- use_module('../../swiaudiosource/audiosource').
-
+:- use_module('../../swiaudiodata/audiodata').
 
 encodes(File,Signal) :-
 	aspl_decode(File,Signal).

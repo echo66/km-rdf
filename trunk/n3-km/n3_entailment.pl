@@ -224,8 +224,8 @@ convert_n(S,SL,Bindings) :-
         convert_all(SLT,SL,Bindings).
 convert_n(S,T,[binding(S,T)]) :-
         universal(S),!.
-convert_n(S,T,[binding(S,T)]) :-
-	existential(S),!.
+%convert_n(S,T,[binding(S,T)]) :-
+%	existential(S),!.
 convert_n(S,S,[]).
 
 /**
