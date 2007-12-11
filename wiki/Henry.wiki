@@ -5,19 +5,17 @@
 First: 
 
  * Where does this name come from?
-    - From [http://sonictruths.net Chris Sutton]- thanks Chris!
+From [http://sonictruths.net Chris Sutton]- thanks Chris!
 
  * What are the known limitations?
-    - A lot. Among them: bad handling of blank nodes
-      (I think it almost works for now just thanks to an
-      SWI bug, I will investigate that). Lack
-      of recursive rule support (transitive predicate 
-      handling and such...). Check out the issues list at:
+A lot. Among them: bad handling of blank nodes
+(I think it almost works for now just thanks to an
+SWI bug, I will investigate that). Lack
+of recursive rule support (transitive predicate 
+handling and such...). Check out [http://code.google.com/p/km-rdf/issues/list the issues list]. Also look at the [http://km-rdf.googlecode.com/svn/trunk/n3-km/examples/ illustrative examples of these bugs].
 
-      http://code.google.com/p/km-rdf/issues/list
-
-      Also look at the illustrative examples of these bugs at
-      http://km-rdf.googlecode.com/svn/trunk/n3-km/examples/
+ * Is it stable?
+No.
 
 
 Install:
