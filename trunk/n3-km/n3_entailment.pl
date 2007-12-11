@@ -52,7 +52,6 @@
 	      [ rdfs_list_to_prolog_list/2 ]).
 :- use_module(namespaces).
 :- use_module(builtins).
-:- use_module(log).
 
 term_expansion((rdf(S0, P0, O0) :- Body),
                (rdf(S,  P,  O)  :- Body)) :-
@@ -77,7 +76,6 @@ n3_load(File) :-
  * (therefore hiding their "RDF" representation).
  */
 rdf(S,P,O) :-
-	log(rdf(S,P,O)),
 	rdf_s(S,P,O),
 	\+in_formulae(rdf(S,P,O)).
 	%\+list(S),\+list(P),\+list(O).
