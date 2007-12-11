@@ -1,8 +1,7 @@
 #labels Featured,Phase-Deploy
-[http://km-rdf.googlecode.com/files/henry.tar.gz HENRY] (N3 parser and reasoner for SWI-Prolog)
-------------------------------------------------
+=[http://km-rdf.googlecode.com/files/henry.tar.gz HENRY] (N3 parser and reasoner for SWI-Prolog)=
 
-First: 
+==First==
 
 * Where does this name come from?
 From [http://sonictruths.net Chris Sutton]- thanks Chris!
@@ -18,7 +17,7 @@ handling and such...). Check out [http://code.google.com/p/km-rdf/issues/list th
 No.
 
 
-Install:
+==Install==
 
 * Make sure you have [http://www.swi-prolog.org/ SWI-Prolog] installed.
 
@@ -30,7 +29,7 @@ Install:
    And put the SeRQL directory in the Henry directory.
 
 
-Use:
+==Use==
 
  * The swicwm.pl script behaves (almost) like the following command
    line, involving [http://www.w3.org/2000/10/swap/doc/cwm.html CWM]:
