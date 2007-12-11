@@ -37,7 +37,7 @@ Install:
 Use:
 
  * The swicwm.pl script behaves (almost) like the following command
-   line, involving CWM (http://www.w3.org/2000/10/swap/doc/cwm.html):
+   line, involving [http://www.w3.org/2000/10/swap/doc/cwm.html CWM]:
 
    `$ cwm $1 --think --rdf --data`
 
