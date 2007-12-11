@@ -21,8 +21,7 @@ No.
 
  * Make sure you have [http://www.swi-prolog.org/ SWI-Prolog] installed.
 
- * If you want to query your N3-entailed store
-   using SPARQL, get SeRQL from:
+ * If you want to query your N3-entailed store using SPARQL, get SeRQL from:
 
    http://e-culture.multimedian.nl/software/ClioPatria.shtml
 
@@ -31,8 +30,7 @@ No.
 
 ==Use==
 
- * The swicwm.pl script behaves (almost) like the following command
-   line, involving [http://www.w3.org/2000/10/swap/doc/cwm.html CWM]:
+ * The swicwm.pl script behaves (almost) like the following command line, involving [http://www.w3.org/2000/10/swap/doc/cwm.html CWM]:
 
    `$ cwm $1 --think --rdf --data`
 
@@ -55,6 +53,7 @@ No.
    Then, the derived statements are accessible through:
 
    `?- n3_entailment:rdf(Subject,Predicate,Object).`
+   
    You can then load some n3 files using:
   
    `?- n3_load('file.n3').`
