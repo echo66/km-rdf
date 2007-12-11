@@ -1,6 +1,8 @@
 @prefix : <http://www.test.com/>.
 @prefix t: <http://variable.com/#>.
 
+# Adaptated from Sean B. Palmer's family example
+
 :mary :parent :sally, :bob, :frank, :maryjr.
 :sally :parent :fran, :marshall.
 :paul :parent :sally.
