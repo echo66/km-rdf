@@ -5,6 +5,7 @@ First:
 
  * Where does this name come from?
     - From Chris Sutton (http://sonictruths.net) - thanks Chris!
+
  * What are the known limitations?
     - A lot. Among them: bad handling of blank nodes
       (I think it almost works for now just thanks to an
@@ -13,6 +14,9 @@ First:
       handling and such...). Check out the issues list at:
 
       http://code.google.com/p/km-rdf/issues/list
+
+      Also look at the illustrative examples of these bugs at
+      http://km-rdf.googlecode.com/svn/trunk/n3-km/examples/
 
 
 Install:
