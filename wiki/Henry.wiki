@@ -1,0 +1,62 @@
+#labels Featured,Phase-Deploy
+HENRY (N3 parser and reasoner for SWI-Prolog)
+------------------------------------------------
+
+First: 
+
+ * Where does this name come from?
+    - From [http://sonictruths.net Chris Sutton]- thanks Chris!
+
+ * What are the known limitations?
+    - A lot. Among them: bad handling of blank nodes
+      (I think it almost works for now just thanks to an
+      SWI bug, I will investigate that). Lack
+      of recursive rule support (transitive predicate 
+      handling and such...). Check out the issues list at:
+
+      http://code.google.com/p/km-rdf/issues/list
+
+      Also look at the illustrative examples of these bugs at
+      http://km-rdf.googlecode.com/svn/trunk/n3-km/examples/
+
+
+Install:
+
+ * Make sure you have SWI-Prolog installed:
+
+   http://www.swi-prolog.org/
+
+ * If you want to query your N3-entailed store
+   using SPARQL, get SeRQL from:
+
+   http://e-culture.multimedian.nl/software/ClioPatria.shtml
+
+   And put the SeRQL directory in the Henry directory.
+
+
+Use:
+
+ * The swicwm.pl script behaves (almost) like the following command
+   line, involving CWM (http://www.w3.org/2000/10/swap/doc/cwm.html):
+
+   `$ cwm $1 --think --rdf --data`
+
+ * From the Prolog command-line, you need to load n3_entailment.pl:
+ 
+   `?- [n3_entailment].`
+
+   You can then load some n3 files using:
+  
+   `?- n3_load('file.n3').`
+
+   Or some RDF (XML or turtle) files using:
+
+   `?- rdf_load('file.rdf').`
+
+   Then, you can compile the N3 rules you have in store using:
+
+   `?- compile.`
+
+   Then, the derived statements are accessible through:
+
+   `?- n3_entailment:rdf(Subject,Predicate,Object).`
