@@ -2,7 +2,9 @@ HENRY (N3 parser and reasoner for SWI-Prolog)
 ------------------------------------------------
 
 First: 
- 
+
+ * Where does this name come from?
+    - From Chris Sutton (http://sonictruths.net) - thanks Chris!
  * What are the known limitations?
     - A lot. Among them: bad handling of blank nodes
       (I think it almost works for now just thanks to an
