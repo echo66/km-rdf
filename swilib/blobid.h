@@ -36,6 +36,14 @@ const char*
 assign_data_id(std::vector<float> *);
 
 /**
+	New predicate for the version 2. Internal C++ code we don't need to wrap the data into a blob, so we just directly extract the pointer to the
+	vector. Error if it returns < 0
+*/
+int
+get_data_for_id(const char*, std::vector<float>* &);
+
+
+/**
 	Extracts the data from the blob and stores it in the given id record. This is is thought for the case when the id is reserved and we use a
 	blob to store the data for that id
 		
