@@ -147,7 +147,7 @@ audio_blob_to_pointer(AudioBlob blob){
 
 
 int
-is_audio_vector(term_t blob){
+is_audio_blob(term_t blob){
 
 	PL_blob_t *type;  
 	void *data;
