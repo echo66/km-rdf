@@ -33,7 +33,7 @@ generate_random_id();
 	From here on we use the id to name the raw data and a blob to return it to prolog if required as a pointerBlob (check swiaudioblob)
 */
 const char*
-assign_blob_id(std::vector<float> *);
+assign_data_id(std::vector<float> *);
 
 /**
 	Extracts the data from the blob and stores it in the given id record. This is is thought for the case when the id is reserved and we use a
