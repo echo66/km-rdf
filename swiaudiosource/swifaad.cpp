@@ -8,6 +8,7 @@
 
 #include <swiaudioblob.h>
 #include <swimo.h>
+#include <blobid.h>
 
 #include <sys/stat.h>
 #include <sys/mman.h>
@@ -156,6 +157,8 @@ PREDICATE(fdpl_get_decoded_signal, 1)
 	term_t pcm1 = PL_new_term_ref();
 	term_t pcm2 = PL_new_term_ref();
 	term_t signal = PL_new_term_ref();
+	term_t pcm2_id;
+	term_t pcm1_id;
 
 	PL_put_integer(sr, faad_reader.sample_rate);
 	PL_put_integer(channels, faad_reader.channel_count);
@@ -164,12 +167,16 @@ PREDICATE(fdpl_get_decoded_signal, 1)
 	//The pcm data is returned by a pointer to it and not the data itself as it overflows prolog memory and is not efficient.
 	//The pointer is returned as AudioBlob (see swiaudioblob.h)
 	if(faad_reader.channel_count>0){
-	AudioDataConversion::pointer_to_audio_blob(faad_reader.ch1_pcm, pcm1);	
+		AudioDataConversion::pointer_to_audio_blob(faad_reader.ch1_pcm, pcm1);	
+		pcm1_id = term_t(PlTerm(PlAtom(BlobID::assign_blob_id(pcm1))));	
 		if(faad_reader.channel_count==2){
 			AudioDataConversion::pointer_to_audio_blob(faad_reader.ch2_pcm, pcm2);
+			pcm2_id = term_t(PlTerm(PlAtom(BlobID::assign_blob_id(pcm2))));
+		}else{
+			pcm2_id = term_t(PlTerm(PlAtom("")));
 		}
 		//Creation of a signal element (swimo.h)
-		MO::signal(channels, sr, spc, pcm1, pcm2, signal);	
+		MO::signal(channels, sr, spc, pcm1_id, pcm2_id, signal);	
 		return A1 = PlTerm(signal);
 	
 	}else {

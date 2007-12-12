@@ -228,7 +228,8 @@ PREDICATE(sfpl_get_decoded_signal, 1)
 	//The pcm data is returned by a pointer to it and not the data itself as it overflows prolog memory and is not efficient.
 	//The pointer is returned as AudioBlob (see swiaudioblob.h)
 	if(snd_reader.channel_count>0){
-	AudioDataConversion::pointer_to_audio_blob(snd_reader.ch1_pcm, pcm1);	
+		AudioDataConversion::pointer_to_audio_blob(snd_reader.ch1_pcm, pcm1);
+		pcm1_id = term_t(PlTerm(PlAtom(BlobID::assign_blob_id(pcm1))));	
 		if(snd_reader.channel_count==2){
 			AudioDataConversion::pointer_to_audio_blob(snd_reader.ch2_pcm, pcm2);
 			pcm2_id = term_t(PlTerm(PlAtom(BlobID::assign_blob_id(pcm2))));
@@ -236,7 +237,6 @@ PREDICATE(sfpl_get_decoded_signal, 1)
 			pcm2_id = term_t(PlTerm(PlAtom("")));
 		}
 		//Creation of a signal element (swimo.h)
-		pcm1_id = term_t(PlTerm(PlAtom(BlobID::assign_blob_id(pcm1))));
 		MO::signal(channels, sr, spc, pcm1_id, pcm2_id, signal);	
 		return A1 = PlTerm(signal);
 	
