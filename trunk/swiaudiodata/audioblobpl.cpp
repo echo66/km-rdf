@@ -90,7 +90,7 @@ PREDICATE(list_to_pointerBlob, 2)
 }
 
 /*
-	Deletes the vector inmemory pointed by the blob
+	Deletes the vector inmemory pointed by the blob. We use clean_data/1 instead. This is not very useful
 */
 
 PREDICATE(clean_pointedVector, 1)
@@ -123,17 +123,6 @@ PREDICATE(is_audio_blob, 1)
 	}else{
 		return false;
 	}
-}
-
-/*
-	This predicate
-*/
-
-PREDICATE(dump_pointerBlob_file, 3)
-{
-	//+id
-	//+blob
-	//-file
 }
 
 

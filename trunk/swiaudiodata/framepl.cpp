@@ -7,6 +7,7 @@
 
 #include <swiaudioblob.h>
 #include <swimo.h>
+#include <blobid.h>
 
 #include <vector>
 
@@ -15,7 +16,7 @@ using namespace std;
 /** * Prototype of a function to select a frame. This function should have constraints for general frames.
  */
 
-vector<float>
+vector<float> *
 select_frame(size_t , size_t , vector<float> *);//selects a frame of the pcm of the channel passed given the starting and ending samples 
 
 
@@ -43,9 +44,24 @@ PREDICATE(get_frame, 4){
 	term_t sample_rate = PL_new_term_ref();
 	term_t channel_count = PL_new_term_ref();
 	term_t samples_channel = PL_new_term_ref();
-	term_t ch1 = PL_new_term_ref();//blobs containing the pointer to the data in memory
+	term_t ch1_id = PL_new_term_ref();//blobs containing the pointer to the data in memory
+	term_t ch2_id = PL_new_term_ref();
+	MO::signal(channel_count, sample_rate, samples_channel, ch1_id, ch2_id, signal);//gets the parameters for signal (swimo.h)
+
+	term_t ch1 = PL_new_term_ref();//getting the blobs from the ids
 	term_t ch2 = PL_new_term_ref();
-	MO::signal(channel_count, sample_rate, samples_channel, ch1, ch2, signal);//gets the parameters for signal (swimo.h)
+
+	char *id1;
+	char *id2;
+	PL_get_atom_chars(ch1_id, &id1);
+	PL_get_atom_chars(ch2_id, &id2);
+
+	if(BlobID::get_blob_from_id((const char *)id1, ch1)<=0){
+		return false;
+	}
+	if(BlobID::get_blob_from_id((const char *)id2, ch2)<=0){
+		return false;
+	}
 
 	//Checks that the frame requested is within the signal passed
 	long limit;
@@ -53,22 +69,36 @@ PREDICATE(get_frame, 4){
 	if(start >= (size_t)limit){
 		return false;
 	}
-	
+
 	//setting frame for writing
 	term_t frame = PL_new_term_ref(); //the new MO::frame to return	
 	term_t initpos = PL_new_term_ref();//we store the position of the first sample in the whole decoded signal  						   //(length can be extracted from the blob)
 	PL_put_integer(initpos, start);
 	term_t frame_ch1 = PL_new_term_ref();//blobs for the pcm frame selected for both channels
 	term_t frame_ch2 = PL_new_term_ref();	
-	AudioDataConversion::vector_to_audio_blob(select_frame(start, start+size-1, AudioDataConversion::audio_blob_to_pointer(ch1)), frame_ch1);
+	term_t f1_id;//blob ids
+	term_t f2_id;
+
+	cerr<<AudioDataConversion::is_audio_blob(ch1)<<endl;
 	
+	vector<float> *v1;
+	v1 = AudioDataConversion::audio_blob_to_pointer(ch1);
+std::cerr<<"hola"<<std::endl;
+	AudioDataConversion::pointer_to_audio_blob(select_frame(start, start+size-1, v1), frame_ch1);
+	f1_id = term_t(PlTerm(PlAtom(BlobID::assign_blob_id(frame_ch1))));	
+std::cerr<<"hola"<<std::endl;
+
+
 	//now the blob is not a pointer but the data itself
 	int channels;
 	PL_get_integer(channel_count, &channels);
 	if(channels == 2){	
-		AudioDataConversion::vector_to_audio_blob(select_frame(start, start+size-1, AudioDataConversion::audio_blob_to_pointer(ch2)), frame_ch2);
-	}
-	MO::frame(channel_count, sample_rate, initpos, frame_ch1, frame_ch2, frame);//swimo.h
+		AudioDataConversion::pointer_to_audio_blob(select_frame(start, start+size-1, AudioDataConversion::audio_blob_to_pointer(ch2)), frame_ch2);
+		f2_id = term_t(PlTerm(PlAtom(BlobID::assign_blob_id(frame_ch2))));
+	}else{
+			f2_id = term_t(PlTerm(PlAtom("")));
+		}
+	MO::frame(channel_count, sample_rate, initpos, f1_id, f2_id, frame);//swimo.h
 	
 	return A4 = PlTerm(frame);
 }
@@ -138,16 +168,18 @@ PREDICATE(set_limit_framing, 3)
 			-The length of the frame is obtained with adding zeros if the final point is beyond the size of the signal 
  */
 
-vector<float>
+vector<float> *
 select_frame(size_t start, size_t end, vector<float> *channel){	
 	
-	vector<float> frame;
+	vector<float> *frame;
+	frame = new vector<float>;
+	std::cerr<<"hola"<<std::endl;
 	size_t limit = channel-> size();
 	for(size_t i=start; i<(end+1); i++){
 		if(i < limit){
-			frame.push_back(channel->at(i));
+			frame -> push_back(channel->at(i));
 		}else{
-			frame.push_back(0.0f);//complete with 0 till fill the size of the frame queried
+			frame -> push_back(0.0f);//complete with 0 till fill the size of the frame queried
 		}
 	}
 	return frame;
