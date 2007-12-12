@@ -34,9 +34,7 @@ PREDICATE(vectorBlob_to_list, 2)
 }
 
 /*
-
    Gets the data pointed by the blob and writes it in a prolog list
-
 */
 
 PREDICATE(pointerBlob_to_list, 2)

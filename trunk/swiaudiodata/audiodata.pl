@@ -1,6 +1,6 @@
 /**
 	Prolog module to work with audiodata extracted from the audiosource module. 
-	It handles the data as blobs, and the blobs are handled by BlobIDs that make transparent the <#...> invalid terms.
+	It handles the data using ID and with the Blobs when it is specifically queried
 	David Pastor 2007, c4dm, Queen Mary, University of London
 */
 
@@ -15,18 +15,12 @@
 			set_limit_framing/3,
 			clean_pointedVector/1,
 			is_audio_blob/1,
-			/*we introduce now, the BlobIDs to hide the ugly <#..> stuff. It's basically a new layer than can be combined with the old
-			code*/
 			blob_id/2,
 			id_blob/2,
-			is_blob_id/2,
+			is_data_id/2,
 			active_id/1,
-			desactive_entry/1,
-			desactive_id/1,
 			reserve_id/1,
-			/*and the combination of audioblobpl and blobidpl gives us a new way to handle data that fits better to sem web/n3 structure*/
-			blob/1,		
-			audio_blob/1,	
+			is_data_id/1,		
 			data/2,
 			data_load/2
 			]).
@@ -38,30 +32,23 @@
 	blob(+BlobID): True if this is a blob (the interpretation is that we have it stored in our blob_id_db, check out swilib/). It just checks
 	if the blob is registered but may be active or not!!!
 */
-blob(BlobID):-
-	is_blob_id(BlobID, _).
+is_data_id(Id):-
+	is_data_id(Id, _).
 
 /**
-	audio_blob(+BlobID): This is a different and more specific way to look at blob/1. We get the real blob and checks it against the audioblob 		library
-*/
-audio_blob(BlobID):-
-	id_blob(BlobID, Blob),
-	is_audio_blob(Blob).
-
-/**
-	blob_data(+BlobID, -ListData): This predicate gets the blob identified by the id and decodes it in a prolog list. Fails in case the ID is not
+	data(+ID, -ListData): This predicate gets the blob identified by the id and decodes it in a prolog list. Fails in case the ID is not
 	registered or desactived. (no need to call blob/1)
 */
-data(BlobID, ListData):-
-	id_blob(BlobID, Blob),
+data(ID, ListData):-
+	id_blob(ID, Blob),
 	pointerBlob_to_list(Blob, ListData).
 
 /**
-	data_blob(+ListData, +BlobID): For the given prolog list with raw data and id to be unified, we retrieve a blob (pointing to raw data in memory 	named by its ID. The ID must be desactived before and activated from here on.
+	data_load(+ListData, +ID): For the given prolog list with raw data and id to be unified, we retrieve a blob (pointing to raw data in memory 		named by its ID. The ID must be desactived before and activated from here on.
 */
-data_load(ListData, BlobID):-
+data_load(ListData, ID):-
 	list_to_pointerBlob(ListData, Blob),
-	blob_id(Blob, BlobID).	
+	blob_id(Blob, ID).	
 
 /**Short explanation of imported predicates**/
 
@@ -112,28 +99,25 @@ data_load(ListData, BlobID):-
 */
 
 /**
-	blob_id(+Blob, +BlobId). Unifies the blob with the given id and stores the blob in the database. The id must exist and be stored already
+	blob_id(+Blob, +Id). Unifies the blob with the given id and stores the data in the blob in the database. The id must exist and be stored
+	already
 */
 
 /**
-	id_blob(+BlobId, -Blob). Gives back the blob stored given its id. Fails if the id is non active
+	id_blob(+Id, -Blob). Gives back the blob storing the data given by the id. Fails if the id is non active
 */
 
 /**
-	is_blob_id(+BlobId, -Index). New conception of blob(Blob). If the id is stored in the database we do know that this id hides a blob and it's all
-	that matters. Anyway we can check if it is certainly a blob or not, by using is_audio_blob/2. Gives back the index for practical issues
+	is_data_id(+Id, -Index). Says if the Id exists or not
 */
 
 /**
-	reserve_id(+BlobId). We reserve a record in the database for this id. This is designed for flexibility and output/input operations. 
+	reserve_id(+Id). We reserve a record in the database for this id. This is designed for flexibility and output/input operations. 
 	IF WE WANT TO RESERVE SOME ID FOR BLOBS WE MUST DO IT BEFORE CREATING NEW BLOBS TO AVOID CRASHES
 */
 
 /**
-	active_id(+BlobId). Just tells if the id is in the database and if it is active (there is one real blob pointing data associated at that moment)
+	active_id(+Id). Just tells if the id is in the database and if it is active (there is one real blob pointing data associated at that moment)
 */
 
-/**
-	desactive_id(+BlobId). After having deleted a blob (THIS THING IS NOT DONE YET) we desactive the id, we don't delete it as we may want the id
-	to get the blob back. we can use the entry of the database to do the same with desactive_entry/1
-*/
+

@@ -33,6 +33,7 @@ PREDICATE(get_frame, 4){
 	//+start (=+StepSize)
 	//+size (BlockSize)
 	//-MO::frame
+
 	//getting input
 
 	term_t signal = PL_new_term_ref();
@@ -44,25 +45,26 @@ PREDICATE(get_frame, 4){
 	term_t sample_rate = PL_new_term_ref();
 	term_t channel_count = PL_new_term_ref();
 	term_t samples_channel = PL_new_term_ref();
-	term_t ch1_id = PL_new_term_ref();//blobs containing the pointer to the data in memory
+	term_t ch1_id = PL_new_term_ref();//gets the id for the channel raw data
 	term_t ch2_id = PL_new_term_ref();
+
 	MO::signal(channel_count, sample_rate, samples_channel, ch1_id, ch2_id, signal);//gets the parameters for signal (swimo.h)
 
-	term_t ch1 = PL_new_term_ref();//getting the blobs from the ids
-	term_t ch2 = PL_new_term_ref();
-
-	char *id1;
+	char *id1;//atom to const char *
 	char *id2;
 	PL_get_atom_chars(ch1_id, &id1);
 	PL_get_atom_chars(ch2_id, &id2);
 
-	if(BlobID::get_blob_from_id((const char *)id1, ch1)<=0){
+	//Now we retrieve the pointers to the raw data in memory
+	vector<float> *ch1;
+	vector<float> *ch2;
+	if(DataID::get_data_for_id((const char *)id1, ch1)<=0){
 		return false;
 	}
-	if(BlobID::get_blob_from_id((const char *)id2, ch2)<=0){
+	if(DataID::get_data_for_id((const char *)id2, ch2)<=0){
 		return false;
 	}
-
+	
 	//Checks that the frame requested is within the signal passed
 	long limit;
 	PL_get_long(samples_channel, &limit);
@@ -74,27 +76,15 @@ PREDICATE(get_frame, 4){
 	term_t frame = PL_new_term_ref(); //the new MO::frame to return	
 	term_t initpos = PL_new_term_ref();//we store the position of the first sample in the whole decoded signal  						   //(length can be extracted from the blob)
 	PL_put_integer(initpos, start);
-	term_t frame_ch1 = PL_new_term_ref();//blobs for the pcm frame selected for both channels
-	term_t frame_ch2 = PL_new_term_ref();	
-	term_t f1_id;//blob ids
+	term_t f1_id; //new ids for frame data
 	term_t f2_id;
 
-	cerr<<AudioDataConversion::is_audio_blob(ch1)<<endl;
-	
-	vector<float> *v1;
-	v1 = AudioDataConversion::audio_blob_to_pointer(ch1);
-std::cerr<<"hola"<<std::endl;
-	AudioDataConversion::pointer_to_audio_blob(select_frame(start, start+size-1, v1), frame_ch1);
-	f1_id = term_t(PlTerm(PlAtom(BlobID::assign_blob_id(frame_ch1))));	
-std::cerr<<"hola"<<std::endl;
-
-
-	//now the blob is not a pointer but the data itself
+	//we store in MO::frame an id registered by assing_data_id for the new data	
+	f1_id = term_t(PlTerm(PlAtom(DataID::assign_data_id(select_frame(start, start+size-1, ch1)))));	
 	int channels;
 	PL_get_integer(channel_count, &channels);
 	if(channels == 2){	
-		AudioDataConversion::pointer_to_audio_blob(select_frame(start, start+size-1, AudioDataConversion::audio_blob_to_pointer(ch2)), frame_ch2);
-		f2_id = term_t(PlTerm(PlAtom(BlobID::assign_blob_id(frame_ch2))));
+		f2_id = term_t(PlTerm(PlAtom(DataID::assign_data_id(select_frame(start, start+size-1, ch2)))));	
 	}else{
 			f2_id = term_t(PlTerm(PlAtom("")));
 		}
@@ -120,7 +110,7 @@ PREDICATE(get_frame_timestamp, 2){
 	term_t sample_rate = PL_new_term_ref();
 	term_t channel_count = PL_new_term_ref();
 	term_t initpos = PL_new_term_ref();
-	term_t ch1 = PL_new_term_ref();//blobs containing the data of the frame
+	term_t ch1 = PL_new_term_ref();//ids of the raw data of the frame
 	term_t ch2 = PL_new_term_ref();
 	MO::frame(channel_count, sample_rate, initpos, ch1, ch2, frame);//gets the parameters for MO::frame (swimo.h)
 	
@@ -132,9 +122,20 @@ PREDICATE(get_frame_timestamp, 2){
 	term_t start = PL_new_term_ref();//beginning
 	PL_put_float(start, (float)init/(float)sr);//just seconds
 
+	//Getting the data by the ids
+	char *id1;//atom to const char *
+	char *id2;
+	PL_get_atom_chars(ch1, &id1);
+	PL_get_atom_chars(ch2, &id2);
+
 	//gets the number of samples for one channel (size of the frame).
 	term_t duration = PL_new_term_ref();
-	size_t size = AudioDataConversion::term_to_audio_vector(ch1).size();
+	vector<float> *ch1_frame;
+	if(DataID::get_data_for_id((const char *)id1, ch1_frame)<=0){
+		return false;
+	}
+
+	size_t size = ch1_frame->size();
 	PL_put_float(duration, (float)size/float(sr));		
 	
 	term_t timestamp_term = PL_new_term_ref();
@@ -170,18 +171,19 @@ PREDICATE(set_limit_framing, 3)
 
 vector<float> *
 select_frame(size_t start, size_t end, vector<float> *channel){	
-	
+
 	vector<float> *frame;
-	frame = new vector<float>;
-	std::cerr<<"hola"<<std::endl;
+	frame = new vector<float>();
 	size_t limit = channel-> size();
 	for(size_t i=start; i<(end+1); i++){
 		if(i < limit){
-			frame -> push_back(channel->at(i));
+			
+			frame->push_back(channel->at(i));			
 		}else{
-			frame -> push_back(0.0f);//complete with 0 till fill the size of the frame queried
+			frame->push_back(0.0f);//complete with 0 till fill the size of the frame queried
 		}
 	}
+	
 	return frame;
 }
 
