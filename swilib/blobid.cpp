@@ -74,14 +74,19 @@ existing_id(const char* ident)
 QString 
 generate_random_id(){
 
-	QString head("__blob_");
+	QString head("__data_");
 
-	srand((unsigned)time(0)); 
-    	size_t random; 
-   	size_t lowest=1, highest=MAX_BLOBS; 
-   	size_t range=(highest-lowest)+1; 
-   	random = lowest+size_t(range*rand()/(RAND_MAX + 1.0)); 
-	QString var((long)random, 10);
+	//srand((unsigned)time(0)); 
+    	//size_t random; 
+   	//size_t lowest=1, highest=MAX_BLOBS; 
+   	//size_t range=(highest-lowest)+1; 
+   	//random = lowest+size_t(range*rand()/(RAND_MAX + 1.0)); 
+	//QString var((long)random, 10);
+	
+	//incremental id for blobs	
+	QString var;
+	var = QString("%1")
+		.arg((long)blobs_id_in_system);
 	head.append(var);
 	return head;
 }

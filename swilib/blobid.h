@@ -11,7 +11,7 @@
 #endif
 #include <qstring.h>
 
-#define MAX_BLOBS 10000
+#define MAX_BLOBS 1000000
 
 /*
  * Prototypes to access the database of BlobID records
