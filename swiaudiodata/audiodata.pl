@@ -27,7 +27,8 @@
 			/*and the combination of audioblobpl and blobidpl gives us a new way to handle data that fits better to sem web/n3 structure*/
 			blob/1,		
 			audio_blob/1,	
-			blob_data/2
+			data/2,
+			data_load/2
 			]).
 
 :- style_check(-discontiguous).
@@ -51,14 +52,14 @@ audio_blob(BlobID):-
 	blob_data(+BlobID, -ListData): This predicate gets the blob identified by the id and decodes it in a prolog list. Fails in case the ID is not
 	registered or desactived. (no need to call blob/1)
 */
-blob_data(BlobID, ListData):-
+data(BlobID, ListData):-
 	id_blob(BlobID, Blob),
 	pointerBlob_to_list(Blob, ListData).
 
 /**
 	data_blob(+ListData, +BlobID): For the given prolog list with raw data and id to be unified, we retrieve a blob (pointing to raw data in memory 	named by its ID. The ID must be desactived before and activated from here on.
 */
-data_blob(ListData, BlobID):-
+data_load(ListData, BlobID):-
 	list_to_pointerBlob(ListData, Blob),
 	blob_id(Blob, BlobID).	
 
@@ -101,13 +102,8 @@ data_blob(ListData, BlobID):-
 */
 
 /**
-	clean_pointedVector(+Blob). Cleans the data pointed by the vector freeing space in memory (we really want this). This predicate is the low level
-	one, we should clean_blob(+BlobId) instead. 
-	
-
-	IMPORTANT NOTE!!!!!!!!!!!!
-	We're missing what to do with the blob itself and its term reference. I'm almost assuming not doing anything with them as we
-	don't waste much data. Blob garbage collection is still something to improve
+	clean_pointedVector(+Blob). Cleans the data pointed by the vector freeing space in memory (we really want this). This is not very useful
+	with the new implementation. We should clean_data(+ID) instead. The memory is far better managed right now
 */
 
 /**
