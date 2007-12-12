@@ -37,8 +37,7 @@
 */
 
 :- module(audiosource,[aspl_supported_file/1,
-			aspl_decode/2,
-			aspl_clean_signal_inmemory/1]).
+			aspl_decode/2]).
 
 :- style_check(-discontiguous).
 :- load_foreign_library(swiaudiosource). /** Library containing interfaces wrapping the c++/c files mentioned above*/
