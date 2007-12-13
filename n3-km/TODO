@@ -1,0 +1,5 @@
+TODO
+----
+ * Implement Euler paths to avoid infinite recursion
+ * Keep track of proofs (inference web or e:evidence)
+
