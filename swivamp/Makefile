@@ -24,7 +24,8 @@ SWIVAMP_LIB = $(swivamp_dir)/vampswi.so
 
 LIBS_SWIVAMP = $(swilib_dir)/swimo.so \
 		$(vamp_dir)/vamp-sdk/libvamp-hostsdk.so \
-		$(swilib_dir)/swiaudioblob.so
+		$(swilib_dir)/swiaudioblob.so \
+		$(swilib_dir)/blobid.so
 
 #Headers
 INCLUDE_SWIVAMP = -I$(swi_dir)/include/ \
