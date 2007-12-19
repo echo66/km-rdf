@@ -76,27 +76,36 @@ vmpl_frame_to_input(term_t frame){
 	int channels;
 	PL_get_integer(channel_count, &channels);
 
-	vector<float> vector_ch1 = AudioDataConversion::term_to_audio_vector(ch1);
-	vector<float> vector_ch2;
-	if(channels==2){
-		vector_ch2 = AudioDataConversion::term_to_audio_vector(ch2);
+	char *id1;//atom to const char *
+	char *id2;
+	PL_get_atom_chars(ch1, &id1);
+	PL_get_atom_chars(ch2, &id2);
+
+	//Now we retrieve the pointers to the raw data in memory
+	vector<float> *vector_ch1;
+	vector<float> *vector_ch2;
+	if(DataID::get_data_for_id((const char *)id1, vector_ch1)<=0){
+		return false;
+	}
+	if(DataID::get_data_for_id((const char *)id2, vector_ch2)<=0){
+		return false;
 	}
 
 	//Creating the multidimensional array as input
 	float **plugbuf = new float*[channels];
 	for (int c = 0; c < channels; ++c){
-		plugbuf[c] = new float[vector_ch1.size() + 2];//why + 2??????
+		plugbuf[c] = new float[vector_ch1->size() + 2];//why + 2??????
 	}
     
 	size_t j = 0;
-        while (j < vector_ch1.size()) {
-                plugbuf[1][j] = vector_ch1.at(j);
+        while (j < vector_ch1->size()) {
+                plugbuf[1][j] = vector_ch1->at(j);
                 ++j;
         }
 	if(channels==2){
 		j=0;
-		while (j < vector_ch1.size()){
-			plugbuf[1][j] = vector_ch2.at(j);
+		while (j < vector_ch1->size()){
+			plugbuf[1][j] = vector_ch2->at(j);
                 	++j;
 		}
 	}	

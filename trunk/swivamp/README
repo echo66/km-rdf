@@ -8,7 +8,7 @@ Contains:
 -swivamp: general type conversion C library for the module
 -swivamphost: predicates to deal with the lifecycle of the plugin for any host. Using hostExt definition of Vamp API (Chris Cannam)
 -swivampplugin: predicates to query data of the plugin according to the RDF-Vamp defintion (Chris Sutton)
--vamp.pl: prolog program definind the vamp module
+-vamp.pl: prolog program defining the vamp module
 
 NamesExtension
 
