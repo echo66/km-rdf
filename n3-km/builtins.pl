@@ -35,7 +35,7 @@ builtin('http://www.w3.org/2000/10/swap/list#in',builtin:member).
  * argument or the list of arguments used as a subject, second argument
  * is the argument or the list of arguments used as an object
  */
-builtin:member([A],[B]) :- 
+builtin:member(A,B) :- 
 	\+var(B),
 	member(A,B).
 
