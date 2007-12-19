@@ -13,8 +13,9 @@ encodes(File,Signal) :-
  * Registering the builtin
  */
 
-builtins:builtin('http://purl.org/ontology/mo/encodes',aspl_builtins:aspl_decode).
+builtins:builtin('http://purl.org/ontology/mo/encodes',aspl_builtins:decode).
 
-
+decode([Af],[Out]) :-
+	aspl_builtins:aspl_decode(Af,Out).
 
 
