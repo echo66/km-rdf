@@ -24,6 +24,10 @@ INCLUDE= 		-I$(swi_dir)/include/ \
 			-I/usr/include/qt4/ \
 			-I$(swilib_dir)/
 			
+#Library
+
+LIB = /usr/lib/libQtCore.so 
+
 #Sources
 SWI_AUDIOBLOB = swiaudioblob.cpp
 SWI_MO = swimo.cpp
@@ -60,7 +64,7 @@ $(AUDIOBLOB) : $(OBJ_AUDIOBLOB) Makefile
 	$(CPP) -shared $(OBJ_AUDIOBLOB) -o $(AUDIOBLOB) 
 
 $(BLOBID) : $(OBJ_BI) Makefile
-	$(CPP) -shared $(OBJ_BI) -o $(BLOBID)
+	$(CPP) -shared $(LIB) $(OBJ_BI) -o $(BLOBID)
 
 clean :
 	rm *.o *.so
