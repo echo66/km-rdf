@@ -134,7 +134,7 @@ compile_builtins :-
 		(
 			
 			format('~w :- ~w\n',[rdf_b(S,P,O),(convert(S,O,Args,B),merge_bindings(B),catch(apply(PlPred,Args),_,fail))]),
-			assert(':-'(rdf_b(S,P,O),(Args=[[S],[O]],write_canonical(apply(PlPred,Args)),catch(apply(PlPred,Args),_,fail))))
+			assert(':-'(rdf_b(S,P,O),(Args=[S,O],writeln(apply(PlPred,Args)),catch(apply(PlPred,Args),_,fail))))
 		)
 	).
 compile_rules :-
