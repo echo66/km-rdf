@@ -148,8 +148,7 @@ vmpl_frame_features_to_prolog(Vamp::Plugin::FeatureSet fs, int output, term_t fr
 			for(unsigned int j=0; j<fl.size();j++){
 				term_t feature_term = PL_new_term_ref();//MO::feature
 				term_t featurets = PL_new_term_ref();//MO::timestamp
-				term_t feature_event = PL_new_term_ref();//FeatureEvent, (a blob)
-
+				
 				//Different MO::timestamp algorithm for each sample type
 				if(stype==0){
 					//the MO::timestamp of the frame as there is only one feature in the frame
@@ -187,8 +186,17 @@ vmpl_frame_features_to_prolog(Vamp::Plugin::FeatureSet fs, int output, term_t fr
 				}
 				else{ cerr<<"Unexpected sample type"<<endl; }
 
-				//get values of the event	
-				AudioDataConversion::vector_to_audio_blob(fl[j].values, feature_event);
+
+				term_t feature_event; //new id for the feature values. Id of the form __data_id
+				
+				vector<float> *values;
+				values = new vector<float>();
+				for(size_t r=0; j<fl[j].values.size(); r++){
+					values->push_back(fl[j].values.at(r));
+				}				
+
+				//creating an id for the data stored in memory
+				feature_event = term_t(PlTerm(PlAtom(DataID::assign_data_id(values))));				
 				MO::feature(featureType, featurets, feature_event, feature_term);
 				tail.append(PlTerm(feature_term));
 			}
