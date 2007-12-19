@@ -90,7 +90,7 @@ vmpl_frame_to_input(term_t frame){
 	if(DataID::get_data_for_id((const char *)id2, vector_ch2)<=0){
 		return false;
 	}
-
+	
 	//Creating the multidimensional array as input
 	float **plugbuf = new float*[channels];
 	for (int c = 0; c < channels; ++c){
@@ -109,7 +109,7 @@ vmpl_frame_to_input(term_t frame){
                 	++j;
 		}
 	}	
-
+	
 	return plugbuf;//the memory is freed afterwards
 }
 
@@ -125,7 +125,7 @@ vmpl_frame_features_to_prolog(Vamp::Plugin::FeatureSet fs, int output, term_t fr
 	//Vamp::FeatureSet (map of a list of features for each frame/output. 
 	//framets is the MO::timestamp of the passed frame
 	//od is the outputdescriptor for ouput
-
+	
 	try{
 		//Description of the output
 		term_t featureType = PL_new_term_ref();
@@ -186,17 +186,16 @@ vmpl_frame_features_to_prolog(Vamp::Plugin::FeatureSet fs, int output, term_t fr
 				}
 				else{ cerr<<"Unexpected sample type"<<endl; }
 
-
 				term_t feature_event; //new id for the feature values. Id of the form __data_id
 				
-				vector<float> *values;
-				values = new vector<float>();
-				for(size_t r=0; j<fl[j].values.size(); r++){
-					values->push_back(fl[j].values.at(r));
-				}				
+				vector<float> *f_vector;
+				f_vector = new vector<float>();
 
+				for(size_t r=0; r<fl[j].values.size(); r++){
+					f_vector -> push_back(fl[j].values.at(r));
+				}				
 				//creating an id for the data stored in memory
-				feature_event = term_t(PlTerm(PlAtom(DataID::assign_data_id(values))));				
+				feature_event = term_t(PlTerm(PlAtom(DataID::assign_data_id(f_vector))));				
 				MO::feature(featureType, featurets, feature_event, feature_term);
 				tail.append(PlTerm(feature_term));
 			}
