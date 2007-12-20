@@ -25,7 +25,7 @@ QString
 generate_id();
 
 QString
-generate_random_id();
+generate_random_id();//this is finally incremental
 
 /**
 	Initial function of the database. Given a pointer to raw data, we generate and id and store the record in the database setting it active.

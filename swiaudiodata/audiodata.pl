@@ -29,7 +29,7 @@
 :- load_foreign_library(swiaudiodata).
  
 /**
-	blob(+BlobID): True if this is a blob (the interpretation is that we have it stored in our blob_id_db, check out swilib/). It just checks
+	is_data_id(+BlobID): True if this is a blob (the interpretation is that we have it stored in our blob_id_db, check out swilib/). It just checks
 	if the blob is registered but may be active or not!!!
 */
 is_data_id(Id):-
