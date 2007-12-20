@@ -1,0 +1,8 @@
+select ?a
+where
+{
+("testset/americanjesus.wav" "4000" "4512" "44100") <http://purl.org/NET/c4dm/c4dml.rdf#read> ?d.
+(?d "44100" "10") <http://purl.org/NET/c4dm/c4dml.rdf#mfcc> ?mfcc.
+?a <http://www.w3.org/2000/10/swap/list#in> ?mfcc
+}}
+
