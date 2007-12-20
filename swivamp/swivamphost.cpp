@@ -108,10 +108,10 @@ PREDICATE(vmpl_load_plugin, 3)
         		cerr << "ERROR: Failed to load plugin" << endl;
         		return FALSE;
 		}		
-		//Now we wrap the pointer into a blob so we can use it later on to fullfil the lifecycle
-		term_t prolog_plugin = PL_new_term_ref();
-		vmpl_plugin_to_blob(plugin, prolog_plugin);
-		return A3 = PlTerm(prolog_plugin);		
+		//Now we return an id to the plugin
+		term_t plugin_id = PL_new_term_ref();
+		vmpl_register_plugin(plugin, plugin_id);
+		return A3 = PlTerm(plugin_id);		
 		
 	} catch ( PlException &ex )
   	{ cerr << (char *) ex << endl;
@@ -130,7 +130,7 @@ PREDICATE(vmpl_load_plugin_for, 3)
 	//+ name of the plugin = Plugin key (see hostExt of Vamp-SDK)
 	//+ MO::signal or MO::frame
 	//+ Flag for adapters (to set)
-	//- Pointer to plugin as a vamp_blob
+	//- Id for the plugin in memory
 	
 	//This is a pointer to the plugin that will be wrapped and returned to prolog for later queries.
 	Vamp::Plugin *plugin=0; 
@@ -159,7 +159,8 @@ PREDICATE(vmpl_load_plugin_for, 3)
 		}		
 		//Now we wrap the pointer into a blob so we can use it later on to fullfil the lifecycle
 		term_t prolog_plugin = PL_new_term_ref();
-		vmpl_plugin_to_blob(plugin, prolog_plugin);
+		vmpl_register_plugin(plugin, prolog_plugin);
+	
 		return A3 = PlTerm(prolog_plugin);		
 		
 	} catch ( PlException &ex )
@@ -182,10 +183,10 @@ PREDICATE(vmpl_select_program, 2)
 	//+plugin
 	//+name of the program to set for the plugin. 
 	
-	term_t blob = PL_new_term_ref();
-	blob = term_t(PlTerm(A1));
+	term_t plugin_id = PL_new_term_ref();
+	plugin_id = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(plugin_id, plugin);
 	string program((char *)A2);
 	plugin-> selectProgram(program);//if not program, do nothing
 	return TRUE;
@@ -204,7 +205,7 @@ PREDICATE(vmpl_set_parameter, 3)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
 	string parameter((char *)A2);
 	float value = float((double)A3);
 	plugin-> setParameter(parameter, value);
@@ -225,7 +226,7 @@ PREDICATE(vmpl_get_blockSize, 2)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
 	size_t bs = plugin -> getPreferredBlockSize();
 	return A2 = PlTerm(long(bs));
 }
@@ -242,7 +243,7 @@ PREDICATE(vmpl_get_stepSize, 2)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
 	size_t ss = plugin -> getPreferredStepSize();
 	return A2 = PlTerm(long(ss));
 }
@@ -259,7 +260,7 @@ PREDICATE(vmpl_get_min_channel, 2)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
 	size_t min = plugin -> getMinChannelCount();
 	return A2 = PlTerm(long(min));
 }
@@ -272,7 +273,7 @@ PREDICATE(vmpl_get_max_channel, 2)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
 	size_t max = plugin -> getMaxChannelCount();
 	return A2 = PlTerm(long(max));
 }
@@ -295,7 +296,7 @@ PREDICATE(vmpl_initialize_plugin, 4)
 		term_t blob = PL_new_term_ref();
 		blob = term_t(PlTerm(A1));
 		Vamp::Plugin *plugin;
-		plugin = vmpl_blob_to_plugin(blob);
+		vmpl_get_plugin(blob, plugin);
 		int channels = (int)A2;
 		size_t stepSize = (size_t)(double)A3;
 		size_t blockSize = (size_t)(double)A4;
@@ -328,7 +329,7 @@ PREDICATE(vmpl_process_block, 5)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
  
 	//Frame and the necessary arguments
 	term_t frame = PL_new_term_ref();
@@ -375,7 +376,7 @@ PREDICATE(vmpl_remaining_features, 5)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
  
 	//Frame and the necessary arguments
 	double lastSample = (double)A2;
@@ -405,7 +406,7 @@ PREDICATE(vmpl_plugin_reset, 1)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);	
+	vmpl_get_plugin(blob, plugin);
 
 	plugin -> reset();
 	return true;
@@ -420,7 +421,7 @@ PREDICATE(vmpl_destroy_plugin, 1)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
 	
 	delete plugin;
 	return true;

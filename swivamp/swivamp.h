@@ -10,8 +10,10 @@
 #include <swiaudioblob.h>
 #include <swimo.h>
 #include <blobid.h>
-
+#include <qstring.h>
 #include <PluginHostAdapter.h>
+
+#define MAX_VAMP_PLUGIN 1000 //1000 active plugins
 
 using namespace std;
 
@@ -20,10 +22,13 @@ using namespace std;
 			***************************************************************************************************/
 
 int
-vmpl_plugin_to_blob(Vamp::Plugin *, term_t);//Vamp::Plugin* to blob so we can refer it later on
+vmpl_register_plugin(Vamp::Plugin *, term_t); //registers the plugin assigning an id
 
-Vamp::Plugin *
-vmpl_blob_to_plugin(term_t);//We get the pointer to plugin from the blob
+QString
+vmpl_id_for_vamp();//creates the id for the plugin
+
+int
+vmpl_get_plugin(term_t, Vamp::Plugin * &);
 
 const float* const*
 vmpl_frame_to_input(term_t);//Constructs a valid block of data as vamp plugin input from a MO::frame
