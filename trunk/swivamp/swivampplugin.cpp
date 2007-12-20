@@ -33,7 +33,7 @@ PREDICATE(vmpl_get_maker, 2)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
 
 	string author = plugin->getMaker();
 	char maker[author.size()+1];
@@ -52,7 +52,7 @@ PREDICATE(vmpl_get_identifier, 2)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
 
 	return A2 = vmpl_string_to_atom(plugin->getIdentifier());
 }
@@ -65,7 +65,7 @@ PREDICATE(vmpl_get_name, 2)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
 
 	return A2 = vmpl_string_to_atom(plugin->getName());
 }
@@ -78,7 +78,7 @@ PREDICATE(vmpl_get_description, 2)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
 	
 	return A2 = vmpl_string_to_atom(plugin->getDescription());
 }
@@ -91,7 +91,7 @@ PREDICATE(vmpl_get_copyright, 2)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
 
 	return A2 = vmpl_string_to_atom(plugin->getCopyright());
 }
@@ -104,7 +104,7 @@ PREDICATE(vmpl_get_vampVersion, 2)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
 
 	int vamp = plugin->getVampApiVersion();
 	return (A2 = vamp);
@@ -118,7 +118,7 @@ PREDICATE(vmpl_get_pluginVersion, 2)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
 
 	int version = plugin -> getPluginVersion();
 	return (A2 = version);
@@ -136,7 +136,7 @@ PREDICATE(vmpl_plugin_numberOutputs, 2)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
 
 	try{
 		Vamp::Plugin::OutputList out = plugin -> getOutputDescriptors();
@@ -162,7 +162,7 @@ PREDICATE(vmpl_outputDescriptor_identifier, 3)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
 
 	try{
 		Vamp::Plugin::OutputList outputs = plugin -> getOutputDescriptors();
@@ -183,7 +183,7 @@ PREDICATE(vmpl_outputDescriptor_name, 3)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
 
 	try{
 		Vamp::Plugin::OutputList outputs = plugin -> getOutputDescriptors();
@@ -204,7 +204,7 @@ PREDICATE(vmpl_outputDescriptor_description, 3)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
 
 	try{
 		Vamp::Plugin::OutputList outputs = plugin -> getOutputDescriptors();
@@ -225,7 +225,7 @@ PREDICATE(vmpl_outputDescriptor_unit, 3)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
 
 	try{
 		Vamp::Plugin::OutputList outputs = plugin -> getOutputDescriptors();
@@ -247,7 +247,7 @@ PREDICATE(vmpl_outputDescriptor_hasFixedBinCount, 2)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
 
 	try{
 		Vamp::Plugin::OutputList outputs = plugin -> getOutputDescriptors();
@@ -268,7 +268,7 @@ PREDICATE(vmpl_outputDescriptor_binCount, 3)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
 
 	try{
 		Vamp::Plugin::OutputList outputs = plugin -> getOutputDescriptors();
@@ -290,7 +290,7 @@ PREDICATE(vmpl_outputDescriptor_hasKnownExtents, 2)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
 
 	try{
 		Vamp::Plugin::OutputList outputs = plugin -> getOutputDescriptors();
@@ -311,7 +311,7 @@ PREDICATE(vmpl_outputDescriptor_minValue, 3)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
 
 	try{
 		Vamp::Plugin::OutputList outputs = plugin -> getOutputDescriptors();
@@ -332,7 +332,7 @@ PREDICATE(vmpl_outputDescriptor_maxValue, 3)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
 
 	try{
 		Vamp::Plugin::OutputList outputs = plugin -> getOutputDescriptors();
@@ -352,7 +352,7 @@ PREDICATE(vmpl_outputDescriptor_isQuantized, 2)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
 
 	try{
 		Vamp::Plugin::OutputList outputs = plugin -> getOutputDescriptors();
@@ -373,7 +373,7 @@ PREDICATE(vmpl_outputDescriptor_quantizeStep, 3)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
 
 	try{
 		Vamp::Plugin::OutputList outputs = plugin -> getOutputDescriptors();
@@ -394,7 +394,7 @@ PREDICATE(vmpl_outputDescriptor_sampleType, 3)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
 
 	try{
 		Vamp::Plugin::OutputList outputs = plugin -> getOutputDescriptors();
@@ -415,7 +415,7 @@ PREDICATE(vmpl_outputDescriptor_sampleRate, 3)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
 
 	try{
 		Vamp::Plugin::OutputList outputs = plugin -> getOutputDescriptors();
@@ -443,7 +443,7 @@ PREDICATE(vmpl_pluginPrograms, 2)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
 	try{
 		Vamp::PluginBase::ProgramList progList = plugin -> getPrograms();
 		//cerr << (int)progList.size() << " programs: " << endl;
@@ -475,7 +475,7 @@ PREDICATE(vmpl_pluginParameters, 2)
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 	Vamp::Plugin *plugin;
-	plugin = vmpl_blob_to_plugin(blob);
+	vmpl_get_plugin(blob, plugin);
 	try{
 		Vamp::PluginBase::ParameterList parList = plugin -> getParameterDescriptors();
 		//cerr << (int)parList.size() << " parameters" << endl;

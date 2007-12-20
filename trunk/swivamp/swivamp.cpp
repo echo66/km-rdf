@@ -10,51 +10,87 @@
 
 using namespace std;	
 
+/*
+ * This structure associates an id to each plugin
+ */
+static struct SwiVampPlugin{
+
+	/* id: __plugin_id */
+	QString id;
+	/* pointer a Vamp Plugin */
+	Vamp::Plugin *plugin;
+	/* name of the plugin */
+	char *type;
+}
 
 /*
- * Prolog blob wrapping a pointer to a vamp plugin. Check this has not bugs if the same plugin
+ * Database with all the entries id/plugin
  */
-static PL_blob_t vamp_blob = 
-{ PL_BLOB_MAGIC,
-  PL_BLOB_UNIQUE,
-					/* unique representation for a vamp plugin*/
-  "vamp_plugin",
-  NULL,					/* release */
-  NULL,					/* compare */
-  NULL,					/* write */
-  NULL,					/* acquire */
-  NULL,					/* save load*/
-  NULL,
-};
+
+vamp_plugins_db[MAX_VAMP_PLUGIN];
+
+/* Variables */
+size_t active_plugins = 0;
 
 				/************************************************************************
  				******************* C Interface functions implementation ****************
 				************************************************************************/
 
-/*
- * This one returns a term reference to a blob containing a pointer to a plugin, so we can refer to it within a context
- */
-int
-vmpl_plugin_to_blob(Vamp::Plugin *plugin, term_t blob){
+/** Some functions to deal with the database **/
 
-	return PL_unify_blob(blob, (void **)&plugin, sizeof(plugin), &vamp_blob);
+/*
+ * Stores the instance of the plugin when vamp_plugin_load and returns an id that will be the handle for the plugin onwards. The plugin
+ * is defined by the name and the sample rate. We don't reuse plugins (we could) and we don't save them through sessions.
+ */
+
+int
+vmpl_register_plugin(Vamp::Plugin *plugin, term_t id){
+
+	vamp_plugins_db[active_plugins].plugin = plugin;
+	vamp_plugins_db[active_plugins].id = vmpl_id_for_vamp();
+	
+	PL_unify(id, term_t(PlTerm(PlAtom((vamp_plugins_db[active_plugins].id).toLocal8Bit().data()))));
+	active_plugins++;
+	return 0; //success
 }
 
 /*
- * This one gives back the Vamp::Plugin pointer
+ * Creates a simple id incrementally for the plugins
  */
 
-Vamp::Plugin *
-vmpl_blob_to_plugin(term_t blob){
+QString
+vmpl_id_for_vamp()
+{
+	QString head("__vamp::plugin_");
 
-	PL_blob_t *type;        //type
-	void *plugin;		//void pointer to plugin
-	size_t size;
-	PL_get_blob(blob, &plugin, &size, &type);
-	if(type != &vamp_blob){
-		throw PlException("Not Vamp Plugin Blob");
+	//incremental id for blobs	
+	QString var;
+	var = QString("%1")
+		.arg((long)active_plugins);
+	head.append(var);
+	return head;
+
+}
+
+/*
+ * Gets the plugin for the id given
+ */
+
+int
+vmpl_get_plugin(term_t id_t, Vamp::Plugin * &plugin){
+
+	char *id;
+	PL_get_atom_chars(id_t,&id);
+	QString qid((const char*)id);
+	
+	for(size_t r=0; r<MAX_VAMP_PLUGIN; r++){
+		
+		if(qid.compare(vamp_plugins_db[r].id)==0){
+			plugin = vamp_plugins_db[r].plugin;
+			return 0;
+		}
 	}
-	return *(Vamp::Plugin **)(plugin);
+	return -1;	
 }
 
 /*
