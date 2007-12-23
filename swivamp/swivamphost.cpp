@@ -12,7 +12,8 @@
 #include <string>
 #include <cmath>
 
-#include <PluginLoader.h>#include <PluginInputDomainAdapter.h>
+#include <PluginLoader.h>
+#include <PluginInputDomainAdapter.h>
 #include <PluginChannelAdapter.h>
 
 using namespace Vamp::HostExt;
