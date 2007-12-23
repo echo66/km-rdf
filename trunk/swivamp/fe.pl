@@ -4,9 +4,9 @@
 	Loading KM modules (paths of the system). Should be compilled together later on
 	*/
 
-:-use_module('/home/david/km-rdf/swiaudiodata/audiodata').
-:-use_module('/home/david/km-rdf/swivamp/vamp').
-:-use_module('/home/david/km-rdf/swiaudiosource/audiosource').
+:-use_module('../swiaudiodata/audiodata').
+:-use_module('../swivamp/vamp').
+:-use_module('../swiaudiosource/audiosource').
 
 :-style_check(-discontiguous).
 
