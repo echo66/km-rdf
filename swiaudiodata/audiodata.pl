@@ -39,6 +39,7 @@ is_data_id(Id):-
 	data(+ID, -ListData): This predicate gets the blob identified by the id and decodes it in a prolog list. Fails in case the ID is not
 	registered or desactived. (no need to call blob/1)
 */
+:- multifile data/2.
 data(ID, ListData):-
 	id_blob(ID, Blob),
 	pointerBlob_to_list(Blob, ListData).
