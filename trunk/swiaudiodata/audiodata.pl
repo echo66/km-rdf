@@ -29,15 +29,15 @@
 :- load_foreign_library(swiaudiodata).
  
 /**
-	is_data_id(+BlobID): True if this is a blob (the interpretation is that we have it stored in our blob_id_db, check out swilib/). It just checks
-	if the blob is registered but may be active or not!!!
+	is_data_id(+DataID): True if this is an id for data stored in the system at the running session. The id may be active or not (with actual data 	
+	or just reserved id)
 */
 is_data_id(Id):-
 	is_data_id(Id, _).
 
 /**
-	data(+ID, -ListData): This predicate gets the blob identified by the id and decodes it in a prolog list. Fails in case the ID is not
-	registered or desactived. (no need to call blob/1)
+	data(+ID, -ListData): This predicate gets the blob wrapping the data identified by the id and decodes it in a prolog list. 
+	Fails in case the ID is not registered or desactived.
 */
 :- multifile data/2.
 data(ID, ListData):-
@@ -45,11 +45,11 @@ data(ID, ListData):-
 	pointerBlob_to_list(Blob, ListData).
 
 /**
-	data_load(+ListData, +ID): For the given prolog list with raw data and id to be unified, we retrieve a blob (pointing to raw data in memory 		named by its ID. The ID must be desactived before and activated from here on.
+	data_load(+ListData, +ID): We get the raw data in the blob and store it in memory assigning the id given in the predicate 
 */
 data_load(ListData, ID):-
 	list_to_pointerBlob(ListData, Blob),
-	blob_id(Blob, ID).	
+	blob_id(ID, Blob).	
 
 /**Short explanation of imported predicates**/
 
@@ -100,7 +100,7 @@ data_load(ListData, ID):-
 */
 
 /**
-	blob_id(+Blob, +Id). Unifies the blob with the given id and stores the data in the blob in the database. The id must exist and be stored
+	blob_id(+Id, +Blob). Unifies the blob with the given id and stores the data in the blob in the database. The id must exist and be stored
 	already
 */
 

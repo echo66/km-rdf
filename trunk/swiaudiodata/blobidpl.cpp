@@ -7,6 +7,7 @@
 */
 
 #include <blobid.h>
+#include <iostream>
 
 /*
  *	This predicate SETS a blob in the database for the specific id given. The id must previously exists and not be already active!! otherwise it 
@@ -20,8 +21,7 @@ PREDICATE(blob_id, 2){
 	//+blob to unify
 
 	//getting both arguments
-	term_t blob = PL_new_term_ref();
-	blob = term_t(PlTerm(A2));
+	term_t blob = PL_copy_term_ref(term_t(PlTerm(A2)));
 	char *id;//A1
 	term_t id_t = PL_new_term_ref();
 	id_t = term_t(PlTerm(A1));
@@ -63,8 +63,12 @@ PREDICATE(id_blob, 2){
 PREDICATE(reserve_id, 1){
 
 	//+id to reserve
-
-	if(DataID::reserve_id<0){
+	char *id;//A1
+	term_t id_t = PL_new_term_ref();
+	id_t = term_t(PlTerm(A1));
+	PL_get_atom_chars(id_t,&id);
+	
+	if(DataID::reserve_id(id)<0){
 		return false;
 	}else{
 		return true;
