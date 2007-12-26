@@ -109,16 +109,16 @@ assign_data_id(vector<float> *data)
 int
 get_data_for_id(const char* ident, std::vector<float>* &m_data)
 {
-	int pos = 0;
+	double pos = 0;
 	pos = existing_id(ident);
 	if(pos < 0){
-		 return pos;//no id. -1
+		 return -1;//no id. -1
 	}
-	else if(audio_data_db[pos].active == 0){
+	else if(audio_data_db[(size_t)pos].active == 0){
 		return 0; //not active
 	}
 	else{		
-		m_data = audio_data_db[pos].data;//gets the data.	
+		m_data = audio_data_db[(size_t)pos].data;//gets the data.	
 		return 1; //was active	
 	}
 }
@@ -135,15 +135,19 @@ get_data_for_id(const char* ident, std::vector<float>* &m_data)
 int 
 set_blob_for_id(const char *ident, term_t blob)
 {
-	int pos = 0;
+	double pos = 0;
 	pos = existing_id(ident);
-
+	if(pos<0){
+		cerr<<"The Id doesn't exist"<<endl;
+		return -2;
+	}
+	
 	if(pos<0) return -1; //no id.
 	
-	if(audio_data_db[pos].active == 1) return -2; //the id was already taken
-	audio_data_db[pos].active = 0;
+	if(audio_data_db[(size_t)pos].active == 1) return -2; //the id was already taken
+	audio_data_db[(size_t)pos].active = 1;
 	if(is_audio_blob(blob)==0){
-		audio_data_db[pos].data = audio_blob_to_pointer(blob);
+		audio_data_db[(size_t)pos].data = audio_blob_to_pointer(blob);
 		return 0;
 	}else{
 		return -3;
@@ -163,16 +167,16 @@ set_blob_for_id(const char *ident, term_t blob)
 int 
 get_blob_from_id(const char *ident, term_t blob)
 {
-	int pos = 0;
+	double pos = 0;
 	pos = existing_id(ident);
 	if(pos < 0){
-		 return pos;//no id. -1
+		 return -1;//no id. -1
 	}
-	else if(audio_data_db[pos].active == 0){
+	else if(audio_data_db[(size_t)pos].active == 0){
 		return 0; //not active
 	}
 	else{		
-		pointer_to_audio_blob(audio_data_db[pos].data, blob);//unifies blob. 
+		pointer_to_audio_blob(audio_data_db[(size_t)pos].data, blob);//unifies blob. 
 		if(is_audio_blob(blob)==1){
 			return -2;
 		}		
@@ -187,11 +191,11 @@ get_blob_from_id(const char *ident, term_t blob)
 	        -1 no exists
 	 	index in the table if exists
 */
-int 
+double
 existing_id(const char* ident)
 {
 	int flag = -1;
-	int pos = 0;
+	size_t pos = 0;
 	QString input(ident);
 	for(size_t i=0; i<ids_in_system; i++){
 		
@@ -265,17 +269,17 @@ reserve_id(const char *ident)
 int
 clean_data_for_id(const char* ident){
 
-	int pos = 0;
+	double pos = 0;
 	pos = existing_id(ident);
 
 	if(pos<0) return -1; //no id.
 	
-	if(audio_data_db[pos].active == 0) return -2;//already desactived
+	if(audio_data_db[(size_t)pos].active == 0) return -2;//already desactived
 
-	audio_data_db[pos].active = 0;
+	audio_data_db[(size_t)pos].active = 0;
 	
-	delete audio_data_db[pos].data;
-	audio_data_db[pos].data = 0;//reset the pointer
+	delete audio_data_db[(size_t)pos].data;
+	audio_data_db[(size_t)pos].data = 0;//reset the pointer
 
 	//What happens to the reference to the blob once we have deleted the data?????
 	std::cerr<< ident <<" free"<<std::endl;

@@ -74,7 +74,7 @@ get_blob_from_id(const char*, term_t );
 	        -1 no exists
 	 	index in the table if exists
 */
-int
+double
 existing_id(const char* );
 
 /**
