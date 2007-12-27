@@ -123,4 +123,27 @@ PREDICATE(is_audio_blob, 1)
 	}
 }
 
+/*
+	Dumping the data pointed by a blob into an external file
+*/
+
+PREDICATE(blob_to_file, 2)
+{
+	//+Blob
+	//+File Path
+	
+	term_t blob = PL_copy_term_ref(term_t(PlTerm(A1)));
+	//+id
+	char *path;//A2
+	term_t path_t = PL_new_term_ref();
+	path_t = term_t(PlTerm(A2));
+	PL_get_atom_chars(path_t,&path);
+	
+	if(AudioDataConversion::dump_blob_data(blob, (const char*)path)<0){
+		return false;
+	}else{
+		return true;
+	}
+}
+
 

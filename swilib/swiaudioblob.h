@@ -91,6 +91,18 @@ init_audio_blob();
 int 
 is_audio_blob(term_t);
 
+/**
+	Dumps the data pointed by the blob into an external plain file. The name of the file is the ID for the data (see BlobID)
+*/
+int
+dump_blob_data(term_t, const char*);
+
+/**
+	Reads the data in the plain file, loads it in memory and stores the pointer in a blob
+*/
+int
+load_file_data(term_t, const char*);
+
 }
 
 #endif
