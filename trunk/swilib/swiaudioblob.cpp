@@ -145,7 +145,9 @@ audio_blob_to_pointer(AudioBlob blob){
 	return *(AudioVector **)(data);
 }
 
-
+/**
+	Checks if the blob is containing audio data or not
+*/
 int
 is_audio_blob(term_t blob){
 
@@ -159,6 +161,67 @@ is_audio_blob(term_t blob){
 	return 0;
 }
 
+/**
+	Dumps the data pointed by the blob into an external plain file. Returns negative if fails:
+		-1 no audio blob
+		-2 error to open file
+		-3 
+*/
+int
+dump_blob_data(term_t blob, const char* filePath){
+
+	if(is_audio_blob(blob)==1) return -1;//no audio blob
+	
+	//getting the data from the blob
+	AudioVector *data;
+	data = audio_blob_to_pointer(blob);
+
+	char* binaryData;
+	binaryData = (char *)data;
+
+	//open a file and write the data in it as stream of data
+	//we don't store the real values, but the binary data as it is in memory which should make the progress faster
+
+	size_t binary_size;
+	binary_size = sizeof(*data);//size of the binary data stored in memory (number of chars)
+
+	FILE *fileData;
+	fileData = fopen(filePath, "wb");//binary file to write
+
+	if(fileData!=NULL){
+		//write binary data
+		for(size_t r=0; r<binary_size; r++){
+			fputc(binaryData[r], fileData);
+		}
+		fclose(fileData);
+		return 0;
+	}else{
+		return -2;
+	}
+	
+}
+
+/**
+	Reads the data in the plain file, loads it in memory and stores the pointer in a blob
+*/
+int
+load_file_data(term_t, const char* filePath){
+
+	//open the file to read
+
+	FILE *fileData;
+	fileData = fopen(filePath, "rb");//binary file to read
+
+	if(fileData!=NULL){
+		//read binary data
+		
+
+	}else{
+		return -2;
+	}
+}
+
+	
 }
 
 
