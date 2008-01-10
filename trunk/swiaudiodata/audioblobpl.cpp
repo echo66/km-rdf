@@ -108,6 +108,8 @@ PREDICATE(clean_pointedVector, 1)
 
 PREDICATE(is_audio_blob, 1)
 {
+	//+Blob
+
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
 
@@ -146,4 +148,25 @@ PREDICATE(blob_to_file, 2)
 	}
 }
 
+/*
+	Loading the data from a file into a blob
+*/
 
+PREDICATE(file_to_blob, 2)
+{
+	//+File Path
+	//+Blob
+	
+	term_t blob = PL_copy_term_ref(term_t(PlTerm(A2)));
+	//+id
+	char *path;//A2
+	term_t path_t = PL_new_term_ref();
+	path_t = term_t(PlTerm(A1));
+	PL_get_atom_chars(path_t,&path);
+	
+	if(AudioDataConversion::load_file_data(blob, (const char*)path)<0){
+		return false;
+	}else{
+		return true;
+	}
+}

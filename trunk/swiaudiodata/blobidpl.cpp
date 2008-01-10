@@ -88,7 +88,7 @@ PREDICATE(is_data_id, 2){
 	id_t = term_t(PlTerm(A1));
 	PL_get_atom_chars(id_t,&id);
 
-	int index = DataID::existing_id((const char *)id);
+	long index = DataID::existing_id((const char *)id);
 	if(index<0) return false;
 	
 	return A2 =PlTerm((long)index);
@@ -115,7 +115,7 @@ PREDICATE(active_id, 1){
  *	This predicate cleans the space in memory of the raw data specified by the ID. We may use it later on, so the ID stays
  */
 
-PREDICATE(clean_data_for_id, 1){
+PREDICATE(clean_data, 1){
 
 	//+id
 	char *id;//A1

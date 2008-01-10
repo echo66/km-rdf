@@ -127,6 +127,7 @@ atom_to_audio_vector(atom_t a) {
 int
 pointer_to_audio_blob(AudioVector *pointer, AudioBlob blob){
 
+	cerr<<"creating blob"<<endl;
 	return PL_unify_blob(blob, (void **)&pointer, sizeof(pointer), &audio_blob);	
 }	
 
@@ -162,10 +163,10 @@ is_audio_blob(term_t blob){
 }
 
 /**
-	Dumps the data pointed by the blob into an external plain file. Returns negative if fails:
+	Dumps the data pointed by the blob into an external plain file. Returns 0 if suecceeds and negative if fails:
 		-1 no audio blob
 		-2 error to open file
-		-3 
+	ToDo: Use buffering????
 */
 int
 dump_blob_data(term_t blob, const char* filePath){
@@ -174,24 +175,33 @@ dump_blob_data(term_t blob, const char* filePath){
 	
 	//getting the data from the blob
 	AudioVector *data;
-	data = audio_blob_to_pointer(blob);
-
-	char* binaryData;
-	binaryData = (char *)data;
+	data = audio_blob_to_pointer(blob);//pointer to vector = data
 
 	//open a file and write the data in it as stream of data
 	//we don't store the real values, but the binary data as it is in memory which should make the progress faster
 
-	size_t binary_size;
-	binary_size = sizeof(*data);//size of the binary data stored in memory (number of chars)
+	size_t data_size;
+	data_size = data -> size();//size of the vector
 
 	FILE *fileData;
 	fileData = fopen(filePath, "wb");//binary file to write
-
+		
 	if(fileData!=NULL){
-		//write binary data
-		for(size_t r=0; r<binary_size; r++){
-			fputc(binaryData[r], fileData);
+		//writing each float of the vector
+		
+		float *datum=0;
+		char *binary_datum=0;
+	
+		for(size_t r=0; r<data_size; r++){
+
+			datum = &(data -> at(r));//getting each datum of the vector and putting it in a pointer
+			binary_datum = (char *)datum;//view as binary. 
+
+			for(unsigned int l=0; l<sizeof(*datum); l++){//writing each float in binary
+
+				fputc(*binary_datum, fileData);
+				binary_datum++;
+			}
 		}
 		fclose(fileData);
 		return 0;
@@ -203,25 +213,56 @@ dump_blob_data(term_t blob, const char* filePath){
 
 /**
 	Reads the data in the plain file, loads it in memory and stores the pointer in a blob
-*/
+		
+		 0 success
+		-1 error
+
+	TODAVIA NO FUNCIONA BIEN
+*/	
 int
-load_file_data(term_t, const char* filePath){
+load_file_data(term_t blob, const char* filePath){
 
 	//open the file to read
-
 	FILE *fileData;
 	fileData = fopen(filePath, "rb");//binary file to read
 
-	if(fileData!=NULL){
-		//read binary data
-		
+	//retrieved data vector in memory
+	AudioVector *data;
+	data = new vector<float>();	
 
-	}else{
-		return -2;
+	char bin_datum[4];//size of a float in chars
+
+	if(fileData!=NULL){
+		int char_count = 0;
+		char c;
+		float *datum = 0;
+		
+		//read characters till the end of the file is reached getting the length of the data and a temporary buffer
+		do {
+			c=getc(fileData);
+		 	bin_datum[char_count] = c;
+			if(char_count==3){//when we read a whole float, we store it in the vector
+				
+				char *pointer = 0;
+				pointer = &bin_datum[0];			
+				datum = (float *)pointer;
+				data -> push_back(*datum);
+				char_count=0;
+				
+			}else{
+				char_count++;
+			}
+	     			
+    		} while (c != EOF);
+
+		fclose(fileData); //we don't need to read the file anymore
+	
+		//returning the blob
+		if(pointer_to_audio_blob(data, blob)){ return 0;}
 	}
+	return -1;
 }
 
-	
 }
 
 

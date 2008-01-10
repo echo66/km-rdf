@@ -4,15 +4,19 @@
 	David Pastor 2007, c4dm, Queen Mary, University of London
 */
 
-:- module(audiodata,[get_sample_rate/2,
+:- module(audiodata,[
+			/* Querying audio data */
+			get_sample_rate/2,
 			get_channels/2,
 			get_samples_per_channel/2,
 			get_frame/4,
+			get_frame_timestamp/2,
+			set_limit_framing/3,
+
+			/* Handling binary data */
 			pointerBlob_to_list/2,
 			vectorBlob_to_list/2,
 			list_to_pointerBlob/2,
-			get_frame_timestamp/2,
-			set_limit_framing/3,
 			clean_pointedVector/1,
 			is_audio_blob/1,
 			blob_id/2,
@@ -22,12 +26,44 @@
 			reserve_id/1,
 			is_data_id/1,		
 			data/2,
-			data_load/2
+			load_data_list/2,
+			blob_to_file/2,
+			file_to_blob/2,
+			clean_data/1,
+			data_in/2,
+			data_out/2
 			]).
 
 :- style_check(-discontiguous).
 :- load_foreign_library(swiaudiodata).
  
+/** EXPLANATION
+*
+* This module is aimed to deal with binary audio data extracted from audio file as MO::signals.
+*
+* 1. The way we handle the data:
+*
+* This module allows us to store binary data (normally arbitrary size) and deal with it by means of IDs like __data_id
+* The binary data can be input in several ways:
+* 	Through a binary file containing a binary representation of a std::vector<float> (data_in/2)
+*	Through a prolog list of floats (load_data_list/2)
+*
+* In both cases we must have reserved the id for the data to store in memory previously using reserve_id/1	
+* The way we use import data to the database from prolog is by means of BLOBS (blob_id/2 does the job).
+*
+* We can store the data externally in files by using data_out/2. Then the data in memory is cleaned when we use this predicate (clean_data/1)
+* We can also see the data (if it is not arbitrary long) as prolog list using data/2
+* We export the data from the database as prolog BLOBS (id_blob/2 does this)
+* 
+* There is a bunch of lower level predicates that can be also used to deal with the ids and blobs separately.
+*
+* 2. Querying audio data
+*
+*	There is another bunch of predicates to query frames, channels and significant signal details. We obtain signals from the module swiaudiosource
+*/
+
+/** PREDICATES **/
+
 /**
 	is_data_id(+DataID): True if this is an id for data stored in the system at the running session. The id may be active or not (with actual data 	
 	or just reserved id)
@@ -45,11 +81,29 @@ data(ID, ListData):-
 	pointerBlob_to_list(Blob, ListData).
 
 /**
-	data_load(+ListData, +ID): We get the raw data in the blob and store it in memory assigning the id given in the predicate 
+	data_load(+ListData, +ID): We get the raw data in the blob and store it in memory assigning the id given in the predicate .
+	IMPORTANT: The ID must be already reserved and desactive!!
 */
-data_load(ListData, ID):-
+load_data_list(ListData, ID):-
 	list_to_pointerBlob(ListData, Blob),
-	blob_id(ID, Blob).	
+	blob_id(ID, Blob).
+
+/**
+	data_out(+ID, +FilePath): outputs the data dumping it in a binary file to be stored in disk freeing space in memory. The data ID is
+	automatically cleaned!!
+*/
+data_out(ID, FilePath):-
+	id_blob(ID, Blob),
+	blob_to_file(Blob, FilePath),
+	clean_data(ID).	
+
+/**
+	data_in(+FilePath, +ID): gets the data from an external file using blobs and stores the data assigning the ID.
+	IMPORTANT: The ID must be already reserved and must be desactive as well (data cleaned)!!!
+*/
+data_in(FilePath, ID):-
+	file_to_blob(FilePath, Blob),
+	blob_id(ID, Blob).
 
 /**Short explanation of imported predicates**/
 
@@ -121,4 +175,15 @@ data_load(ListData, ID):-
 	active_id(+Id). Just tells if the id is in the database and if it is active (there is one real blob pointing data associated at that moment)
 */
 
+/**
+	clean_data(+ID): cleans the data of the id keeping the id in the database!!!!!!
+*/
+
+/**
+	blob_to_file(+Blob, +FilePath): dumps the binary data pointed by the blob into a file given its path
+*/
+
+/**
+	file_to_blob(+FilePath, +Blob): reads the file and stores the data pointing it by the blob
+*/
 
