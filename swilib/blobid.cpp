@@ -191,7 +191,7 @@ get_blob_from_id(const char *ident, term_t blob)
 	        -1 no exists
 	 	index in the table if exists
 */
-double
+long
 existing_id(const char* ident)
 {
 	int flag = -1;
