@@ -42,6 +42,15 @@ wkpl_weka_loader(Loader):-
 	***************************************************************************************************/
 
 /**
+	wkpl_call_method(+Object or +Class, +Method, +Parameters, -Return). This is just a wrapping function to not JPL users so they can 
+	call a method of any java API from swiweka
+	P is a list of arguments.
+	*/
+
+wkpl_call_method(O, M, P, R):-
+	jpl_call(O, M, P, R).
+
+/**
 	Create an array of the type given as Name (encapsulated in a Class object) with the length specified. This is useful to pass
 	attributes in the jpl interface
 	*/ 

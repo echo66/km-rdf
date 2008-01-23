@@ -7,8 +7,8 @@
 :-module(weka, []).
 
 
-:-jpl_weka.
-:-classification.
-:-dataSet.
+:-[jpl_weka].
+:-[classification].
+:-[arrFiles].
 
 

@@ -55,7 +55,12 @@ To fill the data we just use one predicate
 There is a bunch of predicates to query the dataSet (look the source)
 
 
-1.5. SAVING DATASET
+1.6. TESTING SETS, TRAINING SETS
+
+There is a bunch of predicates to create testing and training sets.
+
+
+1.7. SAVING DATASET
 
 wkpl_write_arff(File, DataSet) stores our DataSet in a ARFF file given the path to it.
 
