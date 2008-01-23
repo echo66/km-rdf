@@ -22,7 +22,10 @@
 /**
 	PREDEFINED WAY TO CREATE A DATASET
 
-	Creates an empty set (no values) for the given attributes and capacity. 
+	Creates an empty set (no values) for the given attributes and capacity. These predicate is designed to set numerical and nominal predicates
+	as many classifiers don't support more attribute types that those ones. It's also possible on user's responsability to create a string 
+	attribute like a nominal with an empty list
+
 		+Name of the Dataset
 		+List of numerical Attributes (just a list with the names)
 		+List of nominal/String attributes 

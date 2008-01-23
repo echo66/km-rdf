@@ -68,7 +68,7 @@ wkpl_distributionFor_instance(Instance, Classifier, Result):-
 	Should run over every instance of a dataset.
 	*/
 
-wkpl_classify_dataset(Dataset(Instance, Classfier, Result):-
+wkpl_classify_dataset(Dataset, Instance, Classfier, Result):-
 	wkpl_classify_instance(Instance, Classifier, Result).
 
 wkpl_classify(Instance, Classifier, Result):-
