@@ -1,0 +1,11 @@
+@relation music
+
+@attribute length numeric
+@attribute year numeric
+@attribute genre {rock,folk}
+
+@data
+3.45,2000,folk
+4.56,1999,rock
+4.70, 2003,rock
+5.60,2009,folk

@@ -252,13 +252,43 @@ wkpl_attribute_variance(Instances, Attribute, Var):-
 wkpl_attributeIndex_variance(Instances, Index, Var):-
 	jpl_call(Instances, variance, [Index], Var).
 
+/**
+	Mean (numerical) or mode (nominal) of one attribute. Always like a double.
+	*/ 
+wkpl_attribute_meanOrMode(Instances, Attribute, Mean):-
+	jpl_call(Instances, meanOrMode, [Attribute], Mean).
+
+wkpl_attributeIndex_meanOrMode(Instances, Index, Mean):-
+	jpl_call(Instances, meanOrMode, [Index], Mean).
+
+/**
+	Sort a dataset using one attribute (the index to it) as reference
+	*/
+wkpl_sort_for(Instances, Index):-
+	jpl_call(Instances, sort, [Index], _).
+
+
 				/*************************************************
-				****************** TRAINING SET ******************
+				********* TESTING AND TRAINING SET ***************
 				*************************************************/
 
 /**
-	Wrap training predicates
+	Stratify if the class is nominal for a stratified cross-validation
 	*/
+wkpl_stratify_dataSet(Instances, NumFolds):-
+	jpl_call(Instances, stratify, [NumFolds], _).
+
+/**
+	Create a testing set
+	*/
+wkpl_create_testSet(Instances, NumFolds, Fold, Set):-
+	jpl_call(Instances, testCV, [NumFolds, Fold], Set).
+
+/**
+	Create training set
+	*/
+wkpl_create_trainSet(Instances, NumFolds, Fold, Set):-
+	jpl_call(Instances, trainCV, [NumFolds, Fold], Set).
 
 
 				/**************************************************
