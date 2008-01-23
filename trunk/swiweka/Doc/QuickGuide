@@ -1,0 +1,63 @@
+							HOW TO USE SWIWEKA (Quick guide)
+
+
+1. How To Create a Dataset using dataSet.pl
+
+The program dataSet.pl is an interface to deal with the elements of the weka.core. The dataSet is just a weka.core.Instances object which we create and define with attributes and instance objects. The user should check out the WEKA reference about ARFF files before keeping reading this document.
+
+
+1.1. CREATION 
+
+We have several ways to create a dataSet:
+
+-wkpl_read_arff(+File, -Dataset): This predicate loads a arff file and creates a weka Instances representation of it.
+
+-wkpl_create_empty_dataSet(+Name, -Dataset): This predicates creates a dataset without attributes and the only information given is the name of the @relation field (name of the dataset).
+
+-wkpl_create_dataSet(+Name, +ListOfNumericalAt, +ListOfNominalAt, +Capacity, -Dataset) where
+
+	ListOfNumericalAt is a list of the names of the numerical attributes like [param1, year, duration, parameter2]
+	ListOfNominalAt is a list of nominal and exceptionally string (empty lists) attributes like ['nominal'(genre, [rock, pop, country]), 		'nominal'(title, [])]
+
+	Note: The numerical ones will be at the top and the nominal and the end, so if this is not desired it's necessary to create and empty one and 
+	attributes one by one.
+
+	Note: The capacity doesn't seem to be relevant but it's necessary to create the dataSet.
+
+
+1.2. ADD ATTRIBUTES
+
+If the DataSet is empty or we need to add more attributes we can do it with the predicates wkpl_add_attribyte_xxxx/2 very easily. We need to specify the Index of them though, so that needs to be checked before adding them.
+
+
+1.3. CLASS ATTRIBUTE
+
+Normally, the classifiers need a Class attribute so it has to be set with
+
+-wkpl_set_class(+DataSet, +Attribute): given the attribute object
+
+-wkpl_set_classIndex(+DataSet, +Index): given the index of the attribute to be the class. (starting from 0).
+
+
+1.4. FILLING DATA ON THE DATASET
+
+To fill the data we just use one predicate 
+
+-wkpl_fill_dataSet(+DataSet, +ListOfRecords) where
+
+	ListOfRecords is a prolog list containing the values as a list (normally just double values as internal weka representation) for each attribute 	in a specific Instance object. For example:
+					
+		:-wkpl_fill_dataSet(DataSet, [[234.89, 45.9, 0.0], [675.45, 29.0, 1.0]])
+
+
+1.5. QUERYING DATASET
+
+There is a bunch of predicates to query the dataSet (look the source)
+
+
+1.5. SAVING DATASET
+
+wkpl_write_arff(File, DataSet) stores our DataSet in a ARFF file given the path to it.
+
+
+
