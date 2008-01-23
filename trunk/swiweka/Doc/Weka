@@ -1,0 +1,18 @@
+WEKA
+
+Uses ARFF format
+
+MODULES
+
+Filter
+Machine learning algorithms = CLASSIFIERS. Todos tienen interfaz comun y opciones comunes y especificas.
+Evaluation of machine learning algorithms
+
+
+
+
+TODO
+
+--arff files module
+--Listar classifieres
+--Listar filtros
