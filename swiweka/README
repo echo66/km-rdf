@@ -1,0 +1,20 @@
+SWIWEKA MODULE KM.
+David Pastor Escuredo 2008, c4dm, Queen Mary, University of London.
+
+This is an interface that allows to use the WEKA API for classification within the KM just with some predicates. It's built on the JPL interface available for SWI-Prolog as package (Paul Singleton). The detailed information is so far at the sources. The interface contains the following Prolog programs:
+
+--jpl_weka. This is a bunch of intermediate tools used to make easier the handling of WEKA using JPL. Some of them are deprecated and not used anymore
+
+--dataSet. This is the main part of the interface. It mainly wraps the weka.core. package of WEKA to deal with datasets (Instance, Attribute and Instance objects)
+
+--fastVector: Just few predicates to handle the weka.fastVector class
+
+--arrffFiles: Input/Output operations over ARFF file formats (The basic format supported by WEKA).
+
+--classifiers: Hides the constructors of each classifier with wkpl_classifier/2. The predicates are set with no options. Classifiers can be also created from classification.pl
+
+--classification: common calls to classifiers based on weka.classifiers.Classifier abstract class. It allows to set options and call the commong functions that each classifier must implement.
+
+--swiwekadb stuff: was aimed to handle ids for each JPL ref to java objects, but presents some garbage-collection problems.
+
+--Examples/: few examples of how to use the dataset predicates.
