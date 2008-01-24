@@ -64,7 +64,7 @@ wkpl_classifier_description(Classifier, Description):-
 
 wkpl_run_classifier(ClassifierName, Options, Evaluation):-
 		jpl_datums_to_array(Options, Args),
-		jpl_call('weka.core.Evaluation', evaluateModel, [Name, Args], Evaluation).
+		jpl_call('weka.core.Evaluation', evaluateModel, [ClassifierName, Args], Evaluation).
 	
 
 /**
@@ -74,7 +74,7 @@ wkpl_run_classifier(ClassifierName, Options, Evaluation):-
 		-Classification
 	
 	This is a very simple call which needs important considerations:
-		1. The classifier must be completely built and intialized with the options we want
+		1. The classifier must be already an instance with the set options but not built with the dataset.
 		2. The classification can be done with:
 			2.1. wkpl_classify_instance/2 and we get just one value for each instance, so at the end we get a simple list of values
 			with the classification of the instances (value within the class attribute I guess).
@@ -86,7 +86,8 @@ wkpl_run_classifier(ClassifierName, Options, Evaluation):-
 	predicate and will be loaded by classifiers.
 	*/
 
-wkpl_classify_dataSet(Classifier, Classification).
+wkpl_classify(Classifier, Dataset, Classification):-
+	wkpl_classify_dataSet(Classifier, Dataset, Classification).
 
 
 					/***********************************
