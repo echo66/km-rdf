@@ -1,13 +1,15 @@
 /**
 	Hiding the classifiers creation using the very specific last name in the class formal name
 	Just make the whoooole list. 
-	David PAstor 2008
+	David Pastor Escuredo 2008, c4dm, Queen Mary
 	*/
 
-:-[jpl_weka].
+:-[bayesNet].
+
+/** LOADING EACH INTERFACED CLASSIFIER **/
 
 /**
-	The number should be the rest of the class name deleting the commong weka.classifiers.
+	The number should be the rest of the class name deleting the commong weka.classifiers. Good idea¿?
 	*/
 
 wkpl_classifier(Name, Classifier):-

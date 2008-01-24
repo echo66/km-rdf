@@ -3,20 +3,18 @@
 	methods can be called separately and manually if the user knows how to do it properly. There is a wkpl_run_classifier that makes sort of the 
 	same that what the calling from the terminal does in the WEKA does.
 
-	Issues:
-		-how to manage the output
-		-specific calls individually
-		-wrap the main method of each one
+	This program imports classifiers which is a program to define specific-classifier predicates that will be hide within this program using the 
+	same name for any of them.
 
 	David Pastor Escuredo, c4dm, Queen Mary, 2008.
 	*/
 
 :-[dataSet].
-:-[classifiers].
+:-consult('/home/david/km-rdf/swiweka/Classifiers/classifiers').
 
-			/******************************************
-			******* GENERAL CLASSIFIER ****************
-			******************************************/
+			/***************************
+			******* GENERAL ************
+			***************************/
 
 /**
 	wkpl_classifier(Name, Classifier) from classifiers.pl hides the specific creation of each classifier type.
@@ -37,35 +35,6 @@
 wkpl_classifier(Name, Options, Classifier):-
 	jpl_datums_to_array(Options, Args),
 	jpl_call('weka.classifiers.Classifier', forName, [Name, Args], Classifier).
-			
-/**
-	Loads a dataset in the classifier passing a weka.Instances object that can be read from an arff file or somehow else.
-	Each classifier implements this in a different way.
-	*/
-
-wkpl_build_classifier(Dataset, Classifier):-
-	jpl_call(Classifier, buildClassifier, [Dataset], _).
-
-/**
-	Classifies an instance once the classifier has been built
-	wkpl_classify_instance(+Instance, +Classifier):-
-	*/
-
-wkpl_classify_instance(Instance, Classifier, Result):-
-	jpl_call(Classifier, classifyInstance, [Instance], Result).
-
-/**
-	Distribution fro instance. The result is a distribution
-	This is a method of the classes that are sublclasses of DistributionClassifier
-	*/
-
-wkpl_distributionFor_instance(Instance, Classifier, Result):-
-	jpl_call(Classifier, distributionForInstance, [Instance], Result).
-
-/**
-	One single predicate to make classification.
-	Should run over every instance of a dataset
-	*/
 
 /**
 	String description of the classifier. The important thing of the predicate that it gives information of the classifier status at different 
@@ -76,24 +45,49 @@ wkpl_classifier_description(Classifier, Description):-
 	jpl_call(Classifier, toString, [], Description).
 
 
-					/**********************************
-					********* EVALUATION **************
-					**********************************/
+					/*****************************************************
+					********* EVALUATION AND CLASSIFICATION **************
+					*****************************************************/
 
 /**
 	This predicate is equivalent to call the classifier from the terminal with the given options
-		+Name like weka.classifier.bayes.BayesNet
+		+Name like weka.classifier.bayes.BayesNet. It's not an actual instance!!
 		+Options: list of options as atoms ['-o /....', '-i /....', ...]
 		+A long string having the evaluation of the process
 
 	Look at the documentation about classification to see the options that are allowed generally.
 	For specific options of each classifier, would be necessary to go the WEKA API
+	
+	This is not the best way to run a classifier within the KM as we need to handle the acutal statistics of each instance for further 
+	processing. This may require a lot of effor to set a proper, sensible and handy way to deal with WEKA. Working on it...
 	*/
 
 wkpl_run_classifier(ClassifierName, Options, Evaluation):-
 		jpl_datums_to_array(Options, Args),
-		jpl_call('weka.core.Evaluation
+		jpl_call('weka.core.Evaluation', evaluateModel, [Name, Args], Evaluation).
 	
+
+/**
+	This a lower level alternative predicate to classify and run a classifier. We don't get as much information as with the previous one but we 
+	can handle the results in prolog for further management.
+		+Classifier
+		-Classification
+	
+	This is a very simple call which needs important considerations:
+		1. The classifier must be completely built and intialized with the options we want
+		2. The classification can be done with:
+			2.1. wkpl_classify_instance/2 and we get just one value for each instance, so at the end we get a simple list of values
+			with the classification of the instances (value within the class attribute I guess).
+
+			2.2. wkpl_distributionFor_instance/2 and we get a distribution of values for each instance as a prolog list and thefore a list
+			of sublists for the whole dataset.
+
+	The specific way is hidden by using classifiers.pl. Every interfaced classifier needs a specific prolog program for it implementing this
+	predicate and will be loaded by classifiers.
+	*/
+
+wkpl_classify_dataSet(Classifier, Classification).
+
 
 					/***********************************
 					*********** OPTIONS ****************
