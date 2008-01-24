@@ -1,7 +1,14 @@
 /**
+	Prolog wrapping WEKA Classification. It just contains the common calls to any classifier that inherit it from weka.classifier.Classifier. These 
+	methods can be called separately and manually if the user knows how to do it properly. There is a wkpl_run_classifier that makes sort of the 
+	same that what the calling from the terminal does in the WEKA does.
 
-	Prolog wrapping WEKA Classification
-	David Pastor 2008
+	Issues:
+		-how to manage the output
+		-specific calls individually
+		-wrap the main method of each one
+
+	David Pastor Escuredo, c4dm, Queen Mary, 2008.
 	*/
 
 :-[dataSet].
@@ -20,7 +27,7 @@
 
 	the name is 'bayes.BayesNet'
 
-	We don't really need it as we have wkpl_classifier/3
+	We don't really need it as we have wkpl_classifier/3 but we may want to create with t
 	*/
 
 /**
@@ -57,15 +64,36 @@ wkpl_distributionFor_instance(Instance, Classifier, Result):-
 
 /**
 	One single predicate to make classification.
-	Should run over every instance of a dataset.
+	Should run over every instance of a dataset
+	*/
 
-wkpl_classify_dataset(Dataset, Instance, Classfier, Result):-
-	wkpl_classify_instance(Instance, Classifier, Result).
+/**
+	String description of the classifier. The important thing of the predicate that it gives information of the classifier status at different 
+	times so we get dynamic information of the classifier and the classification set.
+	*/
 
-wkpl_classify(Instance, Classifier, Result):-
-	wkpl_distributionFor_instance(Instance, Classifier, Result).
+wkpl_classifier_description(Classifier, Description):-
+	jpl_call(Classifier, toString, [], Description).
 
-*/
+
+					/**********************************
+					********* EVALUATION **************
+					**********************************/
+
+/**
+	This predicate is equivalent to call the classifier from the terminal with the given options
+		+Name like weka.classifier.bayes.BayesNet
+		+Options: list of options as atoms ['-o /....', '-i /....', ...]
+		+A long string having the evaluation of the process
+
+	Look at the documentation about classification to see the options that are allowed generally.
+	For specific options of each classifier, would be necessary to go the WEKA API
+	*/
+
+wkpl_run_classifier(ClassifierName, Options, Evaluation):-
+		jpl_datums_to_array(Options, Args),
+		jpl_call('weka.core.Evaluation
+	
 
 					/***********************************
 					*********** OPTIONS ****************

@@ -9,6 +9,6 @@
 
 :-[jpl_weka].
 :-[classification].
-:-[arrFiles].
+:-[arffFiles].
 
 
