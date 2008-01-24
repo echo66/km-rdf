@@ -3,22 +3,25 @@
 	David Pastor 2008
 	*/
 
-:-[AbstractClassifier].
+:-[abstractClassifier].
 
 /* This classifier returns a distribution so a lis of doubles */
 
 wkpl_is_bayesNet(Classifier):-
-	jpl_class_to_classname(Classifier, Name),
+	jpl_ref_to_type(Classifier, Type),
+	jpl_type_to_classname(Type, Name),
 	Name = 'weka.classifiers.bayes.BayesNet'.
 
 wkpl_classify_dataSet(Classifier, Dataset, Classification):-
 	wkpl_is_bayesNet(Classifier),
 	wkpl_build_classifier(Dataset, Classifier),
-	jpl_call(Dataset, enumarateInstances, [], Enum),
+	jpl_call(Dataset, enumerateInstances, [], Enum),
 	jpl_enumeration_to_list(Enum, Instances),
-	findall(Result, wkpl_classify_instance_set_of(Instances, Classifier, Result), Classification).
+	findall(Result, wkpl_distributionFor_instance_of(Instances, Classifier, Result), Classification).
 	
 wkpl_get_graph(Classifier, Graph):-
 	wkpl_is_bayesNet(Classifier),
 	jpl_call(Classifier, graph, [], Graph).
+
+
 	
