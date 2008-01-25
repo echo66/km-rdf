@@ -9,7 +9,7 @@ This is an interface that allows to use the WEKA API for classification within t
 
 --fastVector: Just few predicates to handle the weka.fastVector class
 
---arrffFiles: Input/Output operations over ARFF file formats (The basic format supported by WEKA).
+--arffFiles: Input/Output operations over ARFF file formats (The basic format supported by WEKA).
 
 --classifiers: Hides the constructors of each classifier with wkpl_classifier/2. The predicates are set with no options. Classifiers can be also created from classification.pl
 

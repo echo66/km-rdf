@@ -33,54 +33,71 @@ static struct AudioDataRecord{
 }
 
 /*
- * Database with all the entries id/data
+ * Database with all the entries id/data. There is a maximum of ids in the system. This may be a significant limitation...
  */
 
 audio_data_db[MAX_AUDIO_ID_DB];
 
 /*
- * The number of ids created and stored in the database. Note that once an id is created it won't be deleted.
- * Note that may be id only reserved but without data associated
+ * This is the last ID created and assigned from the system. This doesn't mean this is the number of IDs on the database as we may have reserved
+ * some ids in higher positions of the database. This count is only meaningful to assing the lowest id possible to the new data. This will be useful
+ * to reuse ids in different sessions when we do not longer need certain ids.
  */
-size_t ids_in_system;
+
+size_t lastID = 0;
+
+/*
+ * This is the count of ids in the system. This is necessary to keep order in the database and put the ids in the lower positions. Therefore there is
+ * no necessary correspondence between the id and its position in the database
+ */
+size_t ids_in_system = 0;
 
 namespace DataID{
 /**** Implementation of functions *****/
 
 /**
-	We split this up from generate_free_id to make the code clearer
+	This function just creates the id atom using a given value as numerical identification for the id.
 */
 QString 
-generate_random_id(){
+generate_id(size_t value){
 
 	QString head("__data_");
-
-	//srand((unsigned)time(0)); 
-    	//size_t random; 
-   	//size_t lowest=1, highest=MAX_BLOBS; 
-   	//size_t range=(highest-lowest)+1; 
-   	//random = lowest+size_t(range*rand()/(RAND_MAX + 1.0)); 
-	//QString var((long)random, 10);
-	
-	//incremental id for blobs	
 	QString var;
 	var = QString("%1")
-		.arg((long)ids_in_system);
+		.arg((long)value);
 	head.append(var);
 	return head;
 }
 
 /**
 	This function give us an id of the form __data_x as QString. This function is in charged of
-	not generating id that alreay in the database.
+	not generating ids that alreay in the database.
+	
+	IMPORTANT NOTE: The method doesn't not reassign ids that are desactived because they could be probably retrieved from external storage and the
+	id would clash. We only assign ids that are not reserved or taken in one session, so IT IS USER'S RESONSABILITY to restore the session with the 
+	ids that will be necessary to keep in the KM.
+	Following this algorithm:
+		-Starts the count in lastID.
+		-Check if the corresponding ID is in the database if not return it.
+		-If it is in the database we increment the id which doesn't mean that it would be free as it could be reserved
+		independently of the lastID count we have
+		-If it is free create the ID and lastID is now updated to the last id which has been assigned.
+
+	This should work properly to avoid ids clashing and to reuse ids as we don't need some of them, BUT IS VERY IMPORTANT TO RESTORE THE
+	DATABASE RESERVING IDs EACH TIME. Which is sort of limitation. It may be the case we need to implement some algorithm to read files from a
+	folder and reserve every id associated with data
+	
 */
 QString
-generate_id(){
+generate_free_id(){
 
 	QString new_id;
-	new_id = generate_random_id();//actually it is incremental so far
+	new_id = generate_id(lastID);//with lastID variable
+
+	//if the ID exists it measn we can not use even it is active or not. The desactive ID's are reserved for a block of data within a session.
 	while(existing_id(new_id.toLocal8Bit().data())>=0){
-		new_id = generate_random_id();
+		lastID++;
+		new_id = generate_id(lastID);
 	}
 	return new_id;
 } 
@@ -94,7 +111,7 @@ const char *
 assign_data_id(vector<float> *data)
 {
 	QString ident;
-	ident = generate_id();//this is already in charge of giving as an unusued or reserved id
+	ident = generate_free_id();
 	audio_data_db[ids_in_system].id = ident;
 	audio_data_db[ids_in_system].active = 1;
 	audio_data_db[ids_in_system].data = data;
@@ -238,19 +255,21 @@ active_id(const char *ident)
 
 /**
 	This function reserves an id in the database even when there is no data for it, setting active to 0. Returns 0 if success and negative if fails
+	This should be done at the startup, otherwise the system can not ensure that the id is not taken by another new block of data.
+	Note that his method doesn't increment lastID and therefore can be more ids that lastID count.
 */
 int
 reserve_id(const char *ident)
 {
 	if(existing_id(ident)<0){
 
-		if(ids_in_system == MAX_AUDIO_ID_DB){
+		if(lastID == MAX_AUDIO_ID_DB){
 			std::cerr<<"more blobs than possible"<<std::endl;
 			return -2;
 		}		
 		audio_data_db[ids_in_system].id = ident;
 		audio_data_db[ids_in_system].active = 0;
-		ids_in_system++;
+		ids_in_system++;//we increment the ids in system but not the lastID count
 		std::cerr<<ident<<" reserved"<<std::endl;
 		return 0;
 
@@ -262,6 +281,9 @@ reserve_id(const char *ident)
 
 /**
 	Delete the data for the id and desactive it. This is the way we are going to use to free space in memory!!! IMPORTANT!!!
+	We don't remove the id and we don't reuse ids during the session.
+
+	WE MAY NEED TO CHANGE THIS BEHAVIOUR LATER ON
 	
 	Just with a prolog version of this we do clean_data(ID), we delete the raw data in memory. The blobs used to wrap this data will be
 	garbage-collected at some point. This new implementation manages far better the memory resources
@@ -287,7 +309,7 @@ clean_data_for_id(const char* ident){
 }
 
 /**
-	Returns the number of id in the database
+	Returns the number of ids in the database
 */
 size_t
 ids_in_db()
