@@ -1,0 +1,7 @@
+KM::similarity
+
+David Pastor Escuredo, Jan 2008, c4dm.
+
+This is a module designed to process feature similarity. Contains-
+
+SBSimilarity: Implements the SoundBite similarity mechanism.
