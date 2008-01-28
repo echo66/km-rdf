@@ -6,7 +6,9 @@
 #ifndef _AUDIO_BLOB_H_
 #define _AUDIO_BLOB_H_
 
+#ifndef _FLI_H_INCLUDED
 #include <SWI-cpp.h>
+#endif
 #include <vector>
 
 /** 
