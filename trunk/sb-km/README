@@ -1,0 +1,19 @@
+/**
+	This module defines SoundBite built on top the KM. It is aimed to perform the same functions but with two improvements:
+		-multiple feature extracte based system
+		-rdf talking output
+	
+	David Pastor 2008, c4dm
+	*/
+
+
+module(soundbite, [sbkm_similarity/3]).
+
+:- style_check(-discontiguous).
+use_module('home/david/km-rdf/swivamp/vamp').
+use_module('home/david/km-rdf/swiaudiodata/audiodata').
+use_module('home/david/km-rdf/swiauiosource/audiosource').
+use_module('home/david/km-rdf/similarity/similarity').
+
+sbkm_similarity(Track1, Track2, Distance):-
+	
