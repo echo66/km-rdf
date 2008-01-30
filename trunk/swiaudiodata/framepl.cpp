@@ -61,10 +61,7 @@ PREDICATE(get_frame, 4){
 	if(DataID::get_data_for_id((const char *)id1, ch1)<=0){
 		return false;
 	}
-	if(DataID::get_data_for_id((const char *)id2, ch2)<=0){
-		return false;
-	}
-	
+		
 	//Checks that the frame requested is within the signal passed
 	long limit;
 	PL_get_long(samples_channel, &limit);
@@ -83,7 +80,10 @@ PREDICATE(get_frame, 4){
 	f1_id = term_t(PlTerm(PlAtom(DataID::assign_data_id(select_frame(start, start+size-1, ch1)))));	
 	int channels;
 	PL_get_integer(channel_count, &channels);
-	if(channels == 2){	
+	if(channels == 2){
+
+		if(DataID::get_data_for_id((const char *)id2, ch2)<=0){
+		return false;	}	
 		f2_id = term_t(PlTerm(PlAtom(DataID::assign_data_id(select_frame(start, start+size-1, ch2)))));	
 	}else{
 			f2_id = term_t(PlTerm(PlAtom("")));
