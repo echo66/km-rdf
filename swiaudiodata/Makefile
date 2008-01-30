@@ -37,6 +37,7 @@ SWI_MOPL = mopl.cpp
 SWI_FRAME = framepl.cpp
 SWI_ABPL = audioblobpl.cpp
 SWI_BID = blobidpl.cpp
+SWI_MIX = mixer.cpp
 
 #Objects
 
@@ -44,6 +45,7 @@ OBJ_MOPL = mopl.o
 OBJ_FRAME = framepl.o
 OBJ_ABPL = abpl.o
 OBJ_BID = blobid.o
+OBJ_MIX = mixer.o
 
 #DLIB
 
@@ -51,6 +53,9 @@ AUDIODATA = swiaudiodata.so
 
 #Targets
 all : $(AUDIODATA)
+
+$(OBJ_MIX) :
+	$(CPP) -c $(CFLAGS) $(INCLUDE) $(SWI_MIX) -o $(OBJ_MIX)
 
 $(OBJ_MOPL) :
 	$(CPP) -c $(CFLAGS) $(INCLUDE) $(SWI_MOPL) -o $(OBJ_MOPL)
@@ -64,8 +69,8 @@ $(OBJ_ABPL) :
 $(OBJ_BID) :
 	$(CPP) -c $(CFLAGS) $(INCLUDE) $(SWI_BID) -o $(OBJ_BID)
 
-$(AUDIODATA) : $(OBJ_FRAME) $(OBJ_MOPL) $(OBJ_ABPL) $(OBJ_BID) Makefile
-	$(CPP) -shared $(LIB) $(OBJ_MOPL) $(OBJ_FRAME) $(OBJ_ABPL) $(OBJ_BID) -o $(AUDIODATA) 
+$(AUDIODATA) : $(OBJ_FRAME) $(OBJ_MOPL) $(OBJ_ABPL) $(OBJ_BID) $(OBJ_MIX) Makefile
+	$(CPP) -shared $(LIB) $(OBJ_MOPL) $(OBJ_FRAME) $(OBJ_ABPL) $(OBJ_BID) $(OBJ_MIX) -o $(AUDIODATA) 
 
 clean :
 	rm *.o *.so

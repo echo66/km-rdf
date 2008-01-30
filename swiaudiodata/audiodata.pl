@@ -13,7 +13,10 @@
 			get_frame_timestamp/2,
 			set_limit_framing/3,
 
-			/* Handling binary data */
+			/*mixing*/
+			adpl_mix_stereo/2,			
+
+			/* Handling binary data. This might me in some other place */
 			pointerBlob_to_list/2,
 			vectorBlob_to_list/2,
 			list_to_pointerBlob/2,

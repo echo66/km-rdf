@@ -111,7 +111,9 @@ signal(term_t channel_count, term_t sample_rate, term_t samples_channel, term_t 
 		term_t pcm = PL_new_term_ref();
 		PL_put_nil(pcm);
 		int channels;
+		
 		PL_get_integer(channel_count, &channels);
+		std::cerr<<channels<<std::endl;
 		if(channels==2){
 			PL_cons_list(pcm, pcm_ch2, pcm);
 		}	
