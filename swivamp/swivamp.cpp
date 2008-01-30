@@ -3,6 +3,15 @@
  * This C/C++ source defines foreign functions a library for swivamp. Mainly type-conversion stuff
  * David Pastor Escuredo 2007
  *
+ * ToDo:
+ 	1- So far we just pass frames to the predicate wrapping the process method. It may be interesting to pass the whole signal and get comletely
+	responsible of the framing as it can reduces time in some cases.
+	
+	2- We are only supporting 2 channels signals and 2 channels input blocks for the plugin. We should support more as some plugins may need to have
+	more channels as input.
+
+	3- The only way to run a process is just by giving a frame from a specific signal. We want to give the whole signal and frames from different 
+	signals as well, forming a multichannel block if necessary.
  */
 
 #include <swivamp.h>
@@ -122,7 +131,7 @@ vmpl_frame_to_input(term_t frame){
 	vector<float> *vector_ch2;
 	DataID::get_data_for_id((const char *)id1, vector_ch1);
 
-
+	cerr<<channels<<endl;
 	//Creating the multidimensional array as input
 	float **plugbuf = new float*[channels];
 	for (int c = 0; c < channels; ++c){
@@ -131,7 +140,7 @@ vmpl_frame_to_input(term_t frame){
     
 	size_t j = 0;
         while (j < vector_ch1->size()) {
-                plugbuf[1][j] = vector_ch1->at(j);
+                plugbuf[0][j] = vector_ch1->at(j);
                 ++j;
         }
 	if(channels==2){

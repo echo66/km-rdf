@@ -3,7 +3,8 @@
 	Music Ontlogy objects/class.
 	So the prolog interface matches semantically with the OWL definition of the Music Ontology (Yves Raimond, c4dm).
 	David Pastor 2007 for c4dm at Queen Mary, University of London.
-	toDo: check if this works fine for mono as well. 
+	
+	ToDo: This works for mono and stereo signals, I should extend it to support n probably using an array of pcm ids.
 */ 
 
 #include "swimo.h"
@@ -36,6 +37,8 @@ functor_t feature_t = PL_new_functor(PL_new_atom("Feature"), 3);//MO::feature
 	and unifies to frame_term obtaining:
 										
 					'Frame'(channels, sample rate,  initpos, [listOfPcm])
+
+	For mono we just have one element in the list adn we can't have more than 3.
 
 	NOTE: The length of the frame is not stored in here as it can be retrieved using the swiaudioblob library¡
 
@@ -75,7 +78,7 @@ frame(term_t channel_count, term_t sample_rate, term_t first_sample_pos, term_t 
 		int channels;
 		PL_get_integer(channel_count, &channels);
 		if(channels==2){
-			PL_get_list(pcm, pcm_ch2, pcm);
+			PL_get_list(pcm, pcm_ch2, pcm);//if there is one just channel, the term is not unified.
 		}	
 	}
 }

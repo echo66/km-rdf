@@ -1,7 +1,8 @@
 /**
 	Feature Extraction module for the KM
-	David Pastor Jan 2008, c4dm, Queen Mary, University of London.
+	David Pastor Escuredo. Jan 2008, c4dm, Queen Mary, University of London.
 	ToDo: formalize this properly and documentation.
+	So far, we just retrieve vamp features.
 	*/
 
 :-module(feature_extraction, [feature_of/3
@@ -15,16 +16,15 @@
 
 :-style_check(-discontiguous).
 
-feature_of(FeatureType, AudioFile, Feature):-
-	findall([Features, Remaining], get_feature_of(FeatureType, AudioFile, Features, Remaining), RawList),
+feature_of(FeatureType, Signal, Feature):-
+	findall([Features, Remaining], get_feature_of(FeatureType, Signal, Features, Remaining), RawList),
 	flatten(RawList, Feature).
 
-get_feature_of(FeatureType, AudioFile, Features, Remaining) :-
+get_feature_of(FeatureType, Signal, Features, Remaining) :-
 	vamp_plugin_for(PluginKey, FeatureType, Output),
-	vamp_output(PluginKey, AudioFile, Output, Features, Remaining).
+	vamp_output(PluginKey, Signal, Output, Features, Remaining).
 
-vamp_output(PluginKey,AudioFile,Output,Features, Remaining) :-
-	aspl_decode(AudioFile, Signal),
+vamp_output(PluginKey, Signal, Output, Features, Remaining) :-
 	vmpl_load_plugin_for(PluginKey,Signal,Plugin),
 	vmpl_get_blockSize(Plugin, BlockSize),
 	vmpl_get_stepSize(Plugin, StepSize),
