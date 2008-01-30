@@ -14,7 +14,7 @@
 			set_limit_framing/3,
 
 			/*mixing*/
-			adpl_mix_stereo/2,			
+			mix_stereo/2,			
 
 			/* Handling binary data. This might me in some other place */
 			pointerBlob_to_list/2,

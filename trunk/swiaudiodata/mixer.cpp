@@ -1,5 +1,5 @@
 /**
-	This is a library to mix down stereo signals to mono ones.	
+	This is a library to mix down stereo signals to mono ones. We can not try to mix signals with more than 2 channels.	
 	David Pastor 2008 for c4dm, Queen Mary, University of London
 */
 
@@ -21,7 +21,7 @@ using namespace std;
 	adpl_mix_stereo(+StereoSignal, -MonoSignal).
 	*/
 
-PREDICATE(adpl_mix_stereo, 2){
+PREDICATE(mix_stereo, 2){
 
 	//+stereo
 	//-mono
@@ -47,7 +47,7 @@ PREDICATE(adpl_mix_stereo, 2){
 
 	vector<float> *ch1;
 	vector<float> *ch2;
-	if(DataID::get_data_for_id((const char *)id1, ch1)<=0){
+	if(DataID::get_data_for_id((const char *)id1, ch1)<=0){//this check is not really important if the rest of the system works well.
 		return false;
 	}
 
@@ -56,7 +56,7 @@ PREDICATE(adpl_mix_stereo, 2){
 
 	if(channels == 1){ return true;} //not necessary to support more channels
 	else if(channels == 2){
-		if(DataID::get_data_for_id((const char *)id2, ch2)<=0){
+		if(DataID::get_data_for_id((const char *)id2, ch2)<=0){//we only check
 			return false;
 		}
 		
@@ -66,12 +66,17 @@ PREDICATE(adpl_mix_stereo, 2){
 		mono = new vector<float>;
 		for(size_t j=0; j < ch1->size(); j++){
 
-			mono->push_back((float)(ch1->at(j)+ch2->at(j))/(float)2);//test if it works.
+			float mean = (float)ch1->at(j)+ch2->at(j);
+			mean = mean /2.0;
+			mono->push_back(mean);
+			//cerr<<mean<<endl;
+			//cerr<<ch1->at(j)<<endl;
+			//cerr<<ch2->at(j)<<endl;
 		}
 	
 		//new signal
 		term_t mono_t = term_t(PlTerm(PlAtom(DataID::assign_data_id(mono))));
-		term_t empty = term_t(PlTerm(PlAtom("")));
+		term_t empty = term_t(PlTerm(PlAtom("")));//we pass this, but swimo is in charge of not even read it and just put one id in the list
 
 		term_t mono_channel = PL_new_term_ref();
 		int c = 1;

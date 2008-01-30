@@ -82,12 +82,14 @@ PREDICATE(get_frame, 4){
 	PL_get_integer(channel_count, &channels);
 	if(channels == 2){
 
-		if(DataID::get_data_for_id((const char *)id2, ch2)<=0){
-		return false;	}	
+		if(DataID::get_data_for_id((const char *)id2, ch2)<=0){//we could skip this
+			return false;	
+		}	
 		f2_id = term_t(PlTerm(PlAtom(DataID::assign_data_id(select_frame(start, start+size-1, ch2)))));	
 	}else{
-			f2_id = term_t(PlTerm(PlAtom("")));
-		}
+			f2_id = term_t(PlTerm(PlAtom("")));//we don't try to read it as the ch2 will be empty, so we just pass this and swimo will
+							   //jus create a frame with one pcm id in the list
+	}
 	MO::frame(channel_count, sample_rate, initpos, f1_id, f2_id, frame);//swimo.h
 	
 	return A4 = PlTerm(frame);
