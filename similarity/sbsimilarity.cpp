@@ -1,7 +1,7 @@
 /**
 	This is the SoundBite similarity mechanism applied for the KM equivalent to SBFeatureVector. This module returns an statistic distance which 
 	allow the creation of playlists.
-	We use the mean and variance of a the MFCC's to extract the distance using 
+	We use the mean and variance of a the MFCC's to extract the distance using (also from chromagram).
 	David Pastor Escuredo, Jan 2008, c4dm, Queen Mary.
 	*/
 
@@ -39,6 +39,7 @@ smpl_parse_SBFeatures(PlTerm, vector<double> *, vector<double> *);//no se si los
 //	
 //			Input is a list of features ['MFFCCMEAN', 'MFCCVAR'] which each of them has the syntax of any swivamp feature.
 //			Returns a distance between the audiofiles with the features belong to
+//			This features come from the similarity vamp plugin. The means and variances can be also extracted from the chromagram.
 //
 //--------------------------------------------------------------------------
 
@@ -142,7 +143,7 @@ smpl_parse_SBFeatures(PlTerm fv, vector<double> *mean, vector<double> *var){
 			PlAtom type(feature[0]);
 
 			//need to check this from the plugin.
-			if(type=="mfccMean"){
+			if(type=="means"){
 			
 				vector<float> *data;
 				DataID::get_data_for_id((const char*)(char *)feature[2], data);
@@ -150,7 +151,7 @@ smpl_parse_SBFeatures(PlTerm fv, vector<double> *mean, vector<double> *var){
 				mean->push_back((double)data->at(0));//should be just one value in this feature type.
 				return 0;
 			}
-			else if(type=="mfccVar"){
+			else if(type=="variances"){
 				
 				vector<float> *data;
 				DataID::get_data_for_id((const char*)(char *)feature[2], data);

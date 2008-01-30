@@ -131,7 +131,6 @@ vmpl_frame_to_input(term_t frame){
 	vector<float> *vector_ch2;
 	DataID::get_data_for_id((const char *)id1, vector_ch1);
 
-	cerr<<channels<<endl;
 	//Creating the multidimensional array as input
 	float **plugbuf = new float*[channels];
 	for (int c = 0; c < channels; ++c){
