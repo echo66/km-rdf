@@ -12,8 +12,10 @@
 			get_frame/4,
 			get_frame_timestamp/2,
 			set_limit_framing/3,
+			set_framing/4,
+			framed_signal/4,
 
-			/*mixing*/
+			/* mixing */
 			mix_stereo/2,			
 
 			/* Handling binary data. This might me in some other place */
@@ -65,7 +67,27 @@
 *	There is another bunch of predicates to query frames, channels and significant signal details. We obtain signals from the module swiaudiosource
 */
 
-/** PREDICATES **/
+/** PREDICATES */
+
+/**
+	framed_signal(+Signal, +StepSize, +BlockSize, -FramedSignal): Returns a framed signal (list of Frames for the given signal) 
+	for the passed parameters.
+	*/
+framed_signal(Signal, StepSize, BlockSize, FramedSignal):-
+	get_samples_per_channel(Signal, N),
+	findall([Frame], retrieve_frame(Signal, StepSize, BlockSize, N, Frame), FramedSignal).
+
+retrieve_frame(Signal, StepSize, BlockSize, N, Frame):-
+	set_framing(StepSize, N, _, Start),
+	get_frame(Signal, Start, BlockSize, Frame).
+	
+/**
+	Sets the framing. Sets the Start of each frame. It's an iterative way to go through all the frames using between/3. We then findall the frames.
+	*/
+set_framing(StepSize, Samples, Limit, Start):-
+	set_limit_framing(Samples, StepSize, Limit),
+	between(0, Limit, N),
+	Start is StepSize * N.
 
 /**
 	is_data_id(+DataID): True if this is an id for data stored in the system at the running session. The id may be active or not (with actual data 	
@@ -122,6 +144,11 @@ data_in(FilePath, ID):-
 
 /**
 	get_samples_per_channel(+Signal, -SamplesPerChannels). Check mopl.cpp
+
+*/
+
+/**
+	set_limit_framing(+SamplesChannel, +StepSize, -Limit)
 
 */
 
