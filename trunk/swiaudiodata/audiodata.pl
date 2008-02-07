@@ -2,6 +2,8 @@
 	Prolog module to work with audiodata extracted from the audiosource module. 
 	It handles the data using ID and with the Blobs when it is specifically queried
 	David Pastor 2007, c4dm, Queen Mary, University of London
+
+	ToDo: this module puts a lot of things together that may be useful to define somewhere else...
 */
 
 :- module(audiodata,[
@@ -14,6 +16,10 @@
 			set_limit_framing/3,
 			set_framing/4,
 			framed_signal/4,
+			framed_signal_bis/4, /*evaluate which is better*/
+			clean_frame/1,
+			clean_pcm/1,
+			clean_signal/1,
 
 			/* mixing */
 			mix_stereo/2,			
@@ -67,13 +73,26 @@
 *	There is another bunch of predicates to query frames, channels and significant signal details. We obtain signals from the module swiaudiosource
 */
 
+
+/** RETURNED FUNCTORS REPRESENTING AUDIO DATA 
+*
+* These functos must be managed by any km-rdf client:
+
+		'Frame'(channels, sample rate,  initpos, [listOfPcm])
+		'Signal'(channels, samplerate, samples/channel, [listOfPcm])
+		'Timestamp'(start, duration)	
+		'Feature'(type, MO::timestamp, Event)
+*/
+
+
 /** PREDICATES */
 
 /**
 	framed_signal(+Signal, +StepSize, +BlockSize, -FramedSignal): Returns a framed signal (list of Frames for the given signal) 
 	for the passed parameters.
+	We have to version. One is based on between and findall and the other in recursive access to lists (last one sounds better)
 	*/
-framed_signal(Signal, StepSize, BlockSize, FramedSignal):-
+framed_signal_bis(Signal, StepSize, BlockSize, FramedSignal):-
 	get_samples_per_channel(Signal, N),
 	findall([Frame], retrieve_frame(Signal, StepSize, BlockSize, N, Frame), FramedSignal).
 
@@ -81,6 +100,20 @@ retrieve_frame(Signal, StepSize, BlockSize, N, Frame):-
 	set_framing(StepSize, N, _, Start),
 	get_frame(Signal, Start, BlockSize, Frame).
 	
+framed_signal(Signal, StepSize, BlockSize, FramedSignal):-
+	get_samples_per_channel(Signal, N),
+	set_limit_framing(N, StepSize, Limit),
+	numlist(0, Limit, List),
+	FramedSignal = [],
+	create_frames(Signal, StepSize, BlockSize, List, FramedSignal).
+
+create_frames(_, _, _, [], _).
+create_frames(Signal, StepSize, BlockSize, [H|T], FramedSignal):-
+	Start is StepSize*H,
+	get_frame(Signal, Start, BlockSize, Frame),
+	append(FramedSignal, [Frame], NewList),
+	create_frames(Signal, StepSize, BlockSize, T, NewList).
+
 /**
 	Sets the framing. Sets the Start of each frame. It's an iterative way to go through all the frames using between/3. We then findall the frames.
 	*/
@@ -216,4 +249,29 @@ data_in(FilePath, ID):-
 /**
 	file_to_blob(+FilePath, +Blob): reads the file and stores the data pointing it by the blob
 */
+
+/**
+	Cleans the binary data of a frame from memory, we don't really to keep this intermediate result I guess
+
+		clean_frame(+Frame)
+
+	Remember the pcm data is '__data_id'
+*/
+clean_frame('Frame'(Channels, SampleRate, Start, ListPcm)):-
+	clean_pcm(ListPcm).
+
+/**
+	clean_pcm(ListOFPcmChannel).
+*/
+clean_pcm([]).
+clean_pcm([H|T]):-
+	clean_data(H),
+	clean_pcm(T).	
+	
+/**
+	Same for signal
+*/
+clean_signal('Signal'(Channels, SampleRate, Samples, ListPcm)):-
+	clean_pcm(ListPcm).
+
 
