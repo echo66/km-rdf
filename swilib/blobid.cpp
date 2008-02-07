@@ -304,7 +304,7 @@ clean_data_for_id(const char* ident){
 	audio_data_db[(size_t)pos].data = 0;//reset the pointer
 
 	//What happens to the reference to the blob once we have deleted the data?????
-	std::cerr<< ident <<" free"<<std::endl;
+	//std::cerr<< ident <<" free"<<std::endl;
 	return 0;
 }
 
