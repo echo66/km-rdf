@@ -15,8 +15,9 @@
 				,	feature/1
 				,	feature_of/3
 				,	vamp_feature_of/3
-				,	vamp_process_signal/6
+				,	vamp_process_signal/7
 				,	vamp_process_frame/4
+				, 	vamp_compute_feature/6
 
 				/**,	vamp_feature_of_framing/5
 				, 	vamp_process_frames/4*/
@@ -88,20 +89,26 @@ select_plugin(Type, PluginKey, Output):-
 	arbitrary ones Step=1024 Block=2048. If we need specific options for this we should use the framing version of this predicate.
 	The main difference is that here we get the frames on the air instead of creating a framed version of the signal.
 */
-vamp_feature_of(Type, Signal, Features) :-
+vamp_feature_of(Type, Signal, WholeFeature) :-
 	select_plugin(Type, PluginKey, Output),
 	vmpl_load_plugin_for(PluginKey, Signal, Plugin),
 	set_blockSize(Plugin, BlockSize),
 	set_stepSize(Plugin, StepSize),
 	get_channels(Signal, Channels),
 	vmpl_initialize_plugin(Plugin, Channels, StepSize, BlockSize),
-	vamp_process_signal(Signal, StepSize, BlockSize, Output, Plugin, Features).
+	vamp_compute_feature(Signal, StepSize, BlockSize, Output, Plugin, WholeFeature).
 
-/**, 
-	get_sample_rate(Signal, SampleRate),
+vamp_compute_feature(Signal, StepSize, BlockSize, Output, Plugin, WholeFeature):-
+	get_samples_per_channel(Signal, Samples),
+	findall([Features], vamp_process_signal(Signal, Samples, StepSize, BlockSize, Output, Plugin, Features), FeatureSet),
+	get_sample_rate(Signal, SampleRate),	
 	vmpl_remaining_features(Plugin, Samples, SampleRate, Output, Remaining),
-	append(FeatureSet, Remaining, Features).*/
+	append(FeatureSet, Remaining, RawList),
+	flatten(RawList, WholeFeature).
 
+/**
+	Set the step and block sizes
+*/
 set_stepSize(Plugin, StepSize):-	
 	vmpl_get_stepSize(Plugin, StepSize),
 	StepSize = 0, !, StepSize is 1024; vmpl_get_stepSize(Plugin, StepSize).
@@ -115,11 +122,9 @@ set_blockSize(Plugin, BlockSize):-
 	This is implemented as non-deterministic predicate.
 	It cleans the data of each frame from memory after returning the feature
 		
-		vamp_process_signal(Signal, StepSize, BlockSize, Output, Plugin, FeatureSet)
+		vamp_process_signal(+Signal, +Samples/Channel, +StepSize, +BlockSize, +Output, +Plugin, -FeatureSet)
 */
-
-vamp_process_signal(Signal, StepSize, BlockSize, Output, Plugin, FeatureSet):-	
-	get_samples_per_channel(Signal, Samples),
+vamp_process_signal(Signal, Samples, StepSize, BlockSize, Output, Plugin, FeatureSet):-	
 	set_limit_framing(Samples, StepSize, Limit),	
 	set_framing(StepSize, Samples, Limit, Start),
 	get_frame(Signal, Start, BlockSize, Frame),
