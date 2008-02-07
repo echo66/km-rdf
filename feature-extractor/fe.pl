@@ -8,7 +8,7 @@
 	
 	*/
 
-:-module(feature_extraction, [decode/2
+:-module(fe, [decode/2
 				,	decode_mono/2
 				,	decode_framed/4
 				,	feature/2
