@@ -257,7 +257,7 @@ data_in(FilePath, ID):-
 
 	Remember the pcm data is '__data_id'
 */
-clean_frame('Frame'(Channels, SampleRate, Start, ListPcm)):-
+clean_frame('Frame'(_Channels, _SampleRate, _Start, ListPcm)):-
 	clean_pcm(ListPcm).
 
 /**
@@ -271,7 +271,7 @@ clean_pcm([H|T]):-
 /**
 	Same for signal
 */
-clean_signal('Signal'(Channels, SampleRate, Samples, ListPcm)):-
+clean_signal('Signal'(Channels, _SampleRate, _Samples, _ListPcm)):-
 	clean_pcm(ListPcm).
 
 
