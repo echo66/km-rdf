@@ -271,7 +271,7 @@ clean_pcm([H|T]):-
 /**
 	Same for signal
 */
-clean_signal('Signal'(Channels, _SampleRate, _Samples, _ListPcm)):-
+clean_signal('Signal'(_Channels, _SampleRate, _Samples, ListPcm)):-
 	clean_pcm(ListPcm).
 
 
