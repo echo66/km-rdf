@@ -13,6 +13,7 @@ server :-
 server(Port) :-
 	serql_server([port(Port)]).
 
+:- server.
 
 :- use_module('dsp-builtins/aspl_builtins').
 
