@@ -1,4 +1,4 @@
-:- module(persist,[bin_db/1,assert_tabled/1,tabled/1,persist/2,s_table/1]).
+:- module(persist,[mem_load/1,bin_db/1,assert_tabled/1,tabled/1,persist/2,s_table/1]).
 
 
 :- use_module(library('semweb/rdf_db')).
@@ -43,6 +43,21 @@ persist_node(N) :-
 	writeln(data_out(N,File)),!,
 	data_out(N,File),clean_data(N).
 persist_node(_).
+
+
+mem_load(N) :-
+	atomic(N),
+	atom_concat('__data_',_Id,N),
+	bin_db(DB),!,
+	((reserve_id(N),!);true),
+	format(atom(File),'~w/~w',[DB,N]),
+	writeln(data_in(File,N)),
+	data_in(File,N),
+	on_backtracking(N).
+mem_load(_).
+
+on_backtracking(_).
+on_backtracking(N) :- clean_data(N),!,fail.	
 
 
 /**
