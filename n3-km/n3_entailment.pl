@@ -138,8 +138,8 @@ compile_builtins :-
 			
 			format(user_error, 'DEBUG: Asserting ~w :- ~w\n',[rdf_b(S,P,O),(convert(S,O,Args,B),merge_bindings(B),catch(apply(PlPred,Args),_,fail))]),
 			%assert(':-'(rdf_b(S,P,O),(tabled(P),check(rdf(S,P,O)),!,format(user_error,'DEBUG: Retrieving ~w\n',[rdf(S,P,O)])))), %only for det predicates
-			assert(':-'(rdf_b(S,P,O),(tabled(P),\+rdf_db:rdf(S,P,O),copy_term((S,O),(S2,O2)),format(user_error,'DEBUG: Evaluating ~w\n',[rdf(S,P,O)]),rdf_b2(S2,P,O2),!,persist(rdf(S2,P,O2),rdf(S,P,O))))),
-			assert(':-'(rdf_b(S,P,O),(\+tabled(P),rdf_b2(S,P,O)))),
+			assert(':-'(rdf_b(S,P,O),(\+tabled(P),!,rdf_b2(S,P,O)))),
+			assert(':-'(rdf_b(S,P,O),(tabled(P),\+check(rdf(S,P,O)),copy_term((S,O),(S2,O2)),format(user_error,'DEBUG: Evaluating ~w\n',[rdf(S,P,O)]),rdf_b2(S2,P,O2),!,persist(rdf(S2,P,O2),rdf(S,P,O))))),
 			assert(':-'(rdf_b2(S,P,O),(Args=[S,O],format(user_error,'DEBUG: ~w\n',[apply(PlPred,Args)]),catch(apply(PlPred,Args),_,fail))))
 		)
 	).
@@ -260,9 +260,16 @@ list_to_conj([H|T],(H,T2)) :-
 	list_to_conj(T,T2).
 
 
+pl_list_to_rdf_list([H],[rdf(H2,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',H3),rdf(H2,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest','http://www.w3.org/1999/02/22-rdf-syntax-ns#nil')|Triples],H2) :- is_list(H),pl_list_to_rdf_list(H,Triples,H3),!.
 pl_list_to_rdf_list([H],[rdf(H2,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',H),rdf(H2,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest','http://www.w3.org/1999/02/22-rdf-syntax-ns#nil')],H2) :- !.
+pl_list_to_rdf_list([H|T],[rdf(H2,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',H3),rdf(H2,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',T2)|Triples],H2) :-
+	is_list(H),!,
+        pl_list_to_rdf_list(H,Triples1,H3),
+        pl_list_to_rdf_list(T,Triples2,T2),
+        append(Triples1,Triples2,Triples).
 pl_list_to_rdf_list([H|T],[rdf(H2,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',H),rdf(H2,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',T2)|Triples],H2) :-
 	pl_list_to_rdf_list(T,Triples,T2).
+
 
 /**
  * A couple of list-related builtins 

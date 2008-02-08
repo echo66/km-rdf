@@ -1,4 +1,4 @@
-:- module(persist,[mem_load/1,bin_db/1,assert_tabled/1,tabled/1,persist/2,s_table/1]).
+:- module(persist,[check/1,mem_load/1,bin_db/1,assert_tabled/1,tabled/1,persist/2,s_table/1]).
 
 
 :- use_module(library('semweb/rdf_db')).
@@ -13,9 +13,11 @@ bin_db(bin_db).
 	bin_db(DB),
 	(exists_directory(DB) -> true; make_directory(DB)).
 
+check(rdf(S,P,O)) :-
+	rdf_db:rdf(S,P,O),!.
 
 tabled(Predicate) :-
-	rdf_db:rdf(Predicate,rdf:type,t:'TabledPredicate').
+	rdf_db:rdf(Predicate,rdf:type,t:'TabledPredicate'),!.
 :- rdf_meta assert_tabled(r).
 assert_tabled(Predicate) :-
 	rdf_db:rdf_assert(Predicate,rdf:type,t:'TabledPredicate').
