@@ -17,15 +17,16 @@
 				,	vamp_feature_of/3
 				,	vamp_process_signal/7
 				,	vamp_process_frame/4
+				, 	vamp_process_frames/4
 				, 	vamp_compute_feature/6
-
-				/**,	vamp_feature_of_framing/5
-				, 	vamp_process_frames/4*/
+				,	vamp_compute_feature_frames/6
 				]).
 
-:-use_module('../swiaudiodata/audiodata').
-:-use_module('../swivamp/vamp').
-:-use_module('../swiaudiosource/audiosource').
+:-use_module('/home/david/km-rdf/swiaudiodata/audiodata').
+:-use_module('/home/david/km-rdf/swivamp/vamp').
+:-use_module('/home/david/km-rdf/swiaudiosource/audiosource').
+
+:-[features]. /** specific procedures dealing with plugins */
 
 :-style_check(-discontiguous).
 
@@ -98,6 +99,10 @@ vamp_feature_of(Type, Signal, WholeFeature) :-
 	vmpl_initialize_plugin(Plugin, Channels, StepSize, BlockSize),
 	vamp_compute_feature(Signal, StepSize, BlockSize, Output, Plugin, WholeFeature).
 
+/**
+	This predicate allow us to compute features given the entire signal or a framed version of it.
+	It returns the whole list of features collected from the non-deterministic predicate
+*/
 vamp_compute_feature(Signal, StepSize, BlockSize, Output, Plugin, WholeFeature):-
 	get_samples_per_channel(Signal, Samples),
 	findall([Features], vamp_process_signal(Signal, Samples, StepSize, BlockSize, Output, Plugin, Features), FeatureSet),
@@ -116,7 +121,16 @@ set_stepSize(Plugin, StepSize):-
 set_blockSize(Plugin, BlockSize):-
 	vmpl_get_blockSize(Plugin, BlockSize),
 	BlockSize = 0, !, BlockSize is 2048; vmpl_get_blockSize(Plugin, BlockSize).
-	
+
+/**
+	This other predicate allows to process a set of frames as framed signal instead of the original term for the signal
+*/
+vamp_compute_feature_frames(Frames, SamplesWholeSignal, SampleRate, Output, Plugin, WholeFeature):-
+	findall([Features], vamp_process_frames(Frames, Output, Plugin, Features), FeatureSet),	
+	vmpl_remaining_features(Plugin, SamplesWholeSignal, SampleRate, Output, Remaining),
+	append(FeatureSet, Remaining, RawList),
+	flatten(RawList, WholeFeature).
+
 /**
 	This predicate gets the signal and extracts the frames giving the parameters getting the features on the air for each frame. 
 	This is implemented as non-deterministic predicate.
@@ -142,31 +156,13 @@ vamp_process_frame(Plugin, Frame, Output, Features):-
 	get_frame_timestamp(Frame, FrameTimeStamp),	
 	vmpl_process_block(Plugin, Frame, FrameTimeStamp, Output, Features).
 
+
 /**
-	vamp_feature_framing/5. Script to retrieve features setting a specific framing process. It's necessary to have prior knowledge of the plugin.
-	Now, we specify the parameters for the framing and create the framed signal version before so we pass each frame afterwards. (maybe is more 
-	time expensive, but we keep this way to check it out and normally plugins will have their preferred parameters).
-
-	This may not work well.
+	Process all the members of the frame. 
 */
-vamp_feature_of_framing(Type, Signal, StepSize, BlockSize, FeatureSet):-
-	framed_signal(Signal, StepSize, BlockSize, Frames),
-	select_plugin(Type, PluginKey, Output),
-	get_samples_per_channel(Signal, N),
-	vmpl_load_plugin_for(PluginKey, Signal, Plugin),
-	get_channels(Signal, Channels),
-	get_sample_rate(Signal, SampleRate),
-	vmpl_initialize_plugin(Plugin, Channels, StepSize, BlockSize),
-	FeatureSet = [],
-	process_frames(Frames, Plugin, Output, FeatureSubset),
-	vmpl_remaining_features(Plugin, N, SampleRate, Output, Remaining),
-	append(FeatureSubset, Remaining, FeatureSet).
-
-process_frames([],_,_,_).
-process_frames([H|T], Plugin, Output, FeatureSet):-
-	get_frame_timestamp(H, FrameTimeStamp),
-	vmpl_process_block(Plugin, H, FrameTimeStamp, Output, Features),
-	append(FeatureSet, Features, NewFeatureSet),
-	process_frames(T, Plugin, Output, NewFeatureSet).
+vamp_process_frames(Frames, Output, Plugin, FeatureSet):-
+	member(Frame, Frames),
+	vamp_process_frame(Plugin, Frame, Output, FeatureSet),
+	clean_frame(Frame).
 
 

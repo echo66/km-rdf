@@ -270,7 +270,7 @@ reserve_id(const char *ident)
 		audio_data_db[ids_in_system].id = ident;
 		audio_data_db[ids_in_system].active = 0;
 		ids_in_system++;//we increment the ids in system but not the lastID count
-		std::cerr<<ident<<" reserved"<<std::endl;
+		//std::cerr<<ident<<" reserved"<<std::endl;
 		return 0;
 
 	}else{

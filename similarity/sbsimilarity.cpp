@@ -52,6 +52,7 @@ PREDICATE(smpl_mfcckldiv, 3){
 	//We get the feature List which contains the MFCC mean and the MFFCC variance for each file and we convert them into vector<double>
 
 	//Audiofile 1
+	cerr<<"distance..."<<endl;
 	vector<double> *mfccmean_1;
 	vector<double> *mfccvar_1;
 	mfccmean_1 = new vector<double>();
