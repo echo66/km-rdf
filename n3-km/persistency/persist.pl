@@ -43,7 +43,7 @@ persist_node(N) :-
 	bin_db(DB),
 	format(atom(File),'~w/~w',[DB,N]),
 	writeln(data_out(N,File)),!,
-	data_out(N,File).
+	data_out(N,File),clean_data(N).
 persist_node(_).
 
 
