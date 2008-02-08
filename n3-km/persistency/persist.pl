@@ -1,63 +1,42 @@
-:- module(persist,[]).
-
-/**
- * Handle some persistency features
- *
- */
+:- module(persist,[tabled/1,check/1,persist/2,s_table/1]).
 
 
 :- use_module(library('semweb/rdf_db')).
-:- use_module('../swiaudiodata/audiodata')). %why all prolog operations on blobs are defined there??
+
+:- rdf_register_ns(t,'http://purl.org/ontology/tabling/').
+
+tabled(Predicate) :-
+	rdf_db:rdf(Predicate,rdf:type,t:'TabledPredicate').
+
+check(rdf(S,P,O)) :-
+	rdf_db:rdf(S,P,O).
+persist(rdf(S,P,O),rdf(SS,P,OO)) :-
+	handle_list(S,SS),
+	handle_list(O,OO),
+	rdf_db:rdf_assert(SS,P,OO,persist).
+
+handle_list(A,A) :- \+is_list(A).
+handle_list([],'http://www.w3.org/1999/02/22-rdf-syntax-ns#nil').
+handle_list([H|T],Id) :-
+	rdf_bnode(Id),
+	rdf_assert(Id,rdf:type,rdf:'List',persist),
+	rdf_assert(Id,rdf:first,H,persist),
+	handle_list(T,Id2),
+	rdf_assert(Id,rdf:rest,Id2,persist).
 
 
-:- dynamic current_db/1.
-
-attach_db(_) :-
-	current_db(DB),!,
-	format('Database ~w already in use ...',[DB]).
-attach_db(DB) :-
-	exists_directory(DB),!,format('Loading database ~w ...',[DB]),
-	assert(current_db(DB)).
-attach_db(DB) :- 
-	format('Creating database ~w ...',[DB]),
-	make_directory(DB),
-	format(atom(Bin),'~w/bin',[DB]),
-	make_directory(Bin),
-	assert(current_db(DB)).
-
-
-persist(rdf(S,P,O)) :-
-	persist_n(S),
-	persist_n(P),
-	persist_n(O),
-	rdf_assert(S,P,O).
-
-persist_n(N) :-
-	id_blob(N,_),!,
-	data(N,Data),
-	store_data(N,Data).
-persist(_).
-
-
-store_data(Node,Data) :-
-	current_db(DB),
-	format(atom(Bin),'~w/bin/~w/blob.pl',[DB,Node]),
-	open(Bin,write,S,[]),
-	write_canonical(S,data_n(Node,Data)),writeln(S,'.'). %this should be binary
-
-
-%data/2 hook
-data(ID,List) :-
-	\+id_blob(ID,_),!,
-	current_db(DB),
-	format(atom(Bin),'~w/bin/~w/blob.pl',[DB,ID]),
-	consult(Bin),
-	data_n(ID,List),
-	data_load(List,ID),
-	retractall(data_n(_,_)).
-	data(ID,List).
-
-
-
+/**
+ * In session tabling - should not really
+ * be used, except for debugging purposes
+ *
+ * Only for deterministic predicates
+ */
+:- dynamic cache/1.
+:- module_transparent s_table/1.
+s_table(Goal) :-
+	persist:cache(Goal),!.
+s_table(Goal) :-
+	Goal,
+	assert(persist:cache(Goal)).
 
 

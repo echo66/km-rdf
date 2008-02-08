@@ -128,13 +128,17 @@ rdf_b(S,P,O) :-
  *   builtins.pl
  *   2- Compile formulae
  */
+:- use_module('persistency/persist').
 compile :- compile_builtins,compile_rules.
 compile_builtins :-
 	forall(builtin(P,PlPred),
 		(
 			
 			format('~w :- ~w\n',[rdf_b(S,P,O),(convert(S,O,Args,B),merge_bindings(B),catch(apply(PlPred,Args),_,fail))]),
-			assert(':-'(rdf_b(S,P,O),(Args=[S,O],writeln(apply(PlPred,Args)),catch(apply(PlPred,Args),_,fail))))
+			assert(':-'(rdf_b(S,P,O),(tabled(P),check(rdf(S,P,O)),!))), %only for det predicates
+			assert(':-'(rdf_b(S,P,O),(tabled(P),copy_term((S,O),(S2,O2)),rdf_b2(S2,P,O2),!,persist(rdf(S2,P,O2),rdf(S,P,O))))),
+			assert(':-'(rdf_b(S,P,O),(\+tabled(P),rdf_b2(S,P,O)))),
+			assert(':-'(rdf_b2(S,P,O),(Args=[S,O],writeln(apply(PlPred,Args)),catch(apply(PlPred,Args),_,fail))))
 		)
 	).
 compile_rules :-
