@@ -183,6 +183,8 @@ dump_blob_data(term_t blob, const char* filePath){
 	size_t data_size;
 	data_size = data -> size();//size of the vector
 
+	cerr<<data_size<<endl;
+
 	FILE *fileData;
 	fileData = fopen(filePath, "wb");//binary file to write
 		
@@ -254,7 +256,7 @@ load_file_data(term_t blob, const char* filePath){
 			}
 	     			
     		} while (c != EOF);
-
+		cerr<<char_count<<endl;
 		fclose(fileData); //we don't need to read the file anymore
 	
 		//returning the blob
