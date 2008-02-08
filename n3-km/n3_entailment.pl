@@ -52,6 +52,7 @@
 	      [ rdfs_list_to_prolog_list/2 ]).
 :- use_module(namespaces).
 :- use_module(builtins).
+:- use_module('persistency/persist').
 
 term_expansion((rdf(S0, P0, O0) :- Body),
                (rdf(S,  P,  O)  :- Body)) :-
@@ -106,6 +107,7 @@ rdf_e(S,P,O) :-
 	rdf_b(S,P,O).
 
 
+
 /**
  * Finally... Fourth level predicate, handling
  * calls to the backing rdf store, and builtins
@@ -115,7 +117,8 @@ rdf_b(S,P,O) :-
 	rdf_l(S,P,O).
 rdf_b(S,P,O) :-
 	\+list(S),\+list(O),
-	rdf_db:rdf(S,P,O).
+	rdf_db:rdf(S,P,O),
+	mem_load(S),mem_load(O).
 
 /**
  * Compiling predicates.
@@ -128,7 +131,6 @@ rdf_b(S,P,O) :-
  *   builtins.pl
  *   2- Compile formulae
  */
-:- use_module('persistency/persist').
 compile :- compile_builtins,compile_rules.
 compile_builtins :-
 	forall(builtin(P,PlPred),
@@ -136,7 +138,7 @@ compile_builtins :-
 			
 			format(user_error, 'DEBUG: Asserting ~w :- ~w\n',[rdf_b(S,P,O),(convert(S,O,Args,B),merge_bindings(B),catch(apply(PlPred,Args),_,fail))]),
 			%assert(':-'(rdf_b(S,P,O),(tabled(P),check(rdf(S,P,O)),!,format(user_error,'DEBUG: Retrieving ~w\n',[rdf(S,P,O)])))), %only for det predicates
-			assert(':-'(rdf_b(S,P,O),(tabled(P),copy_term((S,O),(S2,O2)),format(user_error,'DEBUG: Evaluating ~w\n',[rdf(S,P,O)]),rdf_b2(S2,P,O2),!,persist(rdf(S2,P,O2),rdf(S,P,O))))),
+			assert(':-'(rdf_b(S,P,O),(tabled(P),\+rdf_db:rdf(S,P,O),copy_term((S,O),(S2,O2)),format(user_error,'DEBUG: Evaluating ~w\n',[rdf(S,P,O)]),rdf_b2(S2,P,O2),!,persist(rdf(S2,P,O2),rdf(S,P,O))))),
 			assert(':-'(rdf_b(S,P,O),(\+tabled(P),rdf_b2(S,P,O)))),
 			assert(':-'(rdf_b2(S,P,O),(Args=[S,O],format(user_error,'DEBUG: ~w\n',[apply(PlPred,Args)]),catch(apply(PlPred,Args),_,fail))))
 		)
