@@ -147,13 +147,11 @@ load_data_list(ListData, ID):-
 	blob_id(ID, Blob).
 
 /**
-	data_out(+ID, +FilePath): outputs the data dumping it in a binary file to be stored in disk freeing space in memory. The data ID is
-	automatically cleaned!!
+	data_out(+ID, +FilePath): outputs the data dumping it in a binary file to be stored in disk freeing space in memory. 
 */
 data_out(ID, FilePath):-
 	id_blob(ID, Blob),
-	blob_to_file(Blob, FilePath),
-	clean_data(ID).	
+	blob_to_file(Blob, FilePath).
 
 /**
 	data_in(+FilePath, +ID): gets the data from an external file using blobs and stores the data assigning the ID.
