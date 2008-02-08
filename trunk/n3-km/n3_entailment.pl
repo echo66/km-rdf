@@ -134,11 +134,11 @@ compile_builtins :-
 	forall(builtin(P,PlPred),
 		(
 			
-			format('~w :- ~w\n',[rdf_b(S,P,O),(convert(S,O,Args,B),merge_bindings(B),catch(apply(PlPred,Args),_,fail))]),
-			assert(':-'(rdf_b(S,P,O),(tabled(P),check(rdf(S,P,O)),!))), %only for det predicates
-			assert(':-'(rdf_b(S,P,O),(tabled(P),copy_term((S,O),(S2,O2)),rdf_b2(S2,P,O2),!,persist(rdf(S2,P,O2),rdf(S,P,O))))),
+			format(user_error, 'DEBUG: Asserting ~w :- ~w\n',[rdf_b(S,P,O),(convert(S,O,Args,B),merge_bindings(B),catch(apply(PlPred,Args),_,fail))]),
+			%assert(':-'(rdf_b(S,P,O),(tabled(P),check(rdf(S,P,O)),!,format(user_error,'DEBUG: Retrieving ~w\n',[rdf(S,P,O)])))), %only for det predicates
+			assert(':-'(rdf_b(S,P,O),(tabled(P),copy_term((S,O),(S2,O2)),format(user_error,'DEBUG: Evaluating ~w\n',[rdf(S,P,O)]),rdf_b2(S2,P,O2),!,persist(rdf(S2,P,O2),rdf(S,P,O))))),
 			assert(':-'(rdf_b(S,P,O),(\+tabled(P),rdf_b2(S,P,O)))),
-			assert(':-'(rdf_b2(S,P,O),(Args=[S,O],writeln(apply(PlPred,Args)),catch(apply(PlPred,Args),_,fail))))
+			assert(':-'(rdf_b2(S,P,O),(Args=[S,O],format(user_error,'DEBUG: ~w\n',[apply(PlPred,Args)]),catch(apply(PlPred,Args),_,fail))))
 		)
 	).
 compile_rules :-
@@ -152,7 +152,7 @@ compile_rules :-
 			list_to_conj(PredListB,PlB),
 			forall(member(rdf_e(S,P,O),PredListH),
 				(
-					format('~w :- ~w\n',[rdf_e(S,P,O),(PlB)]),
+					format(user_error,'DEBUG: Asserting ~w :- ~w\n',[rdf_e(S,P,O),(PlB)]),
 					assert(':-'(rdf_e(S,P,O),(PlB,check(S,P,O))))
 				))
 		)
