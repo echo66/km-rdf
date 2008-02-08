@@ -1,4 +1,4 @@
-:- module(persist,[bin_db/1,assert_tabled/1,tabled/1,check/1,persist/2,s_table/1]).
+:- module(persist,[bin_db/1,assert_tabled/1,tabled/1,persist/2,s_table/1]).
 
 
 :- use_module(library('semweb/rdf_db')).
@@ -20,8 +20,6 @@ tabled(Predicate) :-
 assert_tabled(Predicate) :-
 	rdf_db:rdf_assert(Predicate,rdf:type,t:'TabledPredicate').
 
-check(rdf(S,P,O)) :-
-	rdf_db:rdf(S,P,O).
 persist(rdf(S,P,O),rdf(SS,P,OO)) :-
 	handle_list(S,SS),
 	handle_list(O,OO),
