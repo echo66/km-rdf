@@ -127,7 +127,7 @@ atom_to_audio_vector(atom_t a) {
 int
 pointer_to_audio_blob(AudioVector *pointer, AudioBlob blob){
 
-	cerr<<"creating blob"<<endl;
+	//cerr<<"creating blob"<<endl;
 	return PL_unify_blob(blob, (void **)&pointer, sizeof(pointer), &audio_blob);	
 }	
 
@@ -186,13 +186,14 @@ dump_blob_data(term_t blob, const char* filePath){
 	cerr<<data_size<<endl;
 
 	FILE *fileData;
-	fileData = fopen(filePath, "wb");//binary file to write
+	fileData = fopen(filePath, "w");//binary file to write
 		
 	if(fileData!=NULL){
 		//writing each float of the vector
 		
 		float *datum=0;
 		char *binary_datum=0;
+		size_t test = 0;
 	
 		for(size_t r=0; r<data_size; r++){
 
@@ -204,7 +205,9 @@ dump_blob_data(term_t blob, const char* filePath){
 				fputc(*binary_datum, fileData);
 				binary_datum++;
 			}
+			test = r;
 		}
+		cerr<<test<<endl;
 		fclose(fileData);
 		return 0;
 	}else{
@@ -226,8 +229,9 @@ load_file_data(term_t blob, const char* filePath){
 
 	//open the file to read
 	FILE *fileData;
-	fileData = fopen(filePath, "rb");//binary file to read
+	fileData = fopen(filePath, "r");//binary file to read
 
+		
 	//retrieved data vector in memory
 	AudioVector *data;
 	data = new vector<float>();	
@@ -238,11 +242,20 @@ load_file_data(term_t blob, const char* filePath){
 		int char_count = 0;
 		char c;
 		float *datum = 0;
+		size_t test2 = 0;
 		
 		//read characters till the end of the file is reached getting the length of the data and a temporary buffer
 		do {
 			c=getc(fileData);
 		 	bin_datum[char_count] = c;
+			test2++;
+			if(c == EOF) {
+				cerr<<"fin "<<(const char*)c<<endl;
+			}
+			if(ferror(fileData)){
+				cerr<<"error while reading"<<endl;
+				cerr<<(const char*)c<<endl;
+			}
 			if(char_count==3){//when we read a whole float, we store it in the vector
 				
 				char *pointer = 0;
@@ -256,7 +269,7 @@ load_file_data(term_t blob, const char* filePath){
 			}
 	     			
     		} while (c != EOF);
-		cerr<<char_count<<endl;
+		cerr<<test2<<endl;
 		fclose(fileData); //we don't need to read the file anymore
 	
 		//returning the blob

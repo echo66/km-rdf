@@ -26,8 +26,6 @@
 :-use_module('/home/david/km-rdf/swivamp/vamp').
 :-use_module('/home/david/km-rdf/swiaudiosource/audiosource').
 
-:-[features]. /** specific procedures dealing with plugins */
-
 :-style_check(-discontiguous).
 
 /**
@@ -81,9 +79,21 @@ feature_of(FeatureType, Signal, Feature):-
 	help in that.
 */
 select_plugin(Type, PluginKey, Output):-
-	Type = 'means',!,PluginKey = 'libqm-vamp-plugins:qm-similarity', Output=3;
+	Type = 'means',!,PluginKey = 'libqm-vamp-plugins:qm-mfcc', Output=1;
 	vamp_plugin_for(PluginKey, Type, Output).
 	
+select_plugin(Type, PluginKey, Output):-
+	Type = 'variances',!, Type = 'mfccvariances',
+	vamp_plugin_for(PluginKey, Type, Output).
+
+select_plugin(Type, PluginKey, Output):-
+	Type = 'distancematrix',!, false.
+
+select_plugin(Type, PluginKey, Output):-
+	Type = 'distancevector',!, false.
+
+select_plugin(Type, PluginKey, Output):-
+	Type = 'sorteddistancevector',!, false.
 
 /**
 	vamp_feature_of/3. We don't specify the framing as the plugin does it by itself. If there are not preferred parameters for framing, we use
@@ -164,5 +174,55 @@ vamp_process_frames(Frames, Output, Plugin, FeatureSet):-
 	member(Frame, Frames),
 	vamp_process_frame(Plugin, Frame, Output, FeatureSet),
 	clean_frame(Frame).
+
+
+/**********************************************************************************
+				SPECIFIC FEATURES PROCEDURES
+***********************************************************************************/
+
+feature('mfccmeans').
+feature('mfccvariances').
+
+vamp_plugin_for('libqm-vamp-plugins:qm-similarity', 'mfccvariances', 4).
+vamp_plugin_for('libqm-vamp-plugins:qm-similarity', 'mfccmeans', 3).
+
+vamp_feature_of('mfccmeans', Signal, WholeSignal):-
+	mix_stereo(Signal, S),
+	select_plugin('mfccmeans', Key, O),
+	vmpl_load_plugin_for(Key, S, Plugin),
+	set_blockSize(Plugin, BlockSize),
+	set_stepSize(Plugin, StepSize),
+	get_channels(Signal, Channels),
+	vmpl_set_parameter('featureType', 0),
+	vmpl_initialize_plugin(Plugin, Channels, StepSize, BlockSize),
+	vamp_compute_feature(Signal, StepSize, BlockSize, O, Plugin, WholeFeature).
+
+vamp_feature_of('mfccvariances', Signal, WholeSignal):-
+	mix_stereo(Signal, S),
+	select_plugin('mfccvariances', Key, O),
+	vmpl_load_plugin_for(Key, S, Plugin),
+	set_blockSize(Plugin, BlockSize),
+	set_stepSize(Plugin, StepSize),
+	get_channels(Signal, Channels),
+	vmpl_set_parameter('featureType', 0),
+	vmpl_initialize_plugin(Plugin, Channels, StepSize, BlockSize),
+	vamp_compute_feature(Signal, StepSize, BlockSize, O, Plugin, WholeFeature).
+
+
+
+/**will crash
+vamp_feature_of('sbtimbral', Signal1, Signal2, Distance):-
+	mix_stereo(Signal1, S1),
+	mix_stereo(Signal2, S2),
+	combine_sb_input(S1, S2, Input).
+combine_sb_input('Signal'(_, _ , _, [Pcm1]), 'Signal'(_,_,_, [Pcm2]), 'Signal'(_,_,_,[Pcm1, Pcm2])).
+**/
+
+
+
+
+
+
+
 
 
