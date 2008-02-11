@@ -9,4 +9,10 @@
 :- style_check(-discontiguous).
 :- load_foreign_library(similarity).
 
+/**
+	smpl_mfcckldiv(+MeansEvent1, +VariancesEvent1, +MeansEvent2, +VariancesEvent2, -Distance):
+	
+	SoundBite timbral similarity. This is the classical SB similarity approach based on a statistical model of the MFCC (means and variances) and the 
+	KL divergence as metric.
+*/
 
