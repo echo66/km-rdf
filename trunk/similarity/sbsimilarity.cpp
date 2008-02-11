@@ -22,34 +22,29 @@
 
 using namespace std;
 
-//------------------------
-//	Prototypes       -
-//------------------------
-
 int
-smpl_parse_SBFeatures(PlTerm, vector<double> *, vector<double> *);//no se si los tengo q psar por valor o por referencia
-
+smpl_get_data(term_t, vector<double> *);
 
 						/*******************************************
 						******** FOREIGN PREDICATES ****************
 						*******************************************/
 
 //--------------------------------------------------------------------------
-// Gets the distance using mfcckldiv (taken from libsoundbite)
+// Gets the distance using mfcckldiv (taken from libsoundbite). This is only valid for MFCC statistics (mean and variances that model a gaussian statistically)
 //	
-//			Input is a list of features ['MFFCCMEAN', 'MFCCVAR'] which each of them has the syntax of any swivamp feature.
+//			Input is the data id for each feature (mean and variance of both tracks)
 //			Returns a distance between the audiofiles with the features belong to
 //			This features come from the similarity vamp plugin. The means and variances can be also extracted from the chromagram.
 //
 //--------------------------------------------------------------------------
 
-PREDICATE(smpl_mfcckldiv, 3){
+PREDICATE(smpl_mfcckldiv, 5){
 
-	//+Feature List of one file
-	//+Feature List of the other file
+	//+Mfcc means for the first track
+	//+Mfcc variances for the first track
+	//+Mfcc means for the second one
+	//+Mfcc variances for the second one
 	//-Distance (double)
-
-	//We get the feature List which contains the MFCC mean and the MFFCC variance for each file and we convert them into vector<double>
 
 	//Audiofile 1
 	cerr<<"distance..."<<endl;
@@ -58,9 +53,8 @@ PREDICATE(smpl_mfcckldiv, 3){
 	mfccmean_1 = new vector<double>();
 	mfccvar_1 = new vector<double>();
 
-	if(smpl_parse_SBFeatures(PlTerm(A1), mfccmean_1, mfccvar_1)<0){
-		return false;
-	}
+	if(smpl_get_data(term_t(PlTerm(A1)), mfccmean_1)<0) return false;
+	if(smpl_get_data(term_t(PlTerm(A2)), mfccvar_1)<0) return false;
 
 	//Audiofile 2
 	vector<double> *mfccmean_2;
@@ -68,9 +62,9 @@ PREDICATE(smpl_mfcckldiv, 3){
 	mfccmean_2 = new vector<double>();
 	mfccvar_2 = new vector<double>();
 
-	if(smpl_parse_SBFeatures(PlTerm(A2), mfccmean_2, mfccvar_2)<0){
-		return false;
-	}
+	if(smpl_get_data(term_t(PlTerm(A3)), mfccmean_2)<0) return false;
+	if(smpl_get_data(term_t(PlTerm(A4)), mfccvar_2)<0) return false;
+
 	
 	//may need some checkings if there are vectors or not
 
@@ -94,79 +88,28 @@ PREDICATE(smpl_mfcckldiv, 3){
 	delete mfccmean_2;
 	delete mfccvar_2;
 
-	return A3 = PlTerm(d);
+	return A5 = PlTerm(d);
 }
 
-
-						/**********************
-						**** FUNCTIONS ********
-						**********************/
-
-//--------------------------------------------------------------------------------------------------------------------------------
-//	
-//    fv is a list of features. The first one must be the mean feature elements list and the second another 
-//    list with the variance elements
-//
-//    swi km features should look like:
-//					'Feature'(type, MO::timestamp, '__data_id').
-//
-//	Returns: 
-//		-1 if the terms passed are not features
-//--------------------------------------------------------------------------------------------------------------------------------
-
-//TO DO: Extend this if we wont just to pass blobs instead of the whole feature compound!!!!!!
+//------
+//reads the data id and returns a double vector (soundbite type).
+//------
 
 int
-smpl_parse_SBFeatures(PlTerm fv, vector<double> *mean, vector<double> *var){
+smpl_get_data(term_t data, vector<double> *vec)
+{
+	char *id;//A1
+	term_t id_t = PL_new_term_ref();
+	id_t = data;
+	PL_get_atom_chars(id_t,&id);
 
-	//fv is a list of vamp features. The first one must be the mean feature elements list and the second another list with the variance elements.
-
-	//Retrieving features list and parse them
-
-	PlTail tail(fv);
-  	PlTerm list;
-  	while(tail.next(list)){
-		//supposed to have just two lists
-	
-		//Treat like mean
-		PlTail subtail(list);
-		PlTerm feature;
-	
-		while(subtail.next(feature)){
-			//Checking the type and storing the value
-
-			cerr<<feature.name()<<endl;
-
-			//Analyze the Compound
-			if(feature.name()=="Feature"){
-				return -1;
-			}
-			PlAtom type(feature[0]);
-
-			//need to check this from the plugin.
-			if(type=="means"){
-			
-				vector<float> *data;
-				DataID::get_data_for_id((const char*)(char *)feature[2], data);
-				cerr<<data->size()<<endl;
-				mean->push_back((double)data->at(0));//should be just one value in this feature type.
-				return 0;
-			}
-			else if(type=="variances"){
-				
-				vector<float> *data;
-				DataID::get_data_for_id((const char*)(char *)feature[2], data);
-				cerr<<data->size()<<endl;
-				mean->push_back((double)data->at(0));//should be just one value in this feature type.
-				return 0;
-			}
-			else{
-				cerr<<"not valid feature type"<<endl;
-				return -2;
-			}
-		}
+	//means
+	vector<float> *tmp;
+	DataID::get_data_for_id((const char*)id, tmp);
+	for(size_t j=0; j<tmp->size() ; j++){
+		vec->push_back((double)tmp->at(j));
 	}
-	return 0;
+	return 0;	
 }
 
 
