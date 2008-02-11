@@ -82,17 +82,13 @@ select_plugin(Type, PluginKey, Output):-
 	Type = 'means',!,PluginKey = 'libqm-vamp-plugins:qm-mfcc', Output=1;
 	vamp_plugin_for(PluginKey, Type, Output).
 	
-select_plugin(Type, PluginKey, Output):-
-	Type = 'variances',!, Type = 'mfccvariances',
-	vamp_plugin_for(PluginKey, Type, Output).
-
-select_plugin(Type, PluginKey, Output):-
+select_plugin(Type, _, _):-
 	Type = 'distancematrix',!, false.
 
-select_plugin(Type, PluginKey, Output):-
+select_plugin(Type, _, _):-
 	Type = 'distancevector',!, false.
 
-select_plugin(Type, PluginKey, Output):-
+select_plugin(Type, _, _):-
 	Type = 'sorteddistancevector',!, false.
 
 /**
@@ -180,33 +176,28 @@ vamp_process_frames(Frames, Output, Plugin, FeatureSet):-
 				SPECIFIC FEATURES PROCEDURES
 ***********************************************************************************/
 
-feature('mfccmeans').
-feature('mfccvariances').
+feature(mfccmeans).
+feature(mfccvariances).
 
-vamp_plugin_for('libqm-vamp-plugins:qm-similarity', 'mfccvariances', 4).
-vamp_plugin_for('libqm-vamp-plugins:qm-similarity', 'mfccmeans', 3).
-
-vamp_feature_of('mfccmeans', Signal, WholeSignal):-
+vamp_feature_of(mfccmeans, Signal, WholeFeature):-
 	mix_stereo(Signal, S),
-	select_plugin('mfccmeans', Key, O),
-	vmpl_load_plugin_for(Key, S, Plugin),
+	vmpl_load_plugin_for('libqm-vamp-plugins:qm-similarity', S, Plugin),
 	set_blockSize(Plugin, BlockSize),
 	set_stepSize(Plugin, StepSize),
-	get_channels(Signal, Channels),
-	vmpl_set_parameter('featureType', 0),
+	get_channels(S, Channels),
+	vmpl_set_parameter(Plugin, 'featureType', 0),
 	vmpl_initialize_plugin(Plugin, Channels, StepSize, BlockSize),
-	vamp_compute_feature(Signal, StepSize, BlockSize, O, Plugin, WholeFeature).
+	vamp_compute_feature(S, StepSize, BlockSize, 3, Plugin, WholeFeature).
 
-vamp_feature_of('mfccvariances', Signal, WholeSignal):-
+vamp_feature_of(mfccvariances, Signal, WholeFeature):-
 	mix_stereo(Signal, S),
-	select_plugin('mfccvariances', Key, O),
-	vmpl_load_plugin_for(Key, S, Plugin),
+	vmpl_load_plugin_for('libqm-vamp-plugins:qm-similarity', S, Plugin),
 	set_blockSize(Plugin, BlockSize),
 	set_stepSize(Plugin, StepSize),
-	get_channels(Signal, Channels),
-	vmpl_set_parameter('featureType', 0),
+	get_channels(S, Channels),
+	vmpl_set_parameter(Plugin, 'featureType', 0),
 	vmpl_initialize_plugin(Plugin, Channels, StepSize, BlockSize),
-	vamp_compute_feature(Signal, StepSize, BlockSize, O, Plugin, WholeFeature).
+	vamp_compute_feature(S, StepSize, BlockSize, 4, Plugin, WholeFeature).
 
 
 

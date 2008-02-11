@@ -249,9 +249,7 @@ load_file_data(term_t blob, const char* filePath){
 			c=getc(fileData);
 		 	bin_datum[char_count] = c;
 			test2++;
-			if(c == EOF) {
-				cerr<<"fin "<<(const char*)c<<endl;
-			}
+			
 			if(ferror(fileData)){
 				cerr<<"error while reading"<<endl;
 				cerr<<(const char*)c<<endl;
