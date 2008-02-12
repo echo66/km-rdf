@@ -15,9 +15,7 @@ server(Port) :-
 
 %:- server.
 
-:- use_module('dsp-builtins/aspl_builtins').
-
-:- n3_load('dsp-n3/decode.n3').
+source :- use_module('dsp-builtins/aspl_builtins'),n3_load('dsp-n3/decode.n3').
 
 
 think :-

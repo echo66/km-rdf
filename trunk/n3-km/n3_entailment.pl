@@ -46,6 +46,7 @@
                 rdf_reachable/3,
                 rdf_has/3,
 		rdf_bnode/1,
+		rdf_is_bnode/1,
                 rdf_subject/1,
                 rdf_equal/2
               ]).
@@ -64,7 +65,9 @@ term_expansion((rdf(S0, P0, O0) :- Body),
 %should be elsewhere
 n3_load(File) :-
 	tokenise(File,Tokens),
-	phrase(n3_dcg:document('',Doc),Tokens),
+	absolute_file_name(File,Absolute),
+	format(atom(Base),'file://~w',[Absolute]), % That's probably not right
+	phrase(n3_dcg:document(Base,Doc),Tokens),
 	forall(member(rdf(A,B,C,D),Doc),rdf_db:rdf_assert(A,B,C,D)).
 
 :- dynamic rdf_e/3.
@@ -132,8 +135,8 @@ rdf_e(S,P,O) :-
 :- dynamic rdf_b/3.
 rdf_b(S,P,O) :-
 	format(user_error,'DEBUG: Builtin handling - rdf_b/3\n',[]),
-	%rdf_l(S,P,O).
-%rdf_b(S,P,O) :-
+	rdf_l(S,P,O).
+rdf_b(S,P,O) :-
 	%\+list(S),\+list(O),
 	rdf_core(S,P,O),
 	mem_load(S),mem_load(O).
@@ -216,7 +219,8 @@ check(S,P,O) :-
  */
 in_formulae(rdf(S,P,O)) :-
 	%(rdf_db:rdf(S,P,O,G),\+((existential(S),existential(P),existential(O))),rdf_db:rdf_is_bnode(G),!);
-	(universal(S),!);(universal(P),!);(universal(O),!);
+	%(universal(S),!);(universal(P),!);(universal(O),!);
+	((is_list(S)->true;S=SS),(is_list(O)->true;O=OO),rdf_db:rdf(SS,P,OO,G),rdf_is_bnode(G));
 	P='http://www.w3.org/2000/10/swap/log#implies'. %loose
 in_formulae(_) :- fail.
 
@@ -319,15 +323,15 @@ pl_list_to_rdf_list([H|T],[rdf(H2,'http://www.w3.org/1999/02/22-rdf-syntax-ns#fi
 %%        S\=[_|_],P\=[_|_],O\=[_|_],
 %%        rdf_db:rdf(S,P,O).
 %%rdf_l(_,P,_) :- (P\=='http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',P\=='http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),!,fail.
-%rdf_l(S,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',L) :-
-%	nonvar(S),
-%	(S = [L|_]; list(S,[L|_])).
-%rdf_l(S,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest','http://www.w3.org/1999/02/22-rdf-syntax-ns#nil') :- nonvar(S),(S=[_]; list(S,[_])).
-%rdf_l(S,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',L) :-
-%	%\+L=='http://www.w3.org/1999/02/22-rdf-syntax-ns#nil',
-%	nonvar(S),
-%	S\=[_],\+list(S,[_]),writeln(coucou),
-%	(S = [_|L]; list(S,[_|L])).
+rdf_l(S,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',L) :-
+	nonvar(S),
+	(S = [L|_]; list(S,[L|_])).
+rdf_l(S,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest','http://www.w3.org/1999/02/22-rdf-syntax-ns#nil') :- nonvar(S),(S=[_]; list(S,[_])).
+rdf_l(S,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',L) :-
+	%\+L=='http://www.w3.org/1999/02/22-rdf-syntax-ns#nil',
+	nonvar(S),
+	S\=[_],\+list(S,[_]),writeln(coucou),
+	(S = [_|L]; list(S,[_|L])).
 	
 list(L) :- nonvar(L),L=[_|_].
 
