@@ -1,0 +1,54 @@
+@prefix mo: <http://purl.org/ontology/mo/>.
+@prefix dsp: <http://purl.org/ontology/dsp/>.
+@prefix vamp: <http://purl.org/ontology/vamp/>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix : <>.
+
+vamp:plugin 
+	a rdf:Property;
+	rdfs:label "A generic vamp plugin, linking its output and its inputs/parameters";
+	.
+
+vamp:qm-plugin 
+	a rdf:Property;
+	rdfs:subPropertyOf vamp:plugin;
+	rdfs:label "A generic queen mary vamp plugin";
+	.
+
+vamp:qm-chromagram
+	a rdf:Property;
+	rdfs:subPropertyOf vamp:qm-plugin;
+	rdfs:label "Chromagram vamp plugin";
+	.
+
+vamp:qm-constantq
+	a rdf:Property;
+	rdfs:subPropertyOf vamp:qm-plugin;
+	rdfs:label "Constant-Q vamp plugin";
+	.
+
+vamp:qm-keydetector
+	a rdf:Property;
+	rdfs:subPropertyOf vamp:qm-plugin;
+	rdfs:label "Onset detector vamp plugin";
+	.
+
+vamp:qm-onsetdetector
+	a rdf:Property;
+	rdfs:subPropertyOf vamp:qm-plugin;
+	rdfs:label "Onset detection vamp plugin";
+	.
+
+vamp:qm-tempotracker
+	a rdf:Property;
+	rdfs:subPropertyOf vamp:qm-plugin;
+	rdfs:label "Tempo tracking vamp plugin";
+	.
+
+vamp:qm-tonalchange
+	a rdf:Property;
+	rdfs:subPropertyOf vamp:qm-plugin;
+	rdfs:label "Tonal change vamp plugin";
+	.
+
