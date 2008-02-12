@@ -40,3 +40,7 @@ builtin:member(A,B) :-
 	member(A,B).
 
 
+%Just illustrating a bug
+%builtin('http://purl.org/ontology/swi/append',builtin:append).
+%builtin:append([[a,b],[c]],[a,b,c]).
+

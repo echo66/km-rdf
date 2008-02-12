@@ -45,6 +45,7 @@
               [ rdf_global_id/2,
                 rdf_reachable/3,
                 rdf_has/3,
+		rdf_bnode/1,
                 rdf_subject/1,
                 rdf_equal/2
               ]).
@@ -77,9 +78,23 @@ n3_load(File) :-
  * (therefore hiding their "RDF" representation).
  */
 rdf(S,P,O) :-
-	rdf_s(S,P,O),
-	\+in_formulae(rdf(S,P,O)).
+	format(user_error,'DEBUG: Top level - rdf/3\n',[]),
+	copy_term([S,O],[S2,O2]),
+	rdf_s(S2,P,O2),
+	\+in_formulae(rdf(S2,P,O2)),
+	(list_id(S2,S)->true;S=S2),
+	(list_id(O2,O)->true;O=O2).
 	%\+list(S),\+list(P),\+list(O).
+
+:- dynamic list/2.
+list_id(List,Id) :-
+	is_list(List),
+	list(Id,List),!.
+list_id(List,Id) :-
+	is_list(List),
+	rdf_bnode(Id),
+	assert(list(Id,List)).
+
 
 /**
  * Second-level predicate
@@ -89,6 +104,7 @@ rdf(S,P,O) :-
  */
 % special handling of owl:sameAs
 rdf_s(S,P,O) :-
+	format(user_error,'DEBUG: SameAs handling - rdf_s/3\n',[]),
 	sameAs(S,SS),
 	rdf_e(SS,P,O),
 	P\='http://www.w3.org/2002/07/owl#sameAs'.
@@ -104,6 +120,7 @@ rdf_s(S,P,O) :-
  * N3/builtin entailment
  */
 rdf_e(S,P,O) :-
+	format(user_error,'DEBUG: Entailment rules - rdf_e/3\n',[]),
 	rdf_b(S,P,O).
 
 
@@ -114,11 +131,35 @@ rdf_e(S,P,O) :-
  */
 :- dynamic rdf_b/3.
 rdf_b(S,P,O) :-
-	rdf_l(S,P,O).
-rdf_b(S,P,O) :-
-	\+list(S),\+list(O),
-	rdf_db:rdf(S,P,O),
+	format(user_error,'DEBUG: Builtin handling - rdf_b/3\n',[]),
+	%rdf_l(S,P,O).
+%rdf_b(S,P,O) :-
+	%\+list(S),\+list(O),
+	rdf_core(S,P,O),
 	mem_load(S),mem_load(O).
+
+
+/**
+ * Lowest level RDF access - just adds a list interpretation layer on top
+ * of rdf_db:rdf/3
+ */
+rdf_core(S,P,O) :-
+	format(user_error,'DEBUG: Core rdf query - rdf_core/3\n',[]),
+	persist:rdf_tmp(S,P,O).
+rdf_core(S,P,O) :-
+	copy_term([S,O],[S2,O2]),
+	\+list(S2),\+list(O2),
+	rdf_db:rdf(S2,P,O2),
+	get_list(S2,S),
+	get_list(O2,O3),
+	(O3=[]->O='http://www.w3.org/1999/02/22-rdf-syntax-ns#nil';O=O3).
+
+
+get_list(S,List) :-
+	rdfs_list_to_prolog_list(S,List),!.
+get_list(A,A).
+
+
 
 /**
  * Compiling predicates.
@@ -138,9 +179,9 @@ compile_builtins :-
 			
 			format(user_error, 'DEBUG: Asserting ~w :- ~w\n',[rdf_b(S,P,O),(convert(S,O,Args,B),merge_bindings(B),catch(apply(PlPred,Args),_,fail))]),
 			%assert(':-'(rdf_b(S,P,O),(tabled(P),check(rdf(S,P,O)),!,format(user_error,'DEBUG: Retrieving ~w\n',[rdf(S,P,O)])))), %only for det predicates
-			assert(':-'(rdf_b(S,P,O),(\+tabled(P),!,rdf_b2(S,P,O)))),
-			assert(':-'(rdf_b(S,P,O),(tabled(P),\+check(rdf(S,P,O)),copy_term((S,O),(S2,O2)),format(user_error,'DEBUG: Evaluating ~w\n',[rdf(S,P,O)]),rdf_b2(S2,P,O2),!,persist(rdf(S2,P,O2),rdf(S,P,O))))),
-			assert(':-'(rdf_b2(S,P,O),(Args=[S,O],format(user_error,'DEBUG: ~w\n',[apply(PlPred,Args)]),catch(apply(PlPred,Args),_,fail))))
+			assert(':-'(rdf_b(S,P,O),(\+tabled(P),rdf_b2(S,P,O)))),
+			assert(':-'(rdf_b(S,P,O),(tabled(P),\+check_tmp(rdf(S,P,O)),\+rdf_core(S,P,O),format(user_error,'DEBUG: Evaluating ~w\n',[rdf(S,P,O)]),rdf_b2(S,P,O),!,persist(rdf(S,P,O))))),
+			assert(':-'(rdf_b2(S,P,O),(format(user_error,'DEBUG: ~w\n',[apply(PlPred,[S,O])]),catch(apply(PlPred,[S,O]),_,fail))))
 		)
 	).
 compile_rules :-
@@ -274,16 +315,19 @@ pl_list_to_rdf_list([H|T],[rdf(H2,'http://www.w3.org/1999/02/22-rdf-syntax-ns#fi
 /**
  * A couple of list-related builtins 
  */
-rdf_l(S,P,O) :-
-        S\=[_|_],P\=[_|_],O\=[_|_],
-        rdf_db:rdf(S,P,O).
-rdf_l(_,P,_) :- (P\=='http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',P\=='http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),!,fail.
-rdf_l(S,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',L) :-
-	S = [L|_].
-rdf_l(S,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest','http://www.w3.org/1999/02/22-rdf-syntax-ns#nil') :- S=[_].
-rdf_l(S,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',L) :-
-	\+L=='http://www.w3.org/1999/02/22-rdf-syntax-ns#nil',
-	S = [_|L].
+%%rdf_l(S,P,O) :-
+%%        S\=[_|_],P\=[_|_],O\=[_|_],
+%%        rdf_db:rdf(S,P,O).
+%%rdf_l(_,P,_) :- (P\=='http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',P\=='http://www.w3.org/1999/02/22-rdf-syntax-ns#first'),!,fail.
+%rdf_l(S,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',L) :-
+%	nonvar(S),
+%	(S = [L|_]; list(S,[L|_])).
+%rdf_l(S,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest','http://www.w3.org/1999/02/22-rdf-syntax-ns#nil') :- nonvar(S),(S=[_]; list(S,[_])).
+%rdf_l(S,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',L) :-
+%	%\+L=='http://www.w3.org/1999/02/22-rdf-syntax-ns#nil',
+%	nonvar(S),
+%	S\=[_],\+list(S,[_]),writeln(coucou),
+%	(S = [_|L]; list(S,[_|L])).
 	
 list(L) :- nonvar(L),L=[_|_].
 

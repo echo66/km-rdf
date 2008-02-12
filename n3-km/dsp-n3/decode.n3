@@ -1,0 +1,31 @@
+@prefix mo: <http://purl.org/ontology/mo/>.
+@prefix dsp: <http://purl.org/ontology/dsp/>.
+@prefix list: <http://www.w3.org/2000/10/swap/list#>.
+@prefix tl: <http://purl.org/NET/c4dm/timeline.owl#>.
+@prefix : <>.
+
+
+<testset/americanjesus.mp3> a mo:AudioFile.
+
+
+
+{
+?a 	
+	a mo:AudioFile; 
+	dsp:aspl_decode (?ch ?sr ?l ?signals).
+?signal list:in ?signals
+} =>
+{
+?a mo:encodes ?signal.
+?signal
+	a mo:Signal;
+	mo:channels "1";
+	mo:time [
+		a tl:Interval;
+		tl:duration ?l;
+		tl:onTimeLine _:tl;
+	].
+
+}.
+
+
