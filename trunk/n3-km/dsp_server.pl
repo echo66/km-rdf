@@ -6,6 +6,8 @@
 	      ]).
 
 :- use_module(n3_entailment).
+:- use_module(library('semweb/rdf_persistency')).
+
 
 server :-
 	serql_server([]).
@@ -14,6 +16,8 @@ server(Port) :-
 	serql_server([port(Port)]).
 
 %:- server.
+
+:- rdf_attach_db(dspdb,[]).
 
 source :- use_module('dsp-builtins/aspl_builtins'),n3_load('dsp-n3/decode.n3').
 
