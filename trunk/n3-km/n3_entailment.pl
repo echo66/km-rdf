@@ -88,6 +88,18 @@ rdf(S,P,O) :-
 	(list_id(S2,S)->true;S=S2),
 	(list_id(O2,O)->true;O=O2).
 	%\+list(S),\+list(P),\+list(O).
+rdf(S,P,O) :-
+	list(Node,List),
+	\+(in_formulae(rdf(List,_,_));in_formulae(rdf(_,_,List))),
+	pl_list_to_rdf_list(List,Triples,Node),
+	free_variables(Triples,Vars),
+	bnodes(Vars),
+	member(rdf(S,P,O),Triples).
+bnodes([]).
+bnodes([H|T]) :-
+	rdf_bnode(H),
+	bnodes(T).
+
 
 :- dynamic list/2.
 list_id(List,Id) :-
@@ -135,10 +147,10 @@ rdf_e(S,P,O) :-
 :- dynamic rdf_b/3.
 rdf_b(S,P,O) :-
 	format(user_error,'DEBUG: Builtin handling - rdf_b/3\n',[]),
-	rdf_l(S,P,O).
-rdf_b(S,P,O) :-
+	%rdf_l(S,P,O).
+%rdf_b(S,P,O) :-
 	%\+list(S),\+list(O),
-	rdf_core(S,P,O),
+	rdf_core(S,P,O,_),
 	mem_load(S),mem_load(O).
 
 
@@ -146,15 +158,15 @@ rdf_b(S,P,O) :-
  * Lowest level RDF access - just adds a list interpretation layer on top
  * of rdf_db:rdf/3
  */
-rdf_core(S,P,O) :-
+rdf_core(S,P,O,persist) :-
 	format(user_error,'DEBUG: Core rdf query - rdf_core/3\n',[]),
 	persist:rdf_tmp(S,P,O).
-rdf_core(S,P,O) :-
+rdf_core(S,P,O,G) :-
 	copy_term([S,O],[S2,O2]),
-	\+list(S2),\+list(O2),
-	rdf_db:rdf(S2,P,O2),
-	get_list(S2,S),
-	get_list(O2,O3),
+	(list(S2)->true;S4=S2),(list(O2)->true;O4=O2),
+	rdf_db:rdf(S4,P,O4,G),
+	get_list(S4,S),
+	get_list(O4,O3),
 	(O3=[]->O='http://www.w3.org/1999/02/22-rdf-syntax-ns#nil';O=O3).
 
 
@@ -183,7 +195,7 @@ compile_builtins :-
 			format(user_error, 'DEBUG: Asserting ~w :- ~w\n',[rdf_b(S,P,O),(convert(S,O,Args,B),merge_bindings(B),catch(apply(PlPred,Args),_,fail))]),
 			%assert(':-'(rdf_b(S,P,O),(tabled(P),check(rdf(S,P,O)),!,format(user_error,'DEBUG: Retrieving ~w\n',[rdf(S,P,O)])))), %only for det predicates
 			assert(':-'(rdf_b(S,P,O),(\+tabled(P),rdf_b2(S,P,O)))),
-			assert(':-'(rdf_b(S,P,O),(tabled(P),\+check_tmp(rdf(S,P,O)),\+rdf_core(S,P,O),format(user_error,'DEBUG: Evaluating ~w\n',[rdf(S,P,O)]),rdf_b2(S,P,O),!,persist(rdf(S,P,O))))),
+			assert(':-'(rdf_b(S,P,O),(tabled(P),\+check_tmp(rdf(S,P,O)),\+rdf_core(S,P,O,_),format(user_error,'DEBUG: Evaluating ~w\n',[rdf(S,P,O)]),rdf_b2(S,P,O),!,persist(rdf(S,P,O))))),
 			assert(':-'(rdf_b2(S,P,O),(format(user_error,'DEBUG: ~w\n',[apply(PlPred,[S,O])]),catch(apply(PlPred,[S,O]),_,fail))))
 		)
 	).
@@ -220,8 +232,8 @@ check(S,P,O) :-
 in_formulae(rdf(S,P,O)) :-
 	%(rdf_db:rdf(S,P,O,G),\+((existential(S),existential(P),existential(O))),rdf_db:rdf_is_bnode(G),!);
 	%(universal(S),!);(universal(P),!);(universal(O),!);
-	((is_list(S)->true;S=SS),(is_list(O)->true;O=OO),rdf_db:rdf(SS,P,OO,G),rdf_is_bnode(G));
-	P='http://www.w3.org/2000/10/swap/log#implies'. %loose
+	(rdf_core(S,P,O,G),rdf_is_bnode(G));
+	(atomic(P),P='http://www.w3.org/2000/10/swap/log#implies'). %loose
 in_formulae(_) :- fail.
 
 /**
