@@ -84,13 +84,13 @@ rdf(S,P,O) :-
 	format(user_error,'DEBUG: Top level - rdf/3\n',[]),
 	copy_term([S,O],[S2,O2]),
 	rdf_s(S2,P,O2),
-	\+in_formulae(rdf(S2,P,O2)),
+	%\+in_formulae(rdf(S2,P,O2)),
 	(list_id(S2,S)->true;S=S2),
 	(list_id(O2,O)->true;O=O2).
 	%\+list(S),\+list(P),\+list(O).
 rdf(S,P,O) :-
 	list(Node,List),
-	\+(in_formulae(rdf(List,_,_));in_formulae(rdf(_,_,List))),
+	%\+(in_formulae(rdf(List,_,_));in_formulae(rdf(_,_,List))),
 	pl_list_to_rdf_list(List,Triples,Node),
 	free_variables(Triples,Vars),
 	bnodes(Vars),
@@ -164,14 +164,19 @@ rdf_core(S,P,O,persist) :-
 rdf_core(S,P,O,G) :-
 	copy_term([S,O],[S2,O2]),
 	(list(S2)->true;S4=S2),(list(O2)->true;O4=O2),
-	rdf_db:rdf(S4,P,O4,G),
+	rdf_db:rdf(S4,P,O4,G),\+rdf_is_bnode(G),
+	P\='http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',P\='http://www.w3.org/1999/02/22-rdf-syntax-ns#first',O4\='http://www.w3.org/1999/02/22-rdf-syntax-ns#List',P\='http://www.w3.org/2000/10/swap/log#implies',
 	get_list(S4,S),
 	get_list(O4,O3),
 	(O3=[]->O='http://www.w3.org/1999/02/22-rdf-syntax-ns#nil';O=O3).
 
 
-get_list(S,List) :-
-	rdfs_list_to_prolog_list(S,List),!.
+get_list('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil',[]) :- !.
+get_list(S,[H|T]) :-
+	rdf_db:rdf(S,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',H2),
+	get_list(H2,H),
+	rdf_db:rdf(S,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',S2),
+	!,get_list(S2,T).
 get_list(A,A).
 
 

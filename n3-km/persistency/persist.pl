@@ -2,13 +2,11 @@
 
 
 :- use_module(library('semweb/rdf_db')).
-:- use_module(library('semweb/rdf_persistency')).
 :- use_module('../swiaudiodata/audiodata').
 
 :- rdf_register_ns(t,'http://purl.org/ontology/tabling/').
 
 
-:- rdf_attach_db(persistdb,[]).
 
 bin_db(bin_db).
 
@@ -47,7 +45,7 @@ commit :-
 			((pl_list_to_rdf_list(O,Triples2,OO),!);(O=OO,Triples2=[])),
 			append(Triples1,Triples2,Triples),
 			free_variables([Triples,SS,OO],Vars),bnode_list(Vars),
-			rdf_assert(SS,P,OO),
+			!,rdf_assert(SS,P,OO),
 			assert_all(Triples)
 		)),
 	retractall(rdf_tmp(_,_,_)).
