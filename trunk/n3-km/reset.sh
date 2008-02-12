@@ -5,4 +5,4 @@
 
 rm -rdf bin_db
 rm -rdf SeRQL-store
-
+rm -rdf persistency/persistdb

@@ -13,9 +13,15 @@ server :-
 server(Port) :-
 	serql_server([port(Port)]).
 
-:- server.
+%:- server.
 
 :- use_module('dsp-builtins/aspl_builtins').
 
+:- n3_load('dsp-n3/decode.n3').
+
+
+think :-
+        findall(rdf(S,P,O),n3_entailment:rdf(S,P,O),Bag),
+        rdf_write_xml(user_output,Bag).
 
 
