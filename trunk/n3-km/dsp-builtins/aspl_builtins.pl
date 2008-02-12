@@ -14,7 +14,7 @@
  * Registering the builtin
  */
 
-:- rdf_db:rdf_assert('http://purl.org/ontology/dsp/aspl_decode',rdf:type,'http://purl.org/ontology/tabling/TabledPredicate').
+%:- rdf_db:rdf_assert('http://purl.org/ontology/dsp/aspl_decode',rdf:type,'http://purl.org/ontology/tabling/TabledPredicate').
 
 builtins:builtin('http://purl.org/ontology/dsp/aspl_decode',aspl_builtins:decode).
 
