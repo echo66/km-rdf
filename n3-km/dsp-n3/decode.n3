@@ -2,13 +2,16 @@
 @prefix dsp: <http://purl.org/ontology/dsp/>.
 @prefix list: <http://www.w3.org/2000/10/swap/list#>.
 @prefix tl: <http://purl.org/NET/c4dm/timeline.owl#>.
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
 @prefix : <>.
 
 
 <testset/americanjesus.mp3> a mo:AudioFile.
 
-#dsp:aspl_decode a <http://purl.org/ontology/tabling/TabledPredicate>.
+# I need that to keep identity between an audio file and corresponding signals
+dsp:aspl_decode a <http://purl.org/ontology/tabling/TabledPredicate>.
 
+dsp:aspl_decode a owl:FunctionalProperty.
 
 {
 ?a 	
@@ -28,5 +31,6 @@
 	].
 
 }.
+
 
 
