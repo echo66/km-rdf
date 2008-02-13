@@ -201,7 +201,7 @@ compile_builtins :-
 			%assert(':-'(rdf_b(S,P,O),(tabled(P),check(rdf(S,P,O)),!,format(user_error,'DEBUG: Retrieving ~w\n',[rdf(S,P,O)])))), %only for det predicates
 			assert(':-'(rdf_b(S,P,O),(\+tabled(P),rdf_b2(S,P,O)))),
 			assert(':-'(rdf_b(S,P,O),(tabled(P),\+check_tmp(rdf(S,P,O)),\+rdf_core(S,P,O,_),format(user_error,'DEBUG: Evaluating ~w\n',[rdf(S,P,O)]),rdf_b2(S,P,O),!,persist(rdf(S,P,O))))),
-			assert(':-'(rdf_b2(S,P,O),(format(user_error,'DEBUG: ~w\n',[apply(PlPred,[S,O])]),catch(apply(PlPred,[S,O]),_,fail))))
+			assert(':-'(rdf_b2(S,P,O),(((atomic(S),list(S,SS),!);S=SS),((atomic(O),list(O,OO),!);O=OO),format(user_error,'DEBUG: ~w\n',[apply(PlPred,[SS,OO])]),catch(apply(PlPred,[SS,OO]),_,fail))))
 		)
 	).
 compile_rules :-

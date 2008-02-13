@@ -19,7 +19,9 @@ server(Port) :-
 
 :- rdf_attach_db(dspdb,[]).
 
-source :- use_module('dsp-builtins/aspl_builtins'),n3_load('dsp-n3/decode.n3').
+:- use_module('dsp-builtins/aspl_builtins'), use_module('dsp-builtins/vamp_builtins').
+
+source :- n3_load('dsp-n3/decode.n3'),n3_load('dsp-n3/vamp.n3').
 
 
 think :-
