@@ -29,6 +29,7 @@ vamp:qm-constantq
 	.
 
 vamp:qm-keydetector
+	a <http://purl.org/ontology/tabling/TabledPredicate>;
 	a rdf:Property;
 	rdfs:subPropertyOf vamp:qm-plugin;
 	rdfs:label "Onset detector vamp plugin";
