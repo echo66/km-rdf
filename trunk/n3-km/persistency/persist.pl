@@ -8,7 +8,7 @@
 
 
 
-bin_db(bin_db).
+bin_db(bindb).
 
 :- 
 	bin_db(DB),

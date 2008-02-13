@@ -1,0 +1,8 @@
+select ?r ?rr
+where
+{
+<file:///home/moustaki/work/workspace/km-rdf/n3-km/testset/americanjesus.mp3> <http://purl.org/ontology/dsp/aspl_decode> ?sig.
+?sig <http://purl.org/ontology/vamp/qm-keydetector> ?result.
+?r <http://www.w3.org/2000/10/swap/list#in> ?result.
+?rr <http://www.w3.org/2000/10/swap/list#in> ?r
+}
