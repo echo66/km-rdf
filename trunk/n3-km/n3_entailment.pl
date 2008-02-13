@@ -252,11 +252,11 @@ implies(Body,Head) :-
  * Get back two named considered as equal (owl:sameAs)
  */
 sameAs(A,B) :-
-	\+list(A),\+list(B),
-	rdf_db:rdf(A,owl:sameAs,B).
+	%\+list(A),\+list(B),
+	rdf_e(A,'http://www.w3.org/2002/07/owl#sameAs',B).
 sameAs(A,B) :-
-	\+list(A),\+list(B),
-	rdf_db:rdf(B,owl:sameAs,A).
+	%\+list(A),\+list(B),
+	rdf_e(B,'http://www.w3.org/2002/07/owl#sameAs',A).
 
 /**
  * Convert a N3 graph to a bag of Prolog terms (RDF lists are converted to Prolog lists)
