@@ -3,6 +3,8 @@
 	allow the creation of playlists.
 	We use the mean and variance of a the MFCC's to extract the distance using (also from chromagram).
 	David Pastor Escuredo, Jan 2008, c4dm, Queen Mary.
+
+	ToDo: add beat and chromatic similarities.
 	*/
 
 /**
@@ -19,11 +21,15 @@
 #include <swimo.h>
 #include <vector>
 #include <blobid.h>
+#include <cmath>
 
 using namespace std;
 
 int
 smpl_get_data(term_t, vector<double> *);
+
+double 
+distanceDistribution(vector<float> *, vector<float> *, bool);
 
 						/*******************************************
 						******** FOREIGN PREDICATES ****************
@@ -38,7 +44,7 @@ smpl_get_data(term_t, vector<double> *);
 //
 //--------------------------------------------------------------------------
 
-PREDICATE(smpl_mfcckldiv, 5){
+PREDICATE(mfcc_kldiv, 5){
 
 	//+Mfcc means for the first track
 	//+Mfcc variances for the first track
@@ -89,6 +95,164 @@ PREDICATE(smpl_mfcckldiv, 5){
 	delete mfccvar_2;
 
 	return A5 = PlTerm(d);
+}
+
+//------------------------------------------------------
+//	Now the input is the WholeFeature. We get statistics that
+//	model the mfcc as just one Gaussian wichi is still meaningful
+//	for timbral similarity (Mark Levy) 
+//------------------------------------------------------
+PREDICATE(mfcc_gaussian_parameters, 2){
+
+	//+MFCC coefficients
+	//+List with the gaussian parameters
+
+	//-MFCC means (__data_id) Note that these values are just the means and variances and 
+	//not a 'Feature' functor (they can be also retrived like that using the similarity vamp plugin
+	//-MFCC variances
+
+	cerr<<"gaussian"<<endl;
+	PlTail mfccList(A1);
+	PlTail mfccList2(A1);
+	PlTerm mfccFrame;
+
+	vector<float> *means;
+	vector<float> *vars;
+	
+	size_t frames = 0; //numer of frames;
+	//Means
+	while(mfccList.next(mfccFrame)){
+		
+		frames++;
+		vector<float> *coeff;
+	
+	        char *id;
+		term_t id_t = PL_new_term_ref();
+		id_t = term_t(mfccFrame[3]);//getting the data id
+		PL_get_atom_chars(id_t,&id);		
+		DataID::get_data_for_id((const char*)id, coeff);
+
+		//Init vectors
+		if(frames==1){
+			cerr<<coeff->size()<<endl;
+			means = new vector<float>(coeff->size());
+			vars = new vector<float>(coeff->size());
+		}
+
+
+		//calculating the mean 
+		for(size_t j=0; j<coeff->size(); j++){
+			
+			if(frames==1){
+				means->at(j)=0; //init just in case
+			}			
+
+			means -> at(j) += coeff -> at(j);//adding coefficients
+		}		
+	}
+	for(size_t r = 0; r<means->size(); r++){
+		
+		means->at(r) /= frames;
+	}
+	
+	cerr<<frames<<endl;
+
+	//Variances
+	while(mfccList2.next(mfccFrame)){
+		
+		vector<float> *coeff;
+	        char *id;
+		term_t id_t = PL_new_term_ref();
+		id_t = term_t(mfccFrame[3]);//getting the data id
+		PL_get_atom_chars(id_t,&id);
+		
+		DataID::get_data_for_id((const char*)id, coeff);
+		//cerr<<coeff->size()<<endl;
+
+		//calculating the mean and the frame
+		for(size_t j=0; j<coeff->size(); j++){
+			
+			if(frames==1){
+				vars->at(j)=0; //init just in case
+			}
+
+			vars -> at(j) += (coeff -> at(j)-means -> at(j))*(coeff -> at(j)-means -> at(j));//adding coefficients
+		}		
+	}
+	for(size_t r = 0; r<vars->size(); r++){
+		
+		vars->at(r) /= frames;
+	}
+
+	PlTerm means_t(PlAtom(DataID::assign_data_id(means)));
+	PlTerm vars_t(PlAtom(DataID::assign_data_id(vars)));
+	PlTerm gaussian;
+	PlTail tail(gaussian);
+	tail.append(means_t);
+	tail.append(vars_t);
+	tail.close();
+
+	return A2 = gaussian;
+}
+
+
+//--------------------------------------------------------------------
+//   Calculate a Kullback-Leibler divergence of two probability
+//   distributions.  Input vectors must be of equal size.  
+//   We assume in not symmetrised
+    
+//
+//   This just needs the chroma means extracted from the chromagram plugin
+//--------------------------------------------------------------------
+ 
+PREDICATE(chroma_kldiv, 3){
+
+	//+ probability distribution track1
+	//+ probability distribution track2
+	//+ symmetrised flag. Active
+	//- Distance
+
+	vector<float> *hist1;
+	vector<float> *hist2;
+
+	char *id1;
+	term_t id_t1 = PL_new_term_ref();
+	id_t1 = term_t(PlTerm(A1));//getting the data id
+	PL_get_atom_chars(id_t1,&id1);
+
+	char *id2;
+	term_t id_t2 = PL_new_term_ref();
+	id_t2 = term_t(PlTerm(A2));//getting the data id
+	PL_get_atom_chars(id_t2,&id2);
+
+	DataID::get_data_for_id((const char*)id1, hist1);
+	DataID::get_data_for_id((const char*)id2, hist2);
+
+	return A4 = PlTerm((double)distanceDistribution(hist1, hist2, true));
+}
+
+	
+
+//---------------------------------------------------------------
+//---------- Taken from the qm-dsp library
+//---------------------------------------------------------------
+
+double distanceDistribution(vector<float> *d1, vector<float> *d2, bool symmetrised)
+{
+    int sz = d1->size();
+
+    double d = 0;
+    float small = 1e-20;
+    
+    for (int i = 0; i < sz; ++i) {
+        d += (double)(d1->at(i) * log10((d1->at(i) + small) / (d2->at(i) + small)));
+    }
+
+    if (symmetrised) {
+        d += distanceDistribution(d2, d1, false);
+    }
+
+    return d;
 }
 
 //------
