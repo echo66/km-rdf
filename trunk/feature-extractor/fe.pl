@@ -199,7 +199,15 @@ vamp_feature_of(mfccvariances, Signal, WholeFeature):-
 	vmpl_initialize_plugin(Plugin, Channels, StepSize, BlockSize),
 	vamp_compute_feature(S, StepSize, BlockSize, 4, Plugin, WholeFeature).
 
-
+vamp_feature_of(beatspectrum, Signal, WholeFeature):-
+	mix_stereo(Signal, S),
+	vmpl_load_plugin_for('libqm-vamp-plugins:qm-similarity', S, Plugin),
+	set_blockSize(Plugin, BlockSize),
+	set_stepSize(Plugin, StepSize),
+	get_channels(S, Channels),
+	vmpl_set_parameter(Plugin, 'featureType', 4),
+	vmpl_initialize_plugin(Plugin, Channels, StepSize, BlockSize),
+	vamp_compute_feature(S, StepSize, BlockSize, 5, Plugin, WholeFeature).
 
 /**will crash
 vamp_feature_of('sbtimbral', Signal1, Signal2, Distance):-
