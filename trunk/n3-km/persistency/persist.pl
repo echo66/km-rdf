@@ -1,4 +1,4 @@
-:- module(persist,[commit/0,check_tmp/1,mem_load/1,bin_db/1,assert_tabled/1,tabled/1,persist/1,s_table/1]).
+:- module(persist,[commit/0,check_tmp/1,mem_load/1,bin_db/1,assert_tabled/1,just_tabled/1,cached/1,tabled/1,persist/1,s_table/1]).
 
 
 :- use_module(library('semweb/rdf_db')).
@@ -20,7 +20,12 @@ check_tmp(rdf(S,P,O)) :-
 	rdf_tmp(S,P,O),!.
 
 tabled(Predicate) :-
+	rdf_db:rdf(Predicate,rdf:type,t:'TabledPredicate');
+	rdf_db:rdf(Predicate,rdf:type,t:'CachedPredicate').
+just_tabled(Predicate) :-
 	rdf_db:rdf(Predicate,rdf:type,t:'TabledPredicate').
+cached(Predicate) :-
+	rdf_db:rdf(Predicate,rdf:type,t:'CachedPredicate').
 :- rdf_meta assert_tabled(r).
 assert_tabled(Predicate) :-
 	rdf_db:rdf_assert(Predicate,rdf:type,t:'TabledPredicate').
@@ -36,13 +41,20 @@ persist_l([H|T]) :-
 	persist_l(T).
 persist_l(H) :- persist_node(H).
 persist_l(_).
+clean_l([]).
+clean_l([H|T]) :-
+        clean_l(H),
+        clean_l(T).
+clean_l(H) :- clean_node(H).
+clean_l(_).
+
 
 :- multifile list/2.
 
 commit :- 
 	forall(rdf_tmp(S,P,O),
 		(
-			persist_l(S),persist_l(O),
+			(cached(P)->(((\+((rdf_tmp(_,P2,S),just_tabled(P2))),!,persist_l(S));clean_l(S)),persist_l(O));true),
 			((pl_list_to_rdf_list(S,Triples1,SS),n3_entailment:list(SS,S),!);(S=SS,Triples1=[])),
 			((pl_list_to_rdf_list(O,Triples2,OO),n3_entailment:list(OO,O),!);(O=OO,Triples2=[])),
 			append(Triples1,Triples2,Triples),
@@ -89,9 +101,16 @@ persist_node(N) :-
 	format(atom(File),'~w/~w',[DB,N]),
 	format(user_error,'DEBUG: Dumping ~w in ~w\n',[N,File]),
 	!,
-	data_out(N,File),clean_data(N).
+	data_out(N,File),clean_node(N).
 persist_node(_).
 
+clean_node(N) :-
+        atomic(N),
+        atom_concat('__data',_,N),
+        format(user_error,'DEBUG: Spring cleaning of ~w\n',[N]),
+        !,
+        clean_data(N).
+clean_node(_).
 
 mem_load(N) :-
 	atomic(N),
