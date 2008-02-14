@@ -128,4 +128,27 @@ PREDICATE(clean_data, 1){
 	return true;
 }
 
+/*
+ * Checking the status
+ */
+
+PREDICATE(ids_in_db, 1){
+
+	return A1 = PlTerm((double)DataID::ids_in_db());
+
+}
+
+PREDICATE(current_id, 1){
+
+	return A1 = PlTerm(PlAtom(DataID::current_id()));
+
+}
+
+PREDICATE(next_id, 1){
+
+	return A1 = PlTerm(PlAtom(DataID::next_id_to_assign()));
+
+}
+
+
 

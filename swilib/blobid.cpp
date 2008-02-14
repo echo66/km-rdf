@@ -36,7 +36,7 @@ static struct AudioDataRecord{
  * Database with all the entries id/data. There is a maximum of ids in the system. This may be a significant limitation...
  */
 
-audio_data_db[MAX_AUDIO_ID_DB];
+audio_data_db[MAX_AUDIO_ID_DB];//The maximum number of ids in the database is the maximum value that an unsigned long can reach 4 294 967 295
 
 /*
  * This is the last ID created and assigned from the system. This doesn't mean this is the number of IDs on the database as we may have reserved
@@ -44,7 +44,7 @@ audio_data_db[MAX_AUDIO_ID_DB];
  * to reuse ids in different sessions when we do not longer need certain ids.
  */
 
-size_t lastID = 0;
+size_t lastID = 0; 
 
 /*
  * This is the count of ids in the system. This is necessary to keep order in the database and put the ids in the lower positions. Therefore there is
@@ -126,7 +126,7 @@ assign_data_id(vector<float> *data)
 int
 get_data_for_id(const char* ident, std::vector<float>* &m_data)
 {
-	double pos = 0;
+	long long pos = 0;
 	pos = existing_id(ident);
 	if(pos < 0){
 		 return -1;//no id. -1
@@ -152,7 +152,7 @@ get_data_for_id(const char* ident, std::vector<float>* &m_data)
 int 
 set_blob_for_id(const char *ident, term_t blob)
 {
-	double pos = 0;
+	long long pos = 0;
 	pos = existing_id(ident);
 	if(pos<0){
 		cerr<<"The Id doesn't exist"<<endl;
@@ -184,7 +184,7 @@ set_blob_for_id(const char *ident, term_t blob)
 int 
 get_blob_from_id(const char *ident, term_t blob)
 {
-	double pos = 0;
+	long long pos = 0;
 	pos = existing_id(ident);
 	if(pos < 0){
 		 return -1;//no id. -1
@@ -207,14 +207,16 @@ get_blob_from_id(const char *ident, term_t blob)
 	
 	        -1 no exists
 	 	index in the table if exists
+
+	we need to return a long long to cover the long and the negative value. I could have change this really...
 */
-long
+long long
 existing_id(const char* ident)
 {
 	int flag = -1;
-	size_t pos = 0;
+	size_t pos = 0;//usigned long which is the size of the database
 	QString input(ident);
-	for(size_t i=0; i<ids_in_system; i++){
+	for(size_t i=0; i<ids_in_system; i++){//this was a bug
 		
 		if(input.compare(audio_data_db[i].id)==0) {//this check should be correctly defined
 			flag = 0;
@@ -291,7 +293,7 @@ reserve_id(const char *ident)
 int
 clean_data_for_id(const char* ident){
 
-	double pos = 0;
+	long long pos = 0;
 	pos = existing_id(ident);
 
 	if(pos<0) return -1; //no id.
@@ -317,8 +319,28 @@ ids_in_db()
 	return ids_in_system;
 }
 
+/**
+	Returns the last id assigned in the system
+*/
+const char*
+current_id()
+{
+
+	return generate_id(lastID).toLocal8Bit().data();
 }
 
+/**
+	Next id to assign which may be not lastID + 1 as it could be taken
+*/
+const char*
+next_id_to_assign()
+{
+	//This is temporary so we save the context
+	size_t oldLast = lastID;
+	const char *nextID = generate_free_id().toLocal8Bit().data();
+	lastID = oldLast;//restoring the context
+	
+	return nextID;
+}
 
-
-
+}//end of DataID
