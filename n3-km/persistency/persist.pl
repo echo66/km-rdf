@@ -1,4 +1,4 @@
-:- module(persist,[commit/0,check_tmp/1,mem_load/1,bin_db/1,assert_tabled/1,just_tabled/1,cached/1,tabled/1,persist/1,s_table/1]).
+:- module(persist,[init_persistency/0,commit/0,check_tmp/1,mem_load/1,bin_db/1,assert_tabled/1,just_tabled/1,cached/1,tabled/1,persist/1,s_table/1]).
 
 
 :- use_module(library('semweb/rdf_db')).
@@ -116,7 +116,7 @@ mem_load(N) :-
 	atomic(N),
 	atom_concat('__data_',_Id,N),
 	bin_db(DB),\+active_id(N),!,
-	((reserve_id(N),!);true),
+	((reserve(N),!);true),
 	format(atom(File),'~w/~w',[DB,N]),
 	format(user_error,'DEBUG: Loading node ~w from ~w\n',[N,File]),
 	data_in(File,N),
@@ -130,6 +130,15 @@ mem_load(_).
 on_backtracking(_).
 on_backtracking(N) :- clean_data(N),!,fail.	
 
+init_persistency :-
+	forall((rdf_db:rdf(_,_,C),atomic(C),atom_concat('__data_',_,C)),reserve(C)),
+	forall((rdf_db:rdf(A,_,_),atomic(A),atom_concat('__data_',_,A)),reserve(A)),
+	!.
+init_persistency.
+
+reserve(N) :-
+	format(user_error,'DEBUG: Reserving data ID ~w\n',[N]),
+	reserve_id(N).
 
 /**
  * In session tabling - should not really

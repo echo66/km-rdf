@@ -1,4 +1,4 @@
-:- module(n3_entailment,[n3_load/1,compile/0]).
+:- module(n3_entailment,[init_persistency/0,n3_load/1,compile/0]).
 
 /**
  * This module provides entailment 
@@ -71,6 +71,7 @@ n3_load(File) :-
 	forall(member(rdf(A,B,C,D),Doc),rdf_db:rdf_assert(A,B,C,D)).
 
 :- dynamic rdf_e/3.
+
 
 
 /**
