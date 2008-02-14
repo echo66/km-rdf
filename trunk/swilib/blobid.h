@@ -10,8 +10,9 @@
 #endif
 #include <qstring.h>
 #include <vector>
+#include <limits>
 
-#define MAX_AUDIO_ID_DB 10000000
+#define MAX_AUDIO_ID_DB 100000000 //I'm not allowed to make it bigger
 
 /*
  * Prototypes to access the database of BlobID records
@@ -99,7 +100,7 @@ get_blob_from_id(const char*, term_t );
 	 	index in the table if exists
 */
 
-long
+long long
 existing_id(const char* );
 
 /**
@@ -138,6 +139,18 @@ clean_data_for_id(const char*);
 
 size_t
 ids_in_db();
+
+/**
+	Returns the last id assigned in the system
+*/
+const char*
+current_id();
+
+/**
+	Next id to assign which may be not lastID + 1 as it could be taken
+*/
+const char*
+next_id_to_assign();
 
 }
 

@@ -30,12 +30,22 @@
 			list_to_pointerBlob/2,
 			clean_pointedVector/1,
 			is_audio_blob/1,
+
+			/* data id stuff*/
 			blob_id/2,
 			id_blob/2,
 			is_data_id/2,
 			active_id/1,
 			reserve_id/1,
-			is_data_id/1,		
+			is_data_id/1,	
+
+			/*db status*/
+			current_id/1,
+			next_id/1,
+			ids_in_db/1,
+			id_db_status/3,
+
+			/*i/o data operations*/	
 			data/2,
 			load_data_list/2,
 			blob_to_file/2,
@@ -271,5 +281,13 @@ clean_pcm([H|T]):-
 */
 clean_signal('Signal'(_Channels, _SampleRate, _Samples, ListPcm)):-
 	clean_pcm(ListPcm).
+
+/**
+	Checking the status of the database
+*/
+id_db_status(Size, CurrentID, NextID):-
+	ids_in_db(Size),
+	current_id(CurrentID),
+	next_id(NextID).
 
 

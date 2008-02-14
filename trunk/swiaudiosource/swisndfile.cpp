@@ -179,6 +179,13 @@ PREDICATE(sfpl_decode, 1)
 	return TRUE;	
 }
 
+PREDICATE(sfpl_decode_stream, 1){
+
+
+
+
+}
+
 /*
  * This will be at the very end. but hopefully can be removed after the implementation is done
  */
@@ -270,6 +277,18 @@ sfpl_array_to_vector(float *array, vector<float> *vector, size_t samples){
 		vector -> push_back(array[i]);
 	}
 	//cerr<<vector->size()<<endl;
+}
+
+/*
+ * handles the input stream
+ */
+
+void
+get_input_stream(term_t){
+
+	//getting a prolog term which is a prolog stream.
+
+
 }
 
 
