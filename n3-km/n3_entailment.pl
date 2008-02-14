@@ -83,10 +83,11 @@ n3_load(File) :-
 rdf(S,P,O) :-
 	format(user_error,'DEBUG: Top level - rdf/3\n',[]),
 	copy_term([S,O],[S2,O2]),
-	rdf_s(S2,P,O2),
+	((rdf_is_bnode(S2),list_id(S3,S2))->true;S3=S2),((rdf_is_bnode(O2),list_id(O3,O2))->true;O3=O2),
+	rdf_s(S3,P,O3),
 	%\+in_formulae(rdf(S2,P,O2)),
-	(list_id(S2,S)->true;S=S2),
-	(list_id(O2,O)->true;O=O2).
+	(list_id(S3,S)->true;S=S3),
+	(list_id(O3,O)->true;O=O3).
 	%\+list(S),\+list(P),\+list(O).
 rdf(S,P,O) :-
 	list(Node,List),
@@ -102,8 +103,12 @@ bnodes([H|T]) :-
 
 
 :- dynamic list/2.
+:- multifile list/2.
 list_id(List,Id) :-
-	is_list(List),
+	rdf_is_bnode(Id),
+	get_list(Id,List),List\=Id,!.
+list_id(List,Id) :-
+	%is_list(List),
 	list(Id,List),!.
 list_id(List,Id) :-
 	is_list(List),
@@ -150,6 +155,7 @@ rdf_b(S,P,O) :-
 	%rdf_l(S,P,O).
 %rdf_b(S,P,O) :-
 	%\+list(S),\+list(O),
+	writeln(rdf_core(S,P,O,_)),
 	rdf_core(S,P,O,_),
 	mem_load(S),mem_load(O).
 
@@ -163,7 +169,7 @@ rdf_core(S,P,O,persist) :-
 	persist:rdf_tmp(S,P,O).
 rdf_core(S,P,O,G) :-
 	copy_term([S,O],[S2,O2]),
-	(list(S2)->true;S4=S2),(list(O2)->true;O4=O2),
+	((nonvar(S2),is_list(S2))->true;S4=S2),((nonvar(O2),is_list(O2))->true;O4=O2),
 	rdf_db:rdf(S4,P,O4,G),\+rdf_is_bnode(G),
 	P\='http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',P\='http://www.w3.org/1999/02/22-rdf-syntax-ns#first',O4\='http://www.w3.org/1999/02/22-rdf-syntax-ns#List',P\='http://www.w3.org/2000/10/swap/log#implies',
 	get_list(S4,S),
@@ -199,9 +205,9 @@ compile_builtins :-
 			
 			format(user_error, 'DEBUG: Asserting ~w :- ~w\n',[rdf_b(S,P,O),(convert(S,O,Args,B),merge_bindings(B),catch(apply(PlPred,Args),_,fail))]),
 			%assert(':-'(rdf_b(S,P,O),(tabled(P),check(rdf(S,P,O)),!,format(user_error,'DEBUG: Retrieving ~w\n',[rdf(S,P,O)])))), %only for det predicates
-			assert(':-'(rdf_b(S,P,O),(\+tabled(P),rdf_b2(S,P,O)))),
-			assert(':-'(rdf_b(S,P,O),(tabled(P),\+check_tmp(rdf(S,P,O)),\+rdf_core(S,P,O,_),format(user_error,'DEBUG: Evaluating ~w\n',[rdf(S,P,O)]),rdf_b2(S,P,O),!,persist(rdf(S,P,O))))),
-			assert(':-'(rdf_b2(S,P,O),(((atomic(S),list(S,SS),!);S=SS),((atomic(O),list(O,OO),!);O=OO),format(user_error,'DEBUG: ~w\n',[apply(PlPred,[SS,OO])]),catch(apply(PlPred,[SS,OO]),_,fail))))
+			assert(':-'(rdf_b(S,P,O),(\+tabled(P),((atomic(S),list(S,SS),!);S=SS),((atomic(O),list(O,OO),!);O=OO),rdf_b2(SS,P,OO)))),
+			assert(':-'(rdf_b(S,P,O),(tabled(P),((atomic(S),list(S,SS),!);S=SS),((atomic(O),list(O,OO),!);O=OO),\+check_tmp(rdf(SS,P,OO)),\+rdf_core(SS,P,OO,_),format(user_error,'DEBUG: Evaluating ~w\n',[rdf(SS,P,OO)]),rdf_b2(SS,P,OO),!,persist(rdf(SS,P,OO))))),
+			assert(':-'(rdf_b2(S,P,O),(format(user_error,'DEBUG: ~w\n',[apply(PlPred,[S,O])]),catch(apply(PlPred,[S,O]),_,fail))))
 		)
 	).
 compile_rules :-
