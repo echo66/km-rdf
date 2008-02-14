@@ -15,9 +15,8 @@ server :-
 server(Port) :-
 	serql_server([port(Port)]).
 
-%:- server.
+:- server.
 
-:- rdf_attach_db(dspdb,[]).
 
 :- use_module('dsp-builtins/aspl_builtins'), use_module('dsp-builtins/vamp_builtins').
 
