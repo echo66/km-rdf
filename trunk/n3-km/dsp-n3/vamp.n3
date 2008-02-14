@@ -53,3 +53,10 @@ vamp:qm-tonalchange
 	rdfs:label "Tonal change vamp plugin";
 	.
 
+
+#{
+#(?c ?sr ?l (?sig1 ?sig2)) vamp:qm-keydetector
+#} => {
+#}.
+
+
