@@ -16,7 +16,7 @@
 			set_limit_framing/3,
 			set_framing/4,
 			framed_signal/4,
-			framed_signal_bis/4, /*evaluate which is better*/
+			framed_signal_bis/4, 
 			clean_frame/1,
 			clean_pcm/1,
 			clean_signal/1,

@@ -134,7 +134,7 @@ PREDICATE(clean_data, 1){
 
 PREDICATE(ids_in_db, 1){
 
-	return A1 = PlTerm((double)DataID::ids_in_db());
+	return A1 = PlTerm((long)DataID::ids_in_db());
 
 }
 

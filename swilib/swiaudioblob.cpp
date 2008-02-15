@@ -183,7 +183,7 @@ dump_blob_data(term_t blob, const char* filePath){
 	size_t data_size;
 	data_size = data -> size();//size of the vector
 
-	cerr<<data_size<<endl;
+	//cerr<<data_size<<endl;
 
 	FILE *fileData;
 	fileData = fopen(filePath, "w");//binary file to write
@@ -207,7 +207,10 @@ dump_blob_data(term_t blob, const char* filePath){
 			}
 			test = r;
 		}
-		cerr<<test<<endl;
+		fseek(fileData, 0L, SEEK_END );
+ 		long final = ftell(fileData);
+		//cerr<<"eof at "<<final<<endl;
+		//cerr<<test<<endl;
 		fclose(fileData);
 		return 0;
 	}else{
@@ -222,7 +225,8 @@ dump_blob_data(term_t blob, const char* filePath){
 		 0 success
 		-1 error
 
-	TODAVIA NO FUNCIONA BIEN
+	NOTE: it has a limitation which i can't understand. The maximum data size we can in/out without truncation is 40000 samples. We can not store 
+	therefore the whole signal without losses.
 */	
 int
 load_file_data(term_t blob, const char* filePath){
@@ -243,9 +247,14 @@ load_file_data(term_t blob, const char* filePath){
 		char c;
 		float *datum = 0;
 		size_t test2 = 0;
-		
+		fseek(fileData, 0L, SEEK_END );
+ 		long final = ftell(fileData);
+		//cerr<<"eof at "<<final<<endl;
+
+		fseek(fileData, 0L, SEEK_SET);
 		//read characters till the end of the file is reached getting the length of the data and a temporary buffer
-		do {
+		
+		for(size_t r=0;r<final;r++){
 			c=getc(fileData);
 		 	bin_datum[char_count] = c;
 			test2++;
@@ -265,9 +274,8 @@ load_file_data(term_t blob, const char* filePath){
 			}else{
 				char_count++;
 			}
-	     			
-    		} while (c != EOF);
-		cerr<<test2<<endl;
+	     	}
+		//cerr<<test2<<endl;
 		fclose(fileData); //we don't need to read the file anymore
 	
 		//returning the blob
