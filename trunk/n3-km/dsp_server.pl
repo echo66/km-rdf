@@ -15,7 +15,7 @@ server :-
 server(Port) :-
 	serql_server([port(Port)]).
 
-:- server.
+:- server(1212).
 
 
 :- use_module('dsp-builtins/aspl_builtins'), use_module('dsp-builtins/vamp_builtins').

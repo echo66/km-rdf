@@ -55,6 +55,7 @@
 :- use_module(namespaces).
 :- use_module(builtins).
 :- use_module('persistency/persist').
+:- use_module('persistency/tmp').
 
 term_expansion((rdf(S0, P0, O0) :- Body),
                (rdf(S,  P,  O)  :- Body)) :-
@@ -103,18 +104,6 @@ bnodes([H|T]) :-
 	bnodes(T).
 
 
-:- dynamic list/2.
-:- multifile list/2.
-list_id(List,Id) :-
-	rdf_is_bnode(Id),
-	get_list(Id,List),List\=Id,!.
-list_id(List,Id) :-
-	%is_list(List),
-	list(Id,List),!.
-list_id(List,Id) :-
-	is_list(List),
-	rdf_bnode(Id),
-	assert(list(Id,List)).
 
 
 /**
@@ -167,7 +156,7 @@ rdf_b(S,P,O) :-
  */
 rdf_core(S,P,O,persist) :-
 	format(user_error,'DEBUG: Core rdf query - rdf_core/3\n',[]),
-	persist:rdf_tmp(S,P,O).
+	rdf_tmp(S,P,O).
 rdf_core(S,P,O,G) :-
 	copy_term([S,O],[S2,O2]),
 	((nonvar(S2),is_list(S2))->true;S4=S2),((nonvar(O2),is_list(O2))->true;O4=O2),
@@ -177,14 +166,6 @@ rdf_core(S,P,O,G) :-
 	get_list(O4,O3),
 	(O3=[]->O='http://www.w3.org/1999/02/22-rdf-syntax-ns#nil';O=O3).
 
-
-get_list('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil',[]) :- !.
-get_list(S,[H|T]) :-
-	rdf_db:rdf(S,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',H2),
-	get_list(H2,H),
-	rdf_db:rdf(S,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',S2),
-	!,get_list(S2,T).
-get_list(A,A).
 
 
 
