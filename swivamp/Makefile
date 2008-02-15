@@ -10,8 +10,7 @@ CFLAGS = -Wall -fPIC
 # Define your platform-specific options here
 #######################################################################
 
-swi_dir = /usr/local/lib/pl-5.6.34
-
+swi_dir = /usr/local/lib/pl-5.6.50
 swivamp_dir = /home/david/km-rdf/swivamp
 vamp_dir = /home/david/vamp-plugin-sdk-v1.1pre1
 swilib_dir = /home/david/km-rdf/swilib
