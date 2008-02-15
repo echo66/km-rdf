@@ -52,7 +52,7 @@ commit :-
 			((pl_list_to_rdf_list(O,Triples2,OO),list(OO,O),!);(O=OO,Triples2=[])),
 			append(Triples1,Triples2,Triples),
 			free_variables([Triples,SS,OO],Vars),bnode_list(Vars),
-			!,rdf_assert(SS,P,OO),
+			!,rdf_assert(SS,P,OO,persist),
 			assert_all(Triples)
 		)),
 	retractall(rdf_tmp(_,_,_)).
@@ -64,7 +64,7 @@ bnode_list([H|T]) :-
 
 assert_all([]).
 assert_all([rdf(S,P,O)|T]) :-
-	rdf_assert(S,P,O),
+	rdf_assert(S,P,O,persist),
 	assert_all(T).
 
 pl_list_to_rdf_list([H],[rdf(H2,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',H3),rdf(H2,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest','http://www.w3.org/1999/02/22-rdf-syntax-ns#nil')|Triples],H2) :- is_list(H),pl_list_to_rdf_list(H,Triples,H3),!.

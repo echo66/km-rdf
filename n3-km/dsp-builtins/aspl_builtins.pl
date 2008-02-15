@@ -11,6 +11,7 @@
 :- rdf_register_ns(tl,'http://purl.org/NET/c4dm/timeline.owl#').
 
 :- use_module(library('http/http_client')).
+:- use_module('persistency/tmp').
 
 /**
  * Registering the builtin
@@ -39,16 +40,17 @@ uri(Af,File) :-
 :- multifile handler/2. % hook 
 handler(http,http_uri).
 
-:- dynamic cached/2.
 http_uri(Http,File) :-
-	cached(Http,File),!.
+	check_tmp(rdf(File,'http://www.w3.org/2002/07/owl#sameAs',Http)),!.
+http_uri(Http,File) :-
+	rdf_db:rdf(File,'http://www.w3.org/2002/07/owl#sameAs',Http),!.
 http_uri(Http,File) :-
 	www_form_encode(Http,Key),
 	format(atom(File),'httpcache/~w',[Key]),
 	format(user_error,'DEBUG: Caching ~w as ~w\n',[Http,File]),
 	format(atom(Command),'wget ~w -O- > ~w',[Http,File]),
 	shell(Command),
-	assert(cached(Http,File)).
+	persist(rdf(File,'http://www.w3.org/2002/07/owl#sameAs',Http)).
 
 handler(file,file_uri).
 

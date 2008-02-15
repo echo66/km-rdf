@@ -115,10 +115,12 @@ bnodes([H|T]) :-
 % special handling of owl:sameAs
 rdf_s(S,P,O) :-
 	format(user_error,'DEBUG: SameAs handling - rdf_s/3\n',[]),
+	nonvar(S),
 	sameAs(S,SS),
 	rdf_e(SS,P,O),
 	P\='http://www.w3.org/2002/07/owl#sameAs'.
 rdf_s(S,P,O) :-
+	nonvar(O),
 	sameAs(O,OO),
 	rdf_e(S,P,OO),
 	P\='http://www.w3.org/2002/07/owl#sameAs'.
@@ -130,7 +132,7 @@ rdf_s(S,P,O) :-
  * N3/builtin entailment
  */
 rdf_e(S,P,O) :-
-	format(user_error,'DEBUG: Entailment rules - rdf_e/3\n',[]),
+	format(user_error,'DEBUG: Entailment rules - ~w/3\n',[rdf_e(S,P,O)]),
 	rdf_b(S,P,O).
 
 
@@ -141,7 +143,7 @@ rdf_e(S,P,O) :-
  */
 :- dynamic rdf_b/3.
 rdf_b(S,P,O) :-
-	format(user_error,'DEBUG: Builtin handling - rdf_b/3\n',[]),
+	format(user_error,'DEBUG: Builtin handling - ~w\n',[rdf_b(S,P,O)]),
 	%rdf_l(S,P,O).
 %rdf_b(S,P,O) :-
 	%\+list(S),\+list(O),
@@ -155,7 +157,7 @@ rdf_b(S,P,O) :-
  * of rdf_db:rdf/3
  */
 rdf_core(S,P,O,persist) :-
-	format(user_error,'DEBUG: Core rdf query - rdf_core/3\n',[]),
+	format(user_error,'DEBUG: Core rdf query - ~w\n',[rdf_core(S,P,O)]),
 	rdf_tmp(S,P,O).
 rdf_core(S,P,O,G) :-
 	copy_term([S,O],[S2,O2]),
@@ -188,7 +190,7 @@ compile_builtins :-
 			format(user_error, 'DEBUG: Asserting ~w :- ~w\n',[rdf_b(S,P,O),(convert(S,O,Args,B),merge_bindings(B),catch(apply(PlPred,Args),_,fail))]),
 			%assert(':-'(rdf_b(S,P,O),(tabled(P),check(rdf(S,P,O)),!,format(user_error,'DEBUG: Retrieving ~w\n',[rdf(S,P,O)])))), %only for det predicates
 			assert(':-'(rdf_b(S,P,O),(\+tabled(P),((atomic(S),list(S,SS),!);S=SS),((atomic(O),list(O,OO),!);O=OO),rdf_b2(SS,P,OO)))),
-			assert(':-'(rdf_b(S,P,O),(tabled(P),((atomic(S),list(S,SS),!);S=SS),((atomic(O),list(O,OO),!);O=OO),\+check_tmp(rdf(SS,P,OO)),\+rdf_core(SS,P,OO,_),format(user_error,'DEBUG: Evaluating ~w\n',[rdf(SS,P,OO)]),rdf_b2(SS,P,OO),!,persist(rdf(SS,P,OO))))),
+			assert(':-'(rdf_b(S,P,O),(tabled(P),((atomic(S),list(S,SS),!);S=SS),((atomic(O),list(O,OO),!);O=OO),\+rdf_core(SS,P,OO,persist),format(user_error,'DEBUG: Evaluating ~w\n',[rdf(SS,P,OO)]),!,rdf_b2(SS,P,OO),persist(rdf(SS,P,OO))))),
 			assert(':-'(rdf_b2(S,P,O),(format(user_error,'DEBUG: ~w\n',[apply(PlPred,[S,O])]),catch(apply(PlPred,[S,O]),_,fail))))
 		)
 	).
