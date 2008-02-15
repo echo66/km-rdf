@@ -21,8 +21,8 @@ keydetector(Input,Features) :-
 	vmpl_load_plugin_for('libqm-vamp-plugins:qm-keydetector','Signal'(Channels,SR,L,Sigs),Plugin),
 	vmpl_get_blockSize(Plugin,Win),
 	vmpl_get_stepSize(Plugin,Hop),
-	vmpl_initialize_plugin(Plugin,1,Win,Hop),
-	vamp_compute_feature('Signal'(Channels,SR,L,Sigs),Win,Hop,0,Plugin,F),
+	vmpl_initialize_plugin(Plugin,Channels,Win,Hop),
+	vamp_compute_feature('Signal'(Channels,SR,L,Sigs),Win,Hop,2,Plugin,F),
 	findall([literal(Otp),literal(TS),literal(TE),literal(Data)],(member('Feature'(Otp,'Timestamp'(TS,TE),DataBin),F),data(DataBin,DataL),DataL=[Data]),Features).
 
 mfccmeans(Input,Features) :-
