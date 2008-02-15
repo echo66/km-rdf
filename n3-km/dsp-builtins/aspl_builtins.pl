@@ -10,7 +10,7 @@
 :- rdf_register_ns(mo,'http://purl.org/ontology/mo/').
 :- rdf_register_ns(tl,'http://purl.org/NET/c4dm/timeline.owl#').
 
-:- use_module(library('http/http_open')).
+:- use_module(library('http/http_client')).
 
 /**
  * Registering the builtin
@@ -44,11 +44,10 @@ http_uri(Http,File) :-
 	cached(Http,File),!.
 http_uri(Http,File) :-
 	www_form_encode(Http,Key),
-	atom_concat('httpcache/',Key,File),
-	http_open(Http,HttpS,[]),
-	open(File,write,FileS),
-	copy_stream_data(HttpS,FileS),
-	close(FileS),close(HttpS),
+	format(atom(File),'httpcache/~w',[Key]),
+	format(user_error,'DEBUG: Caching ~w as ~w\n',[Http,File]),
+	format(atom(Command),'wget ~w -O- > ~w',[Http,File]),
+	shell(Command),
 	assert(cached(Http,File)).
 
 handler(file,file_uri).

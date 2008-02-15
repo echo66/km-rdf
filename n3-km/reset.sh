@@ -4,5 +4,6 @@
 
 rm -rdf dspdb
 rm -rdf bindb
+rm -rdf httpcache/*.*
 rm -rdf SeRQL-store
 rm -rdf persistency/persistdb
