@@ -10,6 +10,8 @@
 :- rdf_register_ns(mo,'http://purl.org/ontology/mo/').
 :- rdf_register_ns(tl,'http://purl.org/NET/c4dm/timeline.owl#').
 
+:- use_module(library('http/http_open')).
+
 /**
  * Registering the builtin
  */
@@ -37,13 +39,17 @@ uri(Af,File) :-
 :- multifile handler/2. % hook 
 handler(http,http_uri).
 
+:- dynamic cached/2.
+http_uri(Http,File) :-
+	cached(Http,File),!.
 http_uri(Http,File) :-
 	www_form_encode(Http,Key),
 	atom_concat('httpcache/',Key,File),
 	http_open(Http,HttpS,[]),
 	open(File,write,FileS),
 	copy_stream_data(HttpS,FileS),
-	close(FileS),close(HttpS).
+	close(FileS),close(HttpS),
+	assert(cached(Http,File)).
 
 handler(file,file_uri).
 
