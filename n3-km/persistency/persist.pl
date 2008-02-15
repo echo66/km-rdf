@@ -3,6 +3,7 @@
 
 :- use_module(library('semweb/rdf_db')).
 :- use_module('../swiaudiodata/audiodata').
+:- use_module('persistency/tmp').
 
 :- rdf_register_ns(t,'http://purl.org/ontology/tabling/').
 
@@ -14,10 +15,6 @@ bin_db(bindb).
 	bin_db(DB),
 	(exists_directory(DB) -> true; make_directory(DB)).
 
-:- dynamic rdf_tmp/3.
-check_tmp(rdf(S,P,O)) :-
-	%rdf_db:rdf(S,P,O),!.
-	rdf_tmp(S,P,O),!.
 
 tabled(Predicate) :-
 	rdf_db:rdf(Predicate,rdf:type,t:'TabledPredicate');
@@ -30,10 +27,6 @@ cached(Predicate) :-
 assert_tabled(Predicate) :-
 	rdf_db:rdf_assert(Predicate,rdf:type,t:'TabledPredicate').
 
-persist(rdf(S,P,O)) :-
-	format(user_error,'DEBUG: Persisting ~w (local cache)\n',[rdf(S,P,O)]),
-	%persist_l(S),persist_l(O),
-	assert(rdf_tmp(S,P,O)).
 
 persist_l([]).
 persist_l([H|T]) :-
@@ -55,8 +48,8 @@ commit :-
 	forall(rdf_tmp(S,P,O),
 		(
 			(cached(P)->(((\+((rdf_tmp(_,P2,S),just_tabled(P2))),!,persist_l(S));clean_l(S)),persist_l(O));true),
-			((pl_list_to_rdf_list(S,Triples1,SS),n3_entailment:list(SS,S),!);(S=SS,Triples1=[])),
-			((pl_list_to_rdf_list(O,Triples2,OO),n3_entailment:list(OO,O),!);(O=OO,Triples2=[])),
+			((pl_list_to_rdf_list(S,Triples1,SS),list(SS,S),!);(S=SS,Triples1=[])),
+			((pl_list_to_rdf_list(O,Triples2,OO),list(OO,O),!);(O=OO,Triples2=[])),
 			append(Triples1,Triples2,Triples),
 			free_variables([Triples,SS,OO],Vars),bnode_list(Vars),
 			!,rdf_assert(SS,P,OO),
