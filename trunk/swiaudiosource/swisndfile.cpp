@@ -179,13 +179,6 @@ PREDICATE(sfpl_decode, 1)
 	return TRUE;	
 }
 
-PREDICATE(sfpl_decode_stream, 1){
-
-
-
-
-}
-
 /*
  * This will be at the very end. but hopefully can be removed after the implementation is done
  */
