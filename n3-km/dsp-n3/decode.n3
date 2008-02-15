@@ -6,7 +6,7 @@
 @prefix : <>.
 
 
-<testset/americanjesus.mp3> a mo:AudioFile.
+# <testset/americanjesus.mp3> a mo:AudioFile.
 
 # I need that to keep identity between an audio file and corresponding signals
 dsp:aspl_decode a <http://purl.org/ontology/tabling/TabledPredicate>.
@@ -15,12 +15,12 @@ dsp:aspl_decode a owl:FunctionalProperty.
 
 {
 ?a 	
-	a mo:AudioFile; 
+	#a mo:AudioFile; 
 	dsp:aspl_decode (?ch ?sr ?l ?signals).
 ?signal list:in ?signals
 } =>
 {
-?a mo:encodes ?signal.
+?a a mo:AudioFile; mo:encodes ?signal.
 ?signal
 	a mo:Signal;
 	mo:channels "1";
