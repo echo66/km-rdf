@@ -12,7 +12,7 @@
 #include <vector>
 #include <limits>
 
-#define MAX_AUDIO_ID_DB 100000000 //I'm not allowed to make it bigger
+#define MAX_AUDIO_ID_DB 1000000 //I'm not allowed to make it bigger
 
 /*
  * Prototypes to access the database of BlobID records
