@@ -22,9 +22,9 @@
 				,	vamp_compute_feature_frames/6
 				]).
 
-:-use_module('/home/david/km-rdf/swiaudiodata/audiodata').
-:-use_module('/home/david/km-rdf/swivamp/vamp').
-:-use_module('/home/david/km-rdf/swiaudiosource/audiosource').
+:-use_module('../swiaudiodata/audiodata').
+:-use_module('../swivamp/vamp').
+:-use_module('../swiaudiosource/audiosource').
 
 :-style_check(-discontiguous).
 
@@ -83,13 +83,13 @@ select_plugin(Type, PluginKey, Output):-
 	vamp_plugin_for(PluginKey, Type, Output).
 	
 select_plugin(Type, _, _):-
-	Type = 'distancematrix',!, false.
+	Type = 'distancematrix',!, fail.
 
 select_plugin(Type, _, _):-
-	Type = 'distancevector',!, false.
+	Type = 'distancevector',!, fail.
 
 select_plugin(Type, _, _):-
-	Type = 'sorteddistancevector',!, false.
+	Type = 'sorteddistancevector',!, fail.
 
 /**
 	vamp_feature_of/3. We don't specify the framing as the plugin does it by itself. If there are not preferred parameters for framing, we use
