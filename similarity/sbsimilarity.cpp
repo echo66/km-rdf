@@ -44,7 +44,7 @@ distanceDistribution(vector<float> *, vector<float> *, bool);
 //
 //--------------------------------------------------------------------------
 
-PREDICATE(mfcc_kldiv, 5){
+PREDICATE(smpl_mfcc_kldiv, 5){
 
 	//+Mfcc means for the first track
 	//+Mfcc variances for the first track
@@ -102,7 +102,7 @@ PREDICATE(mfcc_kldiv, 5){
 //	model the mfcc as just one Gaussian wichi is still meaningful
 //	for timbral similarity (Mark Levy) 
 //------------------------------------------------------
-PREDICATE(mfcc_gaussian_parameters, 2){
+PREDICATE(smpl_mfcc_gaussian_parameters, 2){
 
 	//+MFCC coefficients
 	//+List with the gaussian parameters
@@ -205,7 +205,7 @@ PREDICATE(mfcc_gaussian_parameters, 2){
 //   This just needs the chroma means extracted from the chromagram plugin
 //--------------------------------------------------------------------
  
-PREDICATE(chroma_kldiv, 3){
+PREDICATE(smpl_chroma_kldiv, 3){
 
 	//+ probability distribution track1
 	//+ probability distribution track2

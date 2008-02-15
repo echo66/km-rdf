@@ -3,9 +3,9 @@
 	David Pastor Escuredo 2008, c4dm, Queen Mary.
 	*/
 
-:-module(similarity, [		mfcc_kldiv/5
-			,	mfcc_gaussian_parameters/2 /**differs from similarity plugin mostly in C0**/
-			, 	chroma_kldiv/3 /**no tested**/
+:-module(similarity, [		smpl_mfcc_kldiv/5
+			,	smpl_mfcc_gaussian_parameters/2 /**differs from similarity plugin mostly in C0**/
+			, 	smpl_chroma_kldiv/3 /**no tested**/
 			]).
 
 :- style_check(-discontiguous).
