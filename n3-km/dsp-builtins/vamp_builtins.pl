@@ -25,28 +25,35 @@ keydetector(Input,Features) :-
 	vamp_compute_feature('Signal'(Channels,SR,L,Sigs),Win,Hop,2,Plugin,F),
 	findall([literal(Otp),literal(TS),literal(TE),literal(Data)],(member('Feature'(Otp,'Timestamp'(TS,TE),DataBin),F),data(DataBin,DataL),DataL=[Data]),Features).
 
-mfccmeans(Input,Features) :-
-	nonvar(Input),
-	Input = [literal(Channels),literal(SR),literal(L),Sigs],
-	mix_stereo(Input, 'Signal'(Channels, SR, L, SigsMono)),
-	vmpl_load_plugin_for('libqm-vamp-plugins:qm-similarity','Signal'(Channels,SR,L,Sigs),Plugin),
-	set_blockSize(Plugin, BlockSize),
-	set_stepSize(Plugin, StepSize),
-	vmpl_set_parameter(Plugin, 'featureType', 0),
-	vmpl_initialize_plugin(Plugin, 1, StepSize, BlockSize),
-	vamp_compute_feature('Signal'(Channels, SR, L, SigsMono), StepSize, BlockSize, 3, Plugin, F),
-	findall([literal(Otp),literal(TS),literal(TE),literal(Data)],(member('Feature'(Otp,'Timestamp'(TS,TE),DataBin),F),data(DataBin,DataL),DataL=[Data]),Features).
+/**
+	Specific builtins to extract MFCC means and vars from the similarity plugin. Necessary to mix down the input to not confuse the plugin with 2
+	different tracks. Just timbre mode. (note: how to combine different similarities?)
+*/		
 
-mfccvars(Input,Features) :-
+mfccmeans(Input, [literal(Type), literal(Start), literal(End), BinData]) :-
 	nonvar(Input),
 	Input = [literal(Channels),literal(SR),literal(L),Sigs],
-	mix_stereo(Input, 'Signal'(Channels, SR, L, SigsMono)),
-	vmpl_load_plugin_for('libqm-vamp-plugins:qm-similarity','Signal'(Channels,SR,L,Sigs),Plugin),
-	set_blockSize(Plugin, BlockSize),
-	set_stepSize(Plugin, StepSize),
+	mix_stereo('Signal'(Channels, SR, L, Sigs), 'Signal'(ChannelsM, SRM, LM, SigsMono)),
+	vmpl_load_plugin('libqm-vamp-plugins:qm-similarity',SR,Plugin),
+	vmpl_get_blockSize(Plugin, BlockSize),
+	vmpl_get_stepSize(Plugin, StepSize),
 	vmpl_set_parameter(Plugin, 'featureType', 0),
 	vmpl_initialize_plugin(Plugin, 1, StepSize, BlockSize),
-	vamp_compute_feature('Signal'(Channels, SR, L, SigsMono), StepSize, BlockSize, 4, Plugin, F),
-	findall([literal(Otp),literal(TS),literal(TE),literal(Data)],(member('Feature'(Otp,'Timestamp'(TS,TE),DataBin),F),data(DataBin,DataL),DataL=[Data]),Features).
+	vamp_compute_feature('Signal'(ChannelsM, SRM, LM, SigsMono), StepSize, BlockSize, 3, Plugin, F),
+	F = ['Feature'(Type, 'Timestamp'(Start, End), BinData)].
+
+
+mfccvars(Input, [literal(Type), literal(Start), literal(End), BinData]) :-
+	nonvar(Input),
+	Input = [literal(Channels),literal(SR),literal(L),Sigs],
+	mix_stereo('Signal'(Channels, SR, L, Sigs), 'Signal'(ChannelsM, SRM, LM, SigsMono)),
+	vmpl_load_plugin('libqm-vamp-plugins:qm-similarity',SR,Plugin),
+	vmpl_get_blockSize(Plugin, BlockSize),
+	vmpl_get_stepSize(Plugin, StepSize),
+	vmpl_set_parameter(Plugin, 'featureType', 0),
+	vmpl_initialize_plugin(Plugin, 1, StepSize, BlockSize),
+	vamp_compute_feature('Signal'(ChannelsM, SRM, LM, SigsMono), StepSize, BlockSize, 4, Plugin, F),
+	F = ['Feature'(Type, 'Timestamp'(Start, End), BinData)].
+
 
 
