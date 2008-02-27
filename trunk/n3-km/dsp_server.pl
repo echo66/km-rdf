@@ -18,9 +18,15 @@ server(Port) :-
 :- server(1212).
 
 
-:- use_module('dsp-builtins/aspl_builtins'), use_module('dsp-builtins/vamp_builtins').
+:- 
+	use_module('dsp-builtins/aspl_builtins'), 
+	use_module('dsp-builtins/vamp_builtins'),
+	use_module('dsp-builtins/similarity_builtins').
 
-source :- n3_load('dsp-n3/decode.n3'),n3_load('dsp-n3/vamp.n3').
+source :- 
+	n3_load('dsp-n3/decode.n3'),
+	n3_load('dsp-n3/vamp.n3'),
+	n3_load('dsp-n3/similarity.n3').
 
 
 think :-

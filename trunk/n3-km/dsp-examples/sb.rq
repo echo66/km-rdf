@@ -1,0 +1,15 @@
+select ?d
+where 
+{         
+<http://dbtune.org/audio/Den-Nostalia.ogg> <http://purl.org/ontology/dsp/cache> ?local.
+?local <http://purl.org/ontology/dsp/aspl_decode> ?sig.
+?sig <http://purl.org/ontology/vamp/qm-mfccmeans> ?mean.
+?sig <http://purl.org/ontology/vamp/qm-mfccvars> ?var.
+
+<http://dbtune.org/audio/Both-Axel.ogg> <http://purl.org/ontology/dsp/cache> ?local2 .
+?local2 <http://purl.org/ontology/dsp/aspl_decode> ?sig2.
+?sig2 <http://purl.org/ontology/vamp/qm-mfccmeans> ?mean2.
+?sig2 <http://purl.org/ontology/vamp/qm-mfccvars> ?var2.
+
+(?mean ?var ?mean2 ?var2) <http://purl.org/ontology/dsp/mfcc_kldiv> ?d
+}

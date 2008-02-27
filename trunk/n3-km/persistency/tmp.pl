@@ -4,6 +4,8 @@
 
 :- dynamic list/2.
 list_id(List,Id) :-
+	ground(Id),ground(List),!,assert(list(Id,List)).
+list_id(List,Id) :-
         rdf_is_bnode(Id),
         get_list(Id,List),List\=Id,!.
 list_id(List,Id) :-
@@ -13,6 +15,7 @@ list_id(List,Id) :-
         is_list(List),
         rdf_bnode(Id),
         assert(list(Id,List)).
+	
 
 
 get_list('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil',[]) :- !.
