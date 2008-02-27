@@ -28,6 +28,5 @@ think :-
         rdf_write_xml(user_output,Bag).
 
 
-
 :- init_persistency.
 

@@ -22,12 +22,14 @@
 builtins:builtin('http://purl.org/ontology/dsp/aspl_decode',aspl_builtins:decode).
 
 decode(Af,[literal(Ch),literal(Sr),literal(L),Sigs]) :- %plug uri resolution for Af here
-	uri(Af,File),
+	atom_concat('file://',File,Af),
 	format(user_error,'DEBUG: Decoding file ~w\n',[File]),
 	aspl_builtins:aspl_decode(File,Out2),
 	Out2='Signal'(Ch,Sr,L,Sigs).
 
-uri(Af,File) :-
+
+builtins:builtin('http://purl.org/ontology/dsp/cache',aspl_builtins:cache).
+cache(Af,File) :-
 	handler(Protocol,Pred),
 	atom_concat(Protocol,_,Af),
 	ToCall =.. [Pred,Af,File],
@@ -40,20 +42,17 @@ uri(Af,File) :-
 :- multifile handler/2. % hook 
 handler(http,http_uri).
 
-http_uri(Http,File) :-
-	check_tmp(rdf(File,'http://www.w3.org/2002/07/owl#sameAs',Http)),!.
-http_uri(Http,File) :-
-	rdf_db:rdf(File,'http://www.w3.org/2002/07/owl#sameAs',Http),!.
-http_uri(Http,File) :-
+http_uri(Http,FileURI) :-
 	www_form_encode(Http,Key),
 	format(atom(File),'httpcache/~w',[Key]),
 	format(user_error,'DEBUG: Caching ~w as ~w\n',[Http,File]),
 	format(atom(Command),'wget ~w -O- > ~w',[Http,File]),
 	shell(Command),
-	persist(rdf(File,'http://www.w3.org/2002/07/owl#sameAs',Http)).
+	absolute_file_name(File,Abs),
+	atom_concat('file://',Abs,FileURI).
 
 handler(file,file_uri).
 
-file_uri(FURI,File) :-
-	atom_concat('file://',File,FURI).
+file_uri(FURI,FURI) :-
+	atom_concat('file://',_,FURI).
 
