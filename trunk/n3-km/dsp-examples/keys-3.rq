@@ -1,0 +1,9 @@
+select ?r ?rr
+where
+{
+<http://dbtune.org/audio/Both-Axel.ogg> <http://purl.org/ontology/dsp/aspl_decode> ?sig.
+?sig <http://purl.org/ontology/vamp/qm-keydetector> ?result.
+?r <http://www.w3.org/2000/10/swap/list#in> ?result.
+?rr <http://www.w3.org/2000/10/swap/list#in> ?r
+}
+
