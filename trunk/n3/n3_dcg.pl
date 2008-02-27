@@ -20,6 +20,9 @@
  * repository), as well as the scripts allowing to run it and the results
  * as of now.
  *
+ * TODO (check):
+ *   * @forAll?
+ *
  * Copyright Yves Raimond (c) 2007
  * Centre for Digital Music, Queen Mary, University of London
  */
@@ -38,28 +41,18 @@ grab_tokens(S,Tokens) :-
         turtle_tokens(S,Tokens).
 
 graph_id(GraphID) :-
-	count(N),
-	format(atom(GraphID),'__bnode_graph_~w',[N]).
+	gensym('__bnode_graph_',GraphID).
 
 uqv_id(Name,UQV) :-
 	format(atom(UQV),'__bnode_~w_uqvar',[Name]).
 
-:- dynamic counter/1.
-count(N) :-
-	counter(M),
-	retractall(counter(_)),
-	N is M+1,
-	assert(counter(N)).
-init_counter :- 
-	retractall(counter(_)),
-	assert(counter(0)).
 
 :- dynamic base_uri/1.
 :- dynamic ns/2.
 %in the n3.n3 grammar, doesn't "zeroOrMore" overlaps with
 %() or ...?
 document(BaseURI,Document) -->
-	{init_counter,retractall(base_uri(_)),assert(base_uri(BaseURI))},
+	{retractall(base_uri(_)),assert(base_uri(BaseURI))},
 	statements_optional(BaseURI,Document).
 
 statements_optional(BaseURI,Triples) -->
@@ -152,14 +145,14 @@ verb(Base,Node,Triples) -->
 	[name(has)],!,
 	path(Base,Node,Triples).
 verb(Base,BNode,[rdf(BNode,'http://www.w3.org/2002/07/owl#inverseOf',Node,Base)|Triples]) -->
-	['@',name('is')],!,
+	['@',name('is')],
 	path(Base,Node,Triples),
-	['@,',name(of)],
+	['@,',name(of)],!,
 	{rdf_bnode(BNode)}.
 verb(Base,BNode,[rdf(BNode,'http://www.w3.org/2002/07/owl#inverseOf',Node,Base)|Triples]) --> 
-	[name('is')],!,
+	[name('is')],
 	path(Base,Node,Triples),
-	[name(of)],
+	[name(of)],!,
 	{rdf_bnode(BNode)}.
 verb(_Base,'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',[]) -->
 	['@',name(a)],!.
