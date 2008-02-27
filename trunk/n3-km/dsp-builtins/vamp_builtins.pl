@@ -30,7 +30,7 @@ keydetector(Input,Features) :-
 	different tracks. Just timbre mode. (note: how to combine different similarities?)
 */		
 
-mfccmeans(Input, [literal(Type), literal(Start), literal(End), BinData]) :-
+mfccmeans(Input, [literal(Type), literal(Start), literal(End), Data]) :-
 	nonvar(Input),
 	Input = [literal(Channels),literal(SR),literal(L),Sigs],
 	mix_stereo('Signal'(Channels, SR, L, Sigs), 'Signal'(ChannelsM, SRM, LM, SigsMono)),
@@ -40,10 +40,11 @@ mfccmeans(Input, [literal(Type), literal(Start), literal(End), BinData]) :-
 	vmpl_set_parameter(Plugin, 'featureType', 0),
 	vmpl_initialize_plugin(Plugin, 1, StepSize, BlockSize),
 	vamp_compute_feature('Signal'(ChannelsM, SRM, LM, SigsMono), StepSize, BlockSize, 3, Plugin, F),
-	F = ['Feature'(Type, 'Timestamp'(Start, End), BinData)].
+	F = ['Feature'(Type, 'Timestamp'(Start, End), BinData)],
+	data(BinData,Data).
 
 
-mfccvars(Input, [literal(Type), literal(Start), literal(End), BinData]) :-
+mfccvars(Input, [literal(Type), literal(Start), literal(End), Data]) :-
 	nonvar(Input),
 	Input = [literal(Channels),literal(SR),literal(L),Sigs],
 	mix_stereo('Signal'(Channels, SR, L, Sigs), 'Signal'(ChannelsM, SRM, LM, SigsMono)),
@@ -53,7 +54,8 @@ mfccvars(Input, [literal(Type), literal(Start), literal(End), BinData]) :-
 	vmpl_set_parameter(Plugin, 'featureType', 0),
 	vmpl_initialize_plugin(Plugin, 1, StepSize, BlockSize),
 	vamp_compute_feature('Signal'(ChannelsM, SRM, LM, SigsMono), StepSize, BlockSize, 4, Plugin, F),
-	F = ['Feature'(Type, 'Timestamp'(Start, End), BinData)].
+	F = ['Feature'(Type, 'Timestamp'(Start, End), BinData)],
+	data(BinData,Data).
 
 
 

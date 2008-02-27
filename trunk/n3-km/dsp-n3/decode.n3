@@ -11,6 +11,10 @@
 # I need that to keep identity between an audio file and corresponding signals
 dsp:aspl_decode a <http://purl.org/ontology/tabling/TabledPredicate>.
 
+dsp:cache a owl:FunctionalProperty.
+dsp:cache a <http://purl.org/ontology/tabling/TabledPredicate>.
+
+
 dsp:aspl_decode a owl:FunctionalProperty.
 
 {
