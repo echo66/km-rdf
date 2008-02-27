@@ -89,6 +89,7 @@ rdf(S,P,O) :-
 	((rdf_is_bnode(S2),list_id(S3,S2))->true;S3=S2),((rdf_is_bnode(O2),list_id(O3,O2))->true;O3=O2),
 	rdf_s(S3,P,O3),
 	%\+in_formulae(rdf(S2,P,O2)),
+	free_variables(rdf(S3,P,O3),Vars),bnodes(Vars),
 	format(user_error,'DEBUG: Matching triple at rdf/3 level - ~w\n',[rdf(S3,P,O3)]),
 	(list_id(S3,S)->true;S=S3),
 	(list_id(O3,O)->true;O=O3).
@@ -215,11 +216,17 @@ compile_rules :-
  * Just a dummy predicate checking wether all three given
  * variables are instantiated
  */
-check(S,P,O) :-
-	nonvar(S),nonvar(P),nonvar(O).
+check(_,_,_).
+%check(S,P,O) :-
+%	check(S),check(P),check(O).
+%check(N) :-
+%	nonvar(N),!.
+%check(N) :- rdf_bnode(N).
+
+
 
 /**
- * Is the given triple part of a N3 forumlae?
+ * Is the given triple part of a N3 formulae?
  *
  * TODO: to enhance this... this is the crappiest
  * test ever
@@ -279,7 +286,7 @@ convert_n(S,SL,Bindings) :-
         rdfs_list_to_prolog_list(S,SLT),!,
         convert_all(SLT,SL,Bindings).
 convert_n(S,T,[binding(S,T)]) :-
-        universal(S),!.
+        (universal(S);existential(S)),!.
 %convert_n(S,T,[binding(S,T)]) :-
 %	existential(S),!.
 convert_n(S,S,[]).
