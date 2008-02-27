@@ -3,7 +3,10 @@
 :- use_module(library('semweb/rdf_db')).
 
 :- dynamic list/2.
+list_id(L1,L2) :- % HIGHLY experimental :-)
+	is_list(L1),is_list(L2),!,L1=L2.
 list_id(List,Id) :-
+	format(user_error,'DEBUG: Calling ~w\n',[list_id(List,Id)]),
 	ground(Id),ground(List),!,assert(list(Id,List)).
 list_id(List,Id) :-
         rdf_is_bnode(Id),
