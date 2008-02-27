@@ -7,13 +7,17 @@ CPP = g++ # C++ compiler
 CFLAGS = -Wall -fPIC
 
 #######################################################################
-# Define your platform-specific options here
+# Define your SWI-Prolog path here
 #######################################################################
 
 swi_dir = /usr/local/lib/pl-5.6.50
-swivamp_dir = /home/david/km-rdf/swivamp
-vamp_dir = /home/david/vamp-plugin-sdk-v1.1pre1
-swilib_dir = /home/david/km-rdf/swilib
+
+#######################################################################
+
+swivamp_dir = .
+vamp_dir = vamp-sdk
+vamp_host_dir = vamp-sdk/hostext
+swilib_dir = ../swilib
 
 SWIVAMP_LIB = $(swivamp_dir)/vampswi.so
 
@@ -22,19 +26,18 @@ SWIVAMP_LIB = $(swivamp_dir)/vampswi.so
 #Libraries
 
 LIBS_SWIVAMP = $(swilib_dir)/swimo.so \
-		$(vamp_dir)/vamp-sdk/libvamp-hostsdk.so \
+		$(vamp_dir)/libvamp-hostsdk.so \
 		$(swilib_dir)/swiaudioblob.so \
 		$(swilib_dir)/blobid.so
 
 #Headers
-INCLUDE_SWIVAMP = -I$(swi_dir)/include/ \
-	-I/usr/include/qt4/Qt/ \
-	-I/usr/include/qt4/ \
-	-I$(vamp_dir)/vamp-sdk/ \
-	-I$(vamp_dir)/vamp-sdk/hostext/ \
-	-I$(vamp_dir)/ \
-	-I$(swilib_dir)/ \
-	-I$(swivamp_dir)/
+INCLUDE_SWIVAMP = -I$(swi_dir)/include \
+	-I/usr/include/qt4/Qt \
+	-I/usr/include/qt4 \
+	-I$(vamp_dir) \
+	-I$(vamp_dir)/hostext \
+	-I$(swilib_dir) \
+	-I$(swivamp_dir)
 
 #Sources
 
