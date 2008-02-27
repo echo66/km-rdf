@@ -82,7 +82,7 @@ n3_load(File) :-
  * giving access to the formulae themselves
  * (therefore hiding their "RDF" representation).
  */
-rdf(S,P,O) :- rdf_l(S,P,O),!.
+rdf(S,P,O) :- atomic(P), rdf_l(S,P,O),!.
 rdf(S,P,O) :-
 	format(user_error,'DEBUG: Top level - ~w\n',[rdf(S,P,O)]),
 	copy_term([S,O],[S2,O2]),
