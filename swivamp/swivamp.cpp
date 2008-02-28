@@ -167,7 +167,6 @@ vmpl_frame_features_to_prolog(Vamp::Plugin::FeatureSet fs, int output, term_t fr
 	//Vamp::FeatureSet (map of a list of features for each frame/output. 
 	//framets is the MO::timestamp of the passed frame
 	//od is the outputdescriptor for ouput
-	
 	try{
 		//Description of the output
 		term_t featureType = PL_new_term_ref();

@@ -73,10 +73,10 @@
 	,	vamp_plugin_output_sampleType/3
 	, 	vamp_plugin_output_metadata/6
 
-		/** 7th step lifecycle: process frames (call this predicate for all the frames iteratively) */
+		/** 7th step lifecycle: process frames (call this predicate for all the frames iteratively). List of outputs to retrieve */
 	,	vmpl_process_block/5
 
-		/** 8th step lifecycle: at the end and just once, collect remaining features if any */
+		/** 8th step lifecycle: at the end and just once, collect remaining features if any. List of outputs to retrieve */
 	,	vmpl_remaining_features/5
 
 		/** 9th step lifecycle: reset and initialize again */
@@ -218,8 +218,30 @@ vamp_plugin_output_metadata(PluginKey, FeatureType, OutputName, Description, Uni
 	vmpl_outputDescriptor_description(Plugin, OutputIndex, Description),
 	vmpl_outputDescriptor_unit(Plugin, OutputIndex, Unit).
 	
+/**
+	New predicate making atomic the process and storing with the datatype conversion
+	vmpl_process_block(+Plugin, +Frame, +FrameTimeStamp, +ListofOuptus, -ListOfFeatures)
 	
+	List of Features is a list of lists. example:
 	
+	[[output1frame1], [output2frame1]]
+	*/
 
+vmpl_process_block(Plugin, Frame, FrameTimeStamp, ListOfOutputs, ListOfFeatures):-
+	vmpl_process_store(Plugin, Frame, FrameTimeStamp),
+	findall(Features, collect_features(Plugin, ListOfOutputs, Features), RawFeatures),
+	delete(RawFeatures, [], ListOfFeatures).
+
+/**
+	Same for remaining
+	*/
+
+vmpl_remaining_features(Plugin, L, SR, ListOfOutputs, ListOfFeatures):-
+	vmpl_store_remaining(Plugin, L, SR),	
+	findall(Features, collect_features(Plugin, ListOfOutputs, Features), ListOfFeatures).
+
+collect_features(Plugin, ListOfOutputs, ListOfFeatures):-
+	member(Output, ListOfOutputs),
+	vmpl_featureSet_output(Plugin, Output, ListOfFeatures).
 
 

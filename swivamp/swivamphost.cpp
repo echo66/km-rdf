@@ -29,6 +29,13 @@ using namespace std;
  */
 PluginLoader *prolog_loader=0;
 
+/*
+ * Current Feature Set computed. This should be used in an atomic predicate or we'd have concurrency issues
+ */
+Vamp::Plugin::FeatureSet currentfs;
+float startfs = 0; //we need to keep the timestamp as c types because term_t not referenced are garbage collected (the same annoying thing)
+float durationfs = 0;
+
 
 				/************************************************************************
  				********************* Foreign predicates (deterministic) ****************
@@ -318,13 +325,11 @@ PREDICATE(vmpl_initialize_plugin, 4)
 	MO::frame object as input
 */
 
-PREDICATE(vmpl_process_block, 5)
+PREDICATE(vmpl_process_store, 3)
 {
 	//+plugin
 	//+Block of data to process (both channels) passed as MO::frame!!!
 	//+MO::timestamp of the MO::frame
-	//+output of the plugin we select
-	//-Set of Features
 	
 	//getting input arguments
 	term_t blob = PL_new_term_ref();
@@ -345,16 +350,51 @@ PREDICATE(vmpl_process_block, 5)
 	term_t framets = PL_new_term_ref();
 	framets = term_t(PlTerm(A3));
 	
-	//wraps the plugin process and returns a list of MO::feature elements for each frame
-	PlTerm feature(vmpl_frame_features_to_prolog(plugin->process(input, Vamp::RealTime::frame2RealTime(initSample, (int)isr)), (int)A4, framets, plugin -> getOutputDescriptors()[(int)A4]));
+	//Now we just store the resulting FeatureSet and its default timestamp
+	currentfs = plugin->process(input, Vamp::RealTime::frame2RealTime(initSample, (int)isr));
+	startfs = MO::GET::start(framets);
+	durationfs = MO::GET::duration(framets);
 	
 	//free memory of the block of data
 	for(size_t k=0; k<(size_t)MO::GET::channels_count(frame); k++){
 		delete[] input[k];
 	}
 	delete[] input;
+	
+	return true;
 
-	return A5 = feature;
+}
+
+/*
+ *	While current Feature Set is valid we can query it to get the outputs we need
+ *
+ *	This predicate returns:
+ *				
+ *	[Feature1, Feature2, Feature3, Feature4] for one ouput and one frame (normally there is one feature though)
+ */
+PREDICATE(vmpl_featureSet_output, 3){
+
+	//+Plugin
+	//+Output
+	//+Prolog list representing the features returned for just one frame and one output selected
+
+	//getting input arguments
+	term_t blob = PL_new_term_ref();
+	blob = term_t(PlTerm(A1));
+	Vamp::Plugin *plugin;
+	vmpl_get_plugin(blob, plugin);
+
+	//retrieving stored context
+	term_t duration = PL_new_term_ref();
+	term_t start = PL_new_term_ref();
+	PL_put_float(start, startfs);
+	PL_put_float(duration, durationfs);
+	term_t framets = PL_new_term_ref();
+	MO::timestamp(start, duration, framets);	
+
+	PlTerm feature(vmpl_frame_features_to_prolog(currentfs, (int)A2, framets, plugin -> getOutputDescriptors()[(int)A2]));
+
+	return A3 = feature;
 
 }
 
@@ -365,14 +405,12 @@ PREDICATE(vmpl_process_block, 5)
  * just once after all the frames are processed
  */
 
-PREDICATE(vmpl_remaining_features, 5)
+PREDICATE(vmpl_store_remaining, 3)
 {
 	//+plugin
 	//+last sample position
 	//+samplerate
-	//+output of the plugin we select
-	//-Set of Features
-	
+	cerr<<"remaining"<<endl;
 	//getting input arguments
 	term_t blob = PL_new_term_ref();
 	blob = term_t(PlTerm(A1));
@@ -383,15 +421,13 @@ PREDICATE(vmpl_remaining_features, 5)
 	double lastSample = (double)A2;
 	double sr = (double)A3;
 	
-	term_t duration = PL_new_term_ref();
-	term_t start = PL_new_term_ref();
-	term_t endts = PL_new_term_ref();
-	PL_put_float(start, (float)lastSample/sr);
-	PL_put_float(duration, 0.0f);
-	MO::timestamp(start, duration, endts);
+	//saving context
+	startfs = (float)lastSample/sr;
+	durationfs = 0.0f;
 	
 	//wraps the plugin process and returns a list of MO::feature elements for each frame
-	return A5 = PlTerm(vmpl_frame_features_to_prolog(plugin->getRemainingFeatures(), (int)A4, endts, plugin -> getOutputDescriptors()[(int)A4]));
+	currentfs = plugin->getRemainingFeatures();
+	return true;
 }
 
 /*** Ninth step lifecycle ***/

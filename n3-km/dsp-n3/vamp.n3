@@ -56,7 +56,6 @@ vamp:qm-tonalchange
 	rdfs:label "Tonal change vamp plugin";
 	.
 
-
 vamp:qm-mfccmeans
         a <http://purl.org/ontology/tabling/CachedPredicate>;
         a rdf:Property;
@@ -83,5 +82,10 @@ _:keyevent a af:KeyEvent;
 	tl:duration ?end;
 	af:key ?key.
 }.
+
+
+
+
+
 
 

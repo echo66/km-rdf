@@ -15,6 +15,7 @@ swi_dir = /usr/local/lib/pl-5.6.50
 swilib_dir = /home/david/km-rdf/swilib
 
 lib_suf = .so
+mac_lib_suf = .dylib
 obj_suf = .o
 #######################################################################
 
@@ -35,9 +36,9 @@ B_ID = blobid.cpp
 
 #Objects
 
-OBJ_AUDIOBLOB = swiaudioblob.o
-OBJ_MO = swimo.o
-OBJ_BI = blobid.o
+OBJ_AUDIOBLOB = swiaudioblob.$(obj_suf)
+OBJ_MO = swimo.$(obj_suf)
+OBJ_BI = blobid.$(obj_suf)
 
 #DLIB
 

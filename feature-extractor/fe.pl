@@ -4,8 +4,7 @@
 	done using the swivamp module. We can set parameters, programs, we can deal with complex inputs...
 	David Pastor Escuredo. Jan 2008, c4dm, Queen Mary, University of London.
 
-	Should be cleaning data frames as we compute the features???
-	
+	Changes: retrieving different outputs in one run (28 Feb). need to check the rest of predicates
 	*/
 
 :-module(fe, [decode/2
@@ -15,6 +14,8 @@
 				,	feature/1
 				,	feature_of/3
 				,	vamp_feature_of/3
+				,	vamp_all_features_for/3
+				,	vamp_outputs_for/4
 				,	vamp_process_signal/7
 				,	vamp_process_frame/4
 				, 	vamp_process_frames/4
@@ -98,12 +99,30 @@ select_plugin(Type, _, _):-
 */
 vamp_feature_of(Type, Signal, WholeFeature) :-
 	select_plugin(Type, PluginKey, Output),
+	vamp_outputs_for(Signal, PluginKey, [Output], WholeFeature).
+
+vamp_all_features_for(PluginKey, Signal, WholeFeatureSet):-
+	vamp_plugin_numberOutputs(PluginKey, N),
+	numlist(0, N-1, Outputs),
+	vamp_outputs_for(Signal, PluginKey, Outputs, WholeFeatureSet).
+
+/**
+	vamp_outputs_for(+Signal, +PluginKey, +Outputs, -WholeFeature):-
+
+	where Outputs = [0, 2, 3] for example
+
+	and WholeFeature is [[[Feature1Out1Frame1,..], [Feature1Out2Frame1, ...]], Frame2, ...]
+
+	not flatten as we may need to know this structure to retrieve them	
+*/
+
+vamp_outputs_for(Signal, PluginKey, Outputs, WholeFeature):-
 	vmpl_load_plugin_for(PluginKey, Signal, Plugin),
 	set_blockSize(Plugin, BlockSize),
 	set_stepSize(Plugin, StepSize),
 	get_channels(Signal, Channels),
 	vmpl_initialize_plugin(Plugin, Channels, StepSize, BlockSize),
-	vamp_compute_feature(Signal, StepSize, BlockSize, Output, Plugin, WholeFeature).
+	vamp_compute_feature(Signal, StepSize, BlockSize, Outputs, Plugin, WholeFeature).
 
 /**
 	This predicate allow us to compute features given the entire signal or a framed version of it.
@@ -111,11 +130,12 @@ vamp_feature_of(Type, Signal, WholeFeature) :-
 */
 vamp_compute_feature(Signal, StepSize, BlockSize, Output, Plugin, WholeFeature):-
 	get_samples_per_channel(Signal, Samples),
-	findall([Features], vamp_process_signal(Signal, Samples, StepSize, BlockSize, Output, Plugin, Features), FeatureSet),
+	findall(Features, vamp_process_signal(Signal, Samples, StepSize, BlockSize, Output, Plugin, Features), FeatureSet),
 	get_sample_rate(Signal, SampleRate),	
 	vmpl_remaining_features(Plugin, Samples, SampleRate, Output, Remaining),
-	append(FeatureSet, Remaining, RawList),
-	flatten(RawList, WholeFeature).
+	append(FeatureSet, Remaining, RawFeatures),
+	delete(RawFeatures, [], WholeFeature).
+	%flatten(RawList, WholeFeature) just delete []
 
 /**
 	Set the step and block sizes
@@ -142,7 +162,7 @@ vamp_compute_feature_frames(Frames, SamplesWholeSignal, SampleRate, Output, Plug
 	This is implemented as non-deterministic predicate.
 	It cleans the data of each frame from memory after returning the feature
 		
-		vamp_process_signal(+Signal, +Samples/Channel, +StepSize, +BlockSize, +Output, +Plugin, -FeatureSet)
+		vamp_process_signal(+Signal, +Samples/Channel, +StepSize, +BlockSize, +OutputList, +Plugin, -FeatureSet)
 */
 vamp_process_signal(Signal, Samples, StepSize, BlockSize, Output, Plugin, FeatureSet):-	
 	set_limit_framing(Samples, StepSize, Limit),	
@@ -157,6 +177,8 @@ vamp_process_signal(Signal, Samples, StepSize, BlockSize, Output, Plugin, Featur
 		vamp_process_frame(+Plugin, +Frame, +Output, -Features):-
 
 	The plugin is a working and initialized plugin
+
+	Output is a list!
 */
 vamp_process_frame(Plugin, Frame, Output, Features):-
 	get_frame_timestamp(Frame, FrameTimeStamp),	
@@ -209,13 +231,6 @@ vamp_feature_of(beatspectrum, Signal, WholeFeature):-
 	vmpl_initialize_plugin(Plugin, Channels, StepSize, BlockSize),
 	vamp_compute_feature(S, StepSize, BlockSize, 5, Plugin, WholeFeature).
 
-/**will crash
-vamp_feature_of('sbtimbral', Signal1, Signal2, Distance):-
-	mix_stereo(Signal1, S1),
-	mix_stereo(Signal2, S2),
-	combine_sb_input(S1, S2, Input).
-combine_sb_input('Signal'(_, _ , _, [Pcm1]), 'Signal'(_,_,_, [Pcm2]), 'Signal'(_,_,_,[Pcm1, Pcm2])).
-**/
 
 
 
