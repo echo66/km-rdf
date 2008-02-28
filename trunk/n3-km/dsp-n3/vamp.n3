@@ -56,7 +56,7 @@ vamp:qm-tonalchange
 	rdfs:label "Tonal change vamp plugin";
 	.
 
-vamp:qm-mfccparam
+vamp:qm-mfccparameters
         a <http://purl.org/ontology/tabling/CachedPredicate>;
         a rdf:Property;
         rdfs:subPropertyOf vamp:qm-feature;
