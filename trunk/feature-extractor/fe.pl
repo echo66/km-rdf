@@ -96,10 +96,16 @@ select_plugin(Type, _, _):-
 	vamp_feature_of/3. We don't specify the framing as the plugin does it by itself. If there are not preferred parameters for framing, we use
 	arbitrary ones Step=1024 Block=2048. If we need specific options for this we should use the framing version of this predicate.
 	The main difference is that here we get the frames on the air instead of creating a framed version of the signal.
+	If there is only one feature is better to flatten the returned list
 */
 vamp_feature_of(Type, Signal, WholeFeature) :-
 	select_plugin(Type, PluginKey, Output),
-	vamp_outputs_for(Signal, PluginKey, [Output], WholeFeature).
+	vamp_outputs_for(Signal, PluginKey, [Output],F),
+	flatten(F, WholeFeature).
+
+/**
+	Thus we get all the outputs for a plugin automatically. The returned list is quite messy, should do something with it here
+*/
 
 vamp_all_features_for(PluginKey, Signal, WholeFeatureSet):-
 	vamp_plugin_numberOutputs(PluginKey, N),
@@ -113,7 +119,13 @@ vamp_all_features_for(PluginKey, Signal, WholeFeatureSet):-
 
 	and WholeFeature is [[[Feature1Out1Frame1,..], [Feature1Out2Frame1, ...]], Frame2, ...]
 
-	not flatten as we may need to know this structure to retrieve them	
+	there is one exception on this. If there are only remaining features the list will be simpler:
+
+	WholeFeature (=Remaining) is [[Output1], [Output2], ...]
+
+	not flatten as we may need to know this structure to retrieve them. We only delete [] lists
+
+	It's the same that vamp_compute_feature/5 returns
 */
 
 vamp_outputs_for(Signal, PluginKey, Outputs, WholeFeature):-
@@ -127,6 +139,8 @@ vamp_outputs_for(Signal, PluginKey, Outputs, WholeFeature):-
 /**
 	This predicate allow us to compute features given the entire signal or a framed version of it.
 	It returns the whole list of features collected from the non-deterministic predicate
+	
+	Note: output is a list with the number of outputs to retrieve
 */
 vamp_compute_feature(Signal, StepSize, BlockSize, Output, Plugin, WholeFeature):-
 	get_samples_per_channel(Signal, Samples),
@@ -135,7 +149,6 @@ vamp_compute_feature(Signal, StepSize, BlockSize, Output, Plugin, WholeFeature):
 	vmpl_remaining_features(Plugin, Samples, SampleRate, Output, Remaining),
 	append(FeatureSet, Remaining, RawFeatures),
 	delete(RawFeatures, [], WholeFeature).
-	%flatten(RawList, WholeFeature) just delete []
 
 /**
 	Set the step and block sizes
@@ -149,7 +162,8 @@ set_blockSize(Plugin, BlockSize):-
 	BlockSize = 0, !, BlockSize is 2048; vmpl_get_blockSize(Plugin, BlockSize).
 
 /**
-	This other predicate allows to process a set of frames as framed signal instead of the original term for the signal
+	This other predicate allows to process a set of frames as framed signal instead of the original term for the signal.
+	Remember that Output is a list
 */
 vamp_compute_feature_frames(Frames, SamplesWholeSignal, SampleRate, Output, Plugin, WholeFeature):-
 	findall([Features], vamp_process_frames(Frames, Output, Plugin, Features), FeatureSet),	
@@ -172,6 +186,14 @@ vamp_process_signal(Signal, Samples, StepSize, BlockSize, Output, Plugin, Featur
 	clean_frame(Frame).
 
 /**
+	Process all the members of a framed signal. 
+*/
+vamp_process_frames(Frames, Output, Plugin, FeatureSet):-
+	member(Frame, Frames),
+	vamp_process_frame(Plugin, Frame, Output, FeatureSet),
+	clean_frame(Frame).
+
+/**
 	Just returns the features for a given frame and output. This may very useful if we demand features in a frame basis
 
 		vamp_process_frame(+Plugin, +Frame, +Output, -Features):-
@@ -185,23 +207,15 @@ vamp_process_frame(Plugin, Frame, Output, Features):-
 	vmpl_process_block(Plugin, Frame, FrameTimeStamp, Output, Features).
 
 
-/**
-	Process all the members of the frame. 
-*/
-vamp_process_frames(Frames, Output, Plugin, FeatureSet):-
-	member(Frame, Frames),
-	vamp_process_frame(Plugin, Frame, Output, FeatureSet),
-	clean_frame(Frame).
-
-
 /**********************************************************************************
 				SPECIFIC FEATURES PROCEDURES
 ***********************************************************************************/
 
-feature(mfccmeans).
-feature(mfccvariances).
-
-vamp_feature_of(mfccmeans, Signal, WholeFeature):-
+/**
+	MFCC parameters.
+	returns 2 simple lists Mean and Var which contain just one 'Feature' term
+*/
+vamp_mfcc_param(Signal, Mean, Var):-
 	mix_stereo(Signal, S),
 	vmpl_load_plugin_for('libqm-vamp-plugins:qm-similarity', S, Plugin),
 	set_blockSize(Plugin, BlockSize),
@@ -209,17 +223,8 @@ vamp_feature_of(mfccmeans, Signal, WholeFeature):-
 	get_channels(S, Channels),
 	vmpl_set_parameter(Plugin, 'featureType', 0),
 	vmpl_initialize_plugin(Plugin, Channels, StepSize, BlockSize),
-	vamp_compute_feature(S, StepSize, BlockSize, 3, Plugin, WholeFeature).
-
-vamp_feature_of(mfccvariances, Signal, WholeFeature):-
-	mix_stereo(Signal, S),
-	vmpl_load_plugin_for('libqm-vamp-plugins:qm-similarity', S, Plugin),
-	set_blockSize(Plugin, BlockSize),
-	set_stepSize(Plugin, StepSize),
-	get_channels(S, Channels),
-	vmpl_set_parameter(Plugin, 'featureType', 0),
-	vmpl_initialize_plugin(Plugin, Channels, StepSize, BlockSize),
-	vamp_compute_feature(S, StepSize, BlockSize, 4, Plugin, WholeFeature).
+	vamp_compute_feature(S, StepSize, BlockSize, [3,4], Plugin, WholeFeature),
+	WholeFeature = [Mean, Var].
 
 vamp_feature_of(beatspectrum, Signal, WholeFeature):-
 	mix_stereo(Signal, S),
@@ -229,7 +234,9 @@ vamp_feature_of(beatspectrum, Signal, WholeFeature):-
 	get_channels(S, Channels),
 	vmpl_set_parameter(Plugin, 'featureType', 4),
 	vmpl_initialize_plugin(Plugin, Channels, StepSize, BlockSize),
-	vamp_compute_feature(S, StepSize, BlockSize, 5, Plugin, WholeFeature).
+	vamp_compute_feature(S, StepSize, BlockSize, [5], Plugin, F),
+	flatten(F, WholeFeature).
+
 
 
 
