@@ -22,7 +22,8 @@ keydetector(Input,Features) :-
 	vmpl_get_blockSize(Plugin,Win),
 	vmpl_get_stepSize(Plugin,Hop),
 	vmpl_initialize_plugin(Plugin,Channels,Win,Hop),
-	vamp_compute_feature('Signal'(Channels,SR,L,Sigs),Win,Hop,2,Plugin,F),
+	vamp_compute_feature('Signal'(Channels,SR,L,Sigs),Win,Hop,[2],Plugin,RF),
+	flatten(RF, F),
 	findall([literal(Otp),literal(TS),literal(TE),literal(Data)],(member('Feature'(Otp,'Timestamp'(TS,TE),DataBin),F),data(DataBin,DataL),DataL=[Data]),Features).
 
 /**
@@ -40,7 +41,8 @@ mfccparameters(Input, [MLData, VLData]) :-
 	vmpl_set_parameter(Plugin, 'featureType', 0),
 	vmpl_initialize_plugin(Plugin, 1, StepSize, BlockSize),
 	vamp_compute_feature('Signal'(ChannelsM, SRM, LM, SigsMono), StepSize, BlockSize, [3,4], Plugin, F),
-	F= [[Mean, Var]],
+	F= [Mean, Var],
+	%see fe.pl to for vamp_compute_feature
 	Mean = ['Feature'(_MType, 'Timestamp'(_StartM, _EndM), MBinData)],
 	Var = ['Feature'(_VType, 'Timestamp'(_StartV, _EndV), VBinData)],
 	data(MBinData,MData),
