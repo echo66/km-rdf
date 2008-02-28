@@ -75,12 +75,12 @@ vamp:qm-mfccvars
 
 {
 (?c ?sr ?l (?sig1 ?sig2)) vamp:qm-keydetector ?otp.
-("key" ?start ?end ?key) list:in ?otp.
+("key" ?start ?duration ?key) list:in ?otp.
 } => {
 _:keyevent a af:KeyEvent;
 	rdfs:label "key event";
 	tl:startsAt ?start;
-	tl:endsAt ?end;
+	tl:duration ?end;
 	af:key ?key.
 }.
 

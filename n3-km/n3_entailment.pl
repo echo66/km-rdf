@@ -89,7 +89,7 @@ rdf(S,P,O) :-
 	((rdf_is_bnode(S2),list_id(S3,S2))->true;S3=S2),((rdf_is_bnode(O2),list_id(O3,O2))->true;O3=O2),
 	rdf_s(S3,P,O3),
 	%\+in_formulae(rdf(S2,P,O2)),
-	free_variables(rdf(S3,P,O3),Vars),bnodes(Vars),
+	%free_variables(rdf(S3,P,O3),Vars),bnodes(Vars),
 	format(user_error,'DEBUG: Matching triple at rdf/3 level - ~w\n',[rdf(S3,P,O3)]),
 	(list_id(S3,S)->true;S=S3),
 	(list_id(O3,O)->true;O=O3).
@@ -117,12 +117,12 @@ bnodes([H|T]) :-
 % special handling of owl:sameAs
 rdf_s(S,P,O) :-
 	format(user_error,'DEBUG: SameAs handling - rdf_s/3\n',[]),
-	nonvar(S),
+	%nonvar(S),
 	sameAs(S,SS),
 	rdf_e(SS,P,O),
 	P\='http://www.w3.org/2002/07/owl#sameAs'.
 rdf_s(S,P,O) :-
-	nonvar(O),
+	%nonvar(O),
 	sameAs(O,OO),
 	rdf_e(S,P,OO),
 	P\='http://www.w3.org/2002/07/owl#sameAs'.
@@ -207,10 +207,22 @@ compile_rules :-
 			forall(member(rdf_e(S,P,O),PredListH),
 				(
 					format(user_error,'DEBUG: Asserting ~w :- ~w\n',[rdf_e(S,P,O),(PlB)]),
-					assert(':-'(rdf_e(S,P,O),(PlB,check(S,P,O))))
+					assert(':-'(rdf_e(S,P,O),(PlB,handle_bnodes(rdf(S,P,O),PlB))))
 				))
 		)
 	).
+
+:- dynamic bas/2.
+handle_bnodes(rdf(S,P,O),PlB) :-
+	assoc(S,PlB),assoc(P,PlB),assoc(O,PlB).
+assoc(N,PlB) :-
+	var(N),
+	bas(N,PlB),!.
+assoc(N,PlB) :-
+	var(N),
+	rdf_bnode(N),
+	assert(bas(N,PlB)).
+assoc(N,_) :- \+var(N).
 
 /**
  * Just a dummy predicate checking wether all three given
