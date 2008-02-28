@@ -11,9 +11,7 @@
 :-use_module('../swiaudiosource/audiosource').
 
 builtins:builtin('http://purl.org/ontology/vamp/qm-keydetector',vamp_builtins:keydetector).
-builtins:builtin('http://purl.org/ontology/vamp/qm-mfccmeans',vamp_builtins:mfccmeans).
-builtins:builtin('http://purl.org/ontology/vamp/qm-mfccvars',vamp_builtins:mfccvars).
-
+builtins:builtin('http://purl.org/ontology/vamp/qm-mfccparameters',vamp_builtins:mfccparameters).
 
 keydetector(Input,Features) :-
 	nonvar(Input),
