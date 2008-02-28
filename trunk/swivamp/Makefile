@@ -14,10 +14,10 @@ swi_dir = /usr/local/lib/pl-5.6.50
 
 #######################################################################
 
-swivamp_dir = .
-vamp_dir = vamp-sdk
-vamp_host_dir = vamp-sdk/hostext
-swilib_dir = ../swilib
+swivamp_dir = /home/david/km-rdf/swivamp
+vamp_dir = /home/david/vamp-plugin-sdk/vamp-sdk
+vamp_host_dir = home/david/vamp-plugin-sdk/vamp-sdk/hostext
+swilib_dir = /home/david/km-rdf/swilib
 
 SWIVAMP_LIB = $(swivamp_dir)/vampswi.so
 
@@ -26,7 +26,7 @@ SWIVAMP_LIB = $(swivamp_dir)/vampswi.so
 #Libraries
 
 LIBS_SWIVAMP = $(swilib_dir)/swimo.so \
-		$(vamp_dir)/libvamp-hostsdk.so \
+		/usr/lib/libvamp-hostsdk.so \
 		$(swilib_dir)/swiaudioblob.so \
 		$(swilib_dir)/blobid.so
 
@@ -34,7 +34,8 @@ LIBS_SWIVAMP = $(swilib_dir)/swimo.so \
 INCLUDE_SWIVAMP = -I$(swi_dir)/include \
 	-I/usr/include/qt4/Qt \
 	-I/usr/include/qt4 \
-	-I$(vamp_dir) \
+	-I/home/david/vamp-plugin-sdk/ \
+	-I$(vamp_dir)/ \
 	-I$(vamp_dir)/hostext \
 	-I$(swilib_dir) \
 	-I$(swivamp_dir)
