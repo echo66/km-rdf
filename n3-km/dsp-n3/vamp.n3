@@ -56,21 +56,12 @@ vamp:qm-tonalchange
 	rdfs:label "Tonal change vamp plugin";
 	.
 
-vamp:qm-mfccmeans
+vamp:qm-mfccparam
         a <http://purl.org/ontology/tabling/CachedPredicate>;
         a rdf:Property;
         rdfs:subPropertyOf vamp:qm-feature;
-        rdfs:label "Mfcc means processing";
+        rdfs:label "Mfcc means and vars processing";
         .
-
-vamp:qm-mfccvars
-        a <http://purl.org/ontology/tabling/CachedPredicate>;
-        a rdf:Property;
-        rdfs:subPropertyOf vamp:qm-feature;
-        rdfs:label "Mfcc variances processing";
-        .
-
-
 
 {
 (?c ?sr ?l (?sig1 ?sig2)) vamp:qm-keydetector ?otp.
