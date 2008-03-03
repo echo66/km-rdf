@@ -213,29 +213,44 @@ vamp_process_frame(Plugin, Frame, Output, Features):-
 
 /**
 	MFCC parameters.
-	returns 2 simple lists Mean and Var which contain just one 'Feature' term
+	returns just the data id containing the mean and var
 */
-vamp_mfcc_param(Signal, Mean, Var):-
+vamp_mfcc_param(Signal, DMean, DVar):-
 	mix_stereo(Signal, S),
 	vmpl_load_plugin_for('libqm-vamp-plugins:qm-similarity', S, Plugin),
+	vmpl_set_parameter(Plugin, 'featureType', 0),
 	set_blockSize(Plugin, BlockSize),
 	set_stepSize(Plugin, StepSize),
 	get_channels(S, Channels),
-	vmpl_set_parameter(Plugin, 'featureType', 0),
 	vmpl_initialize_plugin(Plugin, Channels, StepSize, BlockSize),
 	vamp_compute_feature(S, StepSize, BlockSize, [3,4], Plugin, WholeFeature),
-	WholeFeature = [Mean, Var].
+	WholeFeature = [Mean, Var],
+	Mean = ['Feature'(_TypeM, _TimeM, DMean)],
+	Var = ['Feature'(_TypeV, _TimeV, DVar)].
 
-vamp_feature_of(beatspectrum, Signal, WholeFeature):-
+vamp_beatSpectra_of(Signal, Beat):-
 	mix_stereo(Signal, S),
 	vmpl_load_plugin_for('libqm-vamp-plugins:qm-similarity', S, Plugin),
-	set_blockSize(Plugin, BlockSize),
-	set_stepSize(Plugin, StepSize),
-	get_channels(S, Channels),
 	vmpl_set_parameter(Plugin, 'featureType', 4),
-	vmpl_initialize_plugin(Plugin, Channels, StepSize, BlockSize),
+	set_blockSize(Plugin, BlockSize),
+	set_stepSize(Plugin, StepSize),	
+	vmpl_initialize_plugin(Plugin, 1, StepSize, BlockSize),
 	vamp_compute_feature(S, StepSize, BlockSize, [5], Plugin, F),
-	flatten(F, WholeFeature).
+	flatten(F, WholeFeature),
+	WholeFeature = 'Feature'(_T, _TS, Beat).
+
+vamp_similarity_features(Signal, DMean, DVar, BeatSpec):-
+	mix_stereo(Signal, S),
+	vmpl_load_plugin_for('libqm-vamp-plugins:qm-similarity', S, Plugin),
+	vmpl_set_parameter(Plugin, 'featureType', 1),
+	set_blockSize(Plugin, BlockSize),
+	set_stepSize(Plugin, StepSize),	
+	vmpl_initialize_plugin(Plugin, 1, StepSize, BlockSize),
+	vamp_compute_feature(S, StepSize, BlockSize, [3,4,5], Plugin, F),
+	F = [Mean, Var, Beat],
+	Mean = ['Feature'(_TypeM, _TimeM, DMean)],
+	Var = ['Feature'(_TypeV, _TimeV, DVar)],
+	Beat = ['Feature'(_T, _TS, BeatSpec)].
 
 
 

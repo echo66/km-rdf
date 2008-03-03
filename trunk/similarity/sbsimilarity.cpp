@@ -231,7 +231,63 @@ PREDICATE(smpl_chroma_kldiv, 3){
 	return A4 = PlTerm((double)distanceDistribution(hist1, hist2, true));
 }
 
+//---------------------------------------------------------------
+//---------- Cosine distance for beat Spectra. Kurt Jacobson
+//---------------------------------------------------------------	
+
+PREDICATE(smpl_cosine_distance, 3){
+
+
+	vector<double> *beatspec1;
+	vector<double> *beatspec2;
 	
+	double dist, dDenTot, dDen1, dDen2, dSum1;
+
+	char *id1;
+	term_t id_t1 = PL_new_term_ref();
+	id_t1 = term_t(PlTerm(A1));//getting the data id
+	PL_get_atom_chars(id_t1,&id1);
+
+	char *id2;
+	term_t id_t2 = PL_new_term_ref();
+	id_t2 = term_t(PlTerm(A2));//getting the data id
+	PL_get_atom_chars(id_t2,&id2);
+
+	beatspec1 = new vector<double>();
+	beatspec2 = new vector<double>();
+
+	if(smpl_get_data(term_t(PlTerm(A3)), beatspec1)<0) return false;
+	if(smpl_get_data(term_t(PlTerm(A4)), beatspec2)<0) return false;
+
+
+    	dist = 1.0; dDenTot = 0; dDen1 = 0; dDen2 = 0; dSum1 =0;
+
+    	//check if v1 v2 same size
+    	if (beatspec1->size() != beatspec2->size())
+    	{
+      	  cerr << "CosineDistance::distance: ERROR: vectors not the same size\n";
+      	  return false;
+    	}
+    	else
+    	{
+        for(int i=0; i<beatspec1->size(); i++)
+        {
+            dSum1 += beatspec1->at(i)*beatspec2->at(i);
+            dDen1 += beatspec1->at(i)*beatspec1->at(i);
+            dDen2 += beatspec2->at(i)*beatspec2->at(i);
+        }
+        dDenTot = sqrt(fabs(dDen1*dDen2));
+        if(dDenTot == 0)
+        {
+            cerr << "CosineDistance::distance: WARNING: dividing by zero in cosine dist\n";
+            return false;
+        }
+	
+        dist = 1-((dSum1)/dDenTot);
+        return A3 = PlTerm(dist);
+    }
+}
+
 
 //---------------------------------------------------------------
 //---------- Taken from the qm-dsp library
