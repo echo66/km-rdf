@@ -29,6 +29,7 @@
  */
 
 builtin('http://www.w3.org/2000/10/swap/list#in',builtin:member).
+builtin('http://www.w3.org/2000/10/swap/list#nextto',builtin:nextto).
 
 /**
  * Each builtin is a binary predicate - first argument is the 
@@ -38,6 +39,8 @@ builtin('http://www.w3.org/2000/10/swap/list#in',builtin:member).
 builtin:member(A,B) :- 
 	\+var(B),
 	member(A,B).
+builtin:nextto([X,Y],L) :-
+	nextto(X,Y,L).
 
 
 %Just illustrating a bug
