@@ -45,6 +45,14 @@ handler(http,http_uri).
 http_uri(Http,FileURI) :-
 	www_form_encode(Http,Key),
 	format(atom(File),'httpcache/~w',[Key]),
+	absolute_file_name(File,Abs),
+	format(user_error,'~w\n',[exists_file(Abs)]),
+	exists_file(Abs),writeln(coucou),!,
+	atom_concat('file://',Abs,FileURI).
+
+http_uri(Http,FileURI) :-
+	www_form_encode(Http,Key),
+	format(atom(File),'httpcache/~w',[Key]),
 	format(user_error,'DEBUG: Caching ~w as ~w\n',[Http,File]),
 	format(atom(Command),'wget ~w -O- > ~w',[Http,File]),
 	shell(Command),
