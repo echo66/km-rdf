@@ -1,0 +1,5 @@
+select ?a ?s ?d
+where
+{
+?a a <http://purl.org/ontology/af/KeyEvent>; tl:startsAt ?s ; tl:duration ?d
+}
