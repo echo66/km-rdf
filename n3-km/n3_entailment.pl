@@ -199,30 +199,93 @@ compile_rules :-
 	forall(
 		implies(Body,Head),
 		(
-			n3_pl(Head,PredListH,Bindings1),
-			n3_pl(Body,PredListB,Bindings2),
+			n3_pl(Head,PredListH,Bindings1,BNodes1),
+			n3_pl(Body,PredListB,Bindings2,BNodes2),
+			append(BNodes1,BNodes2,BNodes),
 			append(Bindings1,Bindings2,Bindings),
 			merge_bindings(Bindings),
 			list_to_conj(PredListB,PlB),
 			forall(member(rdf_e(S,P,O),PredListH),
 				(
 					format(user_error,'DEBUG: Asserting ~w :- ~w\n',[rdf_e(S,P,O),(PlB)]),
-					assert(':-'(rdf_e(S,P,O),(PlB,handle_bnodes(rdf(S,P,O),PlB))))
+					assert(':-'(rdf_e(S,P,O),(PlB,handle_bnodes(BNodes,PredListH,PlB),writeln(rdf_e(S,P,O)),check(S,P,O))))
 				))
 		)
 	).
 
-:- dynamic bas/2.
-handle_bnodes(rdf(S,P,O),PlB) :-
-	assoc(S,PlB),assoc(P,PlB),assoc(O,PlB).
-assoc(N,PlB) :-
-	var(N),
-	bas(N,PlB),!.
-assoc(N,PlB) :-
-	var(N),
-	rdf_bnode(N),
-	assert(bas(N,PlB)).
-assoc(N,_) :- \+var(N).
+:- dynamic bas/3. %FIXME - that's wrong
+handle_bnodes(BN,PlH,PlB) :-
+	format(user_error,'DEBUG: ~w\n',[handle_bnodes(BN,PlH,PlB)]),
+	bas(_,PlH,PlB),!.
+handle_bnodes(BNodes,PlH,PlB) :-
+	free_variables(PlH,Bs),
+	bnodes(BNodes,Bs),
+	forall(member(bnode(B),BNodes),(\+((bas(B,_,PlB2),PlB\=PlB2)),assert(bas(B,PlH,PlB)))).
+
+
+bnodes(_,[]).
+bnodes(BNodes,[H|T]) :-
+	s_member(bnode(H),BNodes),
+	rdf_bnode(H),
+	bnodes(BNodes,T).
+
+s_member(_,[]) :- !, fail.
+s_member(A,[H|_]) :-
+	A==H,!.
+s_member(A,[_|T]) :-
+	s_member(A,T).
+
+
+%handle_bnodes(rdf(S,P,O),PlH,PlB) :-
+%	member(rdf_e(S,P,O),PlH),
+%	bas(PlH,PlB),
+%	ground(rdf(S,P,O)),!.
+%handle_bnodes(rdf(S,P,O),PlH,PlB) :-
+%	member(rdf_e(S,P,O),PlH),
+%	bas(PlH,PlB),!,
+%	free_variables(rdf(S,P,O),Bs),
+%	retractall(bas(PlH,PlB)),
+%	bnodes(Bs),
+%	assert(bas(PlH,PlB)).
+%handle_bnodes(rdf(S,P,O),PlH,PlB) :-
+%	member(rdf_e(S,P,O),PlH),
+%	free_variables(rdf(S,P,O),Bs),
+%	bnodes(Bs),
+%	 assert(bas(PlH,PlB)).
+
+%handle_bnodes(rdf(S,P,O),PlH,PlB) :-
+%	format(user_error,'DEBUG: Handling blank nodes for ~w\n',[PlB]),
+%	ground(PlB),
+%	bas(PlH,PlB),
+%	retractall(bas(PlH,PlB)),
+%	free_variables(rdf(S,P,O),BNodes),
+%	bnodes(BNodes),
+%	assert(bas(PlH,PlB)),
+%	!.
+%handle_bnodes(rdf(S,P,O),PlH,PlB) :-
+%	free_variables(rdf(S,P,O),BNodes), 
+%	bnodes(BNodes),
+%	assert(bas(PlH,PlB)),!.
+
+%handle_bnodes(_).
+%handle_bnodes(rdf(S,P,O),PlB) :-
+%	format(user_error,'DEBUG: Handling blank nodes for ~w\n',[PlB]),
+%	assoc(S,PlB),assoc(P,PlB),assoc(O,PlB).
+%assoc(N,PlB) :-
+%	rdf_is_bnode(N),
+%	\+bas(N,_),!,
+%	assert(bas(N,PlB)).
+%assoc(N,PlB) :-
+%	rdf_is_bnode(N),
+%	bas(N,Pl2),PlB\=Pl2,!,fail.
+%assoc(N,PlB) :-
+%	var(N),
+%	bas(N,PlB),!.
+%assoc(N,PlB) :-
+%	var(N),
+%	rdf_bnode(N),
+%	assert(bas(N,PlB)),!.
+%assoc(N,_) :- \+var(N).
 
 /**
  * Just a dummy predicate checking wether all three given
@@ -270,38 +333,41 @@ sameAs(A,B) :-
 /**
  * Convert a N3 graph to a bag of Prolog terms (RDF lists are converted to Prolog lists)
  */
-n3_pl(Head,PredList,Bindings) :-
+n3_pl(Head,PredList,Bindings,BNodes) :-
 	findall(rdf_e(S,P,O),rdf_db:rdf(S,P,O,Head),Triples),
-	n3_pl2(Triples,PredList,Bindings).
-n3_pl2([],[],[]).
-n3_pl2([rdf_e(_,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',_)|T],T2,B) :-
-	!,n3_pl2(T,T2,B).
-n3_pl2([rdf_e(_,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',_)|T],T2,B) :-
-        !,n3_pl2(T,T2,B).
-n3_pl2([rdf_e(_,'http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://www.w3.org/1999/02/22-rdf-syntax-ns#List')|T],T2,B) :-
-        !,n3_pl2(T,T2,B).
-n3_pl2([rdf_e(S,P,O)|T],[rdf_e(SS,PP,OO)|T2],Bindings) :-
-	convert_n(S,SS,B1),
-	convert_n(P,PP,B2),
-	convert_n(O,OO,B3),
+	n3_pl2(Triples,PredList,Bindings,BNodes).
+n3_pl2([],[],[],[]).
+n3_pl2([rdf_e(_,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',_)|T],T2,B,BN) :-
+	!,n3_pl2(T,T2,B,BN).
+n3_pl2([rdf_e(_,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',_)|T],T2,B,BN) :-
+        !,n3_pl2(T,T2,B,BN).
+n3_pl2([rdf_e(_,'http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://www.w3.org/1999/02/22-rdf-syntax-ns#List')|T],T2,B,BN) :-
+        !,n3_pl2(T,T2,B,BN).
+n3_pl2([rdf_e(S,P,O)|T],[rdf_e(SS,PP,OO)|T2],Bindings,BNodes) :-
+	convert_n(S,SS,B1,BN1),
+	convert_n(P,PP,B2,BN2),
+	convert_n(O,OO,B3,BN3),
+	flatten([BN1,BN2,BN3],BNodesH),
 	flatten([B1,B2,B3],BH),
-	n3_pl2(T,T2,BT),
+	n3_pl2(T,T2,BT,BNodesT),
+	append(BNodesH,BNodesT,BNodes),
 	append(BH,BT,Bindings).
 
-convert_all([],[],[]).
-convert_all([H|T],[H2|T2],Bindings) :-
-        convert_n(H,H2,BH),
-        convert_all(T,T2,BT),
+convert_all([],[],[],[]).
+convert_all([H|T],[H2|T2],Bindings,BNodes) :-
+        convert_n(H,H2,BH,BNodesH),
+        convert_all(T,T2,BT,BNodesT),
+	append(BNodesH,BNodesT,BNodes),
         append(BH,BT,Bindings).
-convert_n(S,SL,Bindings) :-
+convert_n(S,SL,Bindings,BNodes) :-
         atomic(S),
         rdfs_list_to_prolog_list(S,SLT),!,
-        convert_all(SLT,SL,Bindings).
-convert_n(S,T,[binding(S,T)]) :-
-        (universal(S);existential(S)),!.
-%convert_n(S,T,[binding(S,T)]) :-
-%	existential(S),!.
-convert_n(S,S,[]).
+        convert_all(SLT,SL,Bindings,BNodes).
+convert_n(S,T,[binding(S,T)],[]) :-
+        (universal(S)),!.
+convert_n(S,T,[binding(S,T)],[bnode(T)]) :-
+	existential(S),!.
+convert_n(S,S,[],[]).
 
 /**
  * Given a list of terms bindings(Node,Term), make
