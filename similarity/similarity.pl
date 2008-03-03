@@ -6,6 +6,7 @@
 :-module(similarity, [		smpl_mfcc_kldiv/5
 			,	smpl_mfcc_gaussian_parameters/2 /**differs from similarity plugin mostly in C0**/
 			, 	smpl_chroma_kldiv/3 /**no tested**/
+			,	smpl_cosine_distance/3
 			]).
 
 :- style_check(-discontiguous).
