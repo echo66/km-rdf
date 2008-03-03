@@ -70,7 +70,7 @@ vamp:qm-mfccparameters
 _:keyevent a af:KeyEvent;
 	rdfs:label "key event";
 	tl:startsAt ?start;
-	tl:duration ?end;
+	tl:duration ?duration;
 	af:key ?key.
 }.
 
