@@ -40,6 +40,7 @@ builtin:member(A,B) :-
 	\+var(B),
 	member(A,B).
 builtin:nextto([X,Y],L) :-
+	\+var(L),
 	nextto(X,Y,L).
 
 
