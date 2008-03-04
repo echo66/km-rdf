@@ -82,7 +82,11 @@ n3_load(File) :-
  * giving access to the formulae themselves
  * (therefore hiding their "RDF" representation).
  */
-rdf(S,P,O) :- atomic(P), rdf_l(S,P,O),!.
+rdf(S,P,O) :- 
+	copy_term([S,O],[S2,O2]),atomic(P), rdf_l(S2,P,O2),
+	S2=S,O2=O.
+	%(list_id(S2,S)->true;S=S2),
+	%(list_id(O2,O)->true;O=O2).
 rdf(S,P,O) :-
 	format(user_error,'DEBUG: Top level - ~w\n',[rdf(S,P,O)]),
 	copy_term([S,O],[S2,O2]),
@@ -98,14 +102,14 @@ rdf(S,P,O) :-
 	list(Node,List),
 	%\+(in_formulae(rdf(List,_,_));in_formulae(rdf(_,_,List))),
 	pl_list_to_rdf_list(List,Triples,Node),
-	free_variables(Triples,Vars),
-	bnodes(Vars),
+	(pl_rdf_l(List,Triples) -> true; (free_variables(Triples,Vars),bnodes(Vars),assert(pl_rdf_l(List,Triples)))),
 	member(rdf(S,P,O),Triples).
 bnodes([]).
 bnodes([H|T]) :-
 	rdf_bnode(H),
 	bnodes(T).
 
+:- dynamic pl_rdf_l/2.
 
 
 /**
@@ -218,10 +222,16 @@ handle_bnodes(BN,PlH,PlB) :-
 	format(user_error,'DEBUG: ~w\n',[handle_bnodes(BN,PlH,PlB)]),
 	bas(_,PlH,PlB),!.
 handle_bnodes(BNodes,PlH,PlB) :-
+	check_bnodes(BNodes),
 	free_variables(PlH,Bs),
 	bnodes(BNodes,Bs),
 	forall(member(bnode(B),BNodes),(\+((bas(B,_,PlB2),PlB\=PlB2)),assert(bas(B,PlH,PlB)))).
 
+check_bnodes([]).
+check_bnodes([bnode(H)|T]) :-
+	var(H),
+	%(rdf_is_bnode(H),\+list(H,_))),
+	check_bnodes(T).
 
 bnodes(_,[]).
 bnodes(BNodes,[H|T]) :-

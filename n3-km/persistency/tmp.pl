@@ -7,7 +7,7 @@ list_id(L1,L2) :- % HIGHLY experimental :-)
 	is_list(L1),is_list(L2),!,L1=L2.
 list_id(List,Id) :-
 	format(user_error,'DEBUG: Calling ~w\n',[list_id(List,Id)]),
-	ground(Id),ground(List),!,assert(list(Id,List)).
+	is_list(List),rdf_is_bnode(Id),ground(Id),ground(List),!,assert(list(Id,List)).
 list_id(List,Id) :-
         rdf_is_bnode(Id),
         get_list(Id,List),List\=Id,!.
