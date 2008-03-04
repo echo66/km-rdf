@@ -1,0 +1,36 @@
+Just gathering some use-cases for a n3 shell to interact with Henry.
+=========
+
+
+$> @prefix : <http://example.org/myworkspace>.
+
+Default prefix added
+
+$> @prefix list: <http://purl.org/ontology/henry/>.
+
+Prefix list added
+
+$> :a list:length 900. 
+
+:a = [_:1 _:2 _:3 ... _:900] length 900
+
+$> {?e list:in :a} => {?e = 0}. # There should be a python like shortcut for that
+
+:a = [0 0 0 0 0...0]
+
+$> :b list:length 100. {?e list:in :b} => {?e = 1}. (:a :b) list:append :c.
+
+:b = [1 1 1 ... 1] length 100
+:c = [1 1 1 ... 0] length 1000
+
+$> @prefix dsp: <http://purl.org/ontology/dsp/>.
+
+Prefix dsp added
+
+$> :c dsp:fft :f.
+
+:f = [1.00000000e+02 +0.00000000e+00j 9.36441121e+01 -3.01018968e+01j ... +3.01018968e+01j]
+
+
+
+
