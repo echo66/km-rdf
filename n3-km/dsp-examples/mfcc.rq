@@ -1,0 +1,7 @@
+select ?m
+where
+{
+<http://dbtune.org/audio/Both-Axel.ogg> <http://purl.org/ontology/dsp/cache> ?local.
+?local <http://purl.org/ontology/dsp/aspl_decode> ?sig.
+?sig <http://purl.org/ontology/vamp/qm-mfccparameters> ?m
+}
