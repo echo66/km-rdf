@@ -84,7 +84,7 @@ n3_load(File) :-
  */
 rdf(S,P,O) :- 
 	copy_term([S,O],[S2,O2]),atomic(P), rdf_l(S2,P,O2),
-	S2=S,O2=O.
+	S2=S,O2=O,!.
 	%(list_id(S2,S)->true;S=S2),
 	%(list_id(O2,O)->true;O=O2).
 rdf(S,P,O) :-
