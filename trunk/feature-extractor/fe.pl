@@ -252,7 +252,18 @@ vamp_similarity_features(Signal, DMean, DVar, BeatSpec):-
 	Var = ['Feature'(_TypeV, _TimeV, DVar)],
 	Beat = ['Feature'(_T, _TS, BeatSpec)].
 
+/**This won't work**/
 
+vamp_histogram(Signal, Histogram):-
+	mix_stereo(Signal, S),
+	vmpl_load_plugin_for('libqm-vamp-plugins:qm-similarity', S, Plugin),
+	vmpl_set_parameter(Plugin, 'featureType', 2),
+	set_blockSize(Plugin, BlockSize),
+	set_stepSize(Plugin, StepSize),	
+	vmpl_initialize_plugin(Plugin, 1, StepSize, BlockSize),
+	vamp_compute_feature(S, StepSize, BlockSize, [3], Plugin, F),
+	F = [Hist],
+	Hist = ['Feature'(_TypeM, _TimeM, Histogram)].
 
 
 
