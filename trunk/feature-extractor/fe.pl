@@ -20,6 +20,7 @@
 				,	vamp_process_frame/4
 				, 	vamp_process_frames/4
 				, 	vamp_compute_feature/6
+				,	vamp_compute_feature2/6
 				,	vamp_compute_feature_frames/6
 				]).
 
