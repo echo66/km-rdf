@@ -37,7 +37,7 @@ mfcc_kldiv([[Means1, Vars1], [Means2, Vars2]], literal(Distance)):-
 	load_data_list(Means2D, 'mean2'),
 	load_data_list(Vars1D, 'var1'),
 	load_data_list(Vars2D, 'var2'),
-	//have to make and if here and not prolog lists!!!!!
+	/**have to make and if here and not prolog lists!!!!!**/
 	smpl_mfcc_kldiv('mean1', 'mean2', 'var1', 'var2', Distance).
 
 literal_list_to_list([],[]).
