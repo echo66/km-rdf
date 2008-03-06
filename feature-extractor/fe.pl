@@ -150,6 +150,15 @@ vamp_compute_feature(Signal, StepSize, BlockSize, Output, Plugin, WholeFeature):
 	append(FeatureSet, Remaining, RawFeatures),
 	delete(RawFeatures, [], WholeFeature).
 
+vamp_compute_feature2(Signal, StepSize, BlockSize, Output, Plugin, WholeFeature):-
+	get_samples_per_channel(Signal, Samples),
+	findall(Features, vamp_process_signal2(Signal, Samples, StepSize, BlockSize, Output, Plugin, Features), FeatureSet),
+	get_sample_rate(Signal, SampleRate),	
+	vmpl_remaining_features(Plugin, Samples, SampleRate, Output, Remaining),
+	append(FeatureSet, Remaining, RawFeatures),
+	delete(RawFeatures, [], WholeFeature).
+
+
 /**
 	Set the step and block sizes
 */
@@ -184,6 +193,11 @@ vamp_process_signal(Signal, Samples, StepSize, BlockSize, Output, Plugin, Featur
 	get_frame(Signal, Start, BlockSize, Frame),
 	vamp_process_frame(Plugin, Frame, Output, FeatureSet),
 	clean_frame(Frame).
+
+vamp_process_signal2(Signal, Samples, StepSize, BlockSize, Output, Plugin, FeatureSet):-	
+	set_limit_framing(Samples, StepSize, Limit),	
+	set_framing(StepSize, Samples, Limit, Start),
+	vmpl_process_block_framing(Plugin, Signal, Start, BlockSize, Output, FeatureSet).
 
 /**
 	Process all the members of a framed signal. 
@@ -223,7 +237,7 @@ vamp_mfcc_param(Signal, DMean, DVar):-
 	set_stepSize(Plugin, StepSize),
 	get_channels(S, Channels),
 	vmpl_initialize_plugin(Plugin, Channels, StepSize, BlockSize),
-	vamp_compute_feature(S, StepSize, BlockSize, [3,4], Plugin, WholeFeature),
+	vamp_compute_feature2(S, StepSize, BlockSize, [3,4], Plugin, WholeFeature),
 	WholeFeature = [Mean, Var],
 	Mean = ['Feature'(_TypeM, _TimeM, DMean)],
 	Var = ['Feature'(_TypeV, _TimeV, DVar)].

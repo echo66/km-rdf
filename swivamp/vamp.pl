@@ -75,6 +75,7 @@
 
 		/** 7th step lifecycle: process frames (call this predicate for all the frames iteratively). List of outputs to retrieve */
 	,	vmpl_process_block/5
+	,	vmpl_process_block_framing/6
 
 		/** 8th step lifecycle: at the end and just once, collect remaining features if any. List of outputs to retrieve */
 	,	vmpl_remaining_features/5
@@ -229,6 +230,11 @@ vamp_plugin_output_metadata(PluginKey, FeatureType, OutputName, Description, Uni
 
 vmpl_process_block(Plugin, Frame, FrameTimeStamp, ListOfOutputs, ListOfFeatures):-
 	vmpl_process_store(Plugin, Frame, FrameTimeStamp),
+	findall(Features, collect_features(Plugin, ListOfOutputs, Features), RawFeatures),
+	delete(RawFeatures, [], ListOfFeatures).
+
+vmpl_process_block_framing(Plugin, Signal, Start, Size, ListOfOutputs, ListOfFeatures):-
+	vmpl_process_store_framing(Plugin, Signal, Start, Size),
 	findall(Features, collect_features(Plugin, ListOfOutputs, Features), RawFeatures),
 	delete(RawFeatures, [], ListOfFeatures).
 

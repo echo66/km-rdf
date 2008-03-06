@@ -16,7 +16,7 @@ swilib_dir = /home/david/km-rdf/swilib
 
 lib_suf = .so
 mac_lib_suf = .dylib
-obj_suf = .o
+obj_suf = o
 #######################################################################
 
 #Headers
