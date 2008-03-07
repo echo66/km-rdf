@@ -261,13 +261,15 @@ vamp_similarity_features(Signal, DMean, DVar, BeatSpec):-
 	set_blockSize(Plugin, BlockSize),
 	set_stepSize(Plugin, StepSize),	
 	vmpl_initialize_plugin(Plugin, 1, StepSize, BlockSize),
-	vamp_compute_feature(S, StepSize, BlockSize, [3,4,5], Plugin, F),
+	vamp_compute_feature2(S, StepSize, BlockSize, [3,4,5], Plugin, F),
 	F = [Mean, Var, Beat],
 	Mean = ['Feature'(_TypeM, _TimeM, DMean)],
 	Var = ['Feature'(_TypeV, _TimeV, DVar)],
 	Beat = ['Feature'(_T, _TS, BeatSpec)].
 
-/**This won't work**/
+/**This should work now...**/
+
+/** The thing is: rythm, timbre and chroma at the same time ??? **/
 
 vamp_histogram(Signal, Histogram):-
 	mix_stereo(Signal, S),
@@ -276,7 +278,7 @@ vamp_histogram(Signal, Histogram):-
 	set_blockSize(Plugin, BlockSize),
 	set_stepSize(Plugin, StepSize),	
 	vmpl_initialize_plugin(Plugin, 1, StepSize, BlockSize),
-	vamp_compute_feature(S, StepSize, BlockSize, [3], Plugin, F),
+	vamp_compute_feature2(S, StepSize, BlockSize, [3], Plugin, F),
 	F = [Hist],
 	Hist = ['Feature'(_TypeM, _TimeM, Histogram)].
 
