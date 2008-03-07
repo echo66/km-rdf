@@ -63,6 +63,14 @@ vamp:qm-mfccparameters
         rdfs:label "Mfcc means and vars processing";
         .
 
+vamp:qm-similarity
+        a <http://purl.org/ontology/tabling/CachedPredicate>;
+        a rdf:Property;
+        rdfs:subPropertyOf vamp:qm-feature;
+        rdfs:label "Similarity features: timbre and rhythm";
+        .
+
+
 {
 (?c ?sr ?l (?sig1 ?sig2)) vamp:qm-keydetector ?otp.
 ("key" ?start _:fduration ?key) list:in ?otp.

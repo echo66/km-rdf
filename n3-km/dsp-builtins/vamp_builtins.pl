@@ -12,6 +12,7 @@
 
 builtins:builtin('http://purl.org/ontology/vamp/qm-keydetector',vamp_builtins:keydetector).
 builtins:builtin('http://purl.org/ontology/vamp/qm-mfccparameters',vamp_builtins:mfccparameters).
+builtins:builtin('http://purl.org/ontology/vamp/qm-similarity',vamp_builtins:similarity).
 
 keydetector(Input,Features) :-
 	nonvar(Input),
@@ -48,6 +49,27 @@ mfccparameters(Input, [MLData, VLData]) :-
 	data(VBinData,VData),
 	to_literal_list(VData,VLData).
 
+similarity(Input, [MLData, VLData, BLData]) :-
+	nonvar(Input),
+	Input = [literal(Channels),literal(SR),literal(L),Sigs],
+	mix_stereo('Signal'(Channels, SR, L, Sigs), 'Signal'(ChannelsM, SRM, LM, SigsMono)),
+	vmpl_load_plugin('libqm-vamp-plugins:qm-similarity',SR,Plugin),
+	vmpl_set_parameter(Plugin, 'featureType', 1),
+	vmpl_get_blockSize(Plugin, BlockSize),
+	vmpl_get_stepSize(Plugin, StepSize),
+	vmpl_initialize_plugin(Plugin, 1, StepSize, BlockSize),
+	vamp_compute_feature2('Signal'(ChannelsM, SRM, LM, SigsMono), StepSize, BlockSize, [3,4, 5], Plugin, F),
+	F= [Mean, Var, Beat],
+	%see fe.pl to for vamp_compute_feature
+	Mean = ['Feature'(_MType, 'Timestamp'(_StartM, _EndM), MBinData)],
+	Var = ['Feature'(_VType, 'Timestamp'(_StartV, _EndV), VBinData)],
+	Beat = ['Feature'(_BType, 'Timestamp'(_StartB, _EndB), BBinData)],
+	data(MBinData,MData),
+	to_literal_list(MData,MLData),
+	data(VBinData,VData),
+	to_literal_list(VData,VLData),
+	data(BBinData,BData),
+	to_literal_list(BData,BLData).
 
 to_literal_list([],[]).
 to_literal_list([H|T],[literal(H)|T2]) :-

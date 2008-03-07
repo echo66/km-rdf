@@ -3,11 +3,11 @@ where
 {         
 <http://dbtune.org/audio/Den-Nostalia.ogg> <http://purl.org/ontology/dsp/cache> ?local.
 ?local <http://purl.org/ontology/dsp/aspl_decode> ?sig.
-?sig <http://purl.org/ontology/vamp/qm-mfccparameters> ?param1.
+?sig <http://purl.org/ontology/vamp/qm-mfccparameters> (?means1 ?vars1).
 
 <http://dbtune.org/audio/Both-Axel.ogg> <http://purl.org/ontology/dsp/cache> ?local2 .
 ?local2 <http://purl.org/ontology/dsp/aspl_decode> ?sig2.
-?sig2 <http://purl.org/ontology/vamp/qm-mfccparameters> ?param2.
+?sig2 <http://purl.org/ontology/vamp/qm-mfccparameters> (?means2 ?vars2).
 
-(?param1 ?param2) <http://purl.org/ontology/dsp/mfcc_kldiv> ?d
+((?means1 ?vars1) (?means2 ?vars2)) <http://purl.org/ontology/dsp/mfcc_kldiv> ?d
 }
