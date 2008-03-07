@@ -26,22 +26,20 @@ builtins:builtin('http://purl.org/ontology/dsp/mfcc_kldiv',similarity_builtins:m
 
 /**
  *	Input: __data_id for the means and variances of two different audio files.
-	We should give free id's...
  */
 
 mfcc_kldiv([[Means1, Vars1], [Means2, Vars2]], literal(Distance)):- 
 	literal_list_to_list(Means1,Means1D),literal_list_to_list(Vars1,Vars1D),
 	literal_list_to_list(Means2,Means2D),literal_list_to_list(Vars2,Vars2D),
-	reserve_id('mean1'),
-	reserve_id('mean2'),
-	reserve_id('var1'),
-	reserve_id('var2'),
-	load_data_list(Means1D, 'mean1'),	
-	load_data_list(Means2D, 'mean2'),
-	load_data_list(Vars1D, 'var1'),
-	load_data_list(Vars2D, 'var2'),
-	/**have to make and if here and not prolog lists!!!!!**/
-	smpl_mfcc_kldiv('mean1', 'mean2', 'var1', 'var2', Distance).
+	next_id(IM1), reserve_id(IM1),
+	next_id(IM2), reserve_id(IM2),
+	next_id(IV1), reserve_id(IV1),
+	next_id(IV2), reserve_id(IV2),
+	load_data_list(Means1D, IM1),	
+	load_data_list(Means2D, IM2),
+	load_data_list(Vars1D, IV1),
+	load_data_list(Vars2D, IV2),
+	smpl_mfcc_kldiv(IM1, IM2, IV1, IV2, Distance).
 
 literal_list_to_list([],[]).
 literal_list_to_list([literal(H)|T],[H|T2]) :-	
