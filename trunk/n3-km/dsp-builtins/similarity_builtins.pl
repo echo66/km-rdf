@@ -39,7 +39,7 @@ mfcc_kldiv([[Means1, Vars1], [Means2, Vars2]], literal(Distance)):-
 	load_data_list(Means2D, IM2),
 	load_data_list(Vars1D, IV1),
 	load_data_list(Vars2D, IV2),
-	smpl_mfcc_kldiv(IM1, IM2, IV1, IV2, Distance).
+	smpl_mfcc_kldiv(IM1, IV1, IM2, IV2, Distance).
 
 literal_list_to_list([],[]).
 literal_list_to_list([literal(H)|T],[H|T2]) :-	
