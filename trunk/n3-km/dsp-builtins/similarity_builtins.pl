@@ -8,7 +8,9 @@
 :- use_module(library('semweb/rdf_db')).
 
 :- use_module('../builtins').
-
+:- use_module('../swivamp/vamp').
+:- use_module('../feature-extractor/fe').
+:- use_module('../swiaudiodata/audiodata').
 :- use_module('../../similarity/similarity').
 
 :- rdf_register_ns(mo,'http://purl.org/ontology/mo/').
@@ -24,6 +26,7 @@ builtins:builtin('http://purl.org/ontology/dsp/mfcc_kldiv',similarity_builtins:m
 
 /**
  *	Input: __data_id for the means and variances of two different audio files.
+	We should give free id's...
  */
 
 mfcc_kldiv([[Means1, Vars1], [Means2, Vars2]], literal(Distance)):- 
@@ -43,4 +46,12 @@ mfcc_kldiv([[Means1, Vars1], [Means2, Vars2]], literal(Distance)):-
 literal_list_to_list([],[]).
 literal_list_to_list([literal(H)|T],[H|T2]) :-	
 	literal_list_to_list(T,T2).
+
+
+
+
+
+
+
+
 
