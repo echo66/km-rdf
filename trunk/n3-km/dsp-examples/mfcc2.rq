@@ -1,0 +1,10 @@
+select ?means ?vars
+where
+{
+<http://dbtune.org/audio/Both-Axel.ogg> <http://purl.org/ontology/dsp/cache> ?local.
+?local <http://purl.org/ontology/dsp/aspl_decode> ?sig.
+?sig <http://purl.org/ontology/vamp/qm-mfccparameters> ?m.
+(?mean ?var) <http://www.w3.org/2000/10/swap/list#in> ?result.
+?means <http://www.w3.org/2000/10/swap/list#in> ?mean.
+?vars <http://www.w3.org/2000/10/swap/list#in> ?var
+}
