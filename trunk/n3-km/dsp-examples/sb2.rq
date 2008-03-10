@@ -1,0 +1,13 @@
+select ?b ?d
+where 
+{         
+
+<file:///home/david/Repository/Test1.ogg> <http://purl.org/ontology/dsp/aspl_decode> ?sig.
+?sig <http://purl.org/ontology/vamp/qm-mfccparameters> (?means1 ?vars1).
+
+?b a <http://purl.org/ontology/mo/AudioFile>.
+?b <http://purl.org/ontology/dsp/aspl_decode> ?sig2.
+?sig2 <http://purl.org/ontology/vamp/qm-mfccparameters> (?means2 ?vars2).
+
+((?means1 ?vars1) (?means2 ?vars2)) <http://purl.org/ontology/dsp/mfcc_kldiv> ?d
+}
