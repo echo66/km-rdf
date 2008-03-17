@@ -222,7 +222,7 @@ handle_bnodes(BN,PlH,PlB) :-
 	format(user_error,'DEBUG: ~w\n',[handle_bnodes(BN,PlH,PlB)]),
 	bas(_,PlH,PlB),!.
 handle_bnodes(BNodes,PlH,PlB) :-
-	check_bnodes(BNodes),
+	%check_bnodes(BNodes), % FIXME 
 	free_variables(PlH,Bs),
 	bnodes(BNodes,Bs),
 	forall(member(bnode(B),BNodes),(\+((bas(B,_,PlB2),PlB\=PlB2)),assert(bas(B,PlH,PlB)))).
@@ -230,7 +230,7 @@ handle_bnodes(BNodes,PlH,PlB) :-
 check_bnodes([]).
 check_bnodes([bnode(H)|T]) :-
 	var(H),
-	%(rdf_is_bnode(H),\+list(H,_))),
+	(rdf_is_bnode(H),\+list(H,_)),
 	check_bnodes(T).
 
 bnodes(_,[]).
