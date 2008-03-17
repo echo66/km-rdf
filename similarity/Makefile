@@ -12,8 +12,8 @@ CFLAGS = -Wall -fPIC
 
 swi_dir = /usr/local/lib/pl-5.6.50
 
-sim_dir = /home/david/km-rdf/similarity
-swilib_dir = /home/david/km-rdf/swilib
+sim_dir = .
+swilib_dir = ../swilib
 
 SIM_LIB = $(sim_dir)/similarity.so
 
