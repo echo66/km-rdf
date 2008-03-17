@@ -12,8 +12,8 @@ CFLAGS = -Wall -fPIC
 
 swi_dir = /usr/local/lib/pl-5.6.50
 
-swiaudiodata_dir = /home/david/km-rdf/swiaudiodata
-swilib_dir = /home/david/km-rdf/swilib
+swiaudiodata_dir = .
+swilib_dir = ../swilib
 
 lib_suf = .so
 obj_suf = .o
