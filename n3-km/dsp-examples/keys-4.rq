@@ -1,5 +1,7 @@
-select ?a ?s ?d
+select ?start ?end ?key
 where
 {
-?a a <http://purl.org/ontology/af/KeyEvent>; tl:startsAt ?s ; tl:endsAt ?d
+_:evt a <http://purl.org/ontology/af/KeyEvent>; tl:startsAt ?start ; tl:endsAt ?end; <http://purl.org/ontology/af/key> ?key
 }
+
+
