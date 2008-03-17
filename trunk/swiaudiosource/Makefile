@@ -12,9 +12,9 @@ CFLAGS = -Wall -fPIC
 
 swi_dir = /usr/local/lib/pl-5.6.50
 
-swiaudio_dir = /home/david/km-rdf/swiaudiosource
+swiaudio_dir = .
 
-swilib_dir = /home/david/km-rdf/swilib
+swilib_dir = ../swilib
 
 SWAUDIOSOURCE_LIB = $(swiaudiosource_dir)/swiaudiosource.so
 
