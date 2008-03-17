@@ -212,25 +212,35 @@ compile_rules :-
 			forall(member(rdf_e(S,P,O),PredListH),
 				(
 					format(user_error,'DEBUG: Asserting ~w :- ~w\n',[rdf_e(S,P,O),(PlB)]),
-					assert(':-'(rdf_e(S,P,O),(PlB,handle_bnodes(BNodes,PredListH,PlB),writeln(rdf_e(S,P,O)),check(S,P,O))))
+					assert(':-'(rdf_e(S,P,O),(PlB,handle_bnodes((S,P,O),PredListH,PlB),writeln(rdf_e(S,P,O)),check(S,P,O))))
 				))
 		)
 	).
 
 :- dynamic bas/3. %FIXME - that's wrong
-handle_bnodes(BN,PlH,PlB) :-
-	format(user_error,'DEBUG: ~w\n',[handle_bnodes(BN,PlH,PlB)]),
-	bas(_,PlH,PlB),!.
-handle_bnodes(BNodes,PlH,PlB) :-
-	%check_bnodes(BNodes), % FIXME 
-	free_variables(PlH,Bs),
-	bnodes(BNodes,Bs),
-	forall(member(bnode(B),BNodes),(\+((bas(B,_,PlB2),PlB\=PlB2)),assert(bas(B,PlH,PlB)))).
+handle_bnodes(_,PlH,PlB) :-
+	bas(_,PlH,PlB).
+handle_bnodes(_,PlH,PlB) :-
+	%format(user_error,'DEBUG: ~w\n',[handle_bnodes(PlH,PlB)]),
+	\+bas(_,PlH,PlB),
+	free_variables(PlH,Vars),Vars\=[],
+	bnodes(Vars),
+	assert(bas(_,PlH,PlB)).
+%handle_bnodes((S,P,O),_,_) :- \+rdf_is_bnode(S),\+rdf_is_bnode(P),\+rdf_is_bnode(O).
+
+%handle_bnodes(BN,PlH,PlB) :-
+%	format(user_error,'DEBUG: ~w\n',[handle_bnodes(BN,PlH,PlB)]),
+%	bas(_,PlH,PlB),!.
+%handle_bnodes(BNodes,PlH,PlB) :-
+%	%check_bnodes(BNodes), % FIXME 
+%	free_variables(PlH,Bs),
+%	bnodes(BNodes,Bs),
+%	forall(member(bnode(B),BNodes),(\+((bas(B,_,PlB2),PlB\=PlB2)),assert(bas(B,PlH,PlB)))).
 
 check_bnodes([]).
 check_bnodes([bnode(H)|T]) :-
-	var(H),
-	(rdf_is_bnode(H),\+list(H,_)),
+	(var(H);
+	(rdf_is_bnode(H),\+list(H,_))),
 	check_bnodes(T).
 
 bnodes(_,[]).
