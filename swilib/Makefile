@@ -12,7 +12,7 @@ CFLAGS = -Wall -fPIC
 
 swi_dir = /usr/local/lib/pl-5.6.50
 
-swilib_dir = /home/david/km-rdf/swilib
+swilib_dir = .
 
 lib_suf = .so
 mac_lib_suf = .dylib
