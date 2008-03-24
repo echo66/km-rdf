@@ -73,17 +73,17 @@ vamp:qm-similarity
         rdfs:label "Similarity features: timbre and rhythm";
         .
 
-{
-(?c ?sr ?l (?sig1 ?sig2)) vamp:qm-keydetector ?otp.
-("key" ?start _:fduration ?key) list:in ?otp.
-(("key" ?start _:fduration ?key) ("key" ?end _:fduration2 _:key)) list:nextto ?otp.
-} => {
-_:keyevent a af:KeyEvent;
-	rdfs:label "key event";
-	tl:startsAt ?start;
-	tl:endsAt ?end;
-	af:key ?key.
-}.
+#{
+#(?c ?sr ?l (?sig1 ?sig2)) vamp:qm-keydetector ?otp.
+#("key" ?start _:fduration ?key) list:in ?otp.
+#(("key" ?start _:fduration ?key) ("key" ?end _:fduration2 _:key)) list:nextto ?otp.
+#} => {
+#_:keyevent a af:KeyEvent;
+#	rdfs:label "key event";
+#	tl:startsAt ?start;
+#	tl:endsAt ?end;
+#	af:key ?key.
+#}.
 
 
 # 1 -> key:Cmajor
