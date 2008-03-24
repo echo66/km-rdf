@@ -125,7 +125,7 @@ _:tonalregion a to:Tonality;
 	event:time [
 		tl:timeline _:tl;
 		tl:start ?start;
-		tl:ends ?end ] ;
+		tl:end ?end ] ;
 	to:key ?key.
 }.
 
