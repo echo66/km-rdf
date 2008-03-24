@@ -11,6 +11,7 @@
 :- rdf_register_ns(af,'http://purl.org/ontology/af/').
 :- rdf_register_ns(vamp,'http://purl.org/ontology/vamp/').
 :- rdf_register_ns(mo,'http://purl.org/ontology/mo/').
+:- rdf_register_ns(to,'http://purl.org/ontology/tonality/').
 :- rdf_register_ns(tl,'http://purl.org/NET/c4dm/timeline.owl#').
 :- rdf_register_ns(event,'http://purl.org/NET/c4dm/event.owl#').
 
