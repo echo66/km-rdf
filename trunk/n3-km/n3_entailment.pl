@@ -212,20 +212,26 @@ compile_rules :-
 			forall(member(rdf_e(S,P,O),PredListH),
 				(
 					format(user_error,'DEBUG: Asserting ~w :- ~w\n',[rdf_e(S,P,O),(PlB)]),
-					assert(':-'(rdf_e(S,P,O),(PlB,handle_bnodes((S,P,O),PredListH,PlB),writeln(rdf_e(S,P,O)),check(S,P,O))))
+					assert(':-'(rdf_e(S,P,O),bas(PredListH,PlB))),
+					assert(':-'(rdf_e(S,P,O),(no_bnode(S,P,O),\+bas(PredListH,PlB),PlB,handle_bnodes((S,P,O),PredListH,PlB))))
 				))
 		)
 	).
 
-:- dynamic bas/3. %FIXME - that's wrong
-handle_bnodes(_,PlH,PlB) :-
-	bas(_,PlH,PlB).
-handle_bnodes(_,PlH,PlB) :-
+:- dynamic bas/2. %FIXME - that's wrong
+%handle_bnodes(_,PlH,PlB) :-
+%	bas(PlH,PlB).
+no_bnode(S,P,O) :- \+rdf_is_bnode(S),\+rdf_is_bnode(P),\+rdf_is_bnode(O).
+handle_bnodes((S,P,O),PlH,PlB) :-
 	%format(user_error,'DEBUG: ~w\n',[handle_bnodes(PlH,PlB)]),
-	\+bas(_,PlH,PlB),
+	%\+rdf_is_bnode(S),\+rdf_is_bnode(P),\+rdf_is_bnode(O),
+	\+bas(PlH,PlB),
 	free_variables(PlH,Vars),Vars\=[],
 	bnodes(Vars),
-	assert(bas(_,PlH,PlB)).
+	assert(bas(PlH,PlB)).
+handle_bnodes(_,PlH,PlB) :-
+	\+bas(PlH,PlB),
+	free_variables(PlH,Vars),Vars=[].
 %handle_bnodes((S,P,O),_,_) :- \+rdf_is_bnode(S),\+rdf_is_bnode(P),\+rdf_is_bnode(O).
 
 %handle_bnodes(BN,PlH,PlB) :-
