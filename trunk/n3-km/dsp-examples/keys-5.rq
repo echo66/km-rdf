@@ -1,0 +1,16 @@
+sselect ?start ?end ?degreename ?chord
+where
+{
+_:evt a <http://purl.org/ontology/tonality/Tonality>; tl:startsAt ?start ; tl:endsAt ?end; <http://purl.org/ontology/tonality/key> ?key.
+
+?key <http://purl.org/ontology/tonality/degree> ?degree.
+?degree <http://purl.org/ontology/tonality/degree_name> ?degrename.
+?degree <http://purl.org/ontology/tonality/owned_chord> ?chord.
+}
+
+select ?start ?end ?key
+where
+{
+_:evt a <http://purl.org/ontology/tonality/Tonality>; tl:startsAt ?start ; tl:endsAt ?end; <http://purl.org/ontology/tonality/key> ?key.
+
+}
