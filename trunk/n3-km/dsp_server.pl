@@ -21,7 +21,8 @@ server(Port) :-
 :- 
 	use_module('dsp-builtins/aspl_builtins'), 
 	use_module('dsp-builtins/vamp_builtins'),
-	use_module('dsp-builtins/similarity_builtins').
+	use_module('dsp-builtins/similarity_builtins'),
+	use_module('dsp-builtins/musicutils').
 
 source :- 
 	n3_load('dsp-n3/decode.n3'),
