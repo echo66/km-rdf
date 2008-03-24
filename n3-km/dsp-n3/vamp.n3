@@ -1,6 +1,7 @@
 @prefix mo: <http://purl.org/ontology/mo/>.
 @prefix dsp: <http://purl.org/ontology/dsp/>.
 @prefix vamp: <http://purl.org/ontology/vamp/>.
+@prefix event: <http://purl.org/NET/c4dm/event.owl#>.
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @prefix list: <http://www.w3.org/2000/10/swap/list#>.
@@ -118,13 +119,14 @@ _:keyevent a af:KeyEvent;
 (("key" ?start _:fduration ?key) ("key" ?end _:fduration2 _:key)) list:nextto ?otp.
 } => {
 ?af mo:encodes _:gs.
-_:gs mo:time [tl:onTimeLine _:tl].
+_:gs mo:time [tl:timeline _:tl].
 _:tonalregion a to:Tonality;
-	tl:onTimeLine _:tl;
+	tl:timeline _:tl;
 	rdfs:label "Tonal region delimited by the key";
-	tl:startsAt ?start;
-	tl:endsAt ?end;
-	to:key ?key.
+	event:time [
+		tl:start ?start;
+		tl:ends ?end;
+		to:key ?key ] .
 }.
 
 
