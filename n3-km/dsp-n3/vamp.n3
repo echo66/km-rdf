@@ -121,12 +121,12 @@ vamp:qm-similarity
 ?af mo:encodes _:gs.
 _:gs mo:time [tl:timeline _:tl].
 _:tonalregion a to:Tonality;
-	tl:timeline _:tl;
 	rdfs:label "Tonal region delimited by the key";
 	event:time [
+		tl:timeline _:tl;
 		tl:start ?start;
-		tl:ends ?end;
-		to:key ?key ] .
+		tl:ends ?end ] .
+	to:key ?key.
 }.
 
 
