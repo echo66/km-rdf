@@ -5,6 +5,8 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @prefix list: <http://www.w3.org/2000/10/swap/list#>.
 @prefix af: <http://purl.org/ontology/af/>.
+@prefix to: <http://purl.org/ontology/tonality/>.
+@prefix key: <http://purl.org/ontology/tonality/key/>.
 @prefix tl: <http://purl.org/NET/c4dm/timeline.owl#>.
 @prefix : <>.
 
@@ -70,7 +72,6 @@ vamp:qm-similarity
         rdfs:label "Similarity features: timbre and rhythm";
         .
 
-
 {
 (?c ?sr ?l (?sig1 ?sig2)) vamp:qm-keydetector ?otp.
 ("key" ?start _:fduration ?key) list:in ?otp.
@@ -83,6 +84,44 @@ _:keyevent a af:KeyEvent;
 	af:key ?key.
 }.
 
+{
+(?c ?sr ?l (?sig1 ?sig2)) vamp:qm-keydetector ?otp.
+("key" ?start _:fduration ?key) list:in ?otp.
+(("key" ?start _:fduration ?key) ("key" ?end _:fduration2 _:key)) list:nextto ?otp.
+} => {
+
+	{?key sameAs 1.} => {?keyuri a key:Cmajor.}
+	{?key sameAs 2.} => {?keyuri a key:Csmajor.}
+	{?key sameAs 3.} => {?keyuri a key:Dmajor.}
+	{?key sameAs 4.} => {?keyuri a key:Dsmajor.}
+	{?key sameAs 5.} => {?keyuri a key:Emajor.}
+	{?key sameAs 6.} => {?keyuri a key:Fmajor.}
+	{?key sameAs 7.} => {?keyuri a key:Fsmajor.}
+	{?key sameAs 8.} => {?keyuri a key:Gmajor.}
+	{?key sameAs 9.} => {?keyuri a key:Gsmajor.}
+	{?key sameAs 10.} => {?keyuri a key:Amajor.}
+	{?key sameAs 11.} => {?keyuri a key:Asmajor.}
+	{?key sameAs 12.} => {?keyuri a key:Bmajor.}
+
+	{?key sameAs 13.} => {?keyuri a key:Cminor.}
+	{?key sameAs 14.} => {?keyuri a key:Csminor.}
+	{?key sameAs 15.} => {?keyuri a key:Dminor.}
+	{?key sameAs 16.} => {?keyuri a key:Dsminor.}
+	{?key sameAs 17.} => {?keyuri a key:Eminor.}
+	{?key sameAs 18.} => {?keyuri a key:Fminor.}
+	{?key sameAs 19.} => {?keyuri a key:Fsminor.}
+	{?key sameAs 20.} => {?keyuri a key:Gminor.}
+	{?key sameAs 21.} => {?keyuri a key:Gsminor.}
+	{?key sameAs 22.} => {?keyuri a key:Aminor.}
+	{?key sameAs 23.} => {?keyuri a key:Asminor.}
+	{?key sameAs 24.} => {?keyuri a key:Bminor.}
+
+_:tonalregion a to:Tonality;
+	rdfs:label "Tonal region delimited by the key";
+	tl:startsAt ?start;
+	tl:endsAt ?end;
+	to:key ?keyuri.
+}.
 
 
 
