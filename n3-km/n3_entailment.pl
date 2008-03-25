@@ -137,12 +137,29 @@ rdf_s(S,P,O) :-
  * And third level predicate. Just do the
  * N3/builtin entailment
  */
+:- dynamic bs/2.
 rdf_e(S,P,O) :-
 	format(user_error,'DEBUG: Entailment rules - ~w/3\n',[rdf_e(S,P,O)]),
 	rdf_b(S,P,O).
+rdf_e(S,P,O) :-
+	\+rdf_is_bnode(S),\+rdf_is_bnode(P),\+rdf_is_bnode(O),
+	rule(Head,Body,BNodes),
+	member(rdf_e(S,P,O),Head),
+	\+bs(Head,Body),
+	list_to_conj(Body,BodyGoal),
+	forall(BodyGoal,(writeln(BNodes),instantiate(BNodes),assert(bs(Head,Body)))),fail.
+rdf_e(S,P,O) :-
+	rule(Head,Body,_),
+	member(rdf_e(S,P,O),Head),
+	bs(Head,Body),
+	member(rdf_e(S,P,O),Head).
 
-
-
+instantiate([]).
+instantiate([bnode(BNode)|T]) :- ground(BNode),!,instantiate(T).
+instantiate([bnode(BNode)|T]) :-
+        \+ground(BNode),
+	rdf_bnode(BNode),
+        instantiate(T).
 /**
  * Finally... Fourth level predicate, handling
  * calls to the backing rdf store, and builtins
@@ -208,30 +225,32 @@ compile_rules :-
 			append(BNodes1,BNodes2,BNodes),
 			append(Bindings1,Bindings2,Bindings),
 			merge_bindings(Bindings),
-			list_to_conj(PredListB,PlB),
-			forall(member(rdf_e(S,P,O),PredListH),
-				(
-					format(user_error,'DEBUG: Asserting ~w :- ~w\n',[rdf_e(S,P,O),(PlB)]),
-					assert(':-'(rdf_e(S,P,O),bas(PredListH,PlB))),
-					assert(':-'(rdf_e(S,P,O),(no_bnode(S,P,O),\+bas(PredListH,PlB),PlB,handle_bnodes((S,P,O),PredListH,PlB))))
-				))
+			format(user_error,'DEBUG: Asserting ~w\n',[rule(PredListH,PredListB,BNodes)]),
+			assert(rule(PredListH,PredListB,BNodes))
+			%list_to_conj(PredListB,PlB),
+			%forall(member(rdf_e(S,P,O),PredListH),
+			%	(
+			%		format(user_error,'DEBUG: Asserting ~w :- ~w\n',[rdf_e(S,P,O),(PlB)]),
+			%		assert(':-'(rdf_e(S,P,O),bas(PredListH,PlB))),
+			%		assert(':-'(rdf_e(S,P,O),(no_bnode(S,P,O),\+bas(PredListH,PlB),PlB,handle_bnodes((S,P,O),PredListH,PlB))))
+			%	))
 		)
 	).
 
 :- dynamic bas/2. %FIXME - that's wrong
 %handle_bnodes(_,PlH,PlB) :-
 %	bas(PlH,PlB).
-no_bnode(S,P,O) :- \+rdf_is_bnode(S),\+rdf_is_bnode(P),\+rdf_is_bnode(O).
-handle_bnodes((S,P,O),PlH,PlB) :-
-	%format(user_error,'DEBUG: ~w\n',[handle_bnodes(PlH,PlB)]),
-	%\+rdf_is_bnode(S),\+rdf_is_bnode(P),\+rdf_is_bnode(O),
-	\+bas(PlH,PlB),
-	free_variables(PlH,Vars),Vars\=[],
-	bnodes(Vars),
-	assert(bas(PlH,PlB)).
-handle_bnodes(_,PlH,PlB) :-
-	\+bas(PlH,PlB),
-	free_variables(PlH,Vars),Vars=[].
+%no_bnode(S,P,O) :- \+rdf_is_bnode(S),\+rdf_is_bnode(P),\+rdf_is_bnode(O).
+%handle_bnodes(_,PlH,PlB) :-
+%	%format(user_error,'DEBUG: ~w\n',[handle_bnodes(PlH,PlB)]),
+%	%\+rdf_is_bnode(S),\+rdf_is_bnode(P),\+rdf_is_bnode(O),
+%	%\+bas(PlH,PlB),
+%	free_variables(PlH,Vars),Vars\=[],
+%	bnodes(Vars),
+%	assert(bas(PlH,PlB)).
+%handle_bnodes(_,PlH,PlB) :-
+	%\+bas(PlH,PlB),
+%	free_variables(PlH,Vars),Vars=[].
 %handle_bnodes((S,P,O),_,_) :- \+rdf_is_bnode(S),\+rdf_is_bnode(P),\+rdf_is_bnode(O).
 
 %handle_bnodes(BN,PlH,PlB) :-
