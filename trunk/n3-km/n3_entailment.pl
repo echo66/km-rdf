@@ -138,6 +138,7 @@ rdf_s(S,P,O) :-
  * N3/builtin entailment
  */
 :- dynamic bs/2.
+
 rdf_e(S,P,O) :-
 	format(user_error,'DEBUG: Entailment rules - ~w/3\n',[rdf_e(S,P,O)]),
 	rdf_b(S,P,O).

@@ -112,6 +112,9 @@ vamp:qm-similarity
 # 24 -> key:Bminor
 
 {
+
+#Same happens here, ?af encondes _:gs as many times as different tonal regions are defined by the plugin. Don't know if this is significant or not...
+
 ?af <http://purl.org/ontology/dsp/cache> ?local.
 ?local <http://purl.org/ontology/dsp/aspl_decode> ?sig.
 ?sig vamp:qm-keydetector ?otp.
