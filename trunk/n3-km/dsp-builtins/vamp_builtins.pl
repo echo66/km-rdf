@@ -8,11 +8,17 @@
 :- use_module('../swivamp/vamp').
 :- use_module('../feature-extractor/fe').
 :- use_module('../swiaudiodata/audiodata').
-:-use_module('../swiaudiosource/audiosource').
+:- use_module('../swiaudiosource/audiosource').
+:- use_module('musicutils').
 
 builtins:builtin('http://purl.org/ontology/vamp/qm-keydetector',vamp_builtins:keydetector).
 builtins:builtin('http://purl.org/ontology/vamp/qm-mfccparameters',vamp_builtins:mfccparameters).
 builtins:builtin('http://purl.org/ontology/vamp/qm-similarity',vamp_builtins:similarity).
+
+
+/**
+	Outputs a to:key
+*/
 
 keydetector(Input,Features) :-
 	nonvar(Input),
@@ -23,7 +29,7 @@ keydetector(Input,Features) :-
 	vmpl_initialize_plugin(Plugin,Channels,Win,Hop),
 	vamp_compute_feature('Signal'(Channels,SR,L,Sigs),Win,Hop,[2],Plugin,RF),
 	flatten(RF, F),
-	findall([literal(Otp),literal(TS),literal(TE),literal(Data)],(member('Feature'(Otp,'Timestamp'(TS,TE),DataBin),F),data(DataBin,DataL),DataL=[Data]),Features).
+	findall([literal(Otp),literal(TS),literal(TE),Key],(member('Feature'(Otp,'Timestamp'(TS,TE),DataBin),F),data(DataBin,DataL),DataL=[Data], to_key(Data, Key)),Features).
 
 /**
 	Specific builtins to extract MFCC means and vars from the similarity plugin. Necessary to mix down the input to not confuse the plugin with 2

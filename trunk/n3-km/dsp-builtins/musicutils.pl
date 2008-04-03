@@ -3,7 +3,7 @@
 	David Pastor 2008
 	**/
 
-:- module(to_builtins,[get_key/2]).
+:- module(to_builtins,[to_key/2]).
 
 :- use_module(library('semweb/rdf_db')).
 
@@ -15,8 +15,6 @@
 
 
 builtins:builtin('http://purl.org/ontology/dsp/pitch_interval', to_builtins:pitch_interval).
-builtins:builtin('http://purl.org/ontology/dsp/get_key', to_builtins:get_key).
-
 
 pitchClass('C', 0.0).
 pitchClass('Cs', 1.0).
@@ -79,10 +77,8 @@ key_id(22.0, 'http://purl.org/ontology/tonality/key/Aminor').
 key_id(23.0, 'http://purl.org/ontology/tonality/key/Asminor').
 key_id(24.0, 'http://purl.org/ontology/tonality/key/Bminor').
 
-
-get_key(literal(ID), Key):-
+to_key(ID, Key):-
 	key_id(ID, Key).
-
 
 
 
