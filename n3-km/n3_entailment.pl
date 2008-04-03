@@ -119,6 +119,7 @@ bnodes([H|T]) :-
  * owl:sameAs
  */
 % special handling of owl:sameAs
+
 rdf_s(S,P,O) :-
 	format(user_error,'DEBUG: SameAs handling - rdf_s/3\n',[]),
 	%nonvar(S),
@@ -143,7 +144,7 @@ rdf_e(S,P,O) :-
 	format(user_error,'DEBUG: Entailment rules - ~w/3\n',[rdf_e(S,P,O)]),
 	rdf_b(S,P,O).
 rdf_e(S,P,O) :-
-	\+rdf_is_bnode(S),\+rdf_is_bnode(P),\+rdf_is_bnode(O),
+	\+rdf_is_bnode(S),\+rdf_is_bnode(P),\+rdf_is_bnode(O),	
 	rule(Head,Body,BNodes),
 	member(rdf_e(S,P,O),Head),
 	\+bs(Head,Body),

@@ -42,6 +42,8 @@ builtin:member(A,B) :-
 builtin:nextto([X,Y],L) :-
 	\+var(L),
 	nextto(X,Y,L).
+builtin:nextto([A, A], L) :-
+	last(A, L).
 
 
 %Just illustrating a bug
