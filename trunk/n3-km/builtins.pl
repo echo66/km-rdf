@@ -41,9 +41,13 @@ builtin:member(A,B) :-
 	member(A,B).
 builtin:nextto([X,Y],L) :-
 	\+var(L),
+	getnext(X, Y, L).
+
+getnext(X, Y, L) :-
 	nextto(X,Y,L).
-builtin:nextto([A, A], L) :-
-	last(A, L).
+getnext(X, X, L) :-
+ 	\+var(L),
+	last(L, X).
 
 
 %Just illustrating a bug

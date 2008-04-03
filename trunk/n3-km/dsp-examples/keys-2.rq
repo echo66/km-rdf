@@ -1,4 +1,4 @@
-select ?otp ?s ?e ?key
+select ?otp ?key
 where
 {
 <http://dbtune.org/audio/Den-Nostalia.ogg> <http://purl.org/ontology/dsp/cache> ?local.
