@@ -1,8 +1,10 @@
-select ?start ?end ?key
+select ?s ?e ?key
 where
 {
-_:evt a <http://purl.org/ontology/af/KeyEvent>; tl:startsAt ?start ; tl:endsAt ?end; <http://purl.org/ontology/af/key> ?key
-}
+_:evt a <http://purl.org/ontology/tonality/TonalEvent>; 
+event:time [tl:start ?s; tl:end ?e];
+event:factor ?key
 
+}
 
 

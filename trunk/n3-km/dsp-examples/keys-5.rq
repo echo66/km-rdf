@@ -8,9 +8,3 @@ _:evt a <http://purl.org/ontology/tonality/Tonality>; tl:startsAt ?start ; tl:en
 ?degree <http://purl.org/ontology/tonality/owned_chord> ?chord.
 }
 
-select ?start ?end ?key
-where
-{
-_:evt a <http://purl.org/ontology/tonality/Tonality>; tl:startsAt ?start ; tl:endsAt ?end; <http://purl.org/ontology/tonality/key> ?key.
-
-}
