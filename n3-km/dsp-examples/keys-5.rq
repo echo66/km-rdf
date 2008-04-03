@@ -1,10 +1,15 @@
-sselect ?start ?end ?degreename ?chord
+
+#Needs to load the tonality ontology
+
+
+select ?start ?end ?degreename ?chord
 where
 {
-_:evt a <http://purl.org/ontology/tonality/Tonality>; tl:startsAt ?start ; tl:endsAt ?end; <http://purl.org/ontology/tonality/key> ?key.
+_:evt a <http://purl.org/ontology/tonality/TonalEvent>; tl:start ?start ; tl:end ?end; event:factor ?key.
 
-?key <http://purl.org/ontology/tonality/degree> ?degree.
-?degree <http://purl.org/ontology/tonality/degree_name> ?degrename.
-?degree <http://purl.org/ontology/tonality/owned_chord> ?chord.
+?key <http://purl.org/ontology/tonality/degree> [
+<http://purl.org/ontology/tonality/degree_name> ?degrename;
+<http://purl.org/ontology/tonality/owned_chord> ?chord;
+<http://purl.org/ontology/tonality/borrowed_chord> ?chord].
 }
 
