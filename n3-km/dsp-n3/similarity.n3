@@ -10,5 +10,13 @@
 dsp:mfcc_kldiv a <http://purl.org/ontology/tabling/TabledPredicate>.
 
 
+{?af1 <http://purl.org/ontology/dsp/cache> ?local.
+?local <http://purl.org/ontology/dsp/aspl_decode> ?sig.
+?sig <http://purl.org/ontology/vamp/qm-mfccparameters> (?means1 ?vars1).
 
+?af2 <http://purl.org/ontology/dsp/cache> ?local2 .
+?local2 <http://purl.org/ontology/dsp/aspl_decode> ?sig2.
+?sig2 <http://purl.org/ontology/vamp/qm-mfccparameters> (?means2 ?vars2).
+
+((?means1 ?vars1) (?means2 ?vars2)) <http://purl.org/ontology/dsp/mfcc_kldiv> ?div.} => {(?af1 ?af2) similarity:div ?div}.
 
