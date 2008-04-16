@@ -43,8 +43,8 @@ mfcc_kldiv([[Means1, Vars1], [Means2, Vars2]], literal(Distance)):-
 	smpl_mfcc_kldiv(IM1, IV1, IM2, IV2, Distance).
 
 cosine_dis([Beat1, Beat2], literal(D)):-
-	literal_list_to_list(Beat1, Beat1D), next_id(I1), reserve(I1),
-	literal_list_to_list(Beat2, Beat2D), next_id(I2), reserve(I2),
+	literal_list_to_list(Beat1, Beat1D), next_id(I1), reserve_id(I1),
+	literal_list_to_list(Beat2, Beat2D), next_id(I2), reserve_id(I2),
 	load_data_list(Beat1D, I1),
 	load_data_list(Beat2D, I2),
 	smpl_cosine_distance(I1, I2, D).
