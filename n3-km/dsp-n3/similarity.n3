@@ -8,15 +8,35 @@
 @prefix : <>.
 
 dsp:mfcc_kldiv a <http://purl.org/ontology/tabling/TabledPredicate>.
+dsp:cosine_dis a <http://purl.org/ontology/tabling/TabledPredicate>.
+
+similarity:cosine
+        a rdf:Property;
+	a owl:FunctionalProperty;
+	a owl:DatatypeProperty;
+        rdfs:label "Cosine distance between beat spectra";
+        .
 
 
 {?af1 <http://purl.org/ontology/dsp/cache> ?local.
 ?local <http://purl.org/ontology/dsp/aspl_decode> ?sig.
-?sig <http://purl.org/ontology/vamp/qm-mfccparameters> (?means1 ?vars1).
+?sig <http://purl.org/ontology/vamp/qm-similarity> (?means1 ?vars1 ?b1).
 
 ?af2 <http://purl.org/ontology/dsp/cache> ?local2 .
 ?local2 <http://purl.org/ontology/dsp/aspl_decode> ?sig2.
-?sig2 <http://purl.org/ontology/vamp/qm-mfccparameters> (?means2 ?vars2).
+?sig2 <http://purl.org/ontology/vamp/qm-similarity> (?means2 ?vars2 ?b2).
 
 ((?means1 ?vars1) (?means2 ?vars2)) <http://purl.org/ontology/dsp/mfcc_kldiv> ?div.} => {(?af1 ?af2) similarity:div ?div}.
+
+{?af1 <http://purl.org/ontology/dsp/cache> ?local.
+?local <http://purl.org/ontology/dsp/aspl_decode> ?sig.
+?sig <http://purl.org/ontology/vamp/qm-similarity> (?means1 ?vars1 ?b1).
+
+?af2 <http://purl.org/ontology/dsp/cache> ?local2 .
+?local2 <http://purl.org/ontology/dsp/aspl_decode> ?sig2.
+?sig2 <http://purl.org/ontology/vamp/qm-similarity> (?means2 ?vars2 ?b2).
+
+(?b1 ?b2) <http://purl.org/ontology/dsp/cosine_dis> ?cos.} => {(?af1 ?af2) similarity:cosine ?cos}.
+
+
 

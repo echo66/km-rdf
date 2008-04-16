@@ -1,0 +1,7 @@
+PREFIX sim: <http://purl.org/ontology/similarity/>
+SELECT ?sim ?sr
+WHERE
+{
+(<http://dbtune.org/audio/Den-Nostalia.ogg> <http://dbtune.org/audio/Both-Axel.ogg>) sim:div ?sim.
+(<http://dbtune.org/audio/Den-Nostalia.ogg> <http://dbtune.org/audio/Both-Axel.ogg>) sim:cosine ?sr
+}

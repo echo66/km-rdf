@@ -47,7 +47,6 @@ mfccparameters(Input, [MLData, VLData]) :-
 	vmpl_initialize_plugin(Plugin, 1, StepSize, BlockSize),
 	vamp_compute_feature2('Signal'(ChannelsM, SRM, LM, SigsMono), StepSize, BlockSize, [3,4], Plugin, F),
 	F= [Mean, Var],
-	%see fe.pl to for vamp_compute_feature
 	Mean = ['Feature'(_MType, 'Timestamp'(_StartM, _EndM), MBinData)],
 	Var = ['Feature'(_VType, 'Timestamp'(_StartV, _EndV), VBinData)],
 	data(MBinData,MData),
