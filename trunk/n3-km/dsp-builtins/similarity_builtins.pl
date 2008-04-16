@@ -23,6 +23,7 @@
 %:- rdf_db:rdf_assert('http://purl.org/ontology/similarity/mfcc_kldiv',rdf:type,'http://purl.org/ontology/tabling/CachedPredicate').
 
 builtins:builtin('http://purl.org/ontology/dsp/mfcc_kldiv',similarity_builtins:mfcc_kldiv).
+builtins:builtin('http://purl.org/ontology/dsp/cosine_dis',similarity_builtins:cosine_dis).
 
 /**
  *	Input: __data_id for the means and variances of two different audio files.
@@ -40,6 +41,13 @@ mfcc_kldiv([[Means1, Vars1], [Means2, Vars2]], literal(Distance)):-
 	load_data_list(Vars1D, IV1),
 	load_data_list(Vars2D, IV2),
 	smpl_mfcc_kldiv(IM1, IV1, IM2, IV2, Distance).
+
+cosine_dis([Beat1, Beat2], literal(D)):-
+	literal_list_to_list(Beat1, Beat1D), next_id(I1), reserve(I1),
+	literal_list_to_list(Beat2, Beat2D), next_id(I2), reserve(I2),
+	load_data_list(Beat1D, I1),
+	load_data_list(Beat2D, I2),
+	smpl_cosine_distance(I1, I2, D).
 
 literal_list_to_list([],[]).
 literal_list_to_list([literal(H)|T],[H|T2]) :-	
