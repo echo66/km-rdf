@@ -5,13 +5,13 @@
 @prefix list: <http://www.w3.org/2000/10/swap/list#>.
 @prefix af: <http://purl.org/ontology/af/>.
 @prefix tl: <http://purl.org/NET/c4dm/timeline.owl#>.
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
 @prefix : <>.
 
 dsp:mfcc_kldiv a <http://purl.org/ontology/tabling/TabledPredicate>.
 dsp:cosine_dis a <http://purl.org/ontology/tabling/TabledPredicate>.
 
 similarity:cosine
-        a rdf:Property;
 	a owl:FunctionalProperty;
 	a owl:DatatypeProperty;
         rdfs:label "Cosine distance between beat spectra";
