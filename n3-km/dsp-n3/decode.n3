@@ -10,25 +10,29 @@
 
 # I need that to keep identity between an audio file and corresponding signals
 dsp:aspl_decode a <http://purl.org/ontology/tabling/TabledPredicate>.
+dsp:aspl_decode a owl:FunctionalProperty.
 
 dsp:cache a owl:FunctionalProperty.
 dsp:cache a <http://purl.org/ontology/tabling/TabledPredicate>.
 
 
-dsp:aspl_decode a owl:FunctionalProperty.
-
-{
-
 #Let's hide the local copy as we don't want to have ?a and ?local as two different mo:AudioFile
 #Still the rule makes that for each signal ?a is declared as mo:AudioFile so the uri is duplicated when you
 #query something like select ?a where{?a a mo:AudioFile;...}  
 
+{
+?a	dsp:cache ?local.
+} => {
+?a a mo:AudioFile.
+}.
+
+{
 ?a	dsp:cache ?local.
 ?local	dsp:aspl_decode (?ch ?sr ?l ?signals).
 ?signal list:in ?signals
 } =>
 {
-?a a mo:AudioFile; mo:encodes ?signal.
+?a mo:encodes ?signal.
 ?signal
 	a mo:Signal;
 	mo:channels "1";
