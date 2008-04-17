@@ -1,7 +1,8 @@
 PREFIX sim: <http://purl.org/ontology/similarity/>
-SELECT ?af ?sim ?sr
+SELECT DISTINCT ?af ?sim ?sr
 WHERE
 {
 (<http://dbtune.org/audio/Den-Nostalia.ogg> ?af) sim:div ?sim.
 (<http://dbtune.org/audio/Den-Nostalia.ogg> ?af) sim:cosine ?sr
 }
+LIMIT 20
