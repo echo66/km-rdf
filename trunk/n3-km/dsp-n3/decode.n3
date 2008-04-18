@@ -15,15 +15,27 @@ dsp:aspl_decode a owl:FunctionalProperty.
 dsp:cache a owl:FunctionalProperty.
 dsp:cache a <http://purl.org/ontology/tabling/TabledPredicate>.
 
-
+	
 #Let's hide the local copy as we don't want to have ?a and ?local as two different mo:AudioFile
 #Still the rule makes that for each signal ?a is declared as mo:AudioFile so the uri is duplicated when you
 #query something like select ?a where{?a a mo:AudioFile;...}  
 
 {
 ?a	dsp:cache ?local.
+?local	dsp:aspl_decode (?ch ?sr ?l ?signals).
 } => {
 ?a a mo:AudioFile.
+?a mo:encodes ?signal.
+?signal
+	a mo:Signal;
+	mo:channels ?ch;
+	mo:time [
+		a tl:Interval;
+		tl:duration ?l;
+		#change this for a time value
+		tl:onTimeLine _:tl;
+		tl:timeline _:sigtimeline;
+	].	
 }.
 
 {

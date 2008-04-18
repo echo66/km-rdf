@@ -1,10 +1,12 @@
-select ?s ?e ?key
+select ?tline ?key
 where
 {
-_:evt a <http://purl.org/ontology/tonality/TonalEvent>; 
-event:time [tl:start ?s; tl:end ?e];
+<http://dbtune.org/audio/Den-Nostalia.ogg> <http://purl.org/ontology/mo/encodes> ?sig.
+?sig mo:time [tl:timeline ?tline].
+_:tonalregion event:time [tl:onTimeLine ?tline];
 event:factor ?key
 
 }
+
 
 
