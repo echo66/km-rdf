@@ -14,6 +14,7 @@
 builtins:builtin('http://purl.org/ontology/vamp/qm-keydetector',vamp_builtins:keydetector).
 builtins:builtin('http://purl.org/ontology/vamp/qm-mfccparameters',vamp_builtins:mfccparameters).
 builtins:builtin('http://purl.org/ontology/vamp/qm-similarity',vamp_builtins:similarity).
+builtins:builtin('http://purl.org/ontology/vamp/qm-beats',vamp_builtins:beats).
 
 
 /**
@@ -75,6 +76,17 @@ similarity(Input, [MLData, VLData, BLData]) :-
 	to_literal_list(VData,VLData),
 	data(BBinData,BData),
 	to_literal_list(BData,BLData).
+
+beats(Input, BeatDetec):-
+	nonvar(Input),
+	Input = [literal(Channels),literal(SR),literal(L),Sigs],
+	vmpl_load_plugin('libqm-vamp-plugins:qm-tempotracker',SR,Plugin),
+	vmpl_get_blockSize(Plugin, BlockSize),
+	vmpl_get_stepSize(Plugin, StepSize),
+	vmpl_initialize_plugin(Plugin, 1, StepSize, BlockSize),
+	vamp_compute_feature2('Signal'(Channels, SR, L, Sigs), StepSize, BlockSize, [0], Plugin, F),
+	flatten(F, BeatsList),
+	findall(literal(BeatPoint), member('Feature'(_T, 'Timestamp'(BeatPoint, _Res), _NoData), BeatsList), BeatDetec).
 
 to_literal_list([],[]).
 to_literal_list([H|T],[literal(H)|T2]) :-
