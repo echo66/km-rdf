@@ -47,7 +47,7 @@ vamp:qm-onsetdetector
 	rdfs:label "Onset detection vamp plugin";
 	.
 
-vamp:qm-tempotracker
+vamp:qm-beats
 	a rdf:Property;
 	rdfs:subPropertyOf vamp:qm-plugin;
 	rdfs:label "Tempo tracking vamp plugin";
@@ -132,6 +132,25 @@ _:tonalregion a to:TonalEvent;
 	event:factor ?key.
 }.
 
+{
+
+#Same happens here, ?af encondes _:gs as many times as different tonal regions are defined by the plugin. Don't know if this is significant or not...
+
+?af <http://purl.org/ontology/dsp/cache> ?local.
+?local <http://purl.org/ontology/dsp/aspl_decode> ?sig.
+?sig vamp:qm-beats ?otp.
+?beatpoint list:in ?otp.
+
+} => {
+?af mo:encodes _:gs.
+_:gs mo:time [tl:timeline _:tl].
+_:beat a event:Event;
+	rdfs:label "Beat points";
+	event:time [
+		tl:timeline _:tl;
+		tl:start ?start ] ;
+	event:factor "beat".
+}.
 
 
 
