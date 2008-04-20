@@ -114,15 +114,16 @@ vamp:qm-similarity
 
 {
 
-#Same happens here, ?af encondes _:gs as many times as different tonal regions are defined by the plugin. Don't know if this is significant or not...
-
 ?af <http://purl.org/ontology/dsp/cache> ?local.
 ?local <http://purl.org/ontology/dsp/aspl_decode> ?sig.
-?sig mo:time [tl:timeline ?stl].
+?af mo:encodes ?signal
+?signal mo:time [tl:timeline ?stl].
 ?sig vamp:qm-keydetector ?otp.
 ("key" ?start _:fduration ?key) list:in ?otp.
 (("key" ?start _:fduration ?key) ("key" ?end _:fduration2 _:key)) list:nextto ?otp.
+
 } => {
+
 _:tonalregion a to:TonalEvent;
 	rdfs:label "Tonal region delimited by the key";
 	event:time [
