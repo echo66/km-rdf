@@ -1,0 +1,77 @@
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .
+@prefix vamp:     <http://www.vamp-plugins.org/ontology/> .
+@prefix vampex:   <http://www.vamp-plugins.org/examples/> .
+@prefix plugbase: <http://vamp-plugins.org/plugin/qm-vamp-plugins/> .
+@prefix owl:      <http://www.w3.org/2002/07/owl#> .
+@prefix dc:       <http://purl.org/dc/elements/1.1/> .
+@prefix af:       <http://purl.org/ontology/af/> .
+@prefix foaf:     <http://xmlns.com/foaf/0.1/> .
+@prefix cc:       <http://web.resource.org/cc/> .
+@prefix thisplug: <http://vamp-plugins.org/plugin/qm-vamp-plugins/qm-tempotracker#> .
+@prefix :         <> .
+
+<>  a   vamp:PluginDescription ;
+     foaf:maker          <http://chrissutton.org/me> ;
+     foaf:maker          <http://www.vamp-plugins.org/doap.rdf#template-generator> ;
+     foaf:primaryTopic   plugbase:qm-tempotracker .
+
+plugbase:qm-tempotracker a   vamp:Plugin ;
+    dc:title              "Beat Tracker" ;
+    dc:description        "" ;
+    foaf:maker            :christianlandone, :matthewdavies ;
+    cc:license            [ a cc:License; cc:legalcode <http://vamp-plugins.org/plugin/qm-vamp-plugins/licence.txt> ];
+    vamp:identifier       "qm-tempotracker" ;
+    vamp:vamp_API_version vamp:api_version_1 ;
+    owl:versionInfo       "3" ;
+    vamp:input_domain     vamp:TimeDomain ;
+
+    vamp:parameter_descriptor   thisplug:param_dftype ;
+
+    vamp:output_descriptor      thisplug:output_beats ;
+    vamp:output_descriptor      thisplug:output_detection_fn ;
+    vamp:output_descriptor      thisplug:output_tempo .
+
+:chrislandone a foaf:Person ;
+    foaf:name "Christian Landone".
+:matthewdavies a foaf:Person ;
+    foaf:name "Matthew Davies" .
+
+thisplug:param_dftype a  vamp:ParameterDescriptor ;
+    vamp:identifier     "dftype" ;
+    dc:title            "Onset Detection Function Type" ;
+    dc:format           "" ;
+    vamp:minValue       0 ;
+    vamp:maxValue       3 ;
+    vamp:defaultValue   3 .
+
+thisplug:output_beats a  vamp:OutputDescriptor ;
+    vamp:identifier     "beats" ;
+    dc:title            "Beats" ;
+    vamp:fixed_bin_count "true" ;
+    vamp:bin_count      0 ;
+    vamp:bin_names      ();
+    vamp:sample_type    vamp:VariableSampleRate ;
+    vamp:sample_rate    86.1326 ;
+    vamp:computes_event_type    af:Beat ;
+    .
+thisplug:output_detection_fn a  vamp:OutputDescriptor ;
+    vamp:identifier     "detection_fn" ;
+    dc:title            "Onset Detection Function" ;
+    vamp:fixed_bin_count "true" ;
+    vamp:bin_count      1 ;
+    vamp:bin_names      ( "");
+    vamp:sample_type    vamp:OneSamplePerStep ;
+    vamp:computes_feature_type  af:OnsetDetectionFunction ;
+    .
+thisplug:output_tempo a  vamp:OutputDescriptor ;
+    vamp:identifier     "tempo" ;
+    dc:title            "Tempo" ;
+    vamp:fixed_bin_count "true" ;
+    vamp:bin_count      1 ;
+    vamp:bin_names      ( "");
+    vamp:sample_type    vamp:VariableSampleRate ;
+    vamp:sample_rate    86.1326 ;
+    vamp:computes_feature_type  af:Tempo ;
+    .
+
