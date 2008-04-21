@@ -1,0 +1,104 @@
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .
+@prefix vamp:     <http://www.vamp-plugins.org/ontology/> .
+@prefix vampex:   <http://www.vamp-plugins.org/examples/> .
+@prefix plugbase: <http://vamp-plugins.org/plugin/qm-vamp-plugins/> .
+@prefix owl:      <http://www.w3.org/2002/07/owl#> .
+@prefix dc:       <http://purl.org/dc/elements/1.1/> .
+@prefix af:       <http://purl.org/ontology/af/> .
+@prefix foaf:     <http://xmlns.com/foaf/0.1/> .
+@prefix cc:       <http://web.resource.org/cc/> .
+@prefix thisplug: <http://vamp-plugins.org/plugin/qm-vamp-plugins/qm-tonalchange#> .
+@prefix :         <> .
+
+<>  a   vamp:PluginDescription ;
+     foaf:maker          <http://chrissutton.org/me> ;
+     foaf:maker          <http://www.vamp-plugins.org/doap.rdf#template-generator> ;
+     foaf:primaryTopic   plugbase:qm-tonalchange .
+
+plugbase:qm-tonalchange a   vamp:Plugin ;
+    dc:title              "Tonal Change" ;
+    dc:description        "" ;
+    foaf:maker            :martingasser, :chrisharte ;
+    cc:license            [ a cc:License; cc:legalcode <http://vamp-plugins.org/plugin/qm-vamp-plugins/licence.txt> ];
+    vamp:identifier       "qm-tonalchange" ;
+    vamp:vamp_API_version vamp:api_version_1 ;
+    owl:versionInfo       "1" ;
+    vamp:input_domain     vamp:TimeDomain ;
+
+    vamp:parameter_descriptor   thisplug:param_smoothingwidth ;
+    vamp:parameter_descriptor   thisplug:param_minpitch ;
+    vamp:parameter_descriptor   thisplug:param_maxpitch ;
+    vamp:parameter_descriptor   thisplug:param_tuning ;
+
+    vamp:output_descriptor      thisplug:output_tcstransform ;
+    vamp:output_descriptor      thisplug:output_tcfunction ;
+    vamp:output_descriptor      thisplug:output_changepositions .
+
+:martingasser a foaf:Person ;
+    foaf:name "Martin Gasser" .
+:chrisharte a foaf:Person ;
+    foaf:name "Christopher Harte" .
+
+thisplug:param_smoothingwidth a  vamp:ParameterDescriptor ;
+    vamp:identifier     "smoothingwidth" ;
+    dc:title            "Gaussian smoothing" ;
+    dc:format           "frames" ;
+    vamp:minValue       0 ;
+    vamp:maxValue       20 ;
+    vamp:defaultValue   5 .
+
+thisplug:param_minpitch a  vamp:ParameterDescriptor ;
+    vamp:identifier     "minpitch" ;
+    dc:title            "Chromagram minimum pitch" ;
+    dc:format           "MIDI units" ;
+    vamp:minValue       0 ;
+    vamp:maxValue       127 ;
+    vamp:defaultValue   32 .
+
+thisplug:param_maxpitch a  vamp:ParameterDescriptor ;
+    vamp:identifier     "maxpitch" ;
+    dc:title            "Chromagram maximum pitch" ;
+    dc:format           "MIDI units" ;
+    vamp:minValue       0 ;
+    vamp:maxValue       127 ;
+    vamp:defaultValue   108 .
+
+thisplug:param_tuning a  vamp:ParameterDescriptor ;
+    vamp:identifier     "tuning" ;
+    dc:title            "Chromagram tuning frequency" ;
+    dc:format           "Hz" ;
+    vamp:minValue       420 ;
+    vamp:maxValue       460 ;
+    vamp:defaultValue   440 .
+
+thisplug:output_tcstransform a  vamp:OutputDescriptor ;
+    vamp:identifier     "tcstransform" ;
+    dc:title            "Transform to 6D Tonal Content Space" ;
+    vamp:fixed_bin_count "true" ;
+    vamp:bin_count      6 ;
+    vamp:bin_names      ( "" "" "" "" "" "");
+    vamp:sample_type    vamp:OneSamplePerStep ;
+    vamp:computes_feature_type  af:SixDimensionalTonalContent ;
+    .
+thisplug:output_tcfunction a  vamp:OutputDescriptor ;
+    vamp:identifier     "tcfunction" ;
+    dc:title            "Tonal Change Detection Function" ;
+    vamp:fixed_bin_count "true" ;
+    vamp:bin_count      1 ;
+    vamp:bin_names      ( "");
+    vamp:sample_type    vamp:VariableSampleRate ;
+    vamp:sample_rate    inf ;
+    vamp:computes_feature_type  af:TonalChangeDetectionFunction ;
+    .
+thisplug:output_changepositions a  vamp:OutputDescriptor ;
+    vamp:identifier     "changepositions" ;
+    dc:title            "Tonal Change Positions" ;
+    vamp:fixed_bin_count "true" ;
+    vamp:bin_count      0 ;
+    vamp:bin_names      ();
+    vamp:sample_type    vamp:VariableSampleRate ;
+    vamp:sample_rate    inf ;
+    vamp:computes_event_type    af:TonalChange ;
+    .
+
