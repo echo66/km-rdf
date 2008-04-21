@@ -13,6 +13,15 @@
 @prefix dc: <http://purl.org/dc/elements/1.1/>.
 @prefix :         <> .
 
+# ToDO:
+#   -The class list seems complete. May need to add Timestamp
+#   -The properties are fairly incomplete
+#   -Decide builtins and relationship with this rdf stuff
+#
+#
+#
+
+
 <> 
 	a owl:Ontology;
 	dc:title "Vamp RDF description";
@@ -25,7 +34,9 @@
         dc:date "$Date: 2008/05/21 17:05:11 $";
 	.
 
-#Vamp API ontology
+###########################
+# Vamp API ontology
+###########################
 
 vs:term_status a owl:AnnotationProperty.
 
@@ -65,27 +76,39 @@ vamp:OutputDescriptor
 	.
 
 vamp:PluginProgram
-	a owl:class;
+	a owl:Class;
 	rdfs:label "Plugin program";
 	rdfs:comment "Plugin program with a set of values for parameters";
 	vs:term_status "stable";
 	.
 
+vamp:Feature
+	a owl:Class;
+	rdfs:label "Vamp Feature"
+	rdfs:comment "Description of a Vamp Feature";
+	vs:term_status "stable";
+	#should be a subclass of af:Feature
+	.
+
+#Classes for individuals (finite collections)
+
 vamp:InputDomain
-	a owl:class;
+	a owl:Class;
 	rdfs:label "Plugin input domain";
 	rdfs:comment "Plugin input domain";
 	vs:term_status "stable";
 	.
 
 vamp:SampleType
-	a owl:class;
+	a owl:Class;
 	rdfs:label "sample type";
 	rdfs:comment "sample type for the plugin output";
 	vs:term_status "stable";
 	.
 
-#Properties. Some of them can be declared as builtins.
+##################################################################
+# PROPERTIES. Some of them can be declared as builtins.
+##################################################################
 
 vamp:plugin 
 	a rdf:Property;
@@ -238,14 +261,26 @@ vamp:computes_feature_type
 	vs:term_status "unstable";
 	.
 
-#INDIVIDUALS
+#To be a builtin?
+vamp:extracted_feature
+	a rdf:Property;
+	a owl:ObjectProperty;
+	rdfs:label "extracted feature";
+	rdfs:comment "binds a set of features (no order) to a particular audio file and plugin";
+	vs:term_status "unstable";
+	.
+	
+
+########################
+# INDIVIDUALS
+########################
 
 vamp:time_domain 
 	a vamp:InputDomain;
 	.
 
 vamp:frequency_domain
-	a vamp:InoutDomain;
+	a vamp:InputDomain;
 	.
 
 vamp:OneSamplePerStep
