@@ -1,0 +1,14 @@
+#Rule to extract vamp features using their rdf description.
+#Specific features may need more dedicated rules.
+
+#	David Pastor Escuredo. April 2008
+
+{
+
+	
+
+} => {
+
+
+}
+

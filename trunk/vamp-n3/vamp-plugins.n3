@@ -1,0 +1,50 @@
+@prefix vamp: <http://purl.org/ontology/vamp/>.
+@prefix qvp: <http://vamp-plugins.org/plugin/qm-vamp-plugins/>.
+@prefix evp: <http://vamp-plugins.org/plugin/vamp-example-plugins/>.
+@prefix vp: <http://vamp-plugins.org/plugin/>.
+@prefix : <>.
+
+#This file provides rdf-descriptions of the existing Vamp Plugin Libraries.
+
+vp:qm-vamp-plugins 
+	a  vamp:PluginLibrary;
+	rdfs:label """
+		A set of VAMP plugins developed
+		in the C4DM, Queen Mary, University
+		of London
+	""";
+	vamp:plugin qvp:qm-chromagram;
+	vamp:plugin qvp:qm-constantq;
+	vamp:plugin qvp:qm-keydetector;
+	vamp:plugin qvp:qm-onsetdetector;
+	vamp:plugin qvp:qm-tempotracker;
+	vamp:plugin qvp:qm-tonalchange;
+	vamp:plugin qvp:qm-mfcc;
+	vamp:plugin qvp:qm-segmenter;
+	vamp:plugin qvp:qm-similarity;
+	vamp:binary [
+		a vamp:BinaryLibrary;
+		vamp:platform vamp:x86;
+		vamp:os vamp:linux_32;
+		vamp:download <http://www.elec.qmul.ac.uk/digitalmusic/downloads/qm-vamp-plugins-1.2-i686-linux.tar.gz>;
+		];
+	vamp:binary [
+		a vamp:BinaryLibrary;
+		vamp:platform vamp:x86;
+		vamp:os vamp:linux_64;
+		vamp:download <http://moustaki.org/resources/libqm-vamp-plugins.so>;
+		];
+	.
+
+vp:vamp-example-plugins 
+	a vamp:PluginLibrary;
+	rdfs:label """
+		A set of examples VAMP plugins
+		""";
+	vamp:plugin evp:amplitudefollower;
+	vamp:plugin evp:percussiononsets;
+	vamp:plugin evp:spectralcentroid;
+	vamp:plugin evp:zerocrossing;
+	.
+
+
