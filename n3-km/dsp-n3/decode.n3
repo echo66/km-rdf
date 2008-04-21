@@ -29,18 +29,22 @@ _:signal
 	mo:time [
 		a tl:Interval;
 		tl:duration ?l;
-		#change this for a time value
+		#change this for a time value.
 		tl:onTimeLine _:tl;
 		tl:timeline _:sigtimeline;
 	].	
 }.
 
 {
+
 ?a	dsp:cache ?local.
 ?local	dsp:aspl_decode (?ch ?sr ?l ?signals).
 ?signal list:in ?signals
+
 } =>
+
 {
+
 ?a mo:encodes ?signal.
 ?signal
 	a mo:Signal;
