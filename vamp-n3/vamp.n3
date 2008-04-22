@@ -26,7 +26,11 @@
 	a owl:Ontology;
 	dc:title "Vamp RDF description";
 	rdfs:label "Vamp RDF description";
-	rdfs:comment "RDF vamp API";
+	rdfs:comment """
+			Vamp Ontology:
+				- RDF description of the Vamp API which is a basis for specific plugin descriptions.
+				- Generic plugin processing URI's triggering calls.
+			";
 	foaf:maker "Chris Cannam";
 	foaf:maker "Chris Sutton";
 	foaf:maker "Yves Raimond";
@@ -35,7 +39,7 @@
 	.
 
 ###########################
-# Vamp API ontology
+# Part 1: Vamp API ontology
 ###########################
 
 vs:term_status a owl:AnnotationProperty.
@@ -110,15 +114,17 @@ vamp:SampleType
 # PROPERTIES. Some of them can be declared as builtins.
 ##################################################################
 
-vamp:plugin 
+vamp:available_plugin 
 	a rdf:Property;
 	a owl:ObjectProperty;
-	rdfs:label "plugin";
+	rdfs:label "available plugin";
 	rdfs:comment "Links a plugin to its library (so far)";
 	rdfs:range vamp:Plugin;
 	rdfs:domain vamp:PluginLibrary;
 	vs:term_status "unstable";
 	.
+
+########Plugin Descriptor stuff#####
 
 vamp:identifier
 	a rdf:Property;
@@ -150,6 +156,8 @@ vamp:input_domain
 	rdfs:range vamp:InputDomain;
 	vs:term_status "unstable";
 	.
+
+########Parameter Descriptor stuff#####
 
 vamp:parameter_descriptor
 	a rdf:Property;
@@ -190,6 +198,8 @@ vamp:default_value
 	rdfs:range vamp:ParameterDescriptor;
 	vs:term_status "unstable";
 	.
+
+########Output Descriptor stuff#####
 
 vamp:output_descriptor
 	a rdf:Property;
@@ -239,6 +249,7 @@ vamp:sample_type
 	vs:term_status "unstable";
 	.
 
+#this one may be somewhere else. A whole plugin would define a "segment" and each output some features of the segment.
 vamp:defines_segment
 	a rdf:Property;
 	a owl:ObjectProperty;
@@ -261,16 +272,8 @@ vamp:computes_feature_type
 	vs:term_status "unstable";
 	.
 
-#To be a builtin?
-vamp:extracted_feature
-	a rdf:Property;
-	a owl:ObjectProperty;
-	rdfs:label "extracted feature";
-	rdfs:comment "binds a set of features (no order) to a particular audio file and plugin";
-	vs:term_status "unstable";
-	.
+########Feature stuff#####
 	
-
 ########################
 # INDIVIDUALS
 ########################
@@ -294,4 +297,33 @@ vamp:FixedSampleRate
 vamp:VariableSampleRate
 	a vamp:SampleType; 
 	.
+
+##################################################################################################################
+
+
+#################################
+# Part 2: Vamp processing URI's
+#################################
+
+#This properties are declared to trigger processing on-demand. Calls to plugins processing should be automated somehow under these properties.
+
+vamp:plugin 
+	a rdf:Property;
+	rdfs:label "plugin process";
+	rdfs:comment "A generic vamp plugin, linking its output and its inputs/parameters";
+	vs:term_status "unstable";
+	.
+
+vamp:qm-plugin 
+	a rdf:Property;
+	rdfs:subPropertyOf vamp:plugin;
+	rdfs:label "queen mary vamp process";
+	rdfs:comment "A generic queen mary vamp plugin";
+	vs:term_status "unstable";
+	.
+
+
+
+
+
 
