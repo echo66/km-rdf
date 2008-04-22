@@ -58,6 +58,13 @@ vamp:PluginLibrary
 	vs:term_status "stable";
 	.
 
+vamp:PluginAdapter
+	a owl:Class;
+	rdfs:label "Plugin Adapter";
+	rdfs:comment "Plugin Adapter for Vamp hosts";
+	vs:term_status "unstable";
+	.
+
 vamp:PluginDescription
 	a owl:Class;
 	rdfs:label "Vamp Plugin Description";
@@ -92,6 +99,14 @@ vamp:Feature
 	rdfs:comment "Description of a Vamp Feature";
 	vs:term_status "stable";
 	#should be a subclass of af:Feature
+	.
+
+vamp:FeatureList
+	a owl:Class;
+	rdfs:label "Vamp Feature list
+	rdfs:comment "List of Vamp features of the same type";
+	vs:term_status "unstable";
+	#some kind of structure
 	.
 
 #Classes for individuals (finite collections)
@@ -176,6 +191,7 @@ vamp:max_value
 	rdfs:label "max value";
 	rdfs:comment "Maximum value of the parameter";
 	rdfs:range vamp:ParameterDescriptor;
+	rdfs:range vamp:OutputDescriptor;
 	vs:term_status "unstable";
 	.
 
@@ -186,6 +202,7 @@ vamp:min_value
 	rdfs:label "min value";
 	rdfs:comment "Minimum value of the parameter";
 	rdfs:range vamp:ParameterDescriptor;
+	rdfs:range vamp:OutputDescriptor;
 	vs:term_status "unstable";
 	.
 
@@ -217,6 +234,37 @@ vamp:fixed_bin_count
 	rdfs:label "fixed bin count";
 	rdfs:comment "fixed bin count";
 	rdfs:domain vamp:OutputDescriptor;
+	vs:term_status "unstable";
+	.
+
+vamp:unit 
+	a rdf:Property;
+	a owl:DatatypeProperty;
+	a owl:FunctionalProperty;
+	rdfs:label "unit";
+	rdfs:comment "unit of the output";
+	rdfs:domain vamp:OutputDescriptor;
+	rdfs:domain vamp:ParameterDescriptor;
+	vs:term_status "unstable";
+	.
+
+vamp:sample_rate
+	a rdf:Property;
+	a owl:DatatypeProperty;
+	rdfs:label "sample rate";
+	rdfs:comment "sample rate of the output";
+	rdfs:domain vamp:OutputDescriptor;
+	vs:term_status "unstable";
+	.
+
+vamp:quantized_step
+	a rdf:Property;
+	a owl:FunctionalProperty;
+	a owl:DatatypeProperty;
+	rdfs:label "quantized step";
+	rdfs:comment "quantized step (if any)";
+	rdfs:domain vamp:OutputDescriptor;
+	rdfs:domain vamp:ParameterDescriptor;
 	vs:term_status "unstable";
 	.
 	
@@ -268,11 +316,46 @@ vamp:computes_feature_type
 	rdfs:comment "Feature Types output by the plugin";
 	rdfs:domain vamp:OutputDescriptor;
 	rdfs:range rdfs:Literal;
-	#This should be substituted by af:Feature i think
+	#This should be substituted by af:Feature i think. Definitely Literal is not right here.
 	vs:term_status "unstable";
 	.
 
 ########Feature stuff#####
+
+#Don't know if we can translate this or not.
+
+vamp:feature
+	a rdf:Property;
+	a owl:ObjectProperty;
+	rdfs:label "feature";
+	rdfs:comment "links features to a list of extracted features";
+	rdfs:domain vamp:FeatureList;
+	rdfs:range vamp:Feature;
+	vs:term_status "testing";
+	.
+
+vamp:feature_type
+	a rdf:Property;
+	a owl:DatatypeProperty;
+	rdfs:label "feature";
+	rdfs:comment "links features to a list of extracted features";
+	rdfs:domain vamp:FeatureList;
+	rdfs:domain vamp:Feature;
+	#again we should have af:class as range
+	vs:term_status "testing";
+	.
+
+#This is very experimental I think. We can use simply af ontology for this, but still interesting. May be somewhere else.
+vamp:feature_list
+	a rdf:Property;
+	a owl:ObjectProperty;
+	rdfs:label "feature";
+	rdfs:comment "links a list of extracted features to its belonging audio file"
+	rdfs:domain mo:AudioFile;
+	rdfs:range vamp:FeatureList;
+	vs:term_status "testing";
+	.
+	
 	
 ########################
 # INDIVIDUALS
