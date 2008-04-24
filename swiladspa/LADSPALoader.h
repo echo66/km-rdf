@@ -49,23 +49,23 @@ public:
 	int plugin_parameter_count(std::string);
 	std::string plugin_maker(std::string);
 	std::string plugin_soname(std::string);
+	LADSPA_Handle instantiate_plugin(std::string, unsigned long);
      //float getPortMinimum(const LADSPA_Descriptor *, int port);
      //float getPortMaximum(const LADSPA_Descriptor *, int port);
      //float getPortDefault(const LADSPA_Descriptor *, int port);
      //float getPortQuantization(const LADSPA_Descriptor *, int port);
      //int getPortDisplayHint(const LADSPA_Descriptor *, int port);
 
-protected:
-    
+protected:   
 
      std::vector<QString> getPluginPath();
      //virtual std::vector<QString> getLRDFPath(QString &baseUri);
      void discoverPlugins(QString soName);
-     void releasePlugin(LADSPA_Handle *, QString);
+     //void releasePlugin(LADSPA_Handle *, QString);
      const LADSPA_Descriptor *getLADSPADescriptor(std::string identifier); 
      void loadLibrary(QString soName);
      void unloadLibrary(QString soName);
-     void unloadUnusedLibraries();
+     //void unloadUnusedLibraries();
 
      typedef std::map<QString, void *> LibraryHandleMap;
      LibraryHandleMap m_libmap;
