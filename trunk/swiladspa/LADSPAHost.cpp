@@ -69,7 +69,6 @@ PREDICATE(ldpl_plugin_library,  2)
 
 	std::string ident((char *)A1);
 
-
 	string author = l_loader->LADSPALoader::plugin_soname(ident);
 	char maker[author.size()+1];
 	for(unsigned int j=0;j<author.size();j++){
@@ -79,5 +78,25 @@ PREDICATE(ldpl_plugin_library,  2)
 	return A2 = PlAtom(maker);
 }
 
+/**
+	Instantiate plugin
+*/
+PREDICATE(ldpl_instantiate_plugin, 3)
+{
+	//+ident
+	//+sr
+	//-plugin blob
+
+	std::string ident((char *)A1);
+	unsigned long sr = (unsigned long)(long)A2;
+
+	LADSPA_Handle plugin = l_loader->LADSPALoader::instantiate_plugin(ident, sr);
+
+	term_t plugin_t;
+	plugin_t = PL_new_term_ref();
+	ldpl_register_plugin(plugin, plugin_t);
+
+	return A3 = PlTerm(plugin_t);
+}
 
 

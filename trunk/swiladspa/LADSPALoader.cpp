@@ -359,7 +359,25 @@ LADSPALoader::unloadLibrary(QString soName)
     }
 }
 
+/***********************************************************
+***************** plugin process ***************************
+***********************************************************/
 
+/**
+	Create an instance of the plugin. SV manages a plugin class much more complex. We don't really need to control the real time processing.
+*/
+LADSPA_Handle
+LADSPALoader::instantiate_plugin(std::string name, unsigned long sr)
+{
+
+	const LADSPA_Descriptor *desc = getLADSPADescriptor(name);
+	if(!desc){
+		std:cerr << "LADSPALoader::instantiate_plugin: failed to instantiate plugin" << std::endl;
+	}	
+	LADSPA_Handle plugin;
+	plugin = desc->instantiate(desc, sr);
+	return plugin; 
+}
 
 
 #endif
