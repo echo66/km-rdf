@@ -13,15 +13,15 @@ vp:qm-vamp-plugins
 		in the C4DM, Queen Mary, University
 		of London
 	""";
-	vamp:plugin qvp:qm-chromagram;
-	vamp:plugin qvp:qm-constantq;
-	vamp:plugin qvp:qm-keydetector;
-	vamp:plugin qvp:qm-onsetdetector;
-	vamp:plugin qvp:qm-tempotracker;
-	vamp:plugin qvp:qm-tonalchange;
-	vamp:plugin qvp:qm-mfcc;
-	vamp:plugin qvp:qm-segmenter;
-	vamp:plugin qvp:qm-similarity;
+	vamp:available_plugin qvp:qm-chromagram;
+	vamp:available_plugin qvp:qm-constantq;
+	vamp:available_plugin qvp:qm-keydetector;
+	vamp:available_plugin qvp:qm-onsetdetector;
+	vamp:available_plugin qvp:qm-tempotracker;
+	vamp:available_plugin qvp:qm-tonalchange;
+	vamp:available_plugin qvp:qm-mfcc;
+	vamp:available_plugin qvp:qm-segmenter;
+	vamp:available_plugin qvp:qm-similarity;
 	vamp:binary [
 		a vamp:BinaryLibrary;
 		vamp:platform vamp:x86;
@@ -41,10 +41,10 @@ vp:vamp-example-plugins
 	rdfs:label """
 		A set of examples VAMP plugins
 		""";
-	vamp:plugin evp:amplitudefollower;
-	vamp:plugin evp:percussiononsets;
-	vamp:plugin evp:spectralcentroid;
-	vamp:plugin evp:zerocrossing;
+	vamp:available_plugin evp:amplitudefollower;
+	vamp:available_plugin evp:percussiononsets;
+	vamp:available_plugin evp:spectralcentroid;
+	vamp:available_plugin evp:zerocrossing;
 	.
 
 
