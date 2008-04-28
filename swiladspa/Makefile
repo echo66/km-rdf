@@ -62,7 +62,7 @@ $(OBJ_LHOST) :
 	$(CPP) -c $(CFLAGS) $(INCLUDE_SWIL) $(L_HOST) -o $(OBJ_LHOST)
 
 $(SWI_L) : $(OBJ_LDB) $(OBJ_LLOAD) $(OBJ_LHOST) Makefile
-	$(CPP) -shared $(LIBS_SWIL) $(OBJ_LLOAD) $(OBJ_LDB) -o $(SWI_L) 
+	$(CPP) -shared $(LIBS_SWIL) $(OBJ_LLOAD) $(OBJ_LDB) $(OBJ_LHOST) -o $(SWI_L) 
 
 clean :
 	rm -f *.o *.so 

@@ -33,23 +33,25 @@ class LADSPALoader
 public:
 	~LADSPALoader();
 	 LADSPALoader();
-
 	void discoverPlugins();
 
-	//virtual const std::vector<QString> &getPluginIdentifiers() const;
-	//virtual void enumeratePlugins(std::vector<QString> &list);
-	//virtual const RealTimePluginDescriptor *getPluginDescriptor(QString identifier) const;
   	LADSPA_Handle *instantiatePlugin(QString identifier,
                                                    int clientId,
                                                    int position,
                                                    unsigned int sampleRate,
                                                    unsigned int blockSize,
                                                    unsigned int channels);
+	
+	//Quering plugin descriptor
 	std::vector<std::string> ladspa_plugins();
 	int plugin_parameter_count(std::string);
 	std::string plugin_maker(std::string);
 	std::string plugin_soname(std::string);
 	LADSPA_Handle instantiate_plugin(std::string, unsigned long);
+	int plugin_iaudioports_count(std::string);
+	int plugin_oaudioports_count(std::string);
+	int plugin_ocontrolports_count(std::string name);
+
      //float getPortMinimum(const LADSPA_Descriptor *, int port);
      //float getPortMaximum(const LADSPA_Descriptor *, int port);
      //float getPortDefault(const LADSPA_Descriptor *, int port);

@@ -9,7 +9,7 @@
 :-module(ladspa, [ldpl_plugin_system/1
 		,	ldpl_plugins/1
 		,	ldpl_plugin_maker/2
-		,	ldpl_plugin_soname/2
+		,	ldpl_plugin_library/2
 		]).
 
 :- style_check(-discontiguous).

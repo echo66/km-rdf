@@ -87,13 +87,54 @@ LADSPALoader::plugin_soname(std::string name){
 int
 LADSPALoader::plugin_parameter_count(std::string name){
 
-	int count;
+	int count = -1;
 	for(int j = 0; j < plugins_sys; j++){
 
 		if(name.compare(ladspa_plugins_db[j].name) == 0){
 			count = ladspa_plugins_db[j].parameterCount;
 		}
-		else count = -1;//error no negative counts
+	}
+	return count;
+	
+}
+
+int
+LADSPALoader::plugin_iaudioports_count(std::string name){
+
+	int count = -1;
+	for(int j = 0; j < plugins_sys; j++){
+
+		if(name.compare(ladspa_plugins_db[j].name) == 0){
+			count = ladspa_plugins_db[j].audioInputPortCount;
+		}
+	}
+	return count;
+	
+}
+
+int
+LADSPALoader::plugin_oaudioports_count(std::string name){
+
+	int count = -1;
+	for(int j = 0; j < plugins_sys; j++){
+
+		if(name.compare(ladspa_plugins_db[j].name) == 0){
+			count = ladspa_plugins_db[j].audioOutputPortCount;
+		}
+	}
+	return count;
+	
+}
+
+int
+LADSPALoader::plugin_ocontrolports_count(std::string name){
+
+	int count = -1;
+	for(int j = 0; j < plugins_sys; j++){
+
+		if(name.compare(ladspa_plugins_db[j].name) == 0){
+			count = ladspa_plugins_db[j].controlOutputPortCount;
+		}
 	}
 	return count;
 	
@@ -372,7 +413,7 @@ LADSPALoader::instantiate_plugin(std::string name, unsigned long sr)
 
 	const LADSPA_Descriptor *desc = getLADSPADescriptor(name);
 	if(!desc){
-		std:cerr << "LADSPALoader::instantiate_plugin: failed to instantiate plugin" << std::endl;
+		std::cerr << "LADSPALoader::instantiate_plugin: failed to instantiate plugin" << std::endl;
 	}	
 	LADSPA_Handle plugin;
 	plugin = desc->instantiate(desc, sr);
