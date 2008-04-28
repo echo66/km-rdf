@@ -116,7 +116,7 @@ vamp:qm-similarity
 
 ?af <http://purl.org/ontology/dsp/cache> ?local.
 ?local <http://purl.org/ontology/dsp/aspl_decode> ?sig.
-?af mo:encodes ?signal
+?af mo:encodes ?signal.
 ?signal mo:time [tl:timeline ?stl].
 ?sig vamp:qm-keydetector ?otp.
 ("key" ?start _:fduration ?key) list:in ?otp.

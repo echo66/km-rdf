@@ -79,6 +79,58 @@ PREDICATE(ldpl_plugin_library,  2)
 }
 
 /**
+	Ports stuff
+*/
+
+PREDICATE(ldpl_plugin_parameter_count,  2)
+{
+	//+plugin identifier
+	//-parameters count
+
+	std::string ident((char *)A1);
+
+	long count = l_loader->LADSPALoader::plugin_parameter_count(ident);
+	return A2 = PlTerm(count);
+}
+
+PREDICATE(ldpl_inputAudioPorts_count,  2)
+{
+	//+plugin identifier
+	//-input audio ports count
+
+	std::string ident((char *)A1);
+
+	long count = l_loader->LADSPALoader::plugin_iaudioports_count(ident);
+	return A2 = PlTerm(count);
+}
+
+PREDICATE(ldpl_outputAudioPorts_count,  2)
+{
+	//+plugin identifier
+	//-output audio ports count
+
+	std::string ident((char *)A1);
+
+	long count = l_loader->LADSPALoader::plugin_oaudioports_count(ident);
+	return A2 = PlTerm(count);
+}
+
+PREDICATE(ldpl_outputControlPorts_count,  2)
+{
+	//+plugin identifier
+	//-parameters count
+
+	std::string ident((char *)A1);
+
+	long count = l_loader->LADSPALoader::plugin_ocontrolports_count(ident);
+	return A2 = PlTerm(count);
+}
+
+/*************************************************
+******** DEALING WITH THE PLUGIN *****************
+*************************************************/
+
+/**
 	Instantiate plugin
 */
 PREDICATE(ldpl_instantiate_plugin, 3)
@@ -98,5 +150,26 @@ PREDICATE(ldpl_instantiate_plugin, 3)
 
 	return A3 = PlTerm(plugin_t);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
