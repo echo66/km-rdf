@@ -56,6 +56,7 @@
 :- use_module(builtins).
 :- use_module('persistency/persist').
 :- use_module('persistency/tmp').
+:- use_module('SeRQL/sparql_runtime.pl').
 
 term_expansion((rdf(S0, P0, O0) :- Body),
                (rdf(S,  P,  O)  :- Body)) :-
