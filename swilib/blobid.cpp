@@ -1,8 +1,8 @@
 /*
- * Source to deal raw data identifiers. We assign an id to each pointer of raw data stored in memory, so this identifier is our prolog id for the data.
- * This changes respect to the previous version because we used to handle blobs to represent the data at every stage, now we just use blobs to wrap data
- * once it is queries specifically.
+ * Source for the data ids database. These ids wrap BLOB (binarly large objects of data) so we can deal with them easily from a prolog
  * David Pastor 2007, c4dm, Queen Mary, University of London
+ *
+ * Define some operations over blob ids (May 2008)
  *
  * Note: that library only is valid during a session of the km, loosing the id in the database afterwards.
  */

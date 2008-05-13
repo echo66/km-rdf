@@ -3,6 +3,11 @@
 	Using this library is therefore possible to define MO::element in any foreign interface used as evaluation engine for the KM, as well as
 	analyze them using MO::element (check source for description)
 	David Pastor 2007 for c4dm, Queen Mary, University of London
+
+		-MO::frame
+		-MO::signal
+		-MO::timestamp	
+		-MO::feature
 */
 
 #ifndef _SWIMO_H_
