@@ -38,7 +38,7 @@
 			active_id/1,
 			reserve_id/1,
 			is_data_id/1,	
-			register_blob/1, /*reserves a new id and stores the blob*/
+			register_blob/2, /*reserves a new id and stores the blob*/
 			register_data_list/1,
 
 			/*db status*/
@@ -301,7 +301,7 @@ id_db_status(Size, CurrentID, NextID):-
 /**
 	Register blob register_blob(+Blob)
 */
-register_blob(Blob):-
+register_blob(Blob, Id):-
 	next_id(Id),
 	reserve_id(Id),
 	blob_id(Id, Blob).
@@ -326,5 +326,32 @@ data_compare(Id1, Id2):-
 	id_blob(Id2, Blob2),
 	equal_blob(Blob1, Blob2).
 
+/************************* black box workflow stuff ****************/
+
+/** put frames to signal. not sure it works */
+
+frames_to_signal(ListFrames, Signal):-
+	ListFrames = [H|Rest],
+	H = 'Frame'(C, Sr, _Start, PCMs),
+	add_frames(Rest, PCMs, PCMsF),
+	put_to_id(PCMsF, Sigs),
+	Signal = 'Signal'(C, Sr, _, Sigs).
+
+put_to_id([], _).
+put_to_id([H|T], [L|M]):-
+	register_blob(H, L),
+	put_to_id(T, M).
+
+add_frames([], _, _).
+add_frames([H|T], PCMs, List):-
+	H = 'Frame'(_, _, _, PCMs2),
+	concat_frames(PCMs, PCMs2, A),
+	add_frames(T, A, List). 
+concat_frames([], [], _).
+concat_frames([H1|T1], [H2|T2], [H|T]):-
+	data_concat(H1, H2, H),
+	concat_Frames(T1, T2, T).
+	
+	
 
 
