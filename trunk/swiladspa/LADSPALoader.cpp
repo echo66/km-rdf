@@ -1,6 +1,8 @@
 /**
-	Plugins loader
-	David Pastor 2008
+	LADSPA Plugin Loader. This class is in charge of scanning system for plugins and providing a public interface for a SWI-Prolog host to deal 
+	with the plugins.
+	Some part of the code is taken from the Sonic Visualiser code (Chris Cannam)
+	David Pastor 2008, c4dm, Queen Mary University of London.
 */
 
 #ifndef _LADSPA_LOADER_
@@ -26,19 +28,25 @@ static struct ladspa_descriptor{
 	std::string category;
 	std::string soname; //need to keep track of the library of the plugin
 	bool isSynth;
-	unsigned int parameterCount;
-	unsigned int audioInputPortCount;
-	unsigned int audioOutputPortCount;
-	unsigned int controlOutputPortCount;
-	std::vector<std::string> controlOutputPortNames;
+	unsigned long portCount;
+
+	//Keep track of the ports of each plugin type (just the position within the PortDescriptor)
+	//I may need to keep the name as well
+	std::vector<int> inAudio;
+	std::vector<int> outAudio;
+	
+	std::vector<int> inControl;
+	std::vector<int> outControl;
+
+	std::vector<std::pair<std::string, int> > portNames;//position of the port and its name (no type)
 }
 
 /*
- * Database of LADSPA type plugins in system (max of 200). It is filled in each session
+ * Database of LADSPA type plugins in system (max of 100). It is filled in each session
  */
-ladspa_plugins_db[200];
-
+ladspa_plugins_db[100];
 int plugins_sys = 0;
+
 
 /****************************************
 *** Querying the descriptor *************
@@ -84,60 +92,94 @@ LADSPALoader::plugin_soname(std::string name){
 	return "";
 }
 
-int
-LADSPALoader::plugin_parameter_count(std::string name){
+unsigned long
+LADSPALoader::plugin_ports_count(std::string name){
 
 	int count = -1;
 	for(int j = 0; j < plugins_sys; j++){
 
 		if(name.compare(ladspa_plugins_db[j].name) == 0){
-			count = ladspa_plugins_db[j].parameterCount;
+			count = ladspa_plugins_db[j].portCount;
 		}
 	}
 	return count;
 	
 }
 
-int
-LADSPALoader::plugin_iaudioports_count(std::string name){
+/*****************************************
+********* Querying ports data ************
+*****************************************/
 
-	int count = -1;
+std::vector<int>
+LADSPALoader::inputAudio_ports(std::string name){
+
+	std::vector<int> input;
 	for(int j = 0; j < plugins_sys; j++){
 
 		if(name.compare(ladspa_plugins_db[j].name) == 0){
-			count = ladspa_plugins_db[j].audioInputPortCount;
+			input = ladspa_plugins_db[j].inAudio;
 		}
 	}
-	return count;
-	
+	return input;
+
 }
 
-int
-LADSPALoader::plugin_oaudioports_count(std::string name){
+std::vector<int>
+LADSPALoader::inputControl_ports(std::string name){
 
-	int count = -1;
+	std::vector<int> input;
 	for(int j = 0; j < plugins_sys; j++){
 
 		if(name.compare(ladspa_plugins_db[j].name) == 0){
-			count = ladspa_plugins_db[j].audioOutputPortCount;
+			input = ladspa_plugins_db[j].inControl;
 		}
 	}
-	return count;
-	
+	return input;
+
 }
 
-int
-LADSPALoader::plugin_ocontrolports_count(std::string name){
+std::vector<int>
+LADSPALoader::outputAudio_ports(std::string name){
 
-	int count = -1;
+	std::vector<int> input;
 	for(int j = 0; j < plugins_sys; j++){
 
 		if(name.compare(ladspa_plugins_db[j].name) == 0){
-			count = ladspa_plugins_db[j].controlOutputPortCount;
+			input = ladspa_plugins_db[j].outAudio;
 		}
 	}
-	return count;
-	
+	return input;
+
+}
+
+std::vector<int>
+LADSPALoader::outputControl_ports(std::string name){
+
+	std::vector<int> input;
+	for(int j = 0; j < plugins_sys; j++){
+
+		if(name.compare(ladspa_plugins_db[j].name) == 0){
+			input = ladspa_plugins_db[j].outControl;
+		}
+	}
+	return input;
+
+}
+
+std::string
+LADSPALoader::port_name(std::string name, int index){
+
+	std::string n;
+	for(int j = 0; j < plugins_sys; j++){
+
+		if(name.compare(ladspa_plugins_db[j].name) == 0){
+			std::pair<std::string, int> p = ladspa_plugins_db[j].portNames[index];// i don't need pairs for this
+			if(p.second == index){
+				n = p.first;
+			}
+		}
+	}
+	return n;
 }
 
 /*****************************************
@@ -205,7 +247,7 @@ LADSPALoader::getPluginPath()
 }
 
 /**
-	Discover all the plugins in the system (plugin paths)
+	Discover all the plugins in the system (plugin paths). We don't load info about I/0 ports yet.
 */
 void
 LADSPALoader::discoverPlugins(){
@@ -259,15 +301,13 @@ LADSPALoader::discoverPlugins(QString soname)
         ladspa_plugins_db[plugins_sys].label = descriptor->Label;
         ladspa_plugins_db[plugins_sys].maker = descriptor->Maker;
         ladspa_plugins_db[plugins_sys].copyright = descriptor->Copyright;
+	ladspa_plugins_db[plugins_sys].portCount = descriptor->PortCount;
+	ladspa_plugins_db[plugins_sys].soname = soname.toStdString();
         ladspa_plugins_db[plugins_sys].category = "";
         ladspa_plugins_db[plugins_sys].isSynth = false;
-        ladspa_plugins_db[plugins_sys].parameterCount = 0;
-        ladspa_plugins_db[plugins_sys].audioInputPortCount = 0;
-        ladspa_plugins_db[plugins_sys].audioOutputPortCount = 0;
-        ladspa_plugins_db[plugins_sys].controlOutputPortCount = 0;
-	ladspa_plugins_db[plugins_sys].soname = soname.toStdString();
 
-	//no hago nada con los nombres de los puertos
+	//read the ports descriptor	
+	read_ports(descriptor, plugins_sys);
 
 	++index;
 	plugins_sys++;
@@ -394,31 +434,163 @@ LADSPALoader::unloadLibrary(QString soName)
 {
     LibraryHandleMap::iterator li = m_libmap.find(soName);
     if (li != m_libmap.end()) {
-//	std::cerr << "unloading " << soname.toStdString() << std::endl;
+	std::cerr << "unloading " << soName.toStdString() << std::endl;
 	DLCLOSE(m_libmap[soName]);
 	m_libmap.erase(li);
     }
 }
 
 /***********************************************************
-***************** plugin process ***************************
+******************* plugin ports ***************************
 ***********************************************************/
 
 /**
-	Create an instance of the plugin. SV manages a plugin class much more complex. We don't really need to control the real time processing.
+	Read ports. Stores info in the ladspa descriptor database. (names and position within the descriptor)
 */
-LADSPA_Handle
-LADSPALoader::instantiate_plugin(std::string name, unsigned long sr)
+void
+LADSPALoader::read_ports(const LADSPA_Descriptor *m_descriptor, int index){
+
+	int count = (int)m_descriptor->PortCount;
+	std::cerr << count << std::endl;
+
+	//analyse all the ports
+	for (unsigned long i = 0; i < m_descriptor->PortCount; ++i) {
+         
+	if (LADSPA_IS_PORT_AUDIO(m_descriptor->PortDescriptors[i])) {
+         	
+		if (LADSPA_IS_PORT_INPUT(m_descriptor->PortDescriptors[i])) {
+			 ladspa_plugins_db[index].inAudio.push_back(i);
+	                 std::cerr << "LADSPAPluginInstance::init: port " << i << " is audio in" << std::endl;
+			 ladspa_plugins_db[index].portNames.push_back(std::pair<std::string, int>(ports_names(m_descriptor, i), i));
+		} else {
+			 ladspa_plugins_db[index].outAudio.push_back(i);
+              	 	 std::cerr << "LADSPAPluginInstance::init: port " << i << " is audio out" << std::endl;
+			 ladspa_plugins_db[index].portNames.push_back(std::pair<std::string, int>(ports_names(m_descriptor, i), i));
+		}
+
+	} else if (LADSPA_IS_PORT_CONTROL(m_descriptor->PortDescriptors[i])) {
+
+	        if (LADSPA_IS_PORT_INPUT(m_descriptor->PortDescriptors[i])) {
+			ladspa_plugins_db[index].inControl.push_back(i);
+	                std::cerr << "LADSPAPluginInstance::init: port " << i << " is control in" << std::endl;
+			ladspa_plugins_db[index].portNames.push_back(std::pair<std::string, int>(ports_names(m_descriptor, i), i));
+
+	        } else {
+		        ladspa_plugins_db[index].outControl.push_back(i);		       
+	                std::cerr << "LADSPAPluginInstance::init: port " << i << " is control out" << std::endl;
+		        ladspa_plugins_db[index].portNames.push_back(std::pair<std::string, int>(ports_names(m_descriptor, i), i));
+
+	                if (!strcmp(m_descriptor->PortNames[i], "latency") ||!strcmp(m_descriptor->PortNames[i], "_latency")) {
+	                    std::cerr << "Wooo! We have a latency port!" << std::endl;
+			}
+		}
+	 } else
+            std::cerr << "LADSPAPluginInstance::init - "
+                       << "unrecognised port type" << std::endl;
+
+	}
+}
+
+/**
+	Returns the name of the port given its position
+*/
+std::string
+LADSPALoader::ports_names(const LADSPA_Descriptor *desc, int index){
+
+	return std::string(desc->PortNames[index]);	
+}	
+
+/***********************************************************
+***************** plugin management ************************
+***********************************************************/
+
+/**
+	blockSize
+*/
+LADSPAPlugin::LADSPAPlugin *
+LADSPALoader::instantiate(std::string name, size_t sr, size_t blockSize)
 {
 
 	const LADSPA_Descriptor *desc = getLADSPADescriptor(name);
 	if(!desc){
 		std::cerr << "LADSPALoader::instantiate_plugin: failed to instantiate plugin" << std::endl;
 	}	
-	LADSPA_Handle plugin;
-	plugin = desc->instantiate(desc, sr);
-	return plugin; 
+
+	LADSPAPlugin *plugin = new LADSPAPlugin(name, desc, sr, inputAudio_ports(name).size(),
+						outputAudio_ports(name).size(),
+						inputControl_ports(name).size(),
+						outputControl_ports(name).size(), blockSize); 
+	return plugin;
+	//need to unload lib?
 }
 
+/**
+	Connects the plugin ports. Plugin can not do this by its own.
+*/
+void
+LADSPALoader::connect_audio_ports(LADSPAPlugin::LADSPAPlugin *plugin){
+
+	int in = 0;
+	int out = 0;
+
+	std::string name = plugin->LADSPAPlugin::get_name();
+	
+	//connecting input audio ports
+	for(int j=0; j<inputAudio_ports(name).size(); j++){
+		
+		plugin->LADSPAPlugin::connect_input_port(inputAudio_ports(name)[j], in);
+		in++;
+	}
+
+	//connecting output audio ports
+	for(int j=0; j<outputAudio_ports(name).size(); j++){
+		
+		plugin->LADSPAPlugin::connect_output_port(outputAudio_ports(name)[j], out);
+		out++;
+	}
+}
+
+/**
+	Sets every control to 0
+*/
+void
+LADSPALoader::set_default_controls(LADSPAPlugin::LADSPAPlugin *plugin){
+
+	std::string name = plugin->LADSPAPlugin::get_name();
+	
+	//connecting input controls
+	for(int j=0; j<inputControl_ports(name).size(); j++){
+		
+		plugin->LADSPAPlugin::set_control_port(inputAudio_ports(name)[j], 0);
+	}
+
+	//connecting output controls
+	for(int j=0; j<outputControl_ports(name).size(); j++){
+		
+		plugin->LADSPAPlugin::set_control_port(outputAudio_ports(name)[j], 0);
+	}
+}
+
+/*****************************************
+*********** PASSING DATA *****************
+*****************************************/
+
+/**
+	parameters: input control
+*/
+void
+LADSPALoader::set_parameter(LADSPAPlugin::LADSPAPlugin *plugin, int parameter, LADSPA_Data value){
+
+	plugin->LADSPAPlugin::set_control_port(parameter, value);
+}
+
+/**
+	output control
+*/
+void
+LADSPALoader::set_output_control(LADSPAPlugin::LADSPAPlugin *plugin, int c, LADSPA_Data value){
+
+	plugin->LADSPAPlugin::set_control_port(c, value);
+}
 
 #endif

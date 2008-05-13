@@ -33,35 +33,32 @@ class LADSPALoader
 public:
 	~LADSPALoader();
 	 LADSPALoader();
-	void discoverPlugins();
 
-  	LADSPA_Handle *instantiatePlugin(QString identifier,
-                                                   int clientId,
-                                                   int position,
-                                                   unsigned int sampleRate,
-                                                   unsigned int blockSize,
-                                                   unsigned int channels);
-	
 	//Quering plugin descriptor
 	std::vector<std::string> ladspa_plugins();
 	int plugin_parameter_count(std::string);
 	std::string plugin_maker(std::string);
 	std::string plugin_soname(std::string);
-	LADSPA_Handle instantiate_plugin(std::string, unsigned long);
-	int plugin_iaudioports_count(std::string);
-	int plugin_oaudioports_count(std::string);
-	int plugin_ocontrolports_count(std::string name);
+	std::vector<int> inputAudio_ports(std::string);
+	std::vector<int> outputAudio_ports(std::string);
+	std::vector<int> inputControl_ports(std::string);
+	std::vector<int> outputControl_ports(std::string);
+	unsigned long plugin_ports_count(std::string);
+	std::string port_name(std::string, int);	
 
-     //float getPortMinimum(const LADSPA_Descriptor *, int port);
-     //float getPortMaximum(const LADSPA_Descriptor *, int port);
-     //float getPortDefault(const LADSPA_Descriptor *, int port);
-     //float getPortQuantization(const LADSPA_Descriptor *, int port);
-     //int getPortDisplayHint(const LADSPA_Descriptor *, int port);
+	//Loading a plugin
+	LADSPAPlugin::LADSPAPlugin *instantiate(std::string, size_t, size_t);
+	void connect_audio_ports(LADSPAPlugin::LADSPAPlugin *);
+	void set_default_controls(LADSPAPlugin::LADSPAPlugin *);
+
+	//passing data
+	void set_parameter(LADSPAPlugin::LADSPAPlugin *, int, LADSPA_Data);
+	void set_output_control(LADSPAPlugin::LADSPAPlugin *, int, LADSPA_Data);
 
 protected:   
 
      std::vector<QString> getPluginPath();
-     //virtual std::vector<QString> getLRDFPath(QString &baseUri);
+     void discoverPlugins();
      void discoverPlugins(QString soName);
      //void releasePlugin(LADSPA_Handle *, QString);
      const LADSPA_Descriptor *getLADSPADescriptor(std::string identifier); 
@@ -69,8 +66,12 @@ protected:
      void unloadLibrary(QString soName);
      //void unloadUnusedLibraries();
 
+     void read_ports(const LADSPA_Descriptor *, int);
+     std::string ports_names(const LADSPA_Descriptor *, int);	
+
      typedef std::map<QString, void *> LibraryHandleMap;
      LibraryHandleMap m_libmap;
+
 };
 
 #endif

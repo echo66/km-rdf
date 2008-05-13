@@ -10,9 +10,9 @@ static struct SwiLADSPAPlugin{
 	/* id: __plugin_id */
 	QString id;
 	/* pointer a LADSPA Plugin */
-	LADSPA_Handle plugin;
+	LADSPAPlugin::LADSPAPlugin *plugin;
 	/* name of the plugin */
-	char *type;
+	string type;//we need this to retrieve the descriptor
 }
 					
 /*
@@ -35,9 +35,10 @@ size_t active_plugins = 0;
  */
 
 int
-ldpl_register_plugin(LADSPA_Handle plugin, term_t id){
+ldpl_register_plugin(LADSPAPlugin::LADSPAPlugin *plugin, string type, term_t id){
 
 	LADSPA_plugins_db[active_plugins].plugin = plugin;
+	LADSPA_plugins_db[active_plugins].type = type;
 	LADSPA_plugins_db[active_plugins].id = ldpl_id_for_ladspa();
 	
 	PL_unify(id, term_t(PlTerm(PlAtom((LADSPA_plugins_db[active_plugins].id).toLocal8Bit().data()))));
@@ -68,7 +69,7 @@ ldpl_id_for_ladspa()
  */
 
 int
-ldpl_get_plugin(term_t id_t, LADSPA_Handle &plugin){
+ldpl_get_plugin(term_t id_t, LADSPAPlugin::LADSPAPlugin * &plugin, string &type){
 
 	char *id;
 	PL_get_atom_chars(id_t,&id);
@@ -78,10 +79,57 @@ ldpl_get_plugin(term_t id_t, LADSPA_Handle &plugin){
 		
 		if(qid.compare(LADSPA_plugins_db[r].id)==0){
 			plugin = LADSPA_plugins_db[r].plugin;
+			type = LADSPA_plugins_db[r].type;
 			return 0;
 		}
 	}
 	return -1;	
+}
+
+/************************************ TYPE CONVERSION ******************************/
+
+/**Take a list of data ids (framed stuff) and set the buff**/
+int
+ldpl_set_input_buffers(term_t data, LADSPA_Data **buf, int ports, size_t block){
+
+	PlTail tail(data);
+	PlTerm ch;
+	int chCount;
+	while(tail.next(ch)){		
+		chCount++;
+	}
+	if(chCount>ports) { std::cerr<<"More channels than input ports"<<std::endl; }
+	else if(chCount<ports) { 
+		std::cerr << "Ports not filled!!" << std::endl; 
+		return -1;
+	}
+	else{}
+
+	PlTail frame(data);
+	PlTerm pcm;
+	int data_blocks = 1;
+	for(int j = 0; j < ports; j++){
+
+		frame.next(pcm);
+		char *id;//atom to const char *
+		PL_get_atom_chars(pcm, &id);
+
+		//Now we retrieve the pointers to the raw data in memory
+		vector<float> *vector;
+		DataID::get_data_for_id((const char *)id, vector);
+
+		//Vector should have blocksize length...
+
+		for(int r =0 ; r<block; r++){			
+			if(vector->size()<r){
+				buf[j][r] = 0;//filling with 0, but should be able to pass correct blocks.
+			}else{
+				//filling buffers
+				buf[j][r] = vector->at(r);
+			}
+		}
+	}		
+	return 1;
 }
 
 /*
