@@ -16,7 +16,6 @@ LADSPALoader::LADSPALoader *l_loader;
 	Map of output. One working plugin?? Do I want to output a whole signal back???
 	extend it to cover input singls or something???
 */
-std::map<int, std::vector<float>> ladspa_output;
 
 /************************************ PREDICATES ******************************/
 /**
@@ -230,8 +229,9 @@ PREDICATE(ldpl_connect_ports, 1)
 	LADSPAPlugin::LADSPAPlugin *plugin;
 	ldpl_get_plugin(term_t(A1), plugin, ident);
 
+	std::cerr<<"hola"<<std::endl;
+
 	l_loader->LADSPALoader::connect_audio_ports(plugin);
-	l_loader->LADSPALoader::set_default_controls(plugin);
 
 	return true;
 
@@ -335,7 +335,6 @@ PREDICATE(ldpl_deactivate_plugin, 1)
 	ldpl_get_plugin(term_t(A1), plugin, ident);
 	plugin->LADSPAPlugin::deactivate();
 
-	std::cerr<<"LADSPA HOST: plugin activated"<<std::endl;
 	return true;
 }
 
@@ -359,7 +358,6 @@ PREDICATE(ldpl_cleanup_plugin, 1)
 
 /**
 	collect output
-*/
 PREDICATE(ldpl_collect_output, 1)
 {
 	//+plugin
@@ -369,14 +367,49 @@ PREDICATE(ldpl_collect_output, 1)
 	ldpl_get_plugin(term_t(A1), plugin, ident);
 
 	std::vector<int> outputs = l_loader->LADSPALoader::outputAudio_ports(ident);
+	std::vector<float> data;
 
 	for(int j=0; j<outputs.size(); j++){
 
-		ladspa_output<outputs[j]
+		data = ladspa_output.find(outputs[j])
 	}
 
 }
+*/
 
+/**
+	ldpl_return_output. 
+	This one returns the output of a plugin	after calling run as a list of prolog blob ids.
+*/
+PREDICATE(ldpl_return_output, 2){
+
+	string ident;
+	LADSPAPlugin::LADSPAPlugin *plugin;
+
+	ldpl_get_plugin(term_t(A1), plugin, ident);
+
+	std::vector<int> outputs = l_loader->LADSPALoader::outputAudio_ports(ident);
+
+	PlTerm outputData;
+	PlTail tail(outputData);
+	for(int j = 0; j<outputs.size(); j++){
+
+		LADSPA_Data *data = plugin->LADSPAPlugin::get_output(outputs[j]);
+		int l = sizeof(*data)/sizeof(float);
+
+		std::vector<float> *v;
+		v = new std::vector<float>;
+		for(int h=0; h<l; h++){
+			v->push_back((float)data[h]);
+		}
+		const char *id = DataID::assign_data_id(v);
+		tail.append(PlAtom(id));
+	}
+	tail.close();
+	return A2 = outputData;
+	
+
+}
 
 
 

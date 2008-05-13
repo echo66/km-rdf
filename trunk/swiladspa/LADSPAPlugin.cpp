@@ -29,9 +29,10 @@ LADSPAPlugin::LADSPAPlugin(std::string name, const LADSPA_Descriptor *des, size_
 	m_outControl = oc;
 	m_sampleRate = sr;
 	m_blockSize = b;
+	m_descriptor = des;
 	
 	init_buffers();
-	plugin = desc->instantiate(desc, sr);
+	plugin = des->instantiate(des, sr);
 
 }
 
@@ -45,7 +46,12 @@ LADSPAPlugin::LADSPAPlugin(std::string name, const LADSPA_Descriptor *des, size_
 void
 LADSPAPlugin::activate(){
 
+	if(!m_descriptor -> activate){
+		std::cerr << "Plugin: no activate() routine"<<std::endl;
+		return;
+	}
 	m_descriptor -> activate(plugin);
+	std::cerr << "Plugin activated"<<std::endl;
 }
 
 /**
@@ -54,6 +60,11 @@ LADSPAPlugin::activate(){
 void
 LADSPAPlugin::run(size_t blockSize){
 
+	if(!m_descriptor -> activate){
+		std::cerr << "Plugin: no process routine"<<std::endl;
+		return;
+	}
+	std::cerr << "block processed"<<std::endl;
 	m_descriptor -> run(plugin, blockSize);
 }
 
@@ -63,7 +74,12 @@ LADSPAPlugin::run(size_t blockSize){
 void
 LADSPAPlugin::deactivate(){
 
+	if(!m_descriptor -> activate){
+		std::cerr << "Plugin: no deactivate() routine"<<std::endl;
+		return;
+	}
 	m_descriptor -> deactivate(plugin);
+	std::cerr << "Plugin deactivated"<<std::endl;
 }
 
 /**
@@ -72,6 +88,10 @@ LADSPAPlugin::deactivate(){
 void
 LADSPAPlugin::cleanup(){
 
+	if(!m_descriptor -> activate){
+		std::cerr << "Plugin: no cleanup() routine"<<std::endl;
+		return;
+	}
 	m_descriptor -> cleanup(plugin);
 	plugin = 0;
 }
@@ -86,22 +106,22 @@ LADSPAPlugin::cleanup(){
 void
 LADSPAPlugin::init_buffers(){
 
-	if (inCount == 0) {
+	if (m_inAudio == 0) {
 		inputbuffers = 0;
 	} else {
 		inputbuffers  = new LADSPA_Data*[m_inAudio];
 	}
-	if (outCount == 0) {
+	if (m_outAudio == 0) {
 		outputbuffers = 0;
 	} else {
 		outputbuffers = new LADSPA_Data*[m_outAudio];
 	}
 
 	for (size_t i = 0; i < m_inAudio; ++i) {
-		inputbuffers[i] = new LADSPA_Data[blockSize];
+		inputbuffers[i] = new LADSPA_Data[m_blockSize];
 	}
 	for (size_t i = 0; i < m_outAudio; ++i) {
-	         outputbuffers[i] = new LADSPA_Data[blockSize];
+	         outputbuffers[i] = new LADSPA_Data[m_blockSize];
 	}
 }
 
@@ -109,16 +129,20 @@ LADSPAPlugin::init_buffers(){
 	Connect audio ports
 */
 void
-LADPSAPlugin::connect_input_port(int port, int index){
+LADSPAPlugin::connect_input_port(int port, int index){
 
-	m_descriptor -> connect_port(plugin, port, inputbuffers[index]);	
+	if(m_descriptor -> connect_port){
+		m_descriptor -> connect_port(plugin, port, inputbuffers[index]);	
+	}else{
+		std::cerr<<"no port connection routine"<<std::endl;
+	}
 }
 
 /**
 	Connect just one port. The loader has the information to connect the plugin to its ports.
 */
 void
-LADPSAPlugin::connect_output_port(int port, int index){
+LADSPAPlugin::connect_output_port(int port, int index){
 
 	m_descriptor -> connect_port(plugin, port, outputbuffers[index]);	
 }
@@ -169,4 +193,4 @@ LADSPAPlugin::get_blockSize(){
 	return m_blockSize;
 }
 
-
+#endif
