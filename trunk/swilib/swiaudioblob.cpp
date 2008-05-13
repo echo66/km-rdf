@@ -1,6 +1,9 @@
 /**
 	Audio data type conversion: AudioVector/AudioBlob
-	David Pastor 2007
+	Some other utilities are implemented:
+			-I/O operations
+			-Operations with blobs: concat, equality
+	David Pastor 2007/2008, c4dm, Queen Mary University of London		
 */
 
 #include "swiaudioblob.h"
@@ -284,11 +287,57 @@ load_file_data(term_t blob, const char* filePath){
 	return -1;
 }
 
+/**
+	Concat 2 blobs. The order does matter
+
+	All terms are blobs.
+*/
+int 
+concat_blobs(term_t blob1, term_t blob2, term_t concat){
+
+	AudioVector *data;
+	data = new vector<float>();
+
+	AudioVector *data1;
+	data1 = audio_blob_to_pointer(blob1);
+
+	AudioVector *data2;
+	data2 = audio_blob_to_pointer(blob2);
+
+	for(unsigned int j = 0; j<data1->size(); j++){
+		
+		data->push_back(data1->at(j));
+	}
+
+	for(unsigned int r = 0; r<data2->size(); r++){
+		
+		data->push_back(data2->at(r));
+	}
+
+	pointer_to_audio_blob(data, concat);
+	return 1;
 }
 
+/**
+	Prove equality
+	return 0 if equal
+*/
+int
+equal_blobs(term_t blob1, term_t blob2){
 
+	AudioVector *data1;
+	data1 = audio_blob_to_pointer(blob1);
 
+	AudioVector *data2;
+	data2 = audio_blob_to_pointer(blob2);
 
+	if(*data1==*data2){
+		return 0;
+	}
+	return 1;
+}
+
+}
 
 
 
