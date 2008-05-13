@@ -532,22 +532,25 @@ LADSPALoader::connect_audio_ports(LADSPAPlugin::LADSPAPlugin *plugin){
 
 	int in = 0;
 	int out = 0;
-
-	std::string name = plugin->LADSPAPlugin::get_name();
 	
+	std::string name = plugin->LADSPAPlugin::get_name();
 	//connecting input audio ports
-	for(int j=0; j<inputAudio_ports(name).size(); j++){
+
+	std::vector<int> input = inputAudio_ports(name);
+	std::vector<int> output = inputAudio_ports(name);
+
+	for(int j=0; j<input.size(); j++){
 		
-		plugin->LADSPAPlugin::connect_input_port(inputAudio_ports(name)[j], in);
+		plugin->LADSPAPlugin::connect_input_port(input[j], in);
 		in++;
 	}
-
 	//connecting output audio ports
-	for(int j=0; j<outputAudio_ports(name).size(); j++){
+	for(int r=0; r<output.size(); r++){
 		
-		plugin->LADSPAPlugin::connect_output_port(outputAudio_ports(name)[j], out);
+		plugin->LADSPAPlugin::connect_output_port(output[r], out);
 		out++;
 	}
+	std::cerr<<"LADSPALoader: ports connected"<<std::endl;
 }
 
 /**

@@ -1,8 +1,9 @@
 /**
  * SWI-Prolog external interface to LADSPA Plugins
  * This C/C++ source defines foreign functions a library for swiladspa. Mainly type-conversion stuff and DB of active plugins
- * David Pastor Escuredo 2007
+ * David Pastor Escuredo 2008, c4dm, Queen Mary University of London.
  */
+
 #include <swiladspa.h>
 
 static struct SwiLADSPAPlugin{
@@ -30,8 +31,7 @@ size_t active_plugins = 0;
 /** Some functions to deal with the database **/
 
 /*
- * Stores the instance of the plugin when vamp_plugin_load and returns an id that will be the handle for the plugin onwards. The plugin
- * is defined by the name and the sample rate. We don't reuse plugins (we could) and we don't save them through sessions.
+ * Stores the instance of the plugin when loading a ladspa plugin and returns an id that will be the handle for the plugin onwards.
  */
 
 int
@@ -47,7 +47,7 @@ ldpl_register_plugin(LADSPAPlugin::LADSPAPlugin *plugin, string type, term_t id)
 }
 
 /*
- * Creates a simple id incrementally for the plugins
+ * Creates a simple id incrementally for the plugins __ladspa::plugin_id
  */
 
 QString

@@ -36,9 +36,9 @@
 
 :-ldpl_loader.
 
-/*******************************************************
-*** PATTERNS *******************************************
-*******************************************************/
+/************************
+****** PATTERNS *********
+************************/
 
 /* 	ldpl_plugins(-ListOfPluginsInSystem)
 
@@ -52,14 +52,49 @@
 
 	ldpl_output_audio(-PluginName, -ListOfIndexesOfOutputudioPorts)
 
+**/
+
+/**************************** USING PLUGIN ***********************/
+
+/**
+	We present here a semi-formal set of rules to use ladspa plugin from this interface:
+
+	1. Create an instance of the plugin. We give the Block size from framing at this point, but it can be changed afterwards.
+
+		ldpl_instantiate_plugin(+PluginName, +SampleRate, +BlockSize, -Plugin)
+
+	2. Connect ports and set default values. We link each port to its buffer and set each control to 0
+
+		ldpl_connect_ports(+Plugin)
+		ldpl_set_default_controls(+Plugin)
+
+	3. Activate (if any)
+
+		ldpl_activate_plugin(+Plugin)
+	
+	4. Set controls
+
+		ldpl_set_parameter(+Plugin, +InControlPort, +Value)
+		ldpl_set_output_control(+Plugin, +OutControlPort, Value)
+
+	5. Set buffers
+
+	6. Run
+		ldpl_run_plugin(+ListOfData, +Plugin, +BlockSize)
+		ListOfData = ['__data_n', '__data_m', ...] where each id is a PCM block of the corresponding size
+
+	7. Deactivate/Activate(optional)
+
+	8. Re-fill buffers
+
+	9. Run
+
 	...
 
-	ldpl_instantiate_plugin(+Key, +SampleRate, +BlockSize, -Plugin): Creats a plugin. The blockSize is set at the beginning (I may change this)
-
-	ldpl_connect_ports(+Plugin): The host connects the plugin to the specific ports
-
-	ldpl_run_plugin(+ListOfData, +Plugin, +BlockSize): The data is passed as list of __data_id. Results are collected later from the output port 
+	n. Get Output
 */
+
+/****************************** Building specific rules ************************/
 
 /**
 	Non-deterministic scan of plugins in system
@@ -70,7 +105,7 @@ ldpl_plugin_system(Plugin):-
 	member(Plugin, List).
 
 /**
-	Returns a functor 'LadspaPort'(Type, Index, Name)
+	Returns a functor 'LadspaPort'(Type, Index, Name). Non-deterministic
 
 	ldpl_port_description(?PluginName, 'LadpsaPort'(?Type, ?Index, -Name))
 */

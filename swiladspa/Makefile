@@ -57,7 +57,7 @@ $(OBJ_LDB) :
 	$(CPP) -c $(CFLAGS) $(INCLUDE_SWIL) $(L_DB) -o $(OBJ_LDB)
 
 $(OBJ_LPLUG) : 
-	$(CPP) -c $(CFLAGS) $(INCLUDE_SWIL) $(L_PLUG) -o $(OBJ_PLUG)
+	$(CPP) -c $(CFLAGS) $(INCLUDE_SWIL) $(L_PLUG) -o $(OBJ_LPLUG)
 
 $(OBJ_LLOAD) : 
 	$(CPP) -c $(CFLAGS) $(INCLUDE_SWIL) $(L_LOAD) -o $(OBJ_LLOAD)
@@ -65,8 +65,8 @@ $(OBJ_LLOAD) :
 $(OBJ_LHOST) : 
 	$(CPP) -c $(CFLAGS) $(INCLUDE_SWIL) $(L_HOST) -o $(OBJ_LHOST)
 
-$(SWI_L) : $(OBJ_LDB) $(OBJ_LLOAD) $(OBJ_LHOST) $(OBJ_PLUG) Makefile
-	$(CPP) -shared $(LIBS_SWIL) $(OBJ_LLOAD) $(OBJ_LDB) $(OBJ_LHOST) $(OBJ_PLUG) -o $(SWI_L) 
+$(SWI_L) : $(OBJ_LDB) $(OBJ_LLOAD) $(OBJ_LHOST) $(OBJ_LPLUG) Makefile
+	$(CPP) -shared $(LIBS_SWIL) $(OBJ_LLOAD) $(OBJ_LDB) $(OBJ_LHOST) $(OBJ_LPLUG) -o $(SWI_L) 
 
 clean :
 	rm -f *.o *.so 
