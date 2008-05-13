@@ -170,3 +170,36 @@ PREDICATE(file_to_blob, 2)
 		return true;
 	}
 }
+
+/*
+	concat_blob(+Blob1, +Blob2, -Blob3)
+*/
+
+PREDICATE(concat_blob, 3)
+{
+	term_t blob1 = term_t(A1);
+	term_t blob2 = term_t(A2);
+	
+	term_t blob3;
+	blob3 = PL_new_term_ref();
+
+	AudioDataConversion::concat_blob(blob1, blob2, blob3);
+
+	return A3 = PlTerm(blob3);
+}
+
+/*
+	equal_blob(+Blob1, +Blob2)
+*/
+
+PREDICATE(equal_blob, 2)
+{
+	term_t blob1 = term_t(A1);
+	term_t blob2 = term_t(A2);
+	if(AudioDataConversion::equal_blob(blob1, blob2)==0) return true;
+	return false;
+}
+
+
+
+
