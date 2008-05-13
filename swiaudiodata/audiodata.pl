@@ -38,6 +38,8 @@
 			active_id/1,
 			reserve_id/1,
 			is_data_id/1,	
+			register_blob/1, /*reserves a new id and stores the blob*/
+			register_data_list/1,
 
 			/*db status*/
 			current_id/1,
@@ -52,7 +54,13 @@
 			file_to_blob/2,
 			clean_data/1,
 			data_in/2,
-			data_out/2
+			data_out/2,
+
+			/*other*/			
+			concat_blob/3,
+			equal_blob/2,
+			data_concat/3, /*id wrapped version*/
+			data_compare/2			
 			]).
 
 :- style_check(-discontiguous).
@@ -289,5 +297,34 @@ id_db_status(Size, CurrentID, NextID):-
 	ids_in_db(Size),
 	current_id(CurrentID),
 	next_id(NextID).
+
+/**
+	Register blob register_blob(+Blob)
+*/
+register_blob(Blob):-
+	next_id(Id),
+	reserve_id(Id),
+	blob_id(Id, Blob).
+
+/**
+	register_data_list(+List)
+*/
+register_data_list(List):-
+	list_to_pointerBlob(List, Blob),
+	register_blob(Blob).
+
+/**
+	Concat and compare
+*/
+data_concat(Id1, Id2, Blob):-
+	id_blob(Id1, Blob1),
+	id_blob(Id2, Blob2),
+	concat_blob(Blob1, Blob2, Blob).
+
+data_compare(Id1, Id2):-
+	id_blob(Id1, Blob1),
+	id_blob(Id2, Blob2),
+	equal_blob(Blob1, Blob2).
+
 
 
