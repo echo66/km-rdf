@@ -168,7 +168,7 @@ PREDICATE(ldpl_output_control, 2)
 	//-list of output control ports (index of it)
 
 	std::string ident((char *)A1);
-	std::vector<int> input = l_loader->LADSPALoader::inputAudio_ports(ident);
+	std::vector<int> input = l_loader->LADSPALoader::outputControl_ports(ident);
 	
 	PlTerm list;
 	PlTail tail(list);
@@ -228,8 +228,6 @@ PREDICATE(ldpl_connect_ports, 1)
 	std::string ident;
 	LADSPAPlugin::LADSPAPlugin *plugin;
 	ldpl_get_plugin(term_t(A1), plugin, ident);
-
-	std::cerr<<"hola"<<std::endl;
 
 	l_loader->LADSPALoader::connect_audio_ports(plugin);
 
@@ -309,15 +307,21 @@ PREDICATE(ldpl_run_plugin, 3)
 	string ident;
 	LADSPAPlugin::LADSPAPlugin *plugin;	
 	ldpl_get_plugin(term_t(A2), plugin, ident);
-	
-	
-	LADSPA_Data **bufs = plugin -> LADSPAPlugin::get_audio_input();
+
+		LADSPA_Data **bufs = plugin -> LADSPAPlugin::get_audio_input();
+		
+	//cleaning buffers (in case)
+	int ports = l_loader->LADSPALoader::inputAudio_ports(ident).size();
+	for (size_t j=0; j<ports; j++){
+		delete [] bufs[j]; //is ok like this?
+		bufs[j] = new LADSPA_Data[(long)A3];
+	}	
+
 	//Setting input buffers 
 	if(ldpl_set_input_buffers(term_t(A1), bufs, l_loader->LADSPALoader::inputAudio_ports(ident).size(), (size_t)(long)A3)<0) return false;
 
-	//setting refilling buffers y a tomar por culo!
-
 	plugin->LADSPAPlugin::run((size_t)(long)A3);
+
 	return true;
 }
 

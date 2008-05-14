@@ -60,12 +60,12 @@ LADSPAPlugin::activate(){
 void
 LADSPAPlugin::run(size_t blockSize){
 
-	if(!m_descriptor -> activate){
+	if(!m_descriptor -> run){
 		std::cerr << "Plugin: no process routine"<<std::endl;
 		return;
 	}
+	m_descriptor -> run(plugin, (unsigned long)blockSize);
 	std::cerr << "block processed"<<std::endl;
-	m_descriptor -> run(plugin, blockSize);
 }
 
 /**
@@ -74,7 +74,7 @@ LADSPAPlugin::run(size_t blockSize){
 void
 LADSPAPlugin::deactivate(){
 
-	if(!m_descriptor -> activate){
+	if(!m_descriptor -> deactivate){
 		std::cerr << "Plugin: no deactivate() routine"<<std::endl;
 		return;
 	}
@@ -88,7 +88,7 @@ LADSPAPlugin::deactivate(){
 void
 LADSPAPlugin::cleanup(){
 
-	if(!m_descriptor -> activate){
+	if(!m_descriptor -> cleanup){
 		std::cerr << "Plugin: no cleanup() routine"<<std::endl;
 		return;
 	}
