@@ -293,7 +293,6 @@ PREDICATE(ldpl_activate_plugin, 1)
 	ldpl_get_plugin(term_t(A1), plugin, ident);
 	plugin->LADSPAPlugin::activate();
 
-	std::cerr<<"LADSPA HOST: plugin activated"<<std::endl;
 	return true;
 }
 
@@ -319,7 +318,6 @@ PREDICATE(ldpl_run_plugin, 3)
 	//setting refilling buffers y a tomar por culo!
 
 	plugin->LADSPAPlugin::run((size_t)(long)A3);
-	std::cerr<<"LADSPA HOST: data processed"<<std::endl;
 	return true;
 }
 
@@ -350,7 +348,6 @@ PREDICATE(ldpl_cleanup_plugin, 1)
 	ldpl_get_plugin(term_t(A1), plugin, ident);
 	plugin->LADSPAPlugin::cleanup();
 
-	std::cerr<<"LADSPA HOST: plugin activated"<<std::endl;
 	return true;
 
 	//CLEAN BUFFERS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -407,8 +404,6 @@ PREDICATE(ldpl_return_output, 2){
 	}
 	tail.close();
 	return A2 = outputData;
-	
-
 }
 
 

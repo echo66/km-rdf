@@ -94,7 +94,7 @@ ldpl_set_input_buffers(term_t data, LADSPA_Data **buf, int ports, size_t block){
 
 	PlTail tail(data);
 	PlTerm ch;
-	int chCount;
+	unsigned int chCount=0;
 	while(tail.next(ch)){		
 		chCount++;
 	}
@@ -108,6 +108,7 @@ ldpl_set_input_buffers(term_t data, LADSPA_Data **buf, int ports, size_t block){
 	PlTail frame(data);
 	PlTerm pcm;
 	int data_blocks = 1;
+	std::cerr<<"hola"<<std::endl;
 	for(int j = 0; j < ports; j++){
 
 		frame.next(pcm);
@@ -117,7 +118,9 @@ ldpl_set_input_buffers(term_t data, LADSPA_Data **buf, int ports, size_t block){
 		//Now we retrieve the pointers to the raw data in memory
 		vector<float> *vector;
 		DataID::get_data_for_id((const char *)id, vector);
-
+		
+			std::cerr<<"hola"<<std::endl;
+		std::cerr<<vector->size()<<std::endl;
 		//Vector should have blocksize length...
 
 		for(int r =0 ; r<block; r++){			
@@ -128,7 +131,8 @@ ldpl_set_input_buffers(term_t data, LADSPA_Data **buf, int ports, size_t block){
 				buf[j][r] = vector->at(r);
 			}
 		}
-	}		
+	}	
+	std::cerr<<"hola"<<std::endl;	
 	return 1;
 }
 

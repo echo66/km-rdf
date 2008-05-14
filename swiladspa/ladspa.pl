@@ -134,11 +134,16 @@ is_outC(T, OutC, I):-
 	LADSPA PROCESSOR
 */
 ldpl_ladspa(Input, Key, Block, Output):-
-	(Input = 'Signal'(C, Sr, L, Signals); Input = 'Frame'(C, Sr, Start, Signals)),
+	Input = 'Signal'(C, Sr, L, Signals),
 	ldpl_instantiate_plugin(Key, Sr, Block, Plugin),
 	ldpl_connect_ports(Plugin),
 	ldpl_set_default_controls(Plugin),
-	ldpl_activate_plugin(Plugin).
+	ldpl_activate_plugin(Plugin),
+	End is Block-1,
+	get_frame(Input, 0, Block, 'Frame'(_, _, _, Data)),
+	ldpl_run_plugin(Data, Plugin, Block),
+	ldpl_return_output(Plugin, Output).
+	
 	
 	
 	

@@ -212,7 +212,7 @@ data_in(FilePath, ID):-
 */
 
 /**
-	get_frame(+Signal, +Start, +End, -Frame). Signal is a MO:signal from which this predicate extracts a MO:frame for the specific start and
+	get_frame(+Signal, +Start, +BlockSize, -Frame). Signal is a MO:signal from which this predicate extracts a MO:frame for the specific start and
 	end samples. This should be called iterativelly to get the frames for further processing.
 	Check out framepl.cpp for the source code
 */
