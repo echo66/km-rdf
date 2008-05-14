@@ -138,10 +138,12 @@ ldpl_ladspa(Input, Key, Block, Output):-
 	ldpl_instantiate_plugin(Key, Sr, Block, Plugin),
 	ldpl_connect_ports(Plugin),
 	ldpl_set_default_controls(Plugin),
+	ldpl_set_parameter(Plugin, 0, 10),
 	ldpl_activate_plugin(Plugin),
 	End is Block-1,
-	get_frame(Input, 0, Block, 'Frame'(_, _, _, Data)),
+	get_frame(Input, 4000, Block, 'Frame'(_, _, _, Data)),
 	ldpl_run_plugin(Data, Plugin, Block),
+	ldpl_return_output(Plugin, Output),
 	ldpl_return_output(Plugin, Output).
 	
 	

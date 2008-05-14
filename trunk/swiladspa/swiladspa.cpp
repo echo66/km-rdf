@@ -108,7 +108,6 @@ ldpl_set_input_buffers(term_t data, LADSPA_Data **buf, int ports, size_t block){
 	PlTail frame(data);
 	PlTerm pcm;
 	int data_blocks = 1;
-	std::cerr<<"hola"<<std::endl;
 	for(int j = 0; j < ports; j++){
 
 		frame.next(pcm);
@@ -118,21 +117,23 @@ ldpl_set_input_buffers(term_t data, LADSPA_Data **buf, int ports, size_t block){
 		//Now we retrieve the pointers to the raw data in memory
 		vector<float> *vector;
 		DataID::get_data_for_id((const char *)id, vector);
-		
-			std::cerr<<"hola"<<std::endl;
-		std::cerr<<vector->size()<<std::endl;
-		//Vector should have blocksize length...
 
-		for(int r =0 ; r<block; r++){			
+		//Vector should have blocksize length...
+		
+		for(int r =0 ; r<block; r++){	
+			std::cerr<<"count"<<r<<std::endl;
+			std::cerr<<"block"<<block<<std::endl;
+			std::cerr<<"vector"<<vector->size()<<std::endl;	
 			if(vector->size()<r){
+				std::cerr<<"last frame may be smaller than a block size"<<std::endl;
 				buf[j][r] = 0;//filling with 0, but should be able to pass correct blocks.
 			}else{
 				//filling buffers
+				std::cerr<<vector->at(r)<<std::endl;
 				buf[j][r] = vector->at(r);
 			}
 		}
 	}	
-	std::cerr<<"hola"<<std::endl;	
 	return 1;
 }
 
