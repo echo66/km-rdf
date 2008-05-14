@@ -144,7 +144,11 @@ LADSPAPlugin::connect_input_port(int port, int index){
 void
 LADSPAPlugin::connect_output_port(int port, int index){
 
-	m_descriptor -> connect_port(plugin, port, outputbuffers[index]);	
+	if(m_descriptor -> connect_port){
+		m_descriptor -> connect_port(plugin, port, outputbuffers[index]);	
+	}else{
+			std::cerr<<"no port connection routine"<<std::endl;
+	}
 }
 
 /**
@@ -153,7 +157,11 @@ LADSPAPlugin::connect_output_port(int port, int index){
 void
 LADSPAPlugin::set_control_port(int port, LADSPA_Data value){
 
-	m_descriptor -> connect_port(plugin, port, &value);
+	if(m_descriptor -> connect_port){
+		m_descriptor -> connect_port(plugin, port, &value);	
+	}else{
+		std::cerr<<"no port connection routine"<<std::endl;
+	}
 }
 
 
