@@ -19,7 +19,7 @@
 	rdfs:label "Vamp Plugins Ontology";
 	rdfs:comment """
 			added comments from Cannam
-			";
+	""";
 	foaf:maker "Chris Cannam";
 	foaf:maker "Chris Sutton";
 	foaf:maker "Yves Raimond";
@@ -122,7 +122,7 @@ vamp:PluginProgram
 
 vamp:Feature
 	a owl:Class;
-	rdfs:label "Vamp Feature"
+	rdfs:label "Vamp Feature";
 	rdfs:comment "This may be removed mighty soon as we rely on the Audio Features Ontology for this";
 	vs:term_status "deprecated";
 	.
@@ -142,6 +142,7 @@ vamp:SampleType
 	rdfs:comment "sample type for the plugin output";
 	vs:term_status "stable";
 	.
+
 
 
 
