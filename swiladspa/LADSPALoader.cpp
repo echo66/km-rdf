@@ -21,6 +21,7 @@
 */
 static struct ladspa_descriptor{
 
+	std::string identifier;
 	std::string name;
 	std::string label;
 	std::string maker;
@@ -59,11 +60,11 @@ LADSPALoader::ladspa_plugins(){
 	std::cerr << plugins_sys << std::endl;
 	for(int j = 0; j < plugins_sys; j++){
 
-		std::cerr<<ladspa_plugins_db[j].label<<std::endl;
-		std::cerr<<ladspa_plugins_db[j].soname<<std::endl;
-
+		//std::cerr<<ladspa_plugins_db[j].label<<std::endl;
+		//std::cerr<<ladspa_plugins_db[j].soname<<std::endl;
+		
 		//create a better identifier. Should use label, sonmae and ladspa maybe.
-		plugins.push_back(ladspa_plugins_db[j].name);
+		plugins.push_back(ladspa_plugins_db[j].identifier);
 	}
 	return plugins;
 }
@@ -73,7 +74,7 @@ LADSPALoader::plugin_maker(std::string name){
 
 	for(int j = 0; j < plugins_sys; j++){
 
-		if(name.compare(ladspa_plugins_db[j].name) == 0){
+		if(name.compare(ladspa_plugins_db[j].identifier) == 0){
 			return ladspa_plugins_db[j].maker;
 		}
 	}	
@@ -85,7 +86,7 @@ LADSPALoader::plugin_soname(std::string name){
 
 	for(int j = 0; j < plugins_sys; j++){
 
-		if(name.compare(ladspa_plugins_db[j].name) == 0){
+		if(name.compare(ladspa_plugins_db[j].identifier) == 0){
 			return ladspa_plugins_db[j].soname;
 		}
 	}	
@@ -98,7 +99,7 @@ LADSPALoader::plugin_ports_count(std::string name){
 	int count = -1;
 	for(int j = 0; j < plugins_sys; j++){
 
-		if(name.compare(ladspa_plugins_db[j].name) == 0){
+		if(name.compare(ladspa_plugins_db[j].identifier) == 0){
 			count = ladspa_plugins_db[j].portCount;
 		}
 	}
@@ -116,7 +117,7 @@ LADSPALoader::inputAudio_ports(std::string name){
 	std::vector<int> input;
 	for(int j = 0; j < plugins_sys; j++){
 
-		if(name.compare(ladspa_plugins_db[j].name) == 0){
+		if(name.compare(ladspa_plugins_db[j].identifier) == 0){
 			input = ladspa_plugins_db[j].inAudio;
 		}
 	}
@@ -130,7 +131,7 @@ LADSPALoader::inputControl_ports(std::string name){
 	std::vector<int> input;
 	for(int j = 0; j < plugins_sys; j++){
 
-		if(name.compare(ladspa_plugins_db[j].name) == 0){
+		if(name.compare(ladspa_plugins_db[j].identifier) == 0){
 			input = ladspa_plugins_db[j].inControl;
 		}
 	}
@@ -144,7 +145,7 @@ LADSPALoader::outputAudio_ports(std::string name){
 	std::vector<int> input;
 	for(int j = 0; j < plugins_sys; j++){
 
-		if(name.compare(ladspa_plugins_db[j].name) == 0){
+		if(name.compare(ladspa_plugins_db[j].identifier) == 0){
 			input = ladspa_plugins_db[j].outAudio;
 		}
 	}
@@ -158,7 +159,7 @@ LADSPALoader::outputControl_ports(std::string name){
 	std::vector<int> input;
 	for(int j = 0; j < plugins_sys; j++){
 
-		if(name.compare(ladspa_plugins_db[j].name) == 0){
+		if(name.compare(ladspa_plugins_db[j].identifier) == 0){
 			input = ladspa_plugins_db[j].outControl;
 		}
 	}
@@ -172,7 +173,7 @@ LADSPALoader::port_name(std::string name, int index){
 	std::string n;
 	for(int j = 0; j < plugins_sys; j++){
 
-		if(name.compare(ladspa_plugins_db[j].name) == 0){
+		if(name.compare(ladspa_plugins_db[j].identifier) == 0){
 			std::pair<std::string, int> p = ladspa_plugins_db[j].portNames[index];// i don't need pairs for this
 			if(p.second == index){
 				n = p.first;
@@ -298,7 +299,11 @@ LADSPALoader::discoverPlugins(QString soname)
     while ((descriptor = fn(index))) {
 
         ladspa_plugins_db[plugins_sys].name = descriptor->Name;
-        ladspa_plugins_db[plugins_sys].label = descriptor->Label;
+	ladspa_plugins_db[plugins_sys].label = descriptor->Label;
+
+	//public identifier
+	ladspa_plugins_db[plugins_sys].identifier = ldpl_plugin_identifier(descriptor->Label);
+
         ladspa_plugins_db[plugins_sys].maker = descriptor->Maker;
         ladspa_plugins_db[plugins_sys].copyright = descriptor->Copyright;
 	ladspa_plugins_db[plugins_sys].portCount = descriptor->PortCount;

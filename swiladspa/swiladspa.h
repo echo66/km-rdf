@@ -39,4 +39,7 @@ ldpl_set_input_buffers(term_t, LADSPA_Data **, int, size_t);//fills the buffer w
 PlAtom
 ldpl_string_to_atom(string );//should be in a more general library
 
+std::string
+ldpl_plugin_identifier(std::string);
+
 #endif

@@ -45,7 +45,7 @@ public:
 
 protected:   
 
-	std::string m_name; //identifier used in this host
+	std::string m_name; //identifier used in this host ladspa-plugin::label
 
 	//The wrapped plugin
 	LADSPA_Handle plugin;
