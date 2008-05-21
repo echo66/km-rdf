@@ -153,7 +153,26 @@ ldpl_string_to_atom(string x){
 	return PlAtom(y);
 }
 
+/*
+ *
+ */
+std::string
+ldpl_plugin_identifier(std::string label){
 
+	QString head("ladspa-plugin::");
+
+	//incremental id for blobs	
+	QString ql;
+	ql = QString("%1")
+		.arg(label.data());
+	std::cerr<<label.data()<<std::endl;
+	head.append(ql);
+	const char *idc = (const char *) head.data();
+
+	std::string id(idc);
+	std::cerr <<idc<<std::endl;
+	return id;
+}
 
 
 
