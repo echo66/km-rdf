@@ -446,7 +446,7 @@ vamp:Parameter
 
 ##### Plugin Transform properties
 
-vamp:plugin
+vamp:engine
 	a rdf:Property;
 	a owl:ObjectProperty;
 	rdfs:label "plugin";
