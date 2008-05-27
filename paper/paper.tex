@@ -154,6 +154,10 @@ We rely on the Vamp Plugin API as it offers an efficient plugin and host impleme
 
 The sub-module \textbf{swivamp} is a communication layer based on the SWI-Prolog foreign interface which allow us to query the plugin information, set up the plugin context for the transform, execute the plugin given a Signal term and retrieve the output features for the plugin according to the lifecycle specification. Plugins are wrapped in a similar fashion than the audio data so we can use a plugin instance representation which allow us to have concurrent plugins working at the same time. The previous tempo/3 predicate is declared as this set of rules:
 
+\medskip
+
+\noindent
+
 \begin{verbatim}
 
 tempo(Input, Tool, Tempo):-
@@ -184,6 +188,7 @@ vamp_process_signal(Signal, L, StepSize, BlockSize, Output, Plugin, Features):-
         vmpl_process_block_framing(Plugin, Signal, Start, BlockSize, Output, FeatureSet).
 
 \end{verbatim}
+\noindent
 
 \subsection{audio processing}\label{subsec:swilasdpa}
 
@@ -261,7 +266,7 @@ SWI-DSP defines therefore a logic front-end for computations in DSP ``scenarios'
 
 \subsection{Languages hosting SWI-Prolog}
 
-.... comment possible languages interfacing prolog...
+Even when there is not current specific work on wrapping SWI-DSP in any other programming language which could make easier to develop a Graphical User Interface (as it probably would restrict the logic capabilities of the framework), we have to mention that SWI-DSP can be wrapped by other languages through the interfaces used for the communication layers (they define both ways of interaction).
 
 \subsection{Henry}\label{subsec:henry}
 
@@ -273,10 +278,24 @@ The Ontology Web Language (OWL) provides the framework to express the knowledge 
 
 The project called Henry implements an N3/Prolog parser and reasoner based on Concurrent Transaction Logic. This agent defines an entailment module capable of reasoning over the SWI-DSP computations, which are identified through Universal Resource Identifiers (URIs), and N3 statements and rules. The semantic web package module for SWI-Prolog interprets SPARQL queries which are passed to Henry which produces RDF descriptions of computations by performing the entailment and triggering SWI-DSP computations. 
 
-(any example or figure maybe)
+\subsection{Visualisation}\label{subsec:vis}
 
- \section{Conclusion and Future work}\label{sec:conclusion}
+Audio data can just be poorly interpreted in a float/binary format. Time and frequency domain signals and features in other domains are meaningful for an expert when they are visually represented. Although a logic domain does not seem to be the perfect environment to visualise audio data, we can easily save this difficulty. 
 
-We have presented a powerful reasoner for multimedia analysis implemented as a logic-based framework that aims at converting low-level computations into shareable and distributed knowledge.
+By controlling SWI-DSP by means of Henry we can easily convert our Prolog types and binary data into RDF (machine-readable) descriptions where each source of data is represented through a link or as a ''literal`` in a basic datatype format. RDF descriptions can be easily browsed with the new extensions of classical web browsers for linked data. Even more interesting, dedicated agents with an SPARQL point are able to query DSP through the semantic web resources as explained in \ref{subsec:henry}. Thus, we are able to visualise our own computations but also a scalable web of data with shared semantics which is enriched with computations from other local machines.
 
+(I dont know if i should mention SV and the new extensions here....)
+
+\section{Conclusion and Future work}\label{sec:conclusion}
+
+We have presented a powerful reasoner for multimedia analysis implemented as a logic-based framework which allow us to convert low-level computations into shareable and distributed knowledge. The system design ''breaks apart`` traditional applications architecture to introduce logic and reasoning machinery on top of the computation engines providing a more intelligent, capable and understandable DSP reasoner. This reasoner can be extended and enriched by the open source APIs working on the foundations of the system and controlled by ''Prolog-speaking`` agents. SWI-DSP is fairly well positioned for the new web technologies and actually it finds in them the perfect semantic and storing support to overwhelm traditional and closed DSP systems.
+
+Future work and development is oriented to:
+
+\begin{itemize}
+ \item Testing and comparison of performance with other rival systems
+ \item Extending the SWI-DSP vocabulary and capabilities
+\end{itemize}
+
+SWI-DSP vocabulary and cabalities can be extended in several ways. First, by interfacing more open source APIs to cover the implementation of any DSP task (not necessarily restricted to audio domain). Secondly, by supporting symbolic data (MIDI) input which is a really important source of audio knowledge and providing analysis modules for such an input. Finally, other logic paradigms can contribute to enhance SWI-DSP (e.g. there are studies that use Inductive Logic Programming systems to extract harmonic rules or rhythm patterns given certain input descriptors [ref]). By providing semantics (OWL ontologies cleary point to this goal) to interconnect properly each logical module we can build a hierarchy of modules which help us to extract and share different levels of knowledge from digital signals. Such a system could be used either to extract low level cepstral coefficients from an input signal (mathematics level) or to obtain patterns of music (musicology level). 
 \end{document}
