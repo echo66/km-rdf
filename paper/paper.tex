@@ -44,7 +44,7 @@ In this paper we address this problematic situation by proposing and developing 
 
 In \S 2 we identify the most common audio analysis tasks and summarize several relevant \textit{open source} APIs aimed at performing such tasks. We evaluate the advantages and limitations of these APIs in order to find the requirements for SWI-DSP. In \S 3 we start viewing the system from the top and how it defines an interesting workflow that characterizes input/output relationships between task-oriented modules. This workflow is determined by semantic types, a binary data standard and procedural declarations of DSP rules. \S 4 goes into the implementation of each task-oriented module which are indeed communication layers with dedicated ``plugin'' libraries that are in charge of the actual computation and offer an open development framework.
 
-Thus, SWI-DSP extends SWI-Prolog vocabulary to perform audio analysis and processing by defining semantic types and predicates, triggering external computation performed by dedicated APIs, which are ordered in modules with different levels of abstraction. However, this front-end does not present an efficient and manageable framework as it requires specific SWI-Prolog knowledge to create programs suitable for the concrete needs and it does not offer any efficient tabling mechanism. We tackle this problem in \S 5 by defining DSP ``scenarios'' which offer a semantic view of the system to the user without losing computational flexibility. 
+Thus, SWI-DSP extends SWI-Prolog vocabulary to perform audio analysis and processing by defining semantic types and predicates, triggering external computation performed by dedicated APIs, which are ordered in modules with different levels of abstraction. However, this front-end does not present an efficient and manageable framework as it requires specific SWI-Prolog knowledge to create programs suitable for the concrete needs and it does not offer any efficient tabling mechanism. We tackle this problem in \S 5 by defining DSP ``scenarios'' which offer a semantic view of the system to the user without losing computational flexibility.
 
 We also describe as a Standard, how Concurrent Transaction Logic is the solution to provide an efficient engine allowing a formal data updating mechanism and computation reasoning capabilities. Finally, \S 6 presents related works that use SWI-DSP to create an environment for multimedia data management and visualisation. We conclude in \S 7 by assessing the value and scope of this work and introducing future advances.
 
@@ -187,17 +187,19 @@ vamp_process_signal(Signal, L, StepSize, BlockSize, Output, Plugin, Features):-
 
 \subsection{audio processing}\label{subsec:swilasdpa}
 
-This module defines any computation which outputs a Signal term. This 
+This module defines any computation which outputs a Signal term. It comprises any sort of effect or filtering over a signal. It reproduces a real time processing by outputting processed frames as they are computed (non-deterministic call to a processing predicate) or stores the processed blocks to return and altered version of the input signal. 
 
-The module swiladspa offers communication with LADSPA which is the most generic and spread plugin API for general audio processing.
+The module swiladspa offers communication with LADSPA which is the most generic and spread plugin API for general audio processing. The communication layer allows us to query the plugin description, control the set up of the plugin (control and audio ports) and retrieve the processed data. Through predefined routines we can offer a more handy access to the plugin or even declared predicates just defined by an input/output relationship.
 
 \subsection{swiweka}\label{subsec:swiweka}
 
+The WEKA API is interfaced through the package JPL available for SWI-Prolog defining a complex Java-Prolog interface to read/write ARFF files, load ARFF files, instantiate classifiers, execute classification and retrieve the classification scores of the dataset. This communication layer offers a really cumbersome and API-dependent module which requires semantics and interpretation rules to become into a useful logic-framework for audio data classification as described in the next section.
+
 \section{Towards a computation reasoner}\label{sec:reasoner}
 
-So far we have presented how SWI-DSP provides a vocabulary of logic predicates to perform audio analysis computations, but this logic front-end is still inappropiate for such tasks. We have organized the modules in communication layers and task-oriented modules, but there is an important trade-off between understandability and specification. The communication layer even offering an application-independent access to the computation libraries still requires a high knowledge of such libraries besides a SWI-Prolog familiarization which is not expected in most part of the potential users. The task-oriented module which is itself very layered provides high-level predicates which are missing some important options at setting-up. 
+So far we have presented how SWI-DSP provides a vocabulary of logic predicates to perform audio analysis computations, but this logic front-end is still inappropiate for such tasks. We have organized the modules in communication layers and task-oriented modules, but there is an important trade-off between understandability and specification. The communication layer even offering an application-independent access to the computation libraries still requires a high knowledge of such libraries besides a SWI-Prolog familiarization which is not expected in most part of the potential users. The task-oriented module, which is itself very layered, provides high-level predicates which are missing important options at setting-up.
 
-In addition to this, we need require a mechanism to update results and keep track of computation sequences, so that computations are not restricted to one SWI-Prolog session, allowing us to reuse and share them. This section tackles this problem by extending SWI-DSP as an expert system with defined ``DSP scenarios'' and by introducing Concurrent Transaction Logic on top of our extended predicate-logic language.
+In addition to this, we require a mechanism to update results and keep track of computation sequences, so that computations are not restricted to one SWI-Prolog session, allowing us to reuse and share them. This section tackles this problem by extending SWI-DSP as an expert system able to interpret data within defined ``DSP scenarios'' and by introducing Concurrent Transaction Logic on top of our extended predicate-logic language.
 
 \subsection{DSP scenarios}\label{subsec:scenarios}
 
@@ -221,7 +223,18 @@ Then each task module hardcodes the necessary knowledge in form of interpretatio
 
 Another complex ``scenario'' is classification. We find this approach suitable to control swiweka effectively. Each classification context can be defined by:
 
-'Classification'(Identifier, ListOfCategories, ListOfDataRecords, Classifier, Classification) (have to look at it better)
+'Classification'(Identifier, ListOfCategories, ListOfDataRecords, Classifier, ClassificationVector)
+
+\begin{itemize}
+
+ \item Identifier gives a label for the classification set
+ \item 'Category'(Label, Type, ValuesRange) specifies which type of data is going to be classified
+ \item 'DataRecord'(RecordID, ListOfMatchingValues) is a data instance of the dataset 
+ \item 'Classifier'(Name, ...)
+ \item 'Score'(RecordID, ListOfValues) keeps track of each score (vector of scores depeding of the statistical distribution) for every record.
+\end{itemize}
+
+By defining these functors, the engine is able to interpret the data and the user has a clear semantic template to create the classification environment properly. We could even define some constraints and predefined functors instanes for a specific domain.
 
 \subsection{Computation reasoning}\label{subsec:ctl}
 
