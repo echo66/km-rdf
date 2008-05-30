@@ -9,9 +9,7 @@
 \noindent\keywordname\enspace\ignorespaces#1}
 
 \usepackage{url}
-\urldef{\mails}\path|{david.pastor,yves.raimond, mark.sandler}@elec.qmul.ac.uk|
-%\newcommand{\keywords}[1]{\par\addvspace\baselineskip
-%\noindent\keywordname\enspace\ignorespaces#1}
+\urldef{\mails}\path|{david.pastor, yves.raimond, mark.sandler}@elec.qmul.ac.uk|
 
 \begin{document}
 
@@ -30,23 +28,25 @@
 
 
 \begin{abstract}
-In this paper we describe a logic-based framework for Digital Signal Processing. This framework is implemented on SWI-Prolog and is formed of interfaces with different DSP libraries and APIs extending this logic language ``to speak'' DSP. This approach presents the advantage, in respect of other integrated APIs, of being application implementation independent, so the extended logic language can be loaded an embedded in any application or language interfacing SWI-Prolog. The new DSP capabilities are public as predicates grouped in modules which offer different levels of abstraction. Low-level modules offer predicates to communicate directly with the API. Task-oriented modules define some default routines which specific goals and procedures. Finally we can relate input/output through ``black boxes'' representing a semantic relationship between them. Modules can communicate by using commong semantic data types declared as functors which determine the possible workflows. Such a framework allow us to build complex DSP queries as procedures as well as simplify the extraction of audio processing knowledge with common semantics. Finally, Concurrent Transaction Logic allows us to wrap the procedural meaning of predicate rules into a declarative definition of transactions controlling the execution and updating of the processes.
-\keywords{DSP predicates, computation query, computation reasoner, DSP scenarios, RDF}
+In this paper we describe a logic-based framework for Digital Signal Processing. This framework is implemented in SWI-Prolog and develops interfaces to signal processing libraries providing that with modules ``to speak'' DSP. Modules communicate by using common functors, which we use to handle the orchestration of our different analysis components. The system provides the user with a unified and flexible front-end to define signal processing workflows. These workflows involve a number of heterogeneous software libraries. Concurrent Transaction Logic allows us to combine procedural and declarative meaning of queries to execute computations and update data obtaining a powerful query-driven DSP reasoner.
+
+\keywords{DSP predicates, semantic front-end, Concurrent Transaction Logic, computation reasoner, DSP-quering agent}
 \end{abstract}
 
 \section{Introduction}\label{sec:intro}
 
-Digital signal processing is a broad field and an object of an important research. Withing this research community, particular investigators are discovering and developing new algorithms for signal processing and analysis. Many projects aim at developing formal APIs providing a framework for algorithms implementation and publication. However, these APIs are normally designed as a closed environment which hardly interacts with other related APIs and applications. Although several APIs are wrapped and exported as ``plugin'' libraries which can be embedded in different applications, they still require the implementation of specific and non-interactive hosts.
+Digital signal processing (DSP) is a broad field and an object of an important research. Withing this research community, particular investigators are discovering and developing new algorithms for signal processing and analysis. Many projects aim at developing formal APIs providing a framework for algorithms implementation and publication. However, these APIs are normally designed as a closed environment which hardly interacts with other related APIs and applications. Although several APIs are wrapped and exported as ``plugin'' libraries which can be embedded in different applications, they still require the implementation of specific and non-interactive hosts.
 
 This situation leads to many isolated applications, environments and sources of data working independently from each other. Any effort to combine them to obtain integrated results for analysis, classification and comparison requires tedious studies or ``glue code'' implementations.
 
-In this paper we address this problematic situation by proposing and developing SWI-DSP, a logical framework for \textit{Audio Processing} (as subset of DSP) that extends the SWI-Prolog vocabulary. We rely on a logic programming language with aggregated audio analysis capabilities getting rid of the application-dependency paradigm and offering a single logic front-end which is generally more understandable than a closed implementation in any Procedural or Object Oriented language. In addition to this, we are keen on using logic resources to finally achieve a more capable DSP engine.
+In this paper we address this problematic situation by proposing and developing SWI-DSP, a logical framework for \textit{Audio Processing} (as subset of DSP) that extends the SWI-Prolog vocabulary. We rely on a logic programming language with aggregated audio analysis capabilities getting rid of the application-dependency paradigm and offering a single logic front-end. Logic resources are also used to achieve a more capable DSP engine. The main and primary motivation for a logic-based implementation of such a system is to turn our conception of traditional procedural applications for computation of data towards semantic frameworks to manage knowledge envolving specific computations.
 
-In \S 2 we identify the most common audio analysis tasks and summarize several relevant \textit{open source} APIs aimed at performing such tasks. We evaluate the advantages and limitations of these APIs in order to find the requirements for SWI-DSP. In \S 3 we start viewing the system from the top and how it defines an interesting workflow that characterizes input/output relationships between task-oriented modules. This workflow is determined by semantic types, a binary data standard and procedural declarations of DSP rules. \S 4 goes into the implementation of each task-oriented module which are indeed communication layers with dedicated ``plugin'' libraries that are in charge of the actual computation and offer an open development framework.
+In \S 2 we identify the most common audio analysis tasks and summarize several relevant \textit{open source} APIs aimed at performing such tasks. We evaluate the advantages and limitations of these APIs in order to find the requirements for SWI-DSP. In \S 3 we start viewing the system from the top and how it defines an interesting workflows-based architecture that characterizes input/output relationships between task-oriented modules. These workflows are possible by means of common functorsa and a binary data Standard. \S 4 goes into the implementation of each task-oriented module which are indeed communication layers with dedicated audio processing libraries that are in charge of the actual computation and offer an open development framework.
 
-Thus, SWI-DSP extends SWI-Prolog vocabulary to perform audio analysis and processing by defining semantic types and predicates, triggering external computation performed by dedicated APIs, which are ordered in modules with different levels of abstraction. However, this front-end does not present an efficient and manageable framework as it requires specific SWI-Prolog knowledge to create programs suitable for the concrete needs and it does not offer any efficient tabling mechanism. We tackle this problem in \S 5 by defining DSP ``scenarios'' which offer a semantic view of the system to the user without losing computational flexibility.
+Thus, SWI-DSP extends SWI-Prolog vocabulary to perform audio analysis and processing by defining functors (as common semantic types) and predicates, triggering external computation performed by dedicated APIs, which are ordered in modules with different levels of abstraction. However, this front-end does not present an efficient and manageable framework as it requires specific SWI-Prolog knowledge to create programs suitable for the concrete needs and it does not offer any efficient tabling mechanism. We tackle this problem in \S 5 by defining DSP ``scenarios'' which offer a unified view of the system to the user preserving computational flexibility.
 
-We also describe as a Standard, how Concurrent Transaction Logic is the solution to provide an efficient engine allowing a formal data updating mechanism and computation reasoning capabilities. Finally, \S 6 presents related works that use SWI-DSP to create an environment for multimedia data management and visualisation. We conclude in \S 7 by assessing the value and scope of this work and introducing future advances.
+/fixthis
+We also describe, as a Standard, how Concurrent Transaction Logic is the solution to provide an efficient engine allowing a formal data updating mechanism and computation reasoning capabilities. Finally, \S 6 presents related works that use SWI-DSP to create an environment for multimedia data management and visualisation. We conclude in \S 7 by assessing the value and scope of this work and introducing future advances.
 
 \section{Audio Analysis tasks and solutions}\label{sec:tasks}
 
@@ -58,7 +58,7 @@ Audio analysis and synthesis APIs offer formal implementations for development a
  \item Classification
 \end{itemize}
 
-\subsection{Audio Processing}\label{subsec:effects}
+\subsection{Signal Procesing}\label{subsec:effects}
 
 This tasks group can be characterized by having audio signals as input and output, so an input signal is processed in such a way that we retrieve an altered, processed version of the original signal. Some examples of audio processing tasks are filtering, effects processing and signal generation.
 
@@ -66,9 +66,9 @@ One important dedicated API is the Linux Audio Developer's Simple Plugin API (LA
 
 \subsection{Feature Extraction}\label{subsec:feature}
 
-Feature extraction is an important paradigm in signal research as it focuses on extract qualitative characteristics of the signal in a different domain than the input. Features are classified in different levels of abstraction from frequency and time domain characteristics to high-level audio ones.
+Feature extraction is an important paradigm in signal research as it focuses on extract qualitative characteristics of the signal. Features are classified in different levels of abstraction which may go from frequency and time domain characteristics to high-level audio ones.
 
-The Vamp Plugins API offers a standard and utilities to develop feature extraction plugins that can be hosted in any application able to control the ``plugin lifecycle''. We host Vamp plugins as basis for feature extraction in SWI-DSP. In general plugin libraries are characterized for being easy for development but application-dependent. By embedding plugins in SWI-DSP we offer a flexible development framework and make an interactive interface to deal with plugins in several ways.
+The Vamp Plugins API offers a standard and utilities to develop feature extraction plugins that can be hosted in any application able to control the ``plugin lifecycle''. We host Vamp plugins as basis for feature extraction in SWI-DSP. In general plugin libraries are characterized for being easy for development but application-dependent. By embedding plugins in SWI-DSP we offer a flexible development framework and provide an interactive interface to deal with plugins in several ways.
 
 \subsection{Integrative solutions}\label{subsec:inte}
 
@@ -161,31 +161,31 @@ The sub-module \textbf{swivamp} is a communication layer based on the SWI-Prolog
 \begin{verbatim}
 
 tempo(Input, Tool, Tempo):-
-        Input = 'Signal'(Ch, Sr, L, PCMs),
-        Tool = 'Vamp',
-        vamp_feature_of('tempo', Signal, WholeFeature).
+     Input = 'Signal'(Ch, Sr, L, PCMs),
+     Tool = 'Vamp',
+     vamp_feature_of('tempo', Signal, WholeFeature).
 vamp_feature_of(Type, Signal, WholeFeature):-
-        select_plugin(Type, PluginKey, Output),
-        vamp_outputs_for(Signal, PluginKey, Output, Features),
-        flatten(Features, WholeFeature).
+     select_plugin(Type, PluginKey, Output),
+     vamp_outputs_for(Signal, PluginKey, Output, Features),
+     flatten(Features, WholeFeature).
 vamp_outputs_for(Signak, PluginKey, Output, Feature):-
-        vmpl_load_plugin_for(PluginKey, Signal, Plugin),
-        set_blockSize(Plugin, BlockSize),
-        set_stepSize(Plugin, StepSize),
-        get_channels(Signal, Channels),
-        vmpl_initialize_plugin(Plugin, Channels, StepSize, BlockSize),
-        vamp_compute_feature(Signal, StepSize, BlockSize, Outputs, Plugin, WholeFeature).
-vamp_compute_feature(Signal, StepSize, BlockSize, Outputs, Plugin, WholeFeature):-
-        get_samples_per_channel(Signal, L),
-        findall(Features, vamp_process_signal(Signal, L, StepSize, BlockSize, Output, Plugin, Features), FeatureSet),
-        get_sample_rate(Signal, SampleRate),
-        vmpl_remaining_features(Plugin, L, SampleRate, Output, Remaining),
-        append(FeatureSet, Remaining, RawFeatures),
-        delete(RawFeatures, [], WholeFeature).
-vamp_process_signal(Signal, L, StepSize, BlockSize, Output, Plugin, Features):-
-        set_limit_framing(L, StepSize, Limit),
-        set_framing(StepSize, L, Limit, Start),
-        vmpl_process_block_framing(Plugin, Signal, Start, BlockSize, Output, FeatureSet).
+     vmpl_load_plugin_for(PluginKey, Signal, Plugin),
+     set_blockSize(Plugin, Block),
+     set_stepSize(Plugin, Step),
+     get_channels(Signal, Channels),
+     vmpl_initialize_plugin(Plugin, Channels, StepSize, BlockSize),
+     vamp_compute_feature(Signal, Step, Block, Outputs, Plugin, WholeFeature).
+vamp_compute_feature(Signal, Step, Block, Outputs, Plugin, Features):-
+     get_samples_per_channel(Signal, L),
+     findall(F, vamp_process_signal(Signal, L, Step, Block, Output, Plugin, F), FSet),
+     get_sample_rate(Signal, SampleRate),
+     vmpl_remaining_features(Plugin, L, SampleRate, Outputs, Remaining),
+     append(FSet, Remaining, RawFeatures),
+     delete(RawFeatures, [], Features).
+vamp_process_signal(Signal, L, StepSize, Block, Out, Plugin, Features):-
+     set_limit_framing(L, StepSize, Limit),
+     set_framing(StepSize, L, Limit, Start),
+     vmpl_process_block_framing(Plugin, Signal, Start, Block, Out, Features).
 
 \end{verbatim}
 \noindent
@@ -297,5 +297,30 @@ Future work and development is oriented to:
  \item Extending the SWI-DSP vocabulary and capabilities
 \end{itemize}
 
-SWI-DSP vocabulary and cabalities can be extended in several ways. First, by interfacing more open source APIs to cover the implementation of any DSP task (not necessarily restricted to audio domain). Secondly, by supporting symbolic data (MIDI) input which is a really important source of audio knowledge and providing analysis modules for such an input. Finally, other logic paradigms can contribute to enhance SWI-DSP (e.g. there are studies that use Inductive Logic Programming systems to extract harmonic rules or rhythm patterns given certain input descriptors [ref]). By providing semantics (OWL ontologies cleary point to this goal) to interconnect properly each logical module we can build a hierarchy of modules which help us to extract and share different levels of knowledge from digital signals. Such a system could be used either to extract low level cepstral coefficients from an input signal (mathematics level) or to obtain patterns of music (musicology level). 
+SWI-DSP vocabulary and cabalities can be extended in several ways. First, by interfacing more open source APIs to cover the implementation of any DSP task (not necessarily restricted to audio domain). Secondly, by supporting symbolic data (MIDI) input which is a really important source of audio knowledge and providing analysis modules for such an input. Finally, other logic paradigms can contribute to enhance SWI-DSP (e.g. there are studies that use Inductive Logic Programming systems to extract harmonic rules or rhythm patterns given certain input descriptors [ref]). By providing semantics (OWL ontologies cleary point to this goal) to interconnect properly each logical module we can build a hierarchy of modules which help us to extract and share different levels of knowledge from digital signals. Such a system could be used either to extract low level cepstral coefficients from an input signal (mathematics level) or to obtain patterns of music (musicology level).
+
+\begin{thebibliography}{4}
+
+\bibitem{distributed} Raimond, Y., Sutton, C., Sandler, M.: A distributed data space for music-related information. In: Workshop on the Many Faces of Multimedia Semantic. ACM (Multimedia), Augsburg (2007).
+
+\bibitem{ctl} Bonner, A.J., Kifer, M.: Concurrency and Communication in Transaction Logic. In: Joint International Conference and Symposium on Logic Programming, pp. 142--156. Bonn (1996)
+
+\bibitem{tlprog} Bonner, A.J., Kifer, M.: Transaction Logic Programming. In: 10th International Conference on Logic Programming. Budapest (1993)
+
+\bibitem{clam} CLAM, \url{http://www.clam.iua.upf.edu/}
+
+\bibitem{marsyas} Music Analysis, Retrieval and Synthesis for Audio Signals. \url{http://marsyas.sness.net/}
+
+\bibitem{jmir} McKay, C.: jMIR. \url{http://jmir.sourceforge.net/}
+
+\bibitem{mo} Raimond, Y., Abdallah, S., Sandler, M., Frederick, G.: The Music Ontology. In: 8th International Conference of Music Information Retrieval. Vienna (2007)
+
+\bibitem{kmrdf} Source code project of KM-RDF. \url{http://code.google.com/p/km-rdf/w/list}
+
+\bibitem{ladspa} Linux Audio Developer Simple Plugin API. \url{http://www.ladspa.org/}
+
+\bibitem{vamp} Cannam, C.: Vamp Plugins. \url{http://www.vamp-plugins.org/}
+
+\end{thebibliography}
+
 \end{document}
