@@ -101,31 +101,59 @@ However, this generic API does not provide semantics to create a dataset which i
 
 \section{SWI-DSP architecture}\label{sec:architecture}
 
-We find of high interest the workflow architecture for DSP tasks. A complex task is then subdivided into subgoals that are achieved for the specific task-oriented modules. A procedure of this nature can be easily implemented combining high-level predicates with a proper matching of the instantation patterns. These instantation patters must have terms in common which are easily carried forward from one module to another without worring about further conversion. For this purpose, we define semantic datatypes as SWI-Prolog functors. In the same sense, we need to define a standard format for large binary data objects which are highly common in DSP tasks. We define these utils in the \textbf{swilib} module which provides a C++ library and a SWI-Prolog module for their management.
-
-\subsection{Semantic datatypes}\label{subsec:datatypes}
-
-SWI-Prolog functors are defined by their name and their arity. Therefore we need to recognize and set the common concepts and their properties used in audio analysis. In the previous section we have seen how tasks are strongly characterized by the type of input and output. We also want to look at the Music Ontology specification [x] as ontological description of music-related concepts including audio analysis terminology. We distinguish the following semantic datatypes:
+From the previous comparison and review we consider that a innovating system should satisfy the following requirements:
 
 \begin{itemize}
- \item 'Signal'(Channels, SampleRate, Samples, [ListOfPCMPerChannel]): any audio data fragment is classified as a signal. Audio data is presented in our system as Pulse Code Modulation (PCM) which is a digital version of an analog signal sampled in equal intervals. Necessary parameters to understand the signal are the number of channels, the sample rate of the sampling and the resulting number of samples.
-
-\item 'Frame'(Channels, SampleRate, StartingSample, [ListOfPCMPerChannel]) as pieces of a signal, frames have an important role in DSP as we need to decompose the signal in smaller frames for an efficient analysis.
-
-\item 'Feature'(Type, Timestamp, Data): extracted characteristics of a signal in some other domain are called features which are the main target of audio analysis at a low level. A feature term is characterized by the feature type, its interval of time and the actual feature data.
-
-\item 'Timestamp'(Start, Duration): audio properties are always necessarily bound to an interval of time defined as a timestamp in respect of the audio signal ``timeline''. 
-
-\item 'Parameter'(Name, Value): parametrization of algorithms is one of the most significant issues in DSP as well. Algorithms vary their perfomance depending on the parameters. We want to generalize the parameterization for any task with generic terms.
+ \item Allowing workflows design
+ \item Providing an interface to interact with other related systems and applications
+ \item Featuring an unified, flexible and understandable front-end
+ \item Providing a open-development platform
+ \item Management of shareable data semantically labelled
+ \item Relying on a logic framework which allow us to use and provide new capabilities than traditional procedural implementations: declarative meaning of , reasoning, inferencing, computations as queries, 
 \end{itemize}
+
+As initial step, we build a framework able to develop digital signal processing workflows based on a predicate logic implementation (SWI-Prolog) extending its vocabulary by wrapping computations under logic predicates. We develop task-oriented modules and define functors capturing the common datatypes allowing the communication between modules and hiding the internal implementation. In addition to this, we define a standard format for binary data ``spoken by every SWI-DSP module''. We define these utils in the \textbf{swilib} module which provides a C++ library and a SWI-Prolog module for their management.
+
+\subsection{Datatypes controlling workflows}\label{subsec:datatypes}
+
+In section \ref{sec:tasks} we have seen how tasks are strongly characterized by their input/output relationship. The system require to define datatypes that guarantee the correct input and output matching. We identify these datatypes by analysing the differnt tasks explained. We also want to look at the Music Ontology specification \cite{mo} as a ``web ontology'' description of music-related concepts including audio analysis terminology. We distinguish the following datatypes:
+
+\begin{itemize}
+Mercury
+Define datatypes
+\end{itemize}
+
+We implement these datatypes in SWI-Prolog as functors (name/arity) that bind together the attributes of a concept (e.g. signal(Channels, SampleRate, Length, [DataIdPerChannel])). These datatypes (with the disadvantage of being a non-flexible model) can be interpreted to any module guaranteeing the correct instantation pattern of the predicates and ensuring a valid execution.
 
 \subsection{Large Binary Objects}\label{subsec:blobs}
 
-The so called BLOBs are objects wrapping large binary data. The representation of data in SWI-Prolog can be done through lists which can not handle such amount of data (e.g. signals of 1000000 samples) or through BLOB terms which are cumbersome as datatype.
+Large binary data is present in any multimedia system and needs to be treated in the most efficient and manageable way. The so-called BLOBs are objects wrapping large binary data. The representation of data in SWI-Prolog can be done through lists which can not handle such amount of data (e.g. signals of 1000000 samples) or through SWI-Prolog BLOB terms which are cumbersome as datatype.
 
-We have implemented a mechanism of \textit{data identifiers} that vary incrementally and are stored in a database updated in each session. These identifiers, with the form \textbf{data\_x}, hide the binary data (which is internally a vector of floats) and allow us to perform different operations over the data easily with prolog predicates: \textit{data\_out(+Id, +File), data\_in(+File, +Id), data\_to\_list(+Id, -List)...} as well as control the binary data database status. Each module is implemented to read/write data in this fashion.
+We have implemented a mechanism of \textit{data identifiers} that vary incrementally and are stored in a database updated in each session. Each identifier holds the binary representation of an arbitrary large sequence of floating point format data. This identifiers-based system is useful in the following ways:
 
-\subsection{Workflow}\label{subsec:worflow}
+\begin{itemize}
+ \item It hides awkward binary representations or inefficient SWI-Prolog lists by handy representations of data as atoms: e.g. \textbf{\_\_data\_435}
+ \item It implements a look-up database whose status can be easily updated and checked
+ \item It provides multiple ways to export/import data to the database through the identifiers. Data can be wrapped into or extracted from a blob term, displayed/read as prolog list (length restrictions) and dump into or load from a binary file
+ \item It unifies the ``raw'' data representation allowing the communication at the lowest level between modules 
+\end{itemize}
+
+The following example shows how a decoded audio file can be easily represented by the data identifiers that make easy to work with such a big sequence of data.
+\begin{verbatim}
+:-decode('../myfile.*', Signal).
+Signal = signal(2, 44100, 1200000, ['__data_0', '__data_1']).
+
+:-data_out('__data_0', '../myfilech1').
+:-data_out('__data_1', '../mufilech2').
+
+:-frame(signal(2, 44100, 1200000, ['__data_0', '__data_1']), 200, 5, frame(Ch, Sr, L, [Ch1D, Ch2D])),
+data_to_list(Ch1D, List), length(List, Llen).
+Ch1D = '__data_2'
+List = [6.45, 4.56, 3.23, 9.78, 3.26]
+Llen = 5
+\end{verbatim}
+
+\subsection{Processing workflows}\label{subsec:worflow}
 
 These standards allow us to work with different modules without taking care of the specific underlying APIs types or implementation, so that we achieve a logic framework with dedicated semantics to perform audio analysis tasks as showed in \ref{fig:workflow}.
 
