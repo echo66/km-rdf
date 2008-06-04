@@ -54,46 +54,52 @@ Data management is an important paradigm involved in many domains and also in th
 
 Although SWI-DSP does not develop a data management system itself, we discuss this problem in \S 6 and present related works which contribute to achieve such a multimedia knowledge reasoner/manager. We conclude in \S 7 by assessing the value and scope of this work and introducing future advances.
 
-\section{Audio Analysis tasks and solutions}\label{sec:tasks}
+\section{Audio processing tasks and solutions}\label{sec:tasks}
 
-Audio analysis and synthesis APIs offer formal implementations for development and use of different algorithms and techniques. These algorithms are focused on different tasks that can be classified in these 3 groups:
+A particular application of DSP is the study of one-dimensional, time domain signals that in real world often exist as audio signals. Audio signals evolve in time and have acoustic properties produced by the signal structure and shape. Music and speech are the main domains involving audio signals.
+
+The properties of an analog and continuous signal (acoustic signals) can be studied by analysing their digital (sampled and quantified) versions. A one-dimension digital signal is therefore a processable sequence of values in a discretized time domain that represents the audio signal. Digital signals allow machine processing useful to modify the orignal signal or extract characterisitics from it. We can classify the digital signal processing paradigm in these main tasks:
 
 \begin{itemize}
- \item Processing and Effects
+ \item Effects
  \item Feature Extraction
  \item Classification
 \end{itemize}
 
-\subsection{Signal Procesing}\label{subsec:effects}
+\subsection{Effects}\label{subsec:effects}
 
-This tasks group can be characterized by having audio signals as input and output, so an input signal is processed in such a way that we retrieve an altered, processed version of the original signal. Some examples of audio processing tasks are filtering, effects processing and signal generation.
+A signal may be presented in a raw or non desirable way for its analysis so a basic stage of many systems is the pre-processing. The signal is processed to obtain a satisfying version of it by different techniques (filtering, normalization, amplification...).
 
-One important dedicated API is the Linux Audio Developer's Simple Plugin API (LADSPA) which has been succesfully used in many systems and applications and is a widely spread implementation for algorithms development. We host LADSPA in SWI-DSP but there are other interesting libraries like DSSI plugins for effects and LV2 (new generation of LADSPA) which are targets for future extensions. (this is too simple i think)
+It is very common in applied systems to provide tools that modify acoustic properties of the signal by introducing specific effects. Reverberation, delay or distortion are examples of effects that can be digitally obtained reproducing natural or instrumental alterations of the signal.
+
+In practice, we can characterize this group of tasks for its input/output relationships. The operation outputs a signal (which may be time, frequency or multidimensional domain) when is fed with an input signal (accepting several domains as well). Oscillators and synthesis systems outputs signals without input.
+
+One important dedicated API is the Linux Audio Developer's Simple Plugin API (LADSPA) \cite{ladspa}  which has been succesfully used in many systems and applications and is a widely spread implementation for algorithms development. We host LADSPA in SWI-DSP but there are other interesting libraries like DSSI plugins for effects and LV2 (new generation of LADSPA) which are targets for future extensions. 
 
 \subsection{Feature Extraction}\label{subsec:feature}
 
-Feature extraction is an important paradigm in signal research as it focuses on extract qualitative characteristics of the signal. Features are classified in different levels of abstraction which may go from frequency and time domain characteristics to high-level audio ones.
+Acoustic properties which are the substract of the psychological perspecitve of audio signals are conveyed in the signal and therefore in their digital representations. The so-called feature extraction paradigm aims at extracting different levels of audio features to characterize, classify and compare the audio signals (and any signal in general). The domain of the feature represents a qualitative side of the signal (tempo, chromatism, timbre...), so features do not convey all the signal information. This is interesting as distinct signals may have some very close features and differ much in others.
 
-The Vamp Plugins API offers a standard and utilities to develop feature extraction plugins that can be hosted in any application able to control the ``plugin lifecycle''. We host Vamp plugins as basis for feature extraction in SWI-DSP. In general plugin libraries are characterized for being easy for development but application-dependent. By embedding plugins in SWI-DSP we offer a flexible development framework and provide an interactive interface to deal with plugins in several ways.
+The Vamp Plugins API \cite{vamp} offers a framework to develop feature extraction plugins that can be hosted in any application able to control the ``plugin lifecycle''. We host Vamp plugins as basis for feature extraction in SWI-DSP. In general plugin libraries are characterized for being suitable for development but application-dependent.
 
 \subsection{Integrative solutions}\label{subsec:inte}
 
-With the same motivation of this work there are some integrative APIs which combines different tasks to perform low high-level operations in a closed implementation. CLAM, jMIR and Marsyas present a complex framework collecting tools to perform different DSP tasks. The most interesting feature of these frameworks is the possibility to create DSP networks combining specific algorithms and modules thanks to a workflow design.
+With the same motivation of this work there are some integrative APIs which combines different tasks to perform low and hig-level operations in a closed implementation. CLAM \cite{clam}, jMIR \cite{jmir} and Marsyas \cite{marsyas} present a complex framework collecting tools to perform different DSP tasks. The most interesting feature of these frameworks is the possibility to create DSP networks combining specific algorithms and modules thanks to a workflow-based architecture (Marsyas and CLAM) or with a descriptive task format (jMIR).
 
-CLAM also offers a metamodel of DSP processes wich provides semantics to design the networks properly presenting a higher and more manageable level of abstraction. However, these APIs still present two important limitations that we pretend to solve:
+CLAM also offers a metamodel of DSP processes wich provides semantics to design the networks properly presenting a higher and more manageable level of abstraction. However, these APIs still present two important limitations that our work is aimed at solving:
 
 \begin{itemize}
- \item There do not offer a common format to exchange data or an easy way to interact with other applications.
- \item They offer a procedural system unable to reach higher-level knowledge by itself.
+ \item They do not offer a common format to exchange data or an easy way to interact with other applications.
+ \item They are based on a procedural system unable to reach higher-level knowledge by itself.
 \end{itemize}
 
 \subsection{Classification}\label{subsec:classif}
 
-Classification is one the most interesting and complex paradigms in any specific domain exploiting the ``intelligence'' of computational machines. The WEKA API collects different machine-learning algorithms and provides a formal interface (in Java) for development and interaction with other systems.
+Classification is one the most interesting and complex paradigms in any specific domain exploiting the ``intelligence'' of computational machines. WEKA (Waikato Environment for Knowledge Analysis) \cite{weka} collects different machine-learning algorithms and provides several user interfaces to manage the analysis. It aslo provdes a formal interface (in Java) for development and interaction with other systems.
 
-However, this generic API does not provide semantics to create a dataset which is the most intriguing and complex issue for classifying data properly. Marsyas and jMÍR integrate WEKA orienting it for music classification purporses by offering a code interface with other modules (Marsyas) or by extending the WEKA file format ARFF (jMIR). Both solutions still seem to lack of effective semantics to perform classification of audio data.
+However, this generic API does not provide semantics to create a dataset which is the most intriguing and complex issue for classifying data properly. Marsyas and jMÍR integrate WEKA orienting it for music classification purporses by offering a code interface with other modules (Marsyas) or by extending the WEKA file format ARFF (jMIR). Both solutions still seem to lack of effective semantics and a interactive front-end to perform classification of audio data.
 
-\section{SWI-DSP workflow}\label{sec:dspworkflow}
+\section{SWI-DSP architecture}\label{sec:architecture}
 
 We find of high interest the workflow architecture for DSP tasks. A complex task is then subdivided into subgoals that are achieved for the specific task-oriented modules. A procedure of this nature can be easily implemented combining high-level predicates with a proper matching of the instantation patterns. These instantation patters must have terms in common which are easily carried forward from one module to another without worring about further conversion. For this purpose, we define semantic datatypes as SWI-Prolog functors. In the same sense, we need to define a standard format for large binary data objects which are highly common in DSP tasks. We define these utils in the \textbf{swilib} module which provides a C++ library and a SWI-Prolog module for their management.
 
@@ -282,7 +288,7 @@ This standard can be implemented with different syntaxes. We prefer to use Notat
 
 The Ontology Web Language (OWL) provides the framework to express the knowledge of a particular domain in RDF through concepts and relationships. Thus, descripting semantic models related to audio analysis are not restricted to a local implementation but can be shared and processed by different systems.
 
-The project called Henry implements an N3/Prolog parser and reasoner based on Concurrent Transaction Logic. This agent defines an entailment module capable of reasoning over the SWI-DSP computations, which are identified through Universal Resource Identifiers (URIs), and N3 statements and rules. The semantic web package module for SWI-Prolog interprets SPARQL queries which are passed to Henry which produces RDF descriptions of computations by performing the entailment and triggering SWI-DSP computations. 
+The project called Henry implements an N3/Prolog parser and reasoner based on Concurrent Transaction Logic. This agent defines an entailment module capable of reasoning over the SWI-DSP computations, which are identified through Universal Resource Identifiers (URIs), and N3 statements and rules. The semantic web package module for SWI-Prolog interprets SPARQL queries which are passed to Henry which produces RDF descriptions of computations by performing the entailment and triggering SWI-DSP computations.
 
 \subsection{Visualisation}\label{subsec:vis}
 
@@ -326,6 +332,8 @@ SWI-DSP vocabulary and cabalities can be extended in several ways. First, by int
 \bibitem{ladspa} Linux Audio Developer Simple Plugin API. \url{http://www.ladspa.org/}
 
 \bibitem{vamp} Cannam, C.: Vamp Plugins. \url{http://www.vamp-plugins.org/}
+
+\bibitem{weka} WEKA home site \url{http://www.cs.waikato.ac.nz/ml/weka/}
 
 \end{thebibliography}
 
