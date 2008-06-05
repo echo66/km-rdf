@@ -9,7 +9,7 @@
 \noindent\keywordname\enspace\ignorespaces#1}
 
 \usepackage{url}
-\urldef{\mails}\path|{david.pastor, yves.raimond, mark.sandler}@elec.qmul.ac.uk|
+\urldef{\mails}\path|{david.pastor, yves.raimond, samer.abdallah, mark.sandler}@elec.qmul.ac.uk|
 
 \begin{document}
 
@@ -19,7 +19,7 @@
 
 \titlerunning{A Logic-Based Framework for Digital Signal Processing}
 
-\author{David Pastor\and Yves Raimond\and Mark Sandler}
+\author{David Pastor\and Yves Raimond\and Samer Abdallah\and Mark Sandler}
 
 \institute{Centre for Digital Music, Queen Mary, University of London,\\
 \mails}
@@ -106,24 +106,26 @@ From the previous comparison and review we consider that a innovating system sho
 \begin{itemize}
  \item Allowing workflows design
  \item Providing an interface to interact with other related systems and applications
- \item Featuring an unified, flexible and understandable front-end
- \item Providing a open-development platform
+ \item Featuring an unified, flexible, interactive and understandable front-end
+ \item Providing an open-development platform
  \item Management of shareable data semantically labelled
- \item Relying on a logic framework which allow us to use and provide new capabilities than traditional procedural implementations: declarative meaning of , reasoning, inferencing, computations as queries, 
+ \item Enhancing traditional procedural implementations by building a logic-based framework of declarative nature allowing reasoning and inferencing.
 \end{itemize}
 
 As initial step, we build a framework able to develop digital signal processing workflows based on a predicate logic implementation (SWI-Prolog) extending its vocabulary by wrapping computations under logic predicates. We develop task-oriented modules and define functors capturing the common datatypes allowing the communication between modules and hiding the internal implementation. In addition to this, we define a standard format for binary data ``spoken by every SWI-DSP module''. We define these utils in the \textbf{swilib} module which provides a C++ library and a SWI-Prolog module for their management.
 
+This layout allow us to wrap fast and efficient implementations of algorithms (in some imperative language) to provide predicates that determine the relationship between defined types (as black box computation) giving a ``functional programming'' view of the system preserving computational efficiency. This functional programming approach (which allow us to create workflows as rules with a procedural meaning) is motivated by the advantages of functional languages like Haskell \cite{haskell} that present a semantically oriented view of computations instead of a machine-oriented one. There are also several works that develop such a typed-functional language on a logic framework like lambda-Prolog \cite{lambda} or Mercury \cite{mercury}. However, our approach results to be more suitable to develop an open platform for research and development. External engines based on open source APIs provide faster computations than any functional or logic/strong-typed language and a suitable developers interface. Furthermore, SWI-Prolog features a very powerful, interactive and flexible front-end which is also a requirement for the proposed system.
+
 \subsection{Datatypes controlling workflows}\label{subsec:datatypes}
 
-In section \ref{sec:tasks} we have seen how tasks are strongly characterized by their input/output relationship. The system require to define datatypes that guarantee the correct input and output matching. We identify these datatypes by analysing the differnt tasks explained. We also want to look at the Music Ontology specification \cite{mo} as a ``web ontology'' description of music-related concepts including audio analysis terminology. We distinguish the following datatypes:
+In section \ref{sec:tasks} we have seen how tasks are strongly characterized by their input/output relationship. The system requires datatypes that guarantee the correct input and output matching. We identify these datatypes by analysing the tasks classification. We also want to look at the Music Ontology specification \cite{mo} as a ``web ontology'' description of music-related concepts including audio analysis terminology. We distinguish the following datatypes:
 
 \begin{itemize}
-Mercury
-Define datatypes
+ \item signal: this type represents an audio signal in a physical timeline. T
 \end{itemize}
 
-We implement these datatypes in SWI-Prolog as functors (name/arity) that bind together the attributes of a concept (e.g. signal(Channels, SampleRate, Length, [DataIdPerChannel])). These datatypes (with the disadvantage of being a non-flexible model) can be interpreted to any module guaranteeing the correct instantation pattern of the predicates and ensuring a valid execution.
+
+We implement these datatypes in SWI-Prolog as functors (name/arity) that bind together the attributes of a concept (e.g. signal(Channels, SampleRate, Length, [DataIdPerChannel])). These datatypes (with the disadvantage of being a non-flexible model) can be interpreted by any module guaranteeing the correct instantation pattern of the predicates and ensuring a valid execution.
 
 \subsection{Large Binary Objects}\label{subsec:blobs}
 
@@ -140,13 +142,14 @@ We have implemented a mechanism of \textit{data identifiers} that vary increment
 
 The following example shows how a decoded audio file can be easily represented by the data identifiers that make easy to work with such a big sequence of data.
 \begin{verbatim}
-:-decode('../myfile.*', Signal).
+?-decode('../myfile.*', Signal).
 Signal = signal(2, 44100, 1200000, ['__data_0', '__data_1']).
 
-:-data_out('__data_0', '../myfilech1').
-:-data_out('__data_1', '../mufilech2').
+?-data_out('__data_0', '../myfilech1').
+?-data_out('__data_1', '../mufilech2').
 
-:-frame(signal(2, 44100, 1200000, ['__data_0', '__data_1']), 200, 5, frame(Ch, Sr, L, [Ch1D, Ch2D])),
+?-get_frame(signal(2, 44100, 1200000, ['__data_0', '__data_1']), 200, 5,
+frame(Ch, Sr, L, [Ch1D, Ch2D])),
 data_to_list(Ch1D, List), length(List, Llen).
 Ch1D = '__data_2'
 List = [6.45, 4.56, 3.23, 9.78, 3.26]
