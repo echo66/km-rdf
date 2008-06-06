@@ -45,29 +45,33 @@ In \S 2 we identify the most common audio analysis tasks and summarize several r
 
 Thus, SWI-DSP extends SWI-Prolog for audio processing tasks by defining functors (capturing common datatypes) and predicates triggering external computation performed by dedicated APIs. These predicates are clustered in modules with different levels of abstraction. However, this architecture does not present an efficient and manageable framework as it requires specific module knowledge to create programs suitable for the concrete needs. We tackle this problem in \S 5 by defining an unified and flexible front-end, composed by DSP ``scenarios'', which allows the user to define workflows with understandable semantics.
 
-Data management is an important paradigm involved in many domains and also in the multimedia research domain. Computations can not often be retrieved from session to session or are stored in local filesystems unlikely directed to extend any shareable source of knowledge because they are not expressed in a standard format with common semantics. This problem also encourages the approach presented in this work, based on a predicate calculus implementation (SWI-Prolog), in two different ways:
+Data management is an important paradigm involved in many domains and also in the multimedia research domain. Computations can not often be retrieved from session to session or are stored in local filesystems unlikely directed to extend any shareable source of knowledge because they are not expressed in a standard format with common semantics. This problem also encourages the logic programming approach presented in this work in two different ways:
+% FIXME - not sure about this last sentence and the two following points. Perhaps just take the second point, but put it elsewhere
 
 \begin{itemize}
- \item Concurrent Transcation Logic can be used to extend the predicate calculus to provide an unified logic framework for computations and data updating (given a database implementation).
+ \item Concurrent Transaction Logic can be used to provide a unified logic framework for computation and data updating (given an underlying database);
  \item SWI-Prolog provides an important set of interfaces to other languages (to build user applications embedding the system) and packages that allow us to interact with semantic web technologies which seem to be the best framework to provide a common source of knowledge.
 \end{itemize}
 
+% FIXME - in 6, make sure you cover samer's KM - cite our AES paper, for example
 Although SWI-DSP does not develop a data management system itself, we discuss this problem in \S 6 and present related works which contribute to achieve such a multimedia knowledge reasoner/manager. We conclude in \S 7 by assessing the value and scope of this work and introducing future advances.
 
 \section{Audio processing tasks and solutions}\label{sec:tasks}
 
-A particular application of DSP is the study of one-dimensional, time domain signals that in real world often exist as audio signals. Audio signals evolve in time and have acoustic properties produced by the signal structure and shape. Music and speech are the main domains involving audio signals.
+A particular application of DSP is the study of one-dimensional, time domain signals.  %that in real world often exist as audio signals. 
+Audio signals evolve in time and have acoustic properties produced by the signal structure and shape. Music and speech are the main domains involving audio signals.
 
-The properties of an analog and continuous signal (acoustic signals) can be studied by analysing their digital (sampled and quantified) versions. A one-dimension digital signal is therefore a processable sequence of values in a discretized time domain that represents the audio signal. Digital signals allow machine processing useful to modify the orignal signal or extract characterisitics from it. We can classify the digital signal processing paradigm in these main tasks:
+The properties of an analog and continuous signal (acoustic signals) can be studied by analysing their digital (sampled and quantified) versions. A one-dimension digital signal is therefore a processable sequence of values in a discretized time domain that represents the audio signal. Digital signals can be automatically processed, to modify them or to extract some of their characterisitics. 
+%We can classify the different digital signal processing paradigm in these three main tasks:
+We consider the following digital signal processing tasks.
 
 \begin{itemize}
- \item Effects
- \item Feature Extraction
- \item Classification
+ \item Effects;
+ \item Feature Extraction;
+ \item Classification.
 \end{itemize}
 
 \subsection{Effects}\label{subsec:effects}
-
 A signal may be presented in a raw or non desirable way for its analysis so a basic stage of many systems is the pre-processing. The signal is processed to obtain a satisfying version of it by different techniques (filtering, normalization, amplification...).
 
 It is very common in applied systems to provide tools that modify acoustic properties of the signal by introducing specific effects. Reverberation, delay or distortion are examples of effects that can be digitally obtained reproducing natural or instrumental alterations of the signal.
