@@ -114,7 +114,7 @@ From the previous comparison and review we consider that a innovating system sho
 
 As initial step, we build a framework able to develop digital signal processing workflows based on a predicate logic implementation (SWI-Prolog) extending its vocabulary by wrapping computations under logic predicates. We develop task-oriented modules and define functors capturing the common datatypes allowing the communication between modules and hiding the internal implementation. In addition to this, we define a standard format for binary data ``spoken by every SWI-DSP module''. We define these utils in the \textbf{swilib} module which provides a C++ library and a SWI-Prolog module for their management.
 
-This layout allow us to wrap fast and efficient implementations of algorithms (in some imperative language) to provide predicates that determine the relationship between defined types (as black box computation) giving a ``functional programming'' view of the system preserving computational efficiency. This functional programming approach (which allow us to create workflows as rules with a procedural meaning) is motivated by the advantages of functional languages like Haskell \cite{haskell} that present a semantically oriented view of computations instead of a machine-oriented one. There are also several works that develop such a typed-functional language on a logic framework like lambda-Prolog \cite{lambda} or Mercury \cite{mercury}. However, our approach results to be more suitable to develop an open platform for research and development. External engines based on open source APIs provide faster computations than any functional or logic/strong-typed language and a suitable developers interface. Furthermore, SWI-Prolog features a very powerful, interactive and flexible front-end which is also a requirement for the proposed system.
+This layout allow us to wrap fast and efficient implementations of algorithms (in some imperative language) to provide predicates that determine the relationship between defined types (as black box computation) giving a ``functional programming'' view of the system preserving computational efficiency. This functional programming approach (which allow us to create workflows as rules with a procedural meaning) is motivated by the advantages of functional languages like Haskell \cite{haskell} that present a semantically oriented view of computations instead of a machine-oriented one. There are also several works that develop such a typed-functional language on a logic framework like lambda-Prolog or Mercury \cite{mercury}. However, our approach results to be more suitable to develop an open platform for research and development. External engines based on open source APIs provide faster computations than any functional or logic/strong-typed language and a suitable developers interface. Furthermore, SWI-Prolog features a very powerful, interactive and flexible front-end which is also a requirement for the proposed system.
 
 \subsection{Datatypes controlling workflows}\label{subsec:datatypes}
 
@@ -255,32 +255,28 @@ We do not develop such manager within SWI-DSP as the database implementation act
 ?-table(decode('../myfile', signal(2, 44100, 1200000, ['__data_345', '__data_346']))).
 \end{verbatim}
 
-Our functional-view system can be seen now as a knowledge source that can be managed by combining procedural declarations of execution paths and declarative transactions and updates of data by means of Concurrent Transaction Logic.
+The system that was relying in a functional view of computations can be seen now as a knowledge source that can be managed by combining procedural declarations of execution paths and declarative transactions and updates of data by means of Concurrent Transaction Logic. By adopting a formalized mechanism to manage data we are not only achieving a higher level of abstraction but we provide the system with tools to store/export/import data. The system is then open to interact with other environments and applications (saving data format/type conversion issues) allowing a researcher or user to extend his workspace and data resources.
 
 \subsection{Concurrent Transaction Logic}\label{sec:ctl}
 
+Concurrent Transaction Logic \cite{ctl} extends the predicate logic to unify in a declarative formalism the control of an underlying database (SWI-Prolog and other prolog implementations just rely on assert and retract predicates for data updating, being very limited). Concurrent Transaction Logic allows a declarative definition of execution paths and data updates by providing new connectives to express complex data transactions: parallel and serial conjunctions, execution in isolation and executability checking. Rules define possible execution paths for a goal with a higher-level meaning than just declared procedures as we are certainly dealing with actions (and their effects) instead of sequences of predicates.
 
+Therefore, we can prevent side-effects before modifying the data state, reason about the actions and their effects, control the execution of different processes and compare different paths for the same goal. Concurrent transaction logic applied to complex data/computational environments allows and helps to develop ``virtual laboratory workbenches'' \cite{virtual}. 
+
+SWI-DSP combined with a data manager based on Concurrent Transaction Logic (CTL) develops a multimedia knowledge system to drive research with semantics and logic formalism exploiting reasoning and declarative definition of computations and providing an interactive and shareable source of knowledge.
 
 \subsection{Henry}\label{subsec:henry}
 
-Although SWI-Prolog is a well-known and used implementation of Prolog it does not represent the most suitable framework to deal with multimedia data. The multimedia community in general needs a standard machine-readable format with proper semantics to manage data. The Resource Description Framework (RDF) has been proposed as such a format and defines an Standard to represent linked data by means of triples in the form of (Subject, Predicate, Object).
+We present a related project so-called Henry which develops a real CTL-based agent aimed at creating a distributed multimedia knowledge workspace built in semantic web technologies. The multimedia community needs a standard machine-readable format with proper semantics to manage complex data involved in any sub-domain, so data can be exchanged and shared by different systems enriching the common knowledge and resources.
 
-This standard can be implemented with different syntaxes. We prefer to use Notation3 [x] whose syntax allow us to write RDF statements in a human-readable way and also to write ``rules'' as named graphs [g]. This is a suitable framework to represent data that can be shared and published in the so-called ``web of data``.
+The Resource Description Framework (RDF) developed as the standard format for new (data-oriented) web technologies expresses linked data by means of triples in the form of (Subject, Predicate, Object). This standard can be implemented with different syntaxes. We prefer Notation3 \cite{n3} whose syntax allow us to write RDF statements in a human-readable way and also to write ``rules'' as named graphs. The Ontology Web Language (OWL) provides the framework to express the knowledge of a particular domain in RDF through concepts and relationships. Thus, descripting semantic models related to audio analysis are not restricted to a local implementation but can be shared and processed by different systems. These elements form a suitable framework to represent and manage data and algorithms in a ``web of (complex) data''.
 
-The Ontology Web Language (OWL) provides the framework to express the knowledge of a particular domain in RDF through concepts and relationships. Thus, descripting semantic models related to audio analysis are not restricted to a local implementation but can be shared and processed by different systems.
-
-The project called Henry implements an N3/Prolog parser and reasoner based on Concurrent Transaction Logic. This agent defines an entailment module capable of reasoning over the SWI-DSP computations, which are identified through Universal Resource Identifiers (URIs), and N3 statements and rules. The semantic web package module for SWI-Prolog interprets SPARQL queries which are passed to Henry which produces RDF descriptions of computations by performing the entailment and triggering SWI-DSP computations.
-
-\subsection{Visualisation}\label{subsec:vis}
-
-Audio data can just be poorly interpreted in a float/binary format. Time and frequency domain signals and features in other domains are meaningful for an expert when they are visually represented. Although a logic domain does not seem to be the perfect environment to visualise audio data, we can easily save this difficulty. 
-
-By controlling SWI-DSP by means of Henry we can easily convert our Prolog types and binary data into RDF (machine-readable) descriptions where each source of data is represented through a link or as a ''literal`` in a basic datatype format. RDF descriptions can be easily browsed with the new extensions of classical web browsers for linked data. Even more interesting, dedicated agents with an SPARQL point are able to query DSP through the semantic web resources as explained in \ref{subsec:henry}. Thus, we are able to visualise our own computations but also a scalable web of data with shared semantics which is enriched with computations from other local machines.
-
-(I dont know if i should mention SV and the new extensions here....)
+Henry develops an N3/Prolog parser and reasoner based on CTL. (Text for Yves). Talk about results and performance...
+(talk about data visualisation?)
 
 \section{Conclusion and Future work}\label{sec:conclusion}
 
+(may have to reword this after all the changes)
 We have presented a powerful reasoner for multimedia analysis implemented as a logic-based framework which allow us to convert low-level computations into shareable and distributed knowledge. The system design ''breaks apart`` traditional applications architecture to introduce logic and reasoning machinery on top of the computation engines providing a more intelligent, capable and understandable DSP reasoner. This reasoner can be extended and enriched by the open source APIs working on the foundations of the system and controlled by ''Prolog-speaking`` agents. SWI-DSP is fairly well positioned for the new web technologies and actually it finds in them the perfect semantic and storing support to overwhelm traditional and closed DSP systems.
 
 Future work and development is oriented to:
@@ -300,6 +296,8 @@ SWI-DSP vocabulary and cabalities can be extended in several ways. First, by int
 
 \bibitem{tlprog} Bonner, A.J., Kifer, M.: Transaction Logic Programming. In: 10th International Conference on Logic Programming. Budapest (1993)
 
+\bibitem{virtual} Bonner, A.J., Shrufi, A., Rozen, S.: LabFlow-1: a Database Benchmark for High-Throughput Workflow Management. In: 5th International Conference on Extending Database Technology, pp. 463-478. Springer-Verlag, Lecture Notes in Computer Science, volume 1057. Avignon (1996).
+
 \bibitem{clam} CLAM, \url{http://www.clam.iua.upf.edu/}
 
 \bibitem{marsyas} Music Analysis, Retrieval and Synthesis for Audio Signals. \url{http://marsyas.sness.net/}
@@ -315,6 +313,14 @@ SWI-DSP vocabulary and cabalities can be extended in several ways. First, by int
 \bibitem{vamp} Cannam, C.: Vamp Plugins. \url{http://www.vamp-plugins.org/}
 
 \bibitem{weka} WEKA home site \url{http://www.cs.waikato.ac.nz/ml/weka/}
+
+\bibitem{mercury} Mercury Home Project \url{http://www.cs.mu.oz.au/research/mercury/index.html}
+
+\bibitem{haskell} Haskell \url{http://www.haskell.org/}
+
+\bibitem{swi} SWI-Prolog Home \url{http://www.swi-prolog.org/}
+
+\bibitem{n3} Notation3 \url{http://www.w3.org/DesignIssues/Notation3}
 
 \end{thebibliography}
 
