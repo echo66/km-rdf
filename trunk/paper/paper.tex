@@ -1,3 +1,5 @@
+%FIXME - sentences are really too long
+%FIXME - check that with aspell
 \documentclass[runningheads]{llncs}
 
 \usepackage{amssymb}
@@ -74,15 +76,16 @@ We consider the following digital signal processing tasks.
 \subsection{Effects}\label{subsec:effects}
 A signal may be presented in a raw or non desirable way for its analysis so a basic stage of many systems is the pre-processing. The signal is processed to obtain a satisfying version of it by different techniques (filtering, normalization, amplification...).
 
-It is very common in applied systems to provide tools that modify acoustic properties of the signal by introducing specific effects. Reverberation, delay or distortion are examples of effects that can be digitally obtained reproducing natural or instrumental alterations of the signal.
+It is very common in musical systems to provide tools that modify acoustic properties of the signal by introducing specific effects. Reverberation, delay or distortion are examples of effects that can be digitally obtained reproducing natural or instrumental alterations of the signal.
 
-In practice, we can characterize this group of tasks for its input/output relationships. The operation outputs a signal (which may be time, frequency or multidimensional domain) when is fed with an input signal (accepting several domains as well). Oscillators and synthesis systems outputs signals without input.
+In practice, we characterize this group of tasks by its input/output relationships. The operation outputs a signal (which may be time, frequency or multidimensional domain) when it is fed with an input signal. % (accepting several domains as well). 
+Oscillators and synthesis systems outputs signals without any inputs.
 
 One important dedicated API is the Linux Audio Developer's Simple Plugin API (LADSPA) \cite{ladspa}  which has been succesfully used in many systems and applications and is a widely spread implementation for algorithms development. We host LADSPA in SWI-DSP but there are other interesting libraries like DSSI plugins for effects and LV2 (new generation of LADSPA) which are targets for future extensions. 
 
 \subsection{Feature Extraction}\label{subsec:feature}
 
-Acoustic properties which are the substract of the psychological perspecitve of audio signals are conveyed in the signal and therefore in their digital representations. The so-called feature extraction paradigm aims at extracting different levels of audio features to characterize, classify and compare the audio signals (and any signal in general). The domain of the feature represents a qualitative side of the signal (tempo, chromatism, timbre...), so features do not convey all the signal information. This is interesting as distinct signals may have some very close features and differ much in others.
+Acoustic properties which are the substract of the psychological perspective of audio signals are conveyed in the signal and therefore in their digital representations. The so-called feature extraction paradigm aims at extracting different levels of audio features to characterize, classify and compare the audio signals (and any signal in general). The domain of the feature represents a qualitative side of the signal (tempo, chromatism, timbre...), so features do not convey all the signal information. This is interesting as distinct signals may have some very close features and differ much in others.
 
 The Vamp Plugins API \cite{vamp} offers a framework to develop feature extraction plugins that can be hosted in any application able to control the ``plugin lifecycle''. We host Vamp plugins as basis for feature extraction in SWI-DSP. In general plugin libraries are characterized for being suitable for development but application-dependent.
 
@@ -93,7 +96,7 @@ With the same motivation of this work there are some integrative APIs which comb
 CLAM also offers a metamodel of DSP processes wich provides semantics to design the networks properly presenting a higher and more manageable level of abstraction. However, these APIs still present two important limitations that our work is aimed at solving:
 
 \begin{itemize}
- \item They do not offer a common format to exchange data or an easy way to interact with other applications.
+ \item They do not offer a common format to exchange data or an easy way to interact with other applications;
  \item They are based on a procedural system unable to reach higher-level knowledge by itself.
 \end{itemize}
 
@@ -101,49 +104,52 @@ CLAM also offers a metamodel of DSP processes wich provides semantics to design 
 
 Classification is one the most interesting and complex paradigms in any specific domain exploiting the ``intelligence'' of computational machines. WEKA (Waikato Environment for Knowledge Analysis) \cite{weka} collects different machine-learning algorithms and provides several user interfaces to manage the analysis. It aslo provdes a formal interface (in Java) for development and interaction with other systems.
 
-However, this generic API does not provide semantics to create a dataset which is the most intriguing and complex issue for classifying data properly. Marsyas and jMÍR integrate WEKA orienting it for music classification purporses by offering a code interface with other modules (Marsyas) or by extending the WEKA file format ARFF (jMIR). Both solutions still seem to lack of effective semantics and a interactive front-end to perform classification of audio data.
+However, this generic API does not provide semantics to create a dataset which is the most intriguing and complex issue for classifying data properly. Marsyas and jMIR integrate WEKA orienting it for music classification purporses by offering a code interface with other modules (Marsyas) or by extending the WEKA file format ARFF (jMIR). Both solutions still seem to lack of effective semantics and a interactive front-end to perform classification of audio data.
 
 \section{SWI-DSP architecture}\label{sec:architecture}
-
-From the previous comparison and review we consider that a innovating system should satisfy the following requirements:
+;
+From the previous comparison and review we consider the following requirements:
 
 \begin{itemize}
- \item Allowing workflows design
- \item Providing an interface to interact with other related systems and applications
- \item Featuring an unified, flexible, interactive and understandable front-end
- \item Providing an open-development platform
- \item Management of shareable data semantically labelled
+ \item Allowing workflow design;
+ \item Providing an interface to interact with other related systems and applications;
+ \item Featuring an unified, flexible, interactive and understandable front-end;
+ \item Providing an open-development platform;
+ \item Management of shareable data semantically labelled;
  \item Enhancing traditional procedural implementations by building a logic-based framework of declarative nature allowing reasoning and inferencing.
 \end{itemize}
 
-As initial step, we build a framework able to develop digital signal processing workflows based on a predicate logic implementation (SWI-Prolog) extending its vocabulary by wrapping computations under logic predicates. We develop task-oriented modules and define functors capturing the common datatypes allowing the communication between modules and hiding the internal implementation. In addition to this, we define a standard format for binary data ``spoken by every SWI-DSP module''. We define these utils in the \textbf{swilib} module which provides a C++ library and a SWI-Prolog module for their management.
+As initial step, we build a framework able to develop digital signal processing workflows based on a predicate logic implementation (SWI-Prolog) extending its vocabulary by wrapping computations under logic predicates. We develop task-oriented modules and define functors capturing the common datatypes allowing the communication between modules and hiding the internal implementation. In addition to this, we define a standard format for binary data exchanged amongst processing modules. We define these utils in the \textbf{swilib} module which provides a C++ library and a SWI-Prolog module for their management.
 
+% FIXME - I am really not sure about this bit. some sentences are highly unclear, and i think that might really confuse the reader
+% If you're going to speak about functional programming, introduce it nicely. I am not sure "semantically oriented view of computations instead of a machine-oriented one" is really a good description of Haskell?
 This layout allow us to wrap fast and efficient implementations of algorithms (in some imperative language) to provide predicates that determine the relationship between defined types (as black box computation) giving a ``functional programming'' view of the system preserving computational efficiency. This functional programming approach (which allow us to create workflows as rules with a procedural meaning) is motivated by the advantages of functional languages like Haskell \cite{haskell} that present a semantically oriented view of computations instead of a machine-oriented one. There are also several works that develop such a typed-functional language on a logic framework like lambda-Prolog or Mercury \cite{mercury}. However, our approach results to be more suitable to develop an open platform for research and development. External engines based on open source APIs provide faster computations than any functional or logic/strong-typed language and a suitable developers interface. Furthermore, SWI-Prolog features a very powerful, interactive and flexible front-end which is also a requirement for the proposed system.
 
 \subsection{Datatypes controlling workflows}\label{subsec:datatypes}
 
-In section \ref{sec:tasks} we have seen how tasks are strongly characterized by their input/output relationship. The system requires datatypes that guarantee the correct input and output matching. We identify these datatypes by analysing the tasks classification. We also want to look at the Music Ontology specification \cite{mo} as a ``web ontology'' description of music-related concepts including audio analysis terminology. We distinguish the following datatypes:
+In section \ref{sec:tasks} we have seen how tasks are strongly characterized by their input/output relationship. The system requires datatypes that guarantee the correct input and output matching. We identify these datatypes by analysing the tasks classification. We also want to look at the Music Ontology specification \cite{mo} as a formal description of music-related concepts including audio analysis terminology. We distinguish the following datatypes:
 
 \begin{itemize}
- \item signal: this type represents an audio signal in a physical timeline. 
- \item feature: this type represents some side of the audio signal properties
- \item parameter: this type represents the different variables of the computation context (computations are not only a one-to-one function)
- \item timestamp: this type represent the reference of a data object to a timeline
+ \item signal: this type represents an audio signal in a physical timeline;
+ \item feature: this type represents some side of the audio signal properties;
+ \item parameter: this type represents the different variables of the computation context (computations are not only a one-to-one function);
+ \item timestamp: this type represent the reference of a data object to a timeline.
 \end{itemize}
 
-We implement these datatypes in SWI-Prolog as functors (name/arity) that bind together the attributes of a concept (e.g. signal(Channels, SampleRate, Length, [DataIdPerChannel])). These datatypes (with the disadvantage of being a non-flexible model) can be interpreted by any module guaranteeing the correct instantation pattern of the predicates and ensuring a valid execution.
+We implement these datatypes in SWI-Prolog as functors (name/arity) that bind together the attributes of a concept (e.g. signal(Channels, SampleRate, Length, [DataIdPerChannel])). These datatypes (with the disadvantage of being a non-flexible model) can be interpreted by any module guaranteeing the correct instantiation pattern of the predicates and ensuring a valid execution.
 
 \subsection{Large Binary Objects}\label{subsec:blobs}
 
 Large binary data is present in any multimedia system and needs to be treated in the most efficient and manageable way. The so-called BLOBs are objects wrapping large binary data. The representation of data in SWI-Prolog can be done through lists which can not handle such amount of data (e.g. signals of 1000000 samples) or through SWI-Prolog BLOB terms which are cumbersome as datatype.
 
+% FIXME - database? persistent?
 We have implemented a mechanism of \textit{data identifiers} that vary incrementally and are stored in a database updated in each session. Each identifier holds the binary representation of an arbitrary large sequence of floating point format data. This identifiers-based system is useful in the following ways:
 
 \begin{itemize}
- \item It hides awkward binary representations or inefficient SWI-Prolog lists by handy representations of data as atoms: e.g. \textbf{\_\_data\_435}
- \item It implements a look-up database whose status can be easily updated and checked
- \item It provides multiple ways to export/import data to the database through the identifiers. Data can be wrapped into or extracted from a blob term, displayed/read as prolog list (length restrictions) and dump into or load from a binary file
- \item It unifies the ``raw'' data representation allowing the communication at the lowest level between modules 
+ \item It hides the raw binary representations or inefficient SWI-Prolog lists by handy representations of data as atoms: e.g. \textbf{\_\_data\_435};
+ \item It implements a look-up database whose status can be easily updated and checked;
+ \item It provides multiple ways to export/import data to the database through the identifiers. Data can be wrapped into or extracted from a blob term, displayed/read as prolog list (length restrictions) and dump into or load from a binary file;
+ \item It unifies the ``raw'' data representation allowing the communication at the lowest level between modules.
 \end{itemize}
 
 The following example shows how a decoded audio file can be easily represented by the data identifiers that make easy to work with such a big sequence of data.
