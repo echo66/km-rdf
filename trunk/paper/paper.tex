@@ -1,5 +1,6 @@
 %FIXME - sentences are really too long
 %FIXME - check that with aspell
+%FIXME - make sure you use `task-oriented' only in appropriate places (eg. feature extraction)
 \documentclass[runningheads]{llncs}
 
 \usepackage{amssymb}
@@ -259,35 +260,46 @@ The patterns and functors are interpreted by hardcoded prior knowledge which sta
 
 We still need to address, probably, the most important issue to accomplish the proposed architecture. We could say that such a system is indeed aimed at managing complex and large data, which is related through computational ``blocks'', and allowing reasoning about it. This goal requires the following achievements: an efficient storage of data objects and the relationships (predicates) linking them, mechanisms to control the concurrency, consistency and side-effects of the computations and a high-level interface to interact with them.
 
+% FIXME - refer to our AES paper here - and rely on it for the description of function tabling
 We do not develop such manager within SWI-DSP as the database implementation actually depends on the needs of the host agent interacting with SWI-DSP. However, supposed a database we can describe the architecture in detail. Data is stored in the database by ``tabling'' predicates (which link the input, the context and the output). Tabled predicates (we table predicates that comprise a big load of computations) are stored in the database the first time they are called so data can be retrieved automatically without running the external engines simulating not functional but semantic relationships of complex (audio) data. For this purpose, the data identifiers mechanism seems to be ideal as data ids are linked (and binary data is dumped and loaded from external files relieving memory) and stored wraping complex data as a declarative-oriented units of knowledge. An example of a tabled predicate is:
 
 \begin{verbatim}
 ?-table(decode('../myfile', signal(2, 44100, 1200000, ['__data_345', '__data_346']))).
 \end{verbatim}
 
+Such data management is handled by the framework described in \cite{UsAES2006}.
+
+% FIXME - highly unclear, especially as you introduce CTR afterwards. I think you should rewrite that.
+% Also, the export/import of data is really too quickly introduced, and probably not in the right place?
 The system that was relying in a functional view of computations can be seen now as a knowledge source that can be managed by combining procedural declarations of execution paths and declarative transactions and updates of data by means of Concurrent Transaction Logic. By adopting a formalized mechanism to manage data we are not only achieving a higher level of abstraction but we provide the system with tools to store/export/import data. The system is then open to interact with other environments and applications (saving data format/type conversion issues) allowing a researcher or user to extend his workspace and data resources.
 
+
+% FIXME - perhaps just "transaction logic" would do here - be gentle for the reader:-)
 \subsection{Concurrent Transaction Logic}\label{sec:ctl}
 
-Concurrent Transaction Logic \cite{ctl} extends the predicate logic to unify in a declarative formalism the control of an underlying database (SWI-Prolog and other prolog implementations just rely on assert and retract predicates for data updating, being very limited). Concurrent Transaction Logic allows a declarative definition of execution paths and data updates by providing new connectives to express complex data transactions: parallel and serial conjunctions, execution in isolation and executability checking. Rules define possible execution paths for a goal with a higher-level meaning than just declared procedures as we are certainly dealing with actions (and their effects) instead of sequences of predicates.
+Concurrent Transaction Logic \cite{ctl}  unifies in a declarative formalism the control of an underlying database (SWI-Prolog and other prolog implementations just rely on assert and retract predicates for data updating, being very limited). Concurrent Transaction Logic allows a declarative definition of execution paths and data updates by providing new connectives to express complex data transactions: parallel and serial conjunctions, execution in isolation and executability checking. Rules define possible execution paths for a goal with a higher-level meaning than just declared procedures as we are certainly dealing with actions (and their effects) instead of sequences of predicates.
 
-Therefore, we can prevent side-effects before modifying the data state, reason about the actions and their effects, control the execution of different processes and compare different paths for the same goal. Concurrent transaction logic applied to complex data/computational environments allows and helps to develop ``virtual laboratory workbenches'' \cite{virtual}. 
+Therefore, we can manage the side effects of computation on an underlying database in a consistent way, reason about the actions and their effects, control the execution of different processes and compare different paths for the same goal. Concurrent transaction logic applied to complex data/computational environments was succesffully used to to develop ``virtual laboratory workbenches'' \cite{virtual}. 
 
-SWI-DSP combined with a data manager based on Concurrent Transaction Logic (CTL) develops a multimedia knowledge system to drive research with semantics and logic formalism exploiting reasoning and declarative definition of computations and providing an interactive and shareable source of knowledge.
+SWI-DSP combined with a data manager based on Concurrent Transaction Logic (CTR) develops a multimedia knowledge system to drive research with semantics and logic formalism exploiting reasoning and declarative definition of computations and providing an interactive and shareable source of knowledge.
 
-\subsection{Henry}\label{subsec:henry}
+We extended the data management framework described in \cite{UsAES2006} to handle transaction logic constructs.
 
-We present a related project so-called Henry which develops a real CTL-based agent aimed at creating a distributed multimedia knowledge workspace built in semantic web technologies. The multimedia community needs a standard machine-readable format with proper semantics to manage complex data involved in any sub-domain, so data can be exchanged and shared by different systems enriching the common knowledge and resources.
+% FIXME - Hmm... Not good in the current state.
+%\subsection{Henry}\label{subsec:henry}
+%We present a related project so-called Henry which develops a real CTR-based agent aimed at creating a distributed multimedia knowledge workspace built on semantic web technologies. The multimedia community needs a standard machine-readable format with proper semantics to manage complex data involved in any sub-domain, so data can be exchanged and shared by different systems enriching the common knowledge.
 
-The Resource Description Framework (RDF) developed as the standard format for new (data-oriented) web technologies expresses linked data by means of triples in the form of (Subject, Predicate, Object). This standard can be implemented with different syntaxes. We prefer Notation3 \cite{n3} whose syntax allow us to write RDF statements in a human-readable way and also to write ``rules'' as named graphs. The Ontology Web Language (OWL) provides the framework to express the knowledge of a particular domain in RDF through concepts and relationships. Thus, descripting semantic models related to audio analysis are not restricted to a local implementation but can be shared and processed by different systems. These elements form a suitable framework to represent and manage data and algorithms in a ``web of (complex) data''.
+%The Resource Description Framework (RDF) developed as the standard format for new (data-oriented) web technologies expresses linked data by means of triples in the form of (Subject, Predicate, Object). This standard can be implemented with different syntaxes. We prefer Notation3 \cite{n3} whose syntax allow us to write RDF statements in a human-readable way and also to write ``rules'' as named graphs. The Ontology Web Language (OWL) provides the framework to express the knowledge of a particular domain in RDF through concepts and relationships. Thus, descripting semantic models related to audio analysis are not restricted to a local implementation but can be shared and processed by different systems. These elements form a suitable framework to represent and manage data and algorithms in a ``web of (complex) data''.
 
-Henry develops an N3/Prolog parser and reasoner based on CTL. (Text for Yves). Talk about results and performance...
-(talk about data visualisation?)
+%Henry develops an N3/Prolog parser and reasoner based on CTL. (Text for Yves). Talk about results and performance...
+%(talk about data visualisation?)
+
+
 
 \section{Conclusion and Future work}\label{sec:conclusion}
 
 (may have to reword this after all the changes)
-We have presented a powerful reasoner for multimedia analysis implemented as a logic-based framework which allow us to convert low-level computations into shareable and distributed knowledge. The system design ''breaks apart`` traditional applications architecture to introduce logic and reasoning machinery on top of the computation engines providing a more intelligent, capable and understandable DSP reasoner. This reasoner can be extended and enriched by the open source APIs working on the foundations of the system and controlled by ''Prolog-speaking`` agents. SWI-DSP is fairly well positioned for the new web technologies and actually it finds in them the perfect semantic and storing support to overwhelm traditional and closed DSP systems.
+We have presented a powerful reasoner for multimedia analysis implemented as a logic-based framework which allow us to convert low-level computations into shareable and distributed knowledge. The system design ``breaks apart'' traditional applications architecture to introduce logic and reasoning machinery on top of the computation engines providing a more intelligent, capable and understandable DSP reasoner. This reasoner can be extended and enriched by the open source APIs working on the foundations of the system and controlled by ''Prolog-speaking`` agents. SWI-DSP is fairly well positioned for the new web technologies and actually it finds in them the perfect semantic and storing support to overwhelm traditional and closed DSP systems.
 
 Future work and development is oriented to:
 
