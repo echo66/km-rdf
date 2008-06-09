@@ -28,7 +28,7 @@
 
 
 \begin{abstract}
-In this paper we describe a logic-based framework for Digital Signal Processing (DSP). This framework is implemented as a set of SWI-Prolog modules developing interfaces to heterogeneous signal processing libraries. A set of functors capturing common datatypes and a standard format for binary data are used to mediate our different analysis components. The system provides the user with a unified and flexible front-end to define signal processing workflows. The framework develops a signal processing-enabled reasoner capable of performing the primary tasks through the following interfaces: decoding (specific libraries for each format), feature extraction (Vamp plugins), audio processing and effects (LV2/LADSPA plugins) and classification (WEKA machine learning API).
+In this paper we describe a logic-based framework for Digital Signal Processing (DSP). This framework is implemented as a set of SWI-Prolog modules developing interfaces to heterogeneous signal processing libraries. Prolog terms representing common datatypes and a standard format for binary data are used to mediate between the different components of the system. The system provides the user with a unified and flexible front-end to define signal processing workflows. Using this framework, we develop a signal processing-enabled reasoner capable of performing the primary tasks through the following interfaces: decoding (specific libraries for each format), feature extraction (Vamp plugins), audio processing and effects (LV2/LADSPA plugins) and classification (WEKA machine learning API).
 
 \keywords{Digital Signal Processing, SWI-Prolog modules, signal processing workflows, processing-enabled reasoner, interfaced open source engines}
 \end{abstract}
@@ -38,11 +38,11 @@ Digital signal processing (DSP) is a broad field and an important object of engi
 
 This situation leads to many isolated applications, environments and sources of data working independently from each other. Any effort to combine them to obtain integrated results for analysis, classification and comparison requires tedious studies or ``glue code'' implementations.
 
-In this paper we address this problematic situation by proposing and developing SWI-DSP, a logic-based framework for \textit{Audio Processing} (as subset of DSP) built on a predicate calculus implementation: SWI-Prolog \cite{swi}. We rely on a logic programming language with aggregated audio analysis capabilities getting rid of the application-dependency paradigm and offering a single logic front-end. Logic resources are also used to achieve a more capable DSP engine: a signal processing-enabled reasoner. The main and primary motivation for a logic-based implementation of such a system is to turn our conception of traditional procedural applications for computation of data towards semantic frameworks to manage knowledge involving specific computations.
+In this paper we address this problematic situation by proposing and developing SWI-DSP, a logic-based framework for \textit{Audio Processing} (as subset of DSP) built on a predicate calculus implementation: SWI-Prolog \cite{swi}. We rely on a logic programming language with foreign language modules providing audio analysis capabilities to get rid of the application-dependency paradigm and offering a single logic-based front-end. Logic resources are also used to achieve a more capable DSP engine: a signal processing-enabled reasoner. The main and primary motivation for a logic-based implementation of such a system is to turn our conception of traditional procedural applications for computation of data towards declarative semantic frameworks to manage knowledge involving specific computations.
 
 In \S 2 we identify the most common audio analysis tasks and summarise several relevant open source APIs aimed at performing such tasks. We evaluate the advantages and limitations of these APIs in order to find the requirements for SWI-DSP. In \S 3 we start viewing the system from the top and how it defines an interesting workflow-based architecture that characterises input/output relationships between processing tasks. These workflows are possible by means of common datatypes and a binary data standard format. \S 4 goes into the implementation of the modules that develop a communication layer with dedicated audio processing libraries.
 
-Thus, SWI-DSP develops predicates triggering external computation performed by dedicated APIs. The datatypes allow and constrain the predicates communication and instantiation. These predicates are clustered in modules with different levels of abstraction. However, this architecture does not present an efficient and manageable framework as it requires specific module knowledge to create programs suitable for the concrete needs. We tackle this problem in \S 5 by defining an unified and flexible front-end, composed by DSP ``scenarios'', which allows the user to define workflows with understandable semantics.
+Thus, SWI-DSP develops predicates triggering external computation performed by dedicated APIs. The datatypes allow and constrain the predicates communication and instantiation. These predicates are organised into modules with different levels of abstraction. However, this architecture lacks of an uniform interface to create programs suitable for the concrete needs. We tackle this problem in \S 5 by defining an unified and flexible front-end, composed by DSP ``scenarios'', which allows the user to define workflows with understandable semantics.
 
 Data management is an important paradigm involved in many domains and also in the multimedia research domain. Computations can not often be retrieved from session to session or are stored in local filesystems. Local data repositories are unlikely directed to extend any shareable source of knowledge because they are not expressed in a standard format with common semantics.
 
@@ -50,9 +50,9 @@ Although SWI-DSP does not develop a data management system itself, we discuss th
 
 \section{Audio processing tasks and solutions}\label{sec:tasks}
 
-A particular application of DSP is the study of audio signals: one-dimensional, time domain signals which also allow representations in other domains (e.g. frequency). Audio signals evolve in time and have acoustic properties produced by the signal structure and shape. Music and speech are the main fields involving audio signals.
+A particular application of DSP is the study of audio signals: one-dimensional, time domain signals, however, they also have representations in other domains such as frequency, time-frequency, etc. Audio signals evolve in time and have acoustic properties produced by the signal structure and shape. Music and speech are the main fields involving audio signals.
 
-The properties of an analog and continuous signal (acoustic signals) can be studied by analysing their digital (sampled and quantified) versions. A one-dimension digital signal is therefore a processable sequence of values in a discretized time domain that represents the audio signal. Digital signals can be automatically processed, to modify them or to extract some of their characteristics.
+The properties of an analog and continuous signal (acoustic signals) can be studied by analysing their digital (sampled and quantised) versions. A one-dimension digital signal is therefore a mapping from a discrete time domain (usually finite) to a discrete value domain and is often represented as a sequence of values associated with successive time points. Digital signals can be processed to make new derived signals or extract some of their characteristics.
 
 We consider the following digital signal processing tasks.
 
@@ -63,19 +63,19 @@ We consider the following digital signal processing tasks.
 \end{itemize}
 
 \subsection{Effects}\label{subsec:effects}
-A signal may be presented in a raw or non desirable way for its analysis, so a basic stage of many systems is the pre-processing. The signal is processed to obtain a satisfying version of it by different techniques (filtering, normalisation, amplification...).
+A first step in many signal processing is a normalisation, conditioning or re-representation of the signal, which may involve several techniques such as filtering, amplification, Fourier transforming, etc.
 
 It is very common in musical systems to provide tools that modify acoustic properties of the signal by introducing specific effects. Reverberation, delay or distortion are examples of effects that can be digitally obtained reproducing natural or instrumental alterations of the signal.
 
-In practice, we characterize this group of tasks by its input/output relationships. The operation outputs a signal (which may be time, frequency or multidimensional domain) when it is fed with an input signal. Oscillators and synthesis systems outputs signals without any inputs.
+In practise, we characterise this group of tasks by its input/output relationships. The operation outputs a signal (which may be time, frequency or multidimensional domain) when it is fed with an input signal. Oscillators and synthesis systems outputs signals without any inputs.
 
 One important dedicated API is the Linux Audio Developer's Simple Plugin API (LADSPA) \cite{ladspa}  which has been successfully used in many systems and applications and is a widely spread implementation for algorithms development. We host LADSPA in SWI-DSP but there are other interesting libraries like DSSI plugins for effects and LV2 (new generation of LADSPA) which are targets for future extensions.
 
 \subsection{Feature Extraction}\label{subsec:feature}
 
-Acoustic properties which are the substrate of the psychological perspective of audio signals are conveyed in the signal and therefore in their digital representations. The so-called feature extraction paradigm aims at extracting different levels of audio features to characterize, classify and compare the audio signals (and any signal in general). The domain of the feature represents a qualitative facet of the signal (tempo, chromatics, timbre...), so features do not convey all the signal information. This is interesting as distinct signals may have some very close features and differ significantly in others.
+Acoustic properties which are the substrate of the psychological perspective of audio signals are conveyed in the signal and therefore in their digital representations. The so-called feature extraction paradigm aims at extracting different levels of audio features to characterise, classify and compare the audio signals (and any signal in general). The domain of the feature represents a qualitative facet of the signal (tempo, chromatics, timbre...), so features do not convey all the signal information. This is interesting as distinct signals may have some very close features and differ significantly in others.
 
-The Vamp Plugins API \cite{vamp} offers a framework to develop feature extraction plugins that can be hosted in any application able to control the ``plugin lifecycle''. We host Vamp plugins as basis for feature extraction in SWI-DSP. In general, plugin libraries are characterized for being suitable for development but application-dependent.
+The Vamp Plugins API \cite{vamp} offers a framework to develop feature extraction plugins that can be hosted in any application able to control the ``plugin lifecycle''. We host Vamp plugins as basis for feature extraction in SWI-DSP. In general, plugin libraries are characterised for being suitable for development but application-dependent.
 
 \subsection{Integrative solutions}\label{subsec:inte}
 
@@ -85,7 +85,7 @@ CLAM also offers a metamodel of DSP processes which provides semantics to design
 
 \begin{itemize}
  \item They do not offer a common format to exchange data or an easy way to interact with other applications;
- \item They are based on a procedural system unable to reach higher-level knowledge by itself.
+ \item They are based on a procedural system unable to collect and integrate knowledge from different sources to obtain new knowledge.
 \end{itemize}
 
 \subsection{Classification}\label{subsec:classif}
@@ -109,15 +109,15 @@ From the previous comparison and review we consider the following requirements:
 
 As initial step, we build a framework able to develop digital signal processing workflows based on a predicate logic implementation (SWI-Prolog) extending its vocabulary by wrapping computations under logic predicates. We develop task-oriented modules and define functors capturing the common datatypes allowing the communication between modules and hiding the internal implementation. In addition to this, we define a standard format for binary data exchanged among processing modules. We define these utils in the \textbf{swilib} module which provides a C++ library and a SWI-Prolog module for their management.
 
-Processing libraries and analysis applications are normally implemented in fast and efficient code using an ``imperative language'' (e.g. C/C++) which is machine-operation oriented instead of focused on task knowledge. Functional programming languages like Haskell \cite{haskell} develop a different programming paradigm. Functional languages try to capture the meaning of computational task by providing a framework based on datatypes and functional relationships. They express ``what'' is processed instead of ``how'' it is processed. This seems to be a better approach to define high-level audio processing functions but the efficiency of imperative languages is strongly required in multimedia analysis.
+Processing libraries and analysis applications are normally implemented in fast and efficient code using an imperative language (e.g. C/C++) which is machine-operation oriented instead of focused on task knowledge. Functional programming offers a different paradigm. Functional languages try to capture the meaning of computational tasks in a more declarative way, using functional relationships to describe ``what'' the computation should be rather than ``how'' to do it. Modern functional languages like Haskell \cite{haskell} provide rich and powerful type systems describing and constraining the set of legal values a function can take as input or return as output. This seems to be a better approach to define high-level audio processing functions, but C/C++ is still the language for the most important open source resources.
 
-Logic programming languages have also a high-level and declarative nature. They combine knowledge and rules to reason about the knowledge and infer new insights. This is an important feature to consider a logic framework as underlying mechanism to relate the hierarchy of data involved in multimedia domains. However, they are not as powerful as a computational machine even when it is possible to declare procedures with an execution sequence. There are several works that develop a typed-functional language on a logic framework like lambda-Prolog or Mercury \cite{mercury}. Mercury embed computational skills in a purely declarative language within a strong typed and moded logic framework. Mercury types and predicate modes provide the compiler with the information to generate efficient code but they restrict the interactivity of the system. Furthermore, even when Mercury has shown to develop faster code than any logic languange, it is still slower than code in imperative languages.
+Logic programming languages have also a high-level and declarative nature. They combine knowledge and rules to reason about the knowledge and infer new insights. This is an important feature to consider a logic framework as underlying mechanism to relate the hierarchy of data involved in multimedia domains. However, they are not as powerful as a computational machine even when it is possible to declare procedures with an execution sequence. There are several works that develop a typed-functional language on a logic framework like lambda-Prolog or Mercury \cite{mercury}. Mercury embeds computational capabilities in a purely declarative language within a strong typed and moded logic framework. Mercury types and predicate modes provide the compiler with the information to generate efficient code but as environment for declaring and interactive prototype, Mercury is ``less forgiving'' than Prolog. SWI-Prolog in particular has a very comfortable development environment and hence we use SWI-Prolog.
 
-Our approach results to be more suitable to develop an open platform for research and development. External engines based on open source APIs provide faster computations than any functional or logic/strong-typed language and a suitable developers interface. In addition to this, SWI-Prolog features a very powerful, interactive and flexible front-end which is also a requirement for the proposed system.
+Our approach results to be more suitable to develop an open platform for research and development. External engines based on open source APIs provide faster computations than any functional or logic/strong-typed language and a suitable developers interface.
 
 \subsection{Datatypes controlling workflows}\label{subsec:datatypes}
 
-In section \ref{sec:tasks} we have seen how tasks are strongly characterized by their input/output relationship. The system requires datatypes that guarantee the correct input and output matching. We identify these datatypes by analysing the tasks classification. We also want to look at the Music Ontology specification \cite{mo} as a formal description of music-related concepts including audio analysis terminology. We distinguish the following elemental datatypes:
+In section \ref{sec:tasks} we have seen how tasks are strongly characterised by their input/output relationship. The system requires datatypes that guarantee the correct input and output matching. We identify these datatypes by analysing the tasks classification. We also want to look at the Music Ontology specification \cite{mo} as a formal description of music-related concepts including audio analysis terminology. We distinguish the following datatypes to any signal processing system:
 
 \begin{itemize}
  \item signal: this type represents an audio signal in a physical timeline;
@@ -132,13 +132,14 @@ We implement these datatypes in SWI-Prolog as functors (name/arity) that bind to
 
 Large binary data is present in any multimedia system and needs to be treated in the most efficient and manageable way. The so-called BLOBs are objects wrapping large binary data. The representation of data in SWI-Prolog can be done through lists which can not handle such amount of data (e.g. signals of 1000000 samples) or through SWI-Prolog BLOB terms which are cumbersome as datatype.
 
-We have implemented a mechanism of \textit{data identifiers} that vary incrementally and are stored in a structure updated at running-time (it does not develop a persistency mechanism itself). Each identifier holds the binary representation of an arbitrary large sequence of floating point format data. This identifiers-based system is useful in the following ways:
+We have implemented a mechanism of unique \textit{data identifiers} that are stored in a structure updated at runtime. Each identifier holds the binary representation of an arbitrary large sequence of floating point format data. This identifiers-based system is useful in the following ways:
 
 \begin{itemize}
  \item It hides the raw binary representations or inefficient SWI-Prolog lists by handy representations of data as atoms: e.g. \textbf{\_\_data\_435};
  \item It implements a look-up database whose status can be easily updated and checked;
  \item It provides multiple ways to export/import data from the structure through the identifiers. Data can be wrapped into or extracted from a blob term and displayed/read as Prolog list (length restrictions). It allows dumping data into or loading it from a binary file (using the identifiers to keep track of the data);
- \item It unifies the ``raw'' data representation allowing the communication at the lowest level between modules.
+ \item It unifies the ``raw'' data representation allowing the communication at the lowest level between modules;
+ \item One identifier can be used to retrieve data from a previous session as long as we make the data object persist under its identifier and reserve the identifier in the new session.
 \end{itemize}
 
 The following example shows how a decoded audio file can be easily represented by the data identifiers that make easy to work with such a big sequence of data. A data identifier can be used in the same way as the name of a person to identify a data object which is related to other entities within a predicate.
@@ -146,10 +147,13 @@ The following example shows how a decoded audio file can be easily represented b
 ?-decode('../myfile.*', Signal).
 Signal = signal(2, 44100, 1200000, ['__data_0', '__data_1']).
 
-?-data_out('__data_0', '../__data_0').
-?-data_out('__data_1', '../__data_1').
+%we can relieve memory by dumping the data into files 
+%and loading it later on. Files will have the corresponding id
+?-data_out('__data_0').
+?-data_out('__data_1').
 
-?-get_frame(signal(2, 44100, 1200000, ['__data_0', '__data_1']), 200, 5,
+?-data_in('__data_0'), data_in('__data_1'),
+get_frame(signal(2, 44100, 1200000, ['__data_0', '__data_1']), 200, 5,
 frame(Ch, Sr, L, [Ch1D, Ch2D])),
 data_to_list(Ch1D, List), length(List, Llen).
 Ch1D = '__data_2'
@@ -161,7 +165,7 @@ Llen = 5
 
 \begin{figure}
 \centerline{\framebox{\includegraphics[width=\columnwidth]{workflow.png}}}
-\caption{Example of how to create a workflow: compare the tempo of a signal and a reverberated version of it}
+\caption{Example of how to create a workflow: extract the tempo of a signal and a reverberated version of it}
 \label{fig:workflow}
 \end{figure}
 
@@ -173,29 +177,31 @@ Each task module (functional predicates) is composed by lower level modules whic
 
 \subsection{swiaudio}\label{subsec:swiaudio}
 
-This module is in charge of providing audio data to the system. This module is splitted in two sub-modules: \textbf{swiaudiosource} and \textbf{swiaudiodata}. The former is a powerful module for decoding which interacts with C decoding libraries (mad, soundfile, fishsound, oggz and faad) to extract a \textit{Signal} term given and audio input file supported by the libraries. This process is triggered by a simple call to the predicate \textit{aspl\_decode(+InputFile, -Signal)} which recognizes the file extension and calls a specific library allowing a fast decoding process and even more important an independent term representing the encoded data in a standard way for the supported formats: mp3, ogg, mp4, aac, wav and equivalents.
+This module is in charge of providing audio data to the system. This module is splitted in two sub-modules: \textbf{swiaudiosource} and \textbf{swiaudiodata}. The former is a module for decoding which interacts with C decoding libraries (mad, soundfile, fishsound, oggz and faad) to extract a \textit{Signal} term given and audio input file supported by the libraries. This process is triggered by a simple call to the predicate \textit{aspl\_decode(+InputFile, -Signal)} which recognises the file extension and calls a specific library allowing a fast decoding process and even more important an independent term representing the encoded data in a standard way for the supported formats: mp3, ogg, mp4, aac and wav.
 
-The latter is a module which defines utilities typically required in DSP. The most important set of predicates is dedicated to framing. The original signal is decomposed in overlapping blocks of data outputting frame terms through the non-deterministic predicate \textit{framing(+Signal, +StepSize, +BlockSize, -Frame)}. This predicate calculates the number of possible frames using the length of the Signal and the StepSize and creates a list of natural indexes which are passed to the low-level framing predicate in a non-deterministic way using member/2. The lowest framing predicate ``chunks'' the data vector identified by the id. The rest of predicates are mainly oriented to extract information from a Signal or a Frame term.
+The latter is a module which defines utilities typically required in DSP. The most important set of predicates is dedicated to framing. The rest of predicates are mainly oriented to extract information from a Signal or a Frame term.
 
 \subsection{feature extraction}\label{subsec:swivamp}
 
-This module defines a set of predicates and rules (specific API routines for the computations) for feature extraction. As we have seen in \S 2, the module is characterized for a clear input/output relationship. So we can declare a simple predicate to extract the tempo of an audio signal: tempo(+Input, -Tempo) being Input an instantiation of the Signal datatype and Tempo a list of instantiations of the Feature datatype. This predicate, that returns a tempo-related list of features given an input signal, is indeed triggering a specific computation tool, so we could select the specific tool by extending the predicate: \textit{tempo(+Input, +Tool, -Tempo)}.
+This module defines a set of predicates and rules (specific API routines for the computations) for feature extraction. As we have seen in \S 2, the module is characterised for a clear input/output relationship. So we can declare a simple predicate to extract the tempo of an audio signal: tempo(+Input, -Tempo) being Input an instantiation of the Signal datatype and Tempo a list of instantiations of the Feature datatype. This predicate, that returns a tempo-related list of features given an input signal, is indeed triggering a specific computation tool, so we could select the specific tool by extending the predicate: \textit{tempo(+Input, +Tool, -Tempo)}.
 
 We rely on the Vamp Plugin API as it offers an efficient plugin and host implementation. Certainly, there is a limitation in the sense that any feature extraction algorithm we may want to use has to be implemented as Vamp Plugin. As a counterpart, it is easier to write an algorithm as Vamp Plugin than to interface many APIs or particular algorithm implementations.
 
-The sub-module \textbf{swivamp} is a communication layer based on the SWI-Prolog foreign interface allowing us to query the plugin information, set up the plugin context for the transform, execute the plugin given a Signal term and retrieve the output features for the plugin according to the lifecycle specification. Plugins are wrapped in a similar fashion than the audio data so we can use a plugin instance representation (a plugin id pointing to a plugin instance existing in memory), so that we can have concurrent plugins working at the same time. The previous tempo/3 predicate is declared as this set of rules:
+The sub-module \textbf{swivamp} is a communication layer based on the SWI-Prolog foreign interface allowing us to query the plugin information, set up the plugin context for the transform, execute the plugin given a Signal term and retrieve the output features for the plugin according to the lifecycle specification. Plugins are wrapped in a similar fashion than the audio data so we can use a plugin instance representation (a plugin id pointing to a plugin instance existing in memory), so that we can have concurrent plugins working at the same time. The previous tempo/3 predicate is declared as this set of rules (defined with a procedural meaning):
 
 \medskip
 \noindent
 \begin{verbatim}
-tempo(Input, Tool, Tempo):-
+tempo(Input, Tool, [feature(Type, Timestamp, Feature)|...]):-
      Input = 'Signal'(Ch, Sr, L, PCMs),
      Tool = 'Vamp',
-     vamp_feature_of('tempo', Signal, WholeFeature).
+     vamp_feature_of(tempo, Input, Tempo).
+
 vamp_feature_of(Type, Signal, WholeFeature):-
      select_plugin(Type, PluginKey, Output),
      vamp_outputs_for(Signal, PluginKey, Output, Features),
      flatten(Features, WholeFeature).
+
 vamp_outputs_for(Signal, PluginKey, Output, Feature):-
      vmpl_load_plugin_for(PluginKey, Signal, Plugin),
      set_blockSize(Plugin, Block),
@@ -203,6 +209,7 @@ vamp_outputs_for(Signal, PluginKey, Output, Feature):-
      get_channels(Signal, Channels),
      vmpl_initialize_plugin(Plugin, Channels, StepSize, BlockSize),
      vamp_compute_feature(Signal, Step, Block, Outputs, Plugin, WholeFeature).
+
 vamp_compute_feature(Signal, Step, Block, Outputs, Plugin, Features):-
      get_samples_per_channel(Signal, L),
      findall(F, vamp_process_signal(Signal, L, Step, Block, Output, Plugin, F), FSet),
@@ -210,6 +217,7 @@ vamp_compute_feature(Signal, Step, Block, Outputs, Plugin, Features):-
      vmpl_remaining_features(Plugin, L, SampleRate, Outputs, Remaining),
      append(FSet, Remaining, RawFeatures),
      delete(RawFeatures, [], Features).
+
 vamp_process_signal(Signal, L, StepSize, Block, Out, Plugin, Features):-
      set_limit_framing(L, StepSize, Limit),
      set_framing(StepSize, L, Limit, Start),
@@ -218,7 +226,7 @@ vamp_process_signal(Signal, L, StepSize, Block, Out, Plugin, Features):-
 \end{verbatim}
 \noindent
 
-The first rule selects the tool for the queried feature. The following one identifies automatically the specific plugin within the Vamp API in charge of extraction the ``tempo'' (and passes a term to unify the returned feature). The third predicate sets up the plugin for the processing (in this case with default parameters). The predicate vamp\_compute\_features acts as host retrieving and organizing the extracted features which are indeed computed by the last predicate. This last predicate configures the framing and calls the swivamp interface that rapidly communicates and executes the plugin (the efficiency of the extraction is preserverd). The features are returned as a list of terms represented using the feature datatype: feature(type, timestamp(start, duration), '\_\_data\_id').
+The first rule selects the tool for the queried feature. The following one identifies automatically the specific plugin within the Vamp API in charge of extraction the ``tempo'' (and passes a term to unify the returned feature). The third predicate sets up the plugin for the processing (in this case with default parameters). The predicate vamp\_compute\_features acts as host retrieving and organising the extracted features which are indeed computed by the last predicate. This last predicate configures the framing and calls the swivamp interface that rapidly communicates and executes the plugin (the efficiency of the extraction is preserved). The features are returned as a list of terms represented using the feature datatype: feature(type, timestamp(start, duration), '\_\_data\_id').
 
 \subsection{audio processing}\label{subsec:swilasdpa}
 
@@ -232,9 +240,9 @@ The WEKA API is interfaced through the package JPL available for SWI-Prolog defi
 
 \section{DSP front-end}\label{sec:frontend}
 
-So far we have presented how SWI-DSP provides a vocabulary of logic predicates and datatypes to perform audio analysis imitating a functional language, but this approach is still inappropriate for such tasks. We have organized the modules in communication layers and task-oriented modules, but there is an important trade-off between understandability and specification. The communication layer even offering an application-independent access to the computation libraries still requires a high knowledge of such libraries besides a SWI-Prolog familiarization. However, these requirements are not expected in most part of the potential users. The datatypes are not the only necessary semantic resource to provide an actual workbench for DSP. We require a front-end that reflects the experimental domain providing an interactive ``laboratory''.
+So far we have presented how SWI-DSP provides a vocabulary of logic predicates and datatypes to perform audio analysis imitating a functional language, but this approach is still inappropriate for such tasks. We have organised the modules in communication layers and task-oriented modules, but there is an important trade-off between understandability and specification. The communication layer even offering an application-independent access to the computation libraries still requires a high knowledge of such libraries besides a SWI-Prolog familiarisation. However, these requirements are not expected in most part of the potential users. The datatypes are not the only necessary semantic resource to provide an actual workbench for DSP. We require a front-end that reflects the experimental domain providing an interactive ``laboratory''.
 
-We define some ``DSP scenarios'' that reflect the researching activity. This scenarios define the necessary patterns and datatypes (implemented as predicates and functors) to allow the user to actually perform high-level research preserving the necessary flexibility. The elemental scenarios are:
+We define some ``DSP scenarios'' that reflect the researching activity. This scenarios define the necessary patterns and datatypes (implemented as predicates and functors) to allow the user to actually perform high-level research preserving the necessary flexibility. The elementary scenarios are:
 
 \begin{itemize}
  \item Transform: This scenario provides a pattern to apply any computation over an audio signal. It specifies by a datatype the framing parameters, the running engine, the engine configuration and parameters, the sample rate (if variable), the type of transform and the domain specifications. These factors are captured with a functor used to link input/output (with full flexibility) in transform(+Input, +Transform, -Output)
@@ -243,8 +251,7 @@ We define some ``DSP scenarios'' that reflect the researching activity. This sce
 
 The patterns and functors are interpreted by hardcoded prior knowledge which starts up the subsequent steps to provide the queried output. More complex scenarios can be created in order to achieve higher or broader semantics for research activity.
 
-%Reword this
-This logic-based framework for DSP (Fig. \ref{fig:dspdrawing}) develops a powerful and interactive computational engine that exploits logic resources. Such an engine can be embedded in other environments (by SWI-Prolog interfaces to other languages) developing graphical interfaces, visualisation applications or data management systems. In section \ref{sec:datamanage}, we present related works that extend the predicate calculus to provide a declarative framework for reasoning.
+This logic-based framework for DSP (Fig. \ref{fig:dspdrawing}) develops an interactive computational engine that exploits logic resources and their declarative nature (but still using procedural meaning). Such an engine can be embedded in other environments (by SWI-Prolog interfaces to other languages) developing graphical interfaces, visualisation applications or data management systems. In section \ref{sec:datamanage}, we introduce the elements to attain a declarative framework to reason about computations and processed data (which requires a management system).
 
 \begin{figure}
 \centerline{\framebox{\includegraphics[width=\columnwidth]{swidsp.png}}}
@@ -252,38 +259,36 @@ This logic-based framework for DSP (Fig. \ref{fig:dspdrawing}) develops a powerf
 \label{fig:dspdrawing}
 \end{figure}
 
-\section{Data management and reasoning}\label{sec:datamanage}
+\section{Data management and computation reasoning}\label{sec:datamanage}
 
-We still need to address, probably, the most important issue to accomplish the proposed architecture. We could say that such a system is indeed aimed at managing complex and large data, which is related through functional ``blocks'', and allowing reasoning about it. This goal requires the following achievements: an efficient storage of data objects and the relationships (predicates) linking them, mechanisms to control the concurrency, consistency and side-effects of the computations and a high-level interface to interact with them.
+We still need to address, probably, the most important issue to accomplish the proposed architecture. We could say that such a system is indeed aimed at managing complex and large data, which is related through functional ``blocks'', and allowing reasoning about it. This goal requires the following capabilities: an efficient storage of data objects and the relationships (predicates) linking them, mechanisms to control the concurrency, consistency and side-effects of the computations and a high-level interface to interact with them.
 
-We do not develop such manager within SWI-DSP as the database implementation actually depends on the needs of the host agent interacting with SWI-DSP. However, supposed an external database we can describe the architecture in detail. Data is stored in the database by ``tabling'' predicates \cite{aes2006}. Tabled predicates (we table predicates that comprise a big load of computations) can be seen as `` virtual tables'' of n-tuples. After tabling a predicate, the computation is not longer processed and the data is retrieved as in relational database query. This database is seen from a deductive model (facts and rules in prolog), so inferences over relational knowledge are also allowed. For this purpose, the data identifiers mechanism seems to be ideal as data ids are relationally linked (and binary data is dumped and loaded from external files relieving memory) and stored wrapping complex data as units of knowledge. The persistency of a tabled predicate is described as follows:
+We do not develop such manager within SWI-DSP, but we describe a Prolog-based framework that provide these services and to which SWI-DSP can provide computational services. Functional predicates can be externally stored in a database as tabled predicates. Those predicates can be seen as a \textit{relation} and each \textit{record} is formed of the terms of a particular instantiation of that predicate. By tabling functional predicates we can avoid re-computations of the same predicate treating it as another ``fact of the world''.
 
-\begin{verbatim}
-?-table(decode('../myfile', signal(2, 44100, 1200000, ['__data_345', '__data_346']))).
+This database is seen from a deductive model (facts and rules in prolog), so inferences over relational knowledge are also allowed. For this purpose, the data identifiers mechanism seems to be ideal as data ids are relationally linked and stored wrapping complex data as units of knowledge. The data objects referred by the ids are made persistent between sessions by dumping the data to an external file which can be retrieved through the data identifier (directly or through a mapping). The data object is loaded at runtime any time we use a query involving a fact referring to its identifier.
 
-The underlying process in pseudo-code:
-
-table(predicate(File, signal(Ch, Sr, Length, Data)):-
-	to_database('predicate', File, Ch, Sr, Length, Data).
-to_database('predicate', File, Ch, Sr, Length, (DataID|List)):-
-	specific_implementation('predicate', File, Ch, Sr, Length, DataID),
-	data_out(DataID), 
-	%DataID is the name of the file in a predefined path of binary data
-	clean_data_from_memory(DataID),
-	to_database('predicate', File, Ch, Sr, Length, List).	
-\end{verbatim}
-
-This data management framework described as in \cite{aes2006} can be extended by handling transaction logic constructs. Transaction logic provides the formalism to combine, with a declarative meaning, functional predicates and data transactions.
+This data management framework described as in \cite{aes2006} can be extended by handling transaction logic constructs. Transaction logic provides the formalism to combine, with a declarative meaning, functional predicates and actions that read or change the ``state of the world'', such as database updates, creation of files on disk or interaction with a user.
 
 \subsection{Transaction Logic}\label{subsec:ctl}
 
-Transaction Logic \cite{ctl}  unifies in a declarative formalism the control of an underlying database (SWI-Prolog and other prolog implementations just rely on assert and retract predicates for data updating, being very limited). Transaction Logic allows a declarative definition of execution paths and data updates by providing new connectives to express complex data transactions: parallel and serial conjunctions, execution in isolation and executability checking. Rules define possible execution paths for a goal with a higher-level meaning than just declared procedures. Thus, we are certainly dealing with actions (and their effects) instead of sequences of predicates.
+Transaction Logic \cite{ctl}  unifies in a declarative formalism the control of an underlying database (SWI-Prolog and other prolog implementations just rely on assert and retract predicates for data updating, being very limited). Transaction Logic allows a declarative definition of execution paths and database updates by providing new connectives to express complex data transactions: parallel and serial conjunctions, execution in isolation and executability checking. Rules define possible execution paths for a goal with a higher-level meaning than just declared procedures. Thus, we are certainly dealing with actions (and their effects) instead of sequences of predicates.
 
 We can manage the side effects of computation on an underlying database in a consistent way, reason about the actions and their effects, control the execution of different processes and compare different paths for the same goal. Transaction logic applied to complex data/computational environments has been successfully applied to develop ``virtual laboratory workbenches'' \cite{virtual}. 
 
-SWI-DSP combined with a data manager based on Concurrent Transaction Logic (CTR), which also controls concurrent processes, develops a multimedia knowledge system to drive research with semantics and a logic formalism exploiting reasoning and declarative definition of computations and providing an interactive source of knowledge.
+SWI-DSP combined with a database manager based on Concurrent Transaction Logic (CTR), which also controls concurrent processes, develops a multimedia knowledge system to drive research with semantics and a logic formalism exploiting reasoning and declarative definition of computations and providing an interactive source of knowledge.
+
+\subsection{Implementation}
+
+\begin{figure}
+\centerline{\framebox{\includegraphics[width=\columnwidth]{reasoner.png}}}
+\caption{Collaboration diagram between SWI-DSP, the Matlab interface and the reasoner implementations}
+\label{fig:reasoners}
+\end{figure}
+
 
 %Samer's KM and Henry...
+
+
 
 % FIXME - Hmm... Not good in the current state.
 %\subsection{Henry}\label{subsec:henry}
