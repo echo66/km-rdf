@@ -146,22 +146,22 @@ string describe_output(Plugin::OutputDescriptor o)
         if (o.sampleType == Plugin::OutputDescriptor::VariableSampleRate)
 	{
 
-                	res=\
-                        "thisplug:output_"+o.identifier+" a  vamp:SparseOutput ;\n\
-                          vamp:identifier     \""+o.identifier+"\" ;\n\
-                          dc:title            \""+o.name+"\" ;\n\
-                          dc:description      \""+o.description+"\"  ;\n\
-                          vamp:fixed_bin_count \""+(o.hasFixedBinCount == 1 ? "true" : "false")+"\" ;\n\
-                          vamp:is_quantized     \""+(o.isQuantized == 1 ? "true" : "false")+"\"  ;\n\
-                          vamp:unit             \""+(o.unit)+"\" ;\n";
+                res=\
+"thisplug:output_"+o.identifier+" a  vamp:SparseOutput ;\n\
+    vamp:identifier       \""+o.identifier+"\" ;\n\
+    dc:title              \""+o.name+"\" ;\n\
+    dc:description        \""+o.description+"\"  ;\n\
+    vamp:fixed_bin_count  \""+(o.hasFixedBinCount == 1 ? "true" : "false")+"\" ;\n\
+    vamp:is_quantized     \""+(o.isQuantized == 1 ? "true" : "false")+"\"  ;\n\
+    vamp:unit             \""+(o.unit)+"\" ;\n";
                           
                         
 
                 // FIXME ? Bin names may vary based on plugin setup, so including them here might be misleading...
                 if (o.hasFixedBinCount)
                 {
-		res+="    vamp:bin_count      "+to_string(o.binCount)+" ;\n";
-		res+="    vamp:bin_names      (";
+		res+="    vamp:bin_count          "+to_string(o.binCount)+" ;\n";
+		res+="    vamp:bin_names          (";
 
 		unsigned int i;
 		for (i=0; i+1 < o.binNames.size(); i++)
@@ -173,10 +173,10 @@ string describe_output(Plugin::OutputDescriptor o)
         
                 if (o.isQuantized)
                 {
-                res+="  vamp:quantize_step     "+to_string(o.quantizeStep)+"  ;\n";
+                res+="   vamp:quantize_step        "+to_string(o.quantizeStep)+"  ;\n";
                 }
 
-		res+="    vamp:sample_type    vamp:VariableSampleRate ;\n";
+		res+="    vamp:sample_type        vamp:VariableSampleRate ;\n";
 		if (o.sampleRate > 0.0f)
 			res+="    vamp:sample_rate    "+to_string(o.sampleRate)+" ;\n";
 	        
@@ -186,22 +186,22 @@ string describe_output(Plugin::OutputDescriptor o)
         //running the plugin.
         else{
 
-                res=\
-                        "thisplug:output_"+o.identifier+" a  vamp:DenseOutput ;\n\
-                          vamp:identifier     \""+o.identifier+"\" ;\n\
-                          dc:title            \""+o.name+"\" ;\n\
-                          dc:description       \""+o.description+"\"  ;\n\
-                          vamp:fixed_bin_count \""+(o.hasFixedBinCount == 1 ? "true" : "false")+"\" ;\n\
-                          vamp:is_quantised     \""+(o.isQuantized == 1 ? "true" : "false")+"\"  ;\n\
-                          vamp:unit             \""+(o.unit)+"\" ;\n";
+res=\
+"thisplug:output_"+o.identifier+" a  vamp:DenseOutput ;\n\
+    vamp:identifier       \""+o.identifier+"\" ;\n\
+    dc:title              \""+o.name+"\" ;\n\
+    dc:description        \""+o.description+"\"  ;\n\
+    vamp:fixed_bin_count  \""+(o.hasFixedBinCount == 1 ? "true" : "false")+"\" ;\n\
+    vamp:is_quantised     \""+(o.isQuantized == 1 ? "true" : "false")+"\"  ;\n\
+    vamp:unit             \""+(o.unit)+"\" ;\n";
 
 
 
         	// FIXME ? Bin names may vary based on plugin setup, so including them here might be misleading...
         	if (o.hasFixedBinCount)
         	{
-        		res+="    vamp:bin_count      "+to_string(o.binCount)+" ;\n";
-        		res+="    vamp:bin_names      (";
+        		res+="    vamp:bin_count          "+to_string(o.binCount)+" ;\n";
+        		res+="    vamp:bin_names          (";
 
         		unsigned int i;
         		for (i=0; i+1 < o.binNames.size(); i++)
@@ -213,17 +213,17 @@ string describe_output(Plugin::OutputDescriptor o)
 
                 if (o.isQuantized)
                 {
-                res+="  vamp:quantize_step     "+to_string(o.quantizeStep)+"  ;\n";
+                res+="    vamp:quantize_step        "+to_string(o.quantizeStep)+"  ;\n";
                 }	
 
 
         	else if (o.sampleType == Plugin::OutputDescriptor::FixedSampleRate)
         	{
-        		res+="    vamp:sample_type    vamp:FixedSampleRate ;\n";
-        		res+="    vamp:sample_rate    "+to_string(o.sampleRate)+" ;\n";
+        		res+="    vamp:sample_type       vamp:FixedSampleRate ;\n";
+        		res+="    vamp:sample_rate       "+to_string(o.sampleRate)+" ;\n";
         	}
         	else if (o.sampleType == Plugin::OutputDescriptor::OneSamplePerStep)
-        		res+="    vamp:sample_type    vamp:OneSamplePerStep ;\n";
+        		res+="    vamp:sample_type       vamp:OneSamplePerStep ;\n";
         	else
         	{
         		cerr<<"Incomprehensible sampleType for output descriptor "+o.identifier<<" !"<<endl;
@@ -259,7 +259,7 @@ string describe(Plugin* plugin, string pluginBundleBaseURI, string describerURI)
 }
 
 /**
-        create_rdf_description(+PluginName, BaseURI, describerURI
+        create_rdf_description(+PluginName, +BaseURI, +DescriberURI)
 */
 PREDICATE(create_rdf_description, 3){
 
@@ -282,9 +282,33 @@ PREDICATE(create_rdf_description, 3){
     pluginBundleBaseURI = ((char *)A2);
     describerURI = ((char *)A3);
 
-    cout << describe(plugin, pluginBundleBaseURI, describerURI) << endl;
-
+    //Dump into a file here
+    //cout << describe(plugin, pluginBundleBaseURI, describerURI) << endl;
+    FILE *fileData;
+    string filename = "../plugins/"+pluginName+".n3";
+    fileData = fopen(filename.data(), "w");//textfile
+    if(fileData!=NULL){
+                fputs(describe(plugin, pluginBundleBaseURI, describerURI).data(),fileData);
+                fclose(fileData);          
+    }
     return 0;
 }
+
+/**This shoulnd be here **/
+PREDICATE(get_library, 2){
+        
+        std::string key((char *)A1);
+
+        size_t qm;
+        size_t exam;
+        //we have to change this any time we add libraries (Dull)
+        qm=key.find("libqm");
+        exam=key.find("example");
+
+        if (qm!=string::npos) return A2 = PlAtom("qm");
+        if (exam!=string::npos) return A2 = PlAtom("examples");
+        
+        return A2 = PlAtom("");
+}          
 
 
