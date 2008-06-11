@@ -12,19 +12,23 @@
 :-module(rdf_vamp, [available_libraries/1
 			,	rdf_description/2
 			,	rdf_description/3
+			,	rdf_description/1
 			]).
 
 :- style_check(-discontiguous).
 :- load_foreign_library(template_generator).
 
 :- use_module('../../swivamp/vamp').
+%:- consult('vamp_af').
 
-/**Define your namespace for vamp plugins**/
+/**Define your namespace for vamp plugins. This should be automated**/
 
 pluginlib(qm).
 pluginlib(examples).
+pluginlib('').
 namespace(qm, 'http://purl.org/ontology/vamp/qm-plugins/').
 namespace(examples, 'http://purl.org/ontology/vamp/examples/').
+namespaces('', 'http://purl.org/ontology/vamp/plugins').
 
 /**
 	Returns the available libraries on the system. This is hardcoded, so requires manual updating
@@ -45,6 +49,11 @@ available_libraries(X):-
 **/
 rdf_description(PluginKey, PluginLibrary):-
 	rdf_description(PluginKey, PluginLibrary, 'http://www.vamp-plugins.org/').
+
+rdf_description(PluginKey):-
+	vamp_plugin_system(PluginKey),
+	get_library(PluginKey, Lib),
+	rdf_description(PluginKey, Lib, 'http://www.vamp-plugins.org/').
 
 rdf_description(PluginKey, PluginLibrary, YourURI):-
 	vamp_plugin_system(PluginKey),
