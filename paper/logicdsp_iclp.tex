@@ -240,7 +240,7 @@ The WEKA API is interfaced through the package JPL available for SWI-Prolog defi
 
 \section{DSP front-end}\label{sec:frontend}
 
-So far we have described how SWI-DSP provides a vocabulary of logic predicates and datatypes for performing audio analysis, but this aproach is still inappropiate for some tasks. We have organized the modules in communication layers and task-oriented modules, but there is a trade-off between understandability and rich functionality. 
+So far we have described how SWI-DSP provides a vocabulary of logic predicates and datatypes for performing audio analysis, but this aproach is still inappropiate for some tasks. We have organised the modules in communication layers and task-oriented modules, but there is a trade-off between understandability and rich functionality. 
 Use of the computational facilities provided by the various modules requires quite detailed knowledge of their capabilities as well as familiarity with Prolog. We do not expect this type of expertise from most of our potential users. Hence, we require a front-end that is closer to the application domain, providing an interactive ``laboratory'' at a level of abstraction closer to that expected by the signal processing practitioner.
 
 We define some ``DSP scenarios'' that reflect the researching activity. This scenarios define the necessary patterns and datatypes (implemented as predicates and functors) to allow the user to actually perform high-level research preserving the necessary flexibility. The elementary scenarios are:
@@ -256,100 +256,48 @@ This logic-based framework for DSP (Fig. \ref{fig:dspdrawing}) develops an inter
 
 \begin{figure}
 \centerline{\framebox{\includegraphics[width=\columnwidth]{swidsp.png}}}
-\caption{Arquitecture of SWI-DSP}
+\caption{Architecture of SWI-DSP}
 \label{fig:dspdrawing}
 \end{figure}
 
 \section{Data management and computation reasoning}\label{sec:datamanage}
 
-We still need to address what is probably the most important issue in constructing the proposed ``laboratory workbench''. A primary aim of such a system is to manage complex relationships between many items of data, some of which may be large and temporally structured (e.g. audio signals).
-Some of the relationships are functional, in the sense that some items are 
-computed from others using signal processing functions provided through the 
-foreign language interfaces described above. Some relationships are not
-functional, eg, several human experts might label a set of signals by musical
-genre, resulting in many possible labellings for each signal.
-This type of knowledge management requires mechanisms for persistent storage
-of data objects and the procedures that were used to compute them,
-as well as effective managment of a local database, side-effects of computations,
-information from other sources such as manual annotations or external databases,
-and a high-level interface for specifying and scheduling potentially complex workflows involving many computations and combining data from different sources.
+We still need to address what is probably the most important issue in constructing the proposed ``laboratory workbench''. A primary aim of such a system is to manage complex relationships between many items of data, some of which may be large and temporally structured (e.g. audio signals). Some of the relationships are functional, in the sense that some items are computed from others using signal processing functions provided through the foreign language interfaces described above. Some relationships are not functional, eg, several human experts might label a set of signals by musical genre, resulting in many possible labellings for each signal. This type of knowledge management requires mechanisms for persistent storage of data objects and the procedures that were used to compute them, as well as effective management of a local database, side-effects of computations, information from other sources such as manual annotations or external databases, and a high-level interface for specifying and scheduling potentially complex workflows involving many computations and combining data from different sources.
 
-We do not develop such manager within SWI-DSP, but we are developing a
-Prolog-based system that does address most of these concerns \cite{aes2006}.
-Information pertaining to many types of object, including signals, computed
-results, musical scores, composers etc. is represented uniformly using
-a system of predicates, some of which are backed by a relational database.
-When time-consuming computations are involved in satisfying a partular
-predicate, the results can be persistently stored along with a record of the
-bindings for that predicate. If, at a later time, the same computation is
-requested using the same input parameters, the result is retrieved from the
-database instead of being recomputed. It is also possible to look up the
-input parameters that resulted in a given value being computed, and 
+We do not develop such manager within SWI-DSP, but we are developing a Prolog-based system that does address most of these concerns \cite{aes2006}. Information pertaining to many types of object, including signals, computed results, musical scores, composers etc. is represented uniformly using a system of predicates, some of which are backed by a relational database. When time-consuming computations are involved in satisfying a particular predicate, the results can be persistently stored along with a record of the bindings for that predicate. If, at a later time, the same computation is requested using the same input parameters, the result is retrieved from the database instead of being recomputed. It is also possible to look up the input parameters that resulted in a given value being computed, and 
 to list all previously recorded computations of a given predicate.
-This is in some ways similar to the ``tabling''
-mechanism provided by some logic languages, notably XSB \cite{XSB}.
 
-The previous implementation of this knowledge management system included
-a module that allowed the use of MATLAB to implement computationally
-intensive functions. SWI-DSP can now provide a similar capability to use
-VAMP plugins, LADSPA plugins, and WEKA code. The data identifier mechanism
-is compatible with the overall system as the identifiers can be stored
-in a database and associated with files containing the actual binary data.
+This is in some ways similar to the ``tabling'' mechanism provided by some logic languages, notably XSB \cite{xsb}.
+The previous implementation of this knowledge management system included a module that allowed the use of MATLAB to implement computationally intensive functions. SWI-DSP can now provide a similar capability to use VAMP plugins, LADSPA plugins, and WEKA code. The data identifier mechanism is compatible with the overall system as the identifiers can be stored in a database and associated with files containing the actual binary data.
 
-The other half of the problem, that of workflow management, is addressed
-using a implementation of \emph{transaction logic} \cite{ctl}.
-
-Transaction logic allows the specification, in a declarative way, of 
-sequential or parallel compositions of actions, possibly involving database 
-update, side-effects, and interaction
-with a user or other external device. The primitives offered by the transaction
-logic formalise the notion of calls with side-effects and
-provide an alternative to some of the more procedural styles of Prolog 
-usage, such as failure driven loops, making it easier to specify complex 
-workflows without sacrificing a clear declarative semantics.
-Transaction logic applied to complex data/computational environments has been successfully applied to develop ``virtual laboratory workbenches'' \cite{virtual}. 
+The other half of the problem, that of workflow management, is addressed using a implementation of \emph{transaction logic} \cite{ctl}. Transaction logic allows the specification, in a declarative way, of sequential or parallel compositions of actions, possibly involving database update, side-effects, and interaction with a user or other external device. The primitives offered by the transaction logic formalise the notion of calls with side-effects and
+provide an alternative to some of the more procedural styles of Prolog usage, such as failure driven loops, making it easier to specify complex workflows without sacrificing a clear declarative semantics. Transaction logic applied to complex data/computational environments has been successfully applied to develop ``virtual laboratory workbenches'' \cite{virtual}.
 
 SWI-DSP combined with a data manager based on Concurrent Transaction Logic (CTR), which also controls concurrent processes, develops a multimedia knowledge system to drive research with semantics and a logic formalism exploiting reasoning and declarative definition of computations and providing an interactive source of knowledge.
 
-\subsection{Transaction Logic}\label{subsec:ctl}
+\subsection{Towards a distributed space of knowledge}
 
+Finally, we address a main problem pointed out at the beginning of the exposition. Local sources of data managed by closed systems are not the right approach in order to create a scalable source of shared knowledge. We find in the semantic web technologies the support to open the depicted system and contribute to a distributed space of knowledge as described in \cite{distributed}. A suitable machine-processable format for data, Resource Description Framework (RDF), and a language to express knowledge domains in such a format, Ontology Web Language (OWL), allow us to link data resources by relationships and identify them all with Uniform Resource Identifiers (URIs) belonging to a shareable namespace.
 
+Notation3 (N3) \cite{n3} is a syntax for RDF extended to represent rules. Therefore, Notation3 can be used to reproduce a deductive model: facts as triples (Subject, Predicate, Object) and rules.
 
-\subsection{Implementation}
+The ongoing work so-called Henry develops a similar transaction logic-based reasoner but N3-driven. Henry translates Prolog predicates into RDF triples and reasons about N3 rules by N3/Prolog parser and entailment modules. Functional predicates provided by SWI-DSP are interpreted by Henry as builtins that trigger computations. Thus, Henry is capable of integrating and reasoning about heterogeneous data belonging to different sources and knowledge domains and is enhanced by the processing services provided by SWI-DSP.
 
 \begin{figure}
 \centerline{\framebox{\includegraphics[width=\columnwidth]{reasoner.png}}}
-\caption{Collaboration diagram between SWI-DSP, the Matlab interface and the reasoner implementations}
+\caption{Collaboration diagram between SWI-DSP, the Matlab interface and the high-level reasoning implementations}
 \label{fig:reasoners}
 \end{figure}
 
-
-%Samer's KM and Henry...
-
-
-
-% FIXME - Hmm... Not good in the current state.
-%\subsection{Henry}\label{subsec:henry}
-%We present a related project so-called Henry which develops a real CTR-based agent aimed at creating a distributed multimedia knowledge workspace built on semantic web technologies. The multimedia community needs a standard machine-readable format with proper semantics to manage complex data involved in any sub-domain, so data can be exchanged and shared by different systems enriching the common knowledge.
-
-%The Resource Description Framework (RDF) developed as the standard format for new (data-oriented) web technologies expresses linked data by means of triples in the form of (Subject, Predicate, Object). This standard can be implemented with different syntaxes. We prefer Notation3 \cite{n3} whose syntax allow us to write RDF statements in a human-readable way and also to write ``rules'' as named graphs. The Ontology Web Language (OWL) provides the framework to express the knowledge of a particular domain in RDF through concepts and relationships. Thus, descripting semantic models related to audio analysis are not restricted to a local implementation but can be shared and processed by different systems. These elements form a suitable framework to represent and manage data and algorithms in a ``web of (complex) data''.
-
-%Henry develops an N3/Prolog parser and reasoner based on CTL. (Text for Yves). Talk about results and performance...
-%(talk about data visualisation?)
-
 \section{Conclusion and Future work}\label{sec:conclusion}
 
-(may have to reword this after all the changes)
-We have presented a powerful reasoner for multimedia analysis implemented as a logic-based framework which allow us to convert low-level computations into shareable and distributed knowledge. The system design ``breaks apart'' traditional applications architecture to introduce logic and reasoning machinery on top of the computation engines providing a more intelligent, capable and understandable DSP reasoner. This reasoner can be extended and enriched by the open source APIs working on the foundations of the system and controlled by ''Prolog-speaking`` agents. SWI-DSP is fairly well positioned for the new web technologies and actually it finds in them the perfect semantic and storing support to overwhelm traditional and closed DSP systems.
+We have presented a logic-based engine that provides digital signal processing services under an interactive and declarative framework which is able to make data inferences. Such an engine solves many of the problems presented by current approaches to develop an integrated platform for signal processing and multimedia analysis in general. This system is aimed at providing services to high-level reasoners capable of integrating and reasoning about heterogeneous data available in different data systems with the same declarative nature.
 
-Future work and development is oriented to:
+We expect of SWI-DSP to be a useful workbench for DSP research and also a platform for development enriching the community resources. The proposed system and future extensions are expected to become a powerful workspace to integrate and analyse heterogeneous multimedia data providing enhanced services to a wide range of users and contributing to extend a common source of knowledge.
 
-\begin{itemize}
- \item Testing and comparison of performance with other rival systems
- \item Extending the SWI-DSP vocabulary and capabilities
-\end{itemize}
+Near future work and development on SWI-DSP are oriented to extend its vocabulary and capabilities. First, by interfacing more open source APIs to cover the implementation of more DSP tasks (not necessarily restricted to the audio domain). Also, by supporting symbolic data (MIDI) input which is a really important source of audio knowledge and providing analysis modules for such an input.
 
-SWI-DSP vocabulary and capabilities can be extended in several ways. First, by interfacing more open source APIs to cover the implementation of any DSP task (not necessarily restricted to audio domain). Secondly, by supporting symbolic data (MIDI) input which is a really important source of audio knowledge and providing analysis modules for such an input. Finally, other logic paradigms can contribute to enhance SWI-DSP (e.g. there are studies that use Inductive Logic Programming systems to extract harmonic rules or rhythm patterns given certain input descriptors [ref]). By providing semantics (OWL ontologies clearly point to this goal) to interconnect properly each logical module we can build a hierarchy of modules which help us to extract and share different levels of knowledge from digital signals. Such a system could be used either to extract low level cepstral coefficients from an input signal (mathematics level) or to obtain patterns of music (musicology level).
+In general, any source of knowledge, processing tool or logic paradigm which allow us to integrate and infer new knowledge is a target in order to reach higher-levels of abstraction to understand the nature and effects of the signals.
 
 \begin{thebibliography}{4}
 
@@ -357,13 +305,11 @@ SWI-DSP vocabulary and capabilities can be extended in several ways. First, by i
 
 \bibitem{ctl} Bonner, A.J., Kifer, M.: Concurrency and Communication in Transaction Logic. In: Joint International Conference and Symposium on Logic Programming, pp. 142--156. Bonn (1996)
 
-\bibitem{tlprog} Bonner, A.J., Kifer, M.: Transaction Logic Programming. In: 10th International Conference on Logic Programming. Budapest (1993)
-
 \bibitem{virtual} Bonner, A.J., Shrufi, A., Rozen, S.: LabFlow-1: a Database Benchmark for High-Throughput Workflow Management. In: 5th International Conference on Extending Database Technology, pp. 463-478. Springer-Verlag, Lecture Notes in Computer Science, volume 1057. Avignon (1996).
 
 \bibitem{aes2006} Abdallah, S., Raimond, Y., Sandler, M.: An ontology-based approach to information management for music analysis systems. In: 120th Audio Engineering Society. Paris (2006).
 
-\bibitem{xsb} 
+\bibitem{xsb} Sagonas, K., Swift, T., Warren, D. S.: {XSB} as an efficient deductive database engine. In: ACM SIGMOD international conference on management of data, pp. 442-453. New York (1994).
 
 \bibitem{clam} CLAM, \url{http://www.clam.iua.upf.edu/}
 
@@ -373,7 +319,7 @@ SWI-DSP vocabulary and capabilities can be extended in several ways. First, by i
 
 \bibitem{mo} Raimond, Y., Abdallah, S., Sandler, M., Frederick, G.: The Music Ontology. In: 8th International Conference of Music Information Retrieval. Vienna (2007)
 
-\bibitem{kmrdf} Source code project of KM-RDF. \url{http://code.google.com/p/km-rdf/w/list}
+\bibitem{henry} Henry. \url{http://dbtune.org/henry/} 
 
 \bibitem{ladspa} Linux Audio Developer Simple Plugin API. \url{http://www.ladspa.org/}
 
