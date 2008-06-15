@@ -275,13 +275,7 @@ provide an alternative to some of the more procedural styles of Prolog usage, su
 
 SWI-DSP combined with a data manager based on Concurrent Transaction Logic (CTR), which also controls concurrent processes, develops a multimedia knowledge system to drive research with semantics and a logic formalism exploiting reasoning and declarative definition of computations and providing an interactive source of knowledge.
 
-\subsection{Towards a distributed space of knowledge}
-
-Finally, we address a main problem pointed out at the beginning of the exposition. Local sources of data managed by closed systems are not the right approach in order to create a scalable source of shared knowledge. We find in the semantic web technologies the support to open the depicted system and contribute to a distributed space of knowledge as described in \cite{distributed}. A suitable machine-processable format for data, Resource Description Framework (RDF), and a language to express knowledge domains in such a format, Ontology Web Language (OWL), allow us to link data resources by relationships and identify them all with Uniform Resource Identifiers (URIs) belonging to a shareable namespace.
-
-Notation3 (N3) \cite{n3} is a syntax for RDF extended to represent rules. Therefore, Notation3 can be used to reproduce a deductive model: facts as triples (Subject, Predicate, Object) and rules.
-
-The ongoing work so-called Henry develops a similar transaction logic-based reasoner but N3-driven. Henry translates Prolog predicates into RDF triples and reasons about N3 rules by N3/Prolog parser and entailment modules. Functional predicates provided by SWI-DSP are interpreted by Henry as builtins that trigger computations. Thus, Henry is capable of integrating and reasoning about heterogeneous data belonging to different sources and knowledge domains and is enhanced by the processing services provided by SWI-DSP.
+Currently, we have another implementation of such a manager oriented to interact with the \textit{Semantic Web}. This project, so called Henry\footnote{Source code project at \url{http://code.google.com/p/km-rdf/}.}, aggregates processing workflows and structured data available on the Semantic Web and publishes back the results it is able to derive. It can interpret queries and express data through a Notation3 \cite{n3} parser/entailment module. Notation3 is a syntax for the Semantic Web format which provides a way to reproduce a deductive model based on triples (Subject, Predicate, Object) and rules. SWI-DSP provides processing services to Henry. There is a working instance at \url{http://dbtune.org/henry/}.
 
 \begin{figure}
 \centerline{\framebox{\includegraphics[width=\columnwidth]{reasoner.png}}}
@@ -300,8 +294,6 @@ Near future work and development on SWI-DSP are oriented to extend its vocabular
 In general, any source of knowledge, processing tool or logic paradigm which allow us to integrate and infer new knowledge is a target in order to reach higher-levels of abstraction to understand the nature and effects of the signals.
 
 \begin{thebibliography}{4}
-
-\bibitem{distributed} Raimond, Y., Sutton, C., Sandler, M.: A distributed data space for music-related information. In: Workshop on the Many Faces of Multimedia Semantic. ACM (Multimedia), Augsburg (2007).
 
 \bibitem{ctl} Bonner, A.J., Kifer, M.: Concurrency and Communication in Transaction Logic. In: Joint International Conference and Symposium on Logic Programming, pp. 142--156. Bonn (1996)
 
