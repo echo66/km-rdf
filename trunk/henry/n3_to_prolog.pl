@@ -33,9 +33,9 @@ n3_prolog_clause(':-'(H,B)) :-
 	implies(BodyGraph,HeadGraph),
 	n3_pl(HeadGraph,PLH,B1),
 	n3_pl(BodyGraph,PLB,B2),
-	skolemize(PLH,PLB,Skolem),
 	append(B1,B2,Bindings),
 	merge_bindings(Bindings),
+	skolemize(PLH,PLB,Skolem),
 	member(H,Skolem),
 	list_to_conj(PLB,B).
 	

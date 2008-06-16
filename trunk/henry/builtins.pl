@@ -50,6 +50,7 @@ getnext(X, X, L) :-
 	last(L, X).
 
 
+
 %Just illustrating a bug
 %builtin('http://purl.org/ontology/swi/append',builtin:append).
 %builtin:append([[a,b],[c]],[a,b,c]).

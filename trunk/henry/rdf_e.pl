@@ -11,6 +11,7 @@
               ]).
 :- use_module(library('semweb/rdfs'),
               [ rdfs_list_to_prolog_list/2 ]).
+:- use_module(builtins).
 
 :- dynamic rdf_e/3.
 
@@ -45,9 +46,6 @@ rdf_e(S,P,O) :-
 	call(Pred,SS,OO).
 
 
-%individual_to_atom(individual(_,Vars),NN) :-
-%	concat_atom(['__bnode_'|Vars],'_',NN),!.
-%individual_to_atom(N,N).
 
 rdf_query(N,N,true) :- \+is_list(N).
 rdf_query('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil',[],true) :-!.
@@ -59,6 +57,4 @@ wrap_list(S,SS) :-
 	rdfs_list_to_prolog_list(S,SS),!.
 wrap_list(S,S).
 
-builtin('http://www.w3.org/2000/10/swap/list#in',rdf_e:rdfmember).
-rdfmember(M,L) :- \+var(L),member(M,L).
 
