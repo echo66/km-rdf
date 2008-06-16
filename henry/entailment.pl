@@ -2,6 +2,8 @@
 
 :- use_module(rdf_e).
 
+
+
 :- begin_tests(entailment).
 test(list_construction,[]) :-
 	rdf_l(A,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',a),
@@ -33,11 +35,29 @@ test(list_in2,[blocked('The first member/2 creates an infinity of lists => infin
         memberchk(D,[a,b,c]).
 :- end_tests(entailment).
 
-
 rdf(S,P,O) :-
+	copy_term((S,O),(SS,OO)),
+	entail(rdf(SS,P,OO),rdf(S,P,O)).
+
+entail(rdf(S,P,O),rdf(SS,P,OO)) :-
+	rdf_2(S,P,O),
+	% some filtering, to not make SeRQL crash with lists-as-nodes and bnodes-as-terms
+	clean(S,SS),
+	clean(O,OO).
+
+clean(individual(B,Vars),NN) :-
+       concat_atom([B|Vars],'_',NN),!.
+%clean(L,N) :-
+%	is_list(L),!,
+%	rdf_
+clean(N,N).
+
+
+
+rdf_2(S,P,O) :-
 	ground(P),
 	rdf_l(S,P,O).
-rdf(S,P,O) :-
+rdf_2(S,P,O) :-
 	rdf_e(S,P,O).
 
 
