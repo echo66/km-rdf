@@ -1,4 +1,4 @@
-:- module(rdf_e,[rdf_e/3,rdf_b/3]).
+:- module(rdf_e,[rdf_e/3]).
 
 :- use_module(library('semweb/rdf_db'),
               [ rdf_global_id/2,
@@ -9,7 +9,8 @@
                 rdf_subject/1,
                 rdf_equal/2
               ]).
-
+:- use_module(library('semweb/rdfs'),
+              [ rdfs_list_to_prolog_list/2 ]).
 
 :- dynamic rdf_e/3.
 
@@ -37,6 +38,12 @@ rdf_e(S,P,O) :-
 	rdf_query(OO,O,Q2),
 	rdf_db:(Q1,Q2,rdf(SS,P,OO,G)),
 	\+rdf_db:rdf(G,_,_),\+rdf_db:rdf(_,_,G),P\='http://www.w3.org/2000/10/swap/log#implies'.
+rdf_e(S,P,O) :-
+        builtin(P,Pred),
+        wrap_list(S,SS),
+	wrap_list(O,OO),
+	call(Pred,SS,OO).
+
 
 %individual_to_atom(individual(_,Vars),NN) :-
 %	concat_atom(['__bnode_'|Vars],'_',NN),!.
@@ -47,10 +54,11 @@ rdf_query('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil',[],true) :-!.
 rdf_query(LH,[H|T],(rdf(LH,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',H),rdf(LH,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',LT),QT)) :-
 	rdf_query(LT,T,QT).
 
+wrap_list(S,SS) :-
+	atomic(S),
+	rdfs_list_to_prolog_list(S,SS),!.
+wrap_list(S,S).
 
-%rdf_b(S,P,O) :-
-%	builtin(P,Pred),
-%	call(Pred,S,O).
-%builtin('http://www.w3.org/2000/10/swap/list#in',rdfmember).
-%rdfmember(M,L) :- \+var(L),member(M,L).
+builtin('http://www.w3.org/2000/10/swap/list#in',rdf_e:rdfmember).
+rdfmember(M,L) :- \+var(L),member(M,L).
 
