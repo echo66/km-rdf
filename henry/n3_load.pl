@@ -1,6 +1,14 @@
-:- module(n3_load,[n3_load/1]).
+:- module(n3_load,[n3_load/1,n3_retract/1]).
 
 :- use_module(n3_dcg).
+
+:- begin_tests(n3_load).
+test(load_and_retract) :-
+	n3_load('examples/uncle.n3'),
+	n3_retract('examples/uncle.n3'),
+	\+rdf_db:rdf(_,_,_).
+:- end_tests(n3_load).
+
 
 n3_load(File) :-
         tokenise(File,Tokens),
