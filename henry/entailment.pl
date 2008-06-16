@@ -35,11 +35,10 @@ test(list_in2,[blocked('The first member/2 creates an infinity of lists => infin
 
 
 rdf(S,P,O) :-
+	ground(P),
 	rdf_l(S,P,O).
 rdf(S,P,O) :-
 	rdf_e(S,P,O).
-rdf(S,P,O) :-
-	rdf_b(S,P,O).
 
 
 rdf_l([_],'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest','http://www.w3.org/1999/02/22-rdf-syntax-ns#nil').
