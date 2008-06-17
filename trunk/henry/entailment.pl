@@ -1,7 +1,8 @@
 :- module(entailment,[rdf/3]).
 
 :- use_module(rdf_e).
-
+:- use_module(utils).
+:- use_module(library('semweb/rdf_db'),[rdf_bnode/1]).
 
 
 :- begin_tests(entailment).
@@ -33,11 +34,45 @@ test(list_in2,[blocked('The first member/2 creates an infinity of lists => infin
         rdf_l(C,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',c),
         rdf_l(C,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest','http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),!,
         memberchk(D,[a,b,c]).
+test(describe_list,[]) :-
+	findall(Triple,describe_list([[a],[b]],list,Triple),Triples), % Should perhaps test with rdf_l, but bnodes make it complicated
+	Triples = [
+		rdf(list,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',B)
+	,	rdf(B,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',a)
+	,	rdf(B,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest','http://www.w3.org/1999/02/22-rdf-syntax-ns#nil')
+	,	rdf(list,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',C)
+	,       rdf(C,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest','http://www.w3.org/1999/02/22-rdf-syntax-ns#nil')
+	,	rdf(C,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',D)
+	,	rdf(D,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',b)
+	,	rdf(D,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest','http://www.w3.org/1999/02/22-rdf-syntax-ns#nil')
+	].
 :- end_tests(entailment).
 
 rdf(S,P,O) :-
-	copy_term((S,O),(SS,OO)),
-	entail(rdf(SS,P,OO),rdf(S,P,O)).
+	copy_term((S,P,O),(SS,PP,OO)),
+	entail(rdf(SS,PP,OO),rdf(SSS,PPP,OOO)),
+	(
+		(\+is_list(SSS),\+is_list(OOO),S=SSS,P=PPP,O=OOO);
+		(is_list(SSS),rdf_bnode(List),describe_list(SSS,List,rdf(S,P,O)));
+		(is_list(OOO),rdf_bnode(List),describe_list(OOO,List,rdf(S,P,O)))
+	).
+
+describe_list([H|_],S,rdf(S,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',H)) :-
+	\+is_list(H).
+describe_list([_],S,rdf(S,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest','http://www.w3.org/1999/02/22-rdf-syntax-ns#nil')).
+describe_list([H|_],S,Triple) :-
+	is_list(H),
+	rdf_bnode(SS),
+	RDF = rdf(S,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',SS),
+	(Triple = RDF; describe_list(H,SS,Triple)).
+describe_list([_|T],S,Triple) :-
+	T\=[],
+	rdf_bnode(SS),
+	RDF = rdf(S,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',SS),
+	(Triple = RDF; describe_list(T,SS,Triple)).
+	
+	
+
 
 entail(rdf(S,P,O),rdf(SS,P,OO)) :-
 	rdf_2(S,P,O),
@@ -45,14 +80,21 @@ entail(rdf(S,P,O),rdf(SS,P,OO)) :-
 	clean(S,SS),
 	clean(O,OO).
 
-clean(individual(B,Vars),NN) :-
-       concat_atom([B|Vars],'_',NN),!.
+clean(Bnode,NN) :-
+       ground(Bnode), Bnode=individual(B,Vars),
+	concat_atom([B|Vars],'_',NN),!.
 %clean(L,N) :-
 %	is_list(L),!,
-%	rdf_
+%	associate(N,L).
 clean(N,N).
 
 
+:- dynamic association/2.
+associate(N,L) :-
+	association(N,L),!.
+associate(N,L) :-
+	var(N),rdf_bnode(N),
+	assert(association(N,L)).
 
 rdf_2(S,P,O) :-
 	ground(P),
@@ -64,6 +106,8 @@ rdf_2(S,P,O) :-
 rdf_l([_],'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest','http://www.w3.org/1999/02/22-rdf-syntax-ns#nil').
 rdf_l([H|_],'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',H).
 rdf_l([_|T],'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',T) :- T\=='http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'.
-rdf_l(M,'http://www.w3.org/2000/10/swap/list#in',L) :- member(M,L).
+rdf_l(M,'http://www.w3.org/2000/10/swap/list#in',L) :- \+var(L),member(M,L).
+
+
 
 
