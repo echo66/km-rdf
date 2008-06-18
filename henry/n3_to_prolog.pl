@@ -27,7 +27,7 @@
 
 
 compile_all :-
-	forall(n3_prolog_clause(Clause),(format(user_error,'~w\n',[Clause]),assert(entailment:Clause))).
+	forall(n3_prolog_clause(Clause),(format(user_error,'~w\n',[Clause]),assert(rdf_e:Clause))).
 
 n3_prolog_clause(':-'(H,B)) :-
 	implies(BodyGraph,HeadGraph),

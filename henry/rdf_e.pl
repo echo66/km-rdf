@@ -37,7 +37,7 @@ test(query_list) :-
 rdf_e(S,P,O) :-
 	rdf_query(SS,S,Q1),
 	rdf_query(OO,O,Q2),
-	rdf_db:(Q1,Q2,rdf(SS,P,OO,G)),
+	rdf_db:(Q1,Q2,rdf(SS,P,OO,G)),G\=_:_,
 	\+rdf_db:rdf(G,_,_),\+rdf_db:rdf(_,_,G),P\='http://www.w3.org/2000/10/swap/log#implies'.
 rdf_e(S,P,O) :-
         builtin(P,Pred),
@@ -47,7 +47,7 @@ rdf_e(S,P,O) :-
 
 
 
-rdf_query(N,N,true) :- \+N=[_|_].
+rdf_query(N,N,true) :- atomic(N);var(N);N=@=literal(_). % is a RDF node?
 rdf_query('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil',[],true) :-!.
 rdf_query(LH,[H|T],(rdf(LH,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',H),rdf(LH,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',LT),QT)) :-
 	rdf_query(LT,T,QT).
