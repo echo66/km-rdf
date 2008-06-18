@@ -14,5 +14,5 @@
 :- rdf_register_ns(to,'http://purl.org/ontology/tonality/').
 :- rdf_register_ns(tl,'http://purl.org/NET/c4dm/timeline.owl#').
 :- rdf_register_ns(event,'http://purl.org/NET/c4dm/event.owl#').
-
+:- rdf_register_ns(t,'http://purl.org/ontology/tabling/').
 
