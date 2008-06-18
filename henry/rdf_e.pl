@@ -47,7 +47,7 @@ rdf_e(S,P,O) :-
 
 
 
-rdf_query(N,N,true) :- \+is_list(N).
+rdf_query(N,N,true) :- \+N=[_|_].
 rdf_query('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil',[],true) :-!.
 rdf_query(LH,[H|T],(rdf(LH,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',H),rdf(LH,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',LT),QT)) :-
 	rdf_query(LT,T,QT).

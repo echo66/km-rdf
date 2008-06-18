@@ -23,8 +23,14 @@ test(list_in1,[]) :-
         rdf_l(B,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',C),
         rdf_l(C,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',c),
         rdf_l(C,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest','http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
-	rdf_l(D,'http://www.w3.org/2000/10/swap/list#in',A),!,
+	rdf_e(D,'http://www.w3.org/2000/10/swap/list#in',A),!,
 	memberchk(D,[a,b,c]).
+test(list_in2,[]) :-
+	rdf(E,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',literal(a)),
+	rdf(E,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest','http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'),
+	rdf(A,'http://www.w3.org/2000/10/swap/list#in',E),!,
+	E = [literal(a)],
+	A = literal(a).
 test(list_in2,[blocked('The first member/2 creates an infinity of lists => infinite loop. This test should succeed as list_in1.')]) :-
 	rdf_l(D,'http://www.w3.org/2000/10/swap/list#in',A),
 	rdf_l(A,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',a),
@@ -48,12 +54,14 @@ test(describe_list,[]) :-
 	].
 :- end_tests(entailment).
 
+
 rdf(S,P,O) :-
 	copy_term((S,P,O),(SS,PP,OO)),
 	entail(rdf(SS,PP,OO),rdf(SSS,PPP,OOO)),
 	(is_list(SSS) -> rdf_bnode(SSSS) ; SSS=SSSS),
-	(is_list(OOO) -> rdf_bnode(OOOO) ; OOOO=OOO),
+	(is_list(OOO) -> rdf_bnode(OOOO) ; OOO=OOOO),
 	(
+		((is_list(SSS);is_list(OOO)),S=SSS,P=PPP,O=OOO);
 		(S=SSSS,P=PPP,O=OOOO);
 		(is_list(SSS),describe_list(SSS,SSSS,rdf(S,P,O)));
 		(is_list(OOO),describe_list(OOO,OOOO,rdf(S,P,O)))
@@ -98,8 +106,23 @@ rdf_2(S,P,O) :-
 rdf_l([_],'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest','http://www.w3.org/1999/02/22-rdf-syntax-ns#nil').
 rdf_l([H|_],'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',H).
 rdf_l([_|T],'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',T) :- T\=='http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'.
-rdf_l(M,'http://www.w3.org/2000/10/swap/list#in',L) :- \+var(L),member(M,L).
+%rdf_l(M,'http://www.w3.org/2000/10/swap/list#in',L) :- \+var(L),member(M,L).
 
 
 
+/**
+ * We'll know register the rdf/3 predicate to 
+ * be used as an entailment module within the
+ * SeRQL SWI Semantic Web server.
+ */
+
+
+                 /*******************************
+                 *             REGISTER         *
+                 *******************************/
+
+:- multifile
+        serql:entailment/2.
+
+serql:entailment(n3, n3_entailment).
 
