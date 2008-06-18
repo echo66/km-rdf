@@ -85,18 +85,8 @@ entail(rdf(S,P,O),rdf(SS,P,OO)) :-
 clean(Bnode,NN) :-
        ground(Bnode), Bnode=individual(B,Vars),
 	concat_atom([B|Vars],'_',NN),!.
-%clean(L,N) :-
-%	is_list(L),!,
-%	associate(N,L).
 clean(N,N).
 
-
-:- dynamic association/2.
-associate(N,L) :-
-	association(N,L),!.
-associate(N,L) :-
-	var(N),rdf_bnode(N),
-	assert(association(N,L)).
 
 rdf_2(S,P,O) :-
 	ground(P),
