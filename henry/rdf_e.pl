@@ -12,6 +12,8 @@
 :- use_module(library('semweb/rdfs'),
               [ rdfs_list_to_prolog_list/2 ]).
 :- use_module(builtins).
+:- use_module(namespaces).
+:- use_module(utils).
 
 :- dynamic rdf_e/3.
 
@@ -43,18 +45,48 @@ rdf_e(S,P,O) :-
         builtin(P,Pred),
         wrap_list(S,SS),
 	wrap_list(O,OO),
+	call_builtin(P,Pred,SS,OO).
+% Use rdf_reachable for handling owl:sameAs
+
+call_builtin(P,Pred,SS,OO) :-
+	\+tabled(P),
 	call(Pred,SS,OO).
+call_builtin(P,Pred,SS,OO) :-
+	tabled(P), \+cache(SS,P,OO),!,
+	call(Pred,SS,OO),
+	assert(cache(SS,P,OO)).
+	%rdf_assert_g(SSS,SS,G1),
+	%rdf_assert_g(OOO,OO,G2),
+	%literal_to_node(SSS,SSSS),
+	%rdf_db:(rdf_assert(SSSS,P,OOO),G1,G2).
+call_builtin(P,_,SS,OO) :-
+	tabled(P), writeln('looking up in cache'),
+	cache(SS,P,OO).
+
+:- dynamic cache/3.
+cache(S,P,O) :-
+	rdf_db:rdf(SS,P,OO,cache),
+	%literal_to_node(SSS,SS),
+	wrap_list(SS,S),wrap_list(OO,O).
+	
 
 
-
-rdf_query(N,N,true) :- atomic(N);var(N);N=@=literal(_). % is a RDF node?
+rdf_query(N,N,true) :- \+is_list(N),(atomic(N);var(N);(compound(N),N=literal(_))). % is a RDF node?
 rdf_query('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil',[],true) :-!.
 rdf_query(LH,[H|T],(rdf(LH,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',H),rdf(LH,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',LT),QT)) :-
 	rdf_query(LT,T,QT).
+rdf_assert_g(N,N,true) :- \+is_list(N),(atomic(N);var(N);(compound(N),N=literal(_))). % is a RDF node?
+rdf_assert_g('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil',[],true) :-!.
+rdf_assert_g(LH,[H|T],(rdf_assert(LH,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',H,cache),rdf_assert(LH,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',LT,cache),QT)) :-
+	rdf_bnode(LH),
+        rdf_assert_g(LT,T,QT).
 
 wrap_list(S,SS) :-
 	atomic(S),
 	rdfs_list_to_prolog_list(S,SS),!.
 wrap_list(S,S).
+
+tabled(P) :-
+	rdf_db:rdf(P,rdf:type,t:'TabledPredicate').
 
 
