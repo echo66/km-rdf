@@ -50,7 +50,7 @@
 
 	ldpl_input_audio(-PluginName, -ListOfIndexesOfInputAudioPorts) Eg: ldpl_input_audio('AmplifierStereo', [0, 1])
 
-	ldpl_output_audio(-PluginName, -ListOfIndexesOfOutputudioPorts)
+	ldpl_output_audio(-PluginName, -ListOfIndexesOfOutputAudioPorts)
 
 **/
 
@@ -99,6 +99,8 @@
 /**
 	Non-deterministic scan of plugins in system
 	ldpl_plugin_system(?Plugin)
+
+	IS FAILING AGAIN!!!!
 	*/
 ldpl_plugin_system(Plugin):-
 	ldpl_plugins(List),
@@ -110,6 +112,7 @@ ldpl_plugin_system(Plugin):-
 	ldpl_port_description(?PluginName, 'LadpsaPort'(?Type, ?Index, -Name))
 */
 ldpl_port_description(Name, 'LadspaPort'(T, I, N)):-
+	var(N),
 	ldpl_plugin_system(Name),
 	ldpl_input_audio(Name, InAu),
 	ldpl_output_audio(Name, OutAu),
@@ -129,7 +132,36 @@ is_inC(T, InC, I):-
 is_outC(T, OutC, I):-
 	member(I, OutC),
 	T = 'OutputControl'.
+ldpl_port_descriptor(Name, 'LasdpaPort'(T, I, N)):-
+	nonvar(N),
+	ldpl_port_descriptor(Name, 'LasdpaPort'(T, I, N2)),
+	N=N2.
+	
 
+/**
+	LADSPSA EFFECTS
+*/
+ladspa_plugin_effects(PluginName, Effects):-
+	findall(Effect,	ldpl_port_description(PluginName, 'LadspaPort'(_, _, Effect)), Effects).
+
+ladspa_effect_system(Effect):-
+	ldpl_plugin_system(PluginName),
+	ladspa_plugin_effects(PluginName, Effects),
+	member(Effect, Effects).
+
+ladspa_plugin_for(PluginKey, Effect, Index):-
+	var(Effect),
+	var(Index),
+	vamp_plugin_system(PluginKey),
+	vmpl_port_descriptor(PluginKey, 'LadspaPort'(_, Index, Effect)).
+ladspa_plugin_for(PluginKey, Effect, Index):-
+	nonvar(Effect),
+	var(PluginKey),
+	findall(FT, lasdpa_plugin_for(PluginKey, FT, _), Outputs),
+	member(Effect, Outputs),	
+	vmpl_port_descriptor(PluginKey, 'LadspaPort'(_, Index, Effect)).
+	
+	
 /**
 	LADSPA PROCESSOR
 */

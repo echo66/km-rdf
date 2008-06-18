@@ -101,7 +101,8 @@
 	*/
 
 /** 
-	vamp_plugins_sytem(?PluginKey) This predicates checks if the Plugin is on the system (PluginKey nomenclature description is library:pluginName)
+	vamp_plugins_sytem(?PluginKey) This predicates checks if the
+	Plugin is on the system (PluginKey nomenclature description is library:pluginName)
 	This predicate is non-deterministic
 	*/
 
@@ -119,15 +120,21 @@ vamp_feature_system(FeatureType):-
 	member(FeatureType, AvailableFeatures).
 
 /**
-	vamp_plugin_for(?PluginKey, -FeatureType, ?Index): Non deterministic relationship among a plugin, the features it ouptus and the index of
+	vamp_plugin_for(?PluginKey, ?FeatureType, ?Index): Non deterministic relationship among a plugin, the features it ouptus and the index of
 	each of them in the descriptor
 	*/
 
 vamp_plugin_for(PluginKey, FeatureType, Index):-
+	var(FeatureType),
 	vamp_plugin_system(PluginKey),
 	vmpl_load_plugin(PluginKey, 44100, Plugin),
 	vmpl_plugin_numberOutputs(Plugin, Size),
 	vamp_plugin_features(Plugin, Size, FeatureType, Index).
+vamp_plugin_for(PluginKey, FeatureType, Index):-
+	nonvar(FeatureType),
+	var(PluginKey),
+	findall(FT, vamp_plugin_for(PluginKey, Output, _), Outputs),
+	member(FeatureType, Outputs).
 
 vamp_plugin_features(Plugin, Size, FeatureType, Index):-
 	Limit is Size-1,
