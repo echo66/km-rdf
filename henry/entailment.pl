@@ -51,10 +51,12 @@ test(describe_list,[]) :-
 rdf(S,P,O) :-
 	copy_term((S,P,O),(SS,PP,OO)),
 	entail(rdf(SS,PP,OO),rdf(SSS,PPP,OOO)),
+	(is_list(SSS) -> rdf_bnode(SSSS) ; SSS=SSSS),
+	(is_list(OOO) -> rdf_bnode(OOOO) ; OOOO=OOO),
 	(
-		(\+is_list(SSS),\+is_list(OOO),S=SSS,P=PPP,O=OOO);
-		(is_list(SSS),rdf_bnode(List),describe_list(SSS,List,rdf(S,P,O)));
-		(is_list(OOO),rdf_bnode(List),describe_list(OOO,List,rdf(S,P,O)))
+		(S=SSSS,P=PPP,O=OOOO);
+		(is_list(SSS),describe_list(SSS,SSSS,rdf(S,P,O)));
+		(is_list(OOO),describe_list(OOO,OOOO,rdf(S,P,O)))
 	).
 
 describe_list([H|_],S,rdf(S,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',H)) :-
