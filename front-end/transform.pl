@@ -56,15 +56,27 @@ apply_transform(Input, transform(Type, engine(API, PluginName, Version), Sr, Ste
 	%check_sample_rate(Sr),
 	load_engine(engine(API, PluginName, Version), Plugin, Sr)
 	set_engine(API, Plugin, ListOfParameters, Configuration, Program),
+	restrict_output(API, Output),
 	engine_process(API, Plugin, Step, Block, Indexes, Outputs).
 /**should run in one**/
 	
+/*output syntax*/
+restrict_output('vamp', Output):-
+	Output = [['Feature'(Type, Timestamp, Data)|_SameType]|_MoreOutputsOfThePlugin]
+
+restrict_output('ladspa', Output):-
+	Output = signal(_Ch, _Sr , _L, _Data); Output=frequencySignal(_Ch, _Length, _Data2).
 
 /**
-	Processing+framing
+	Processing+framing. Indexes as list better i think
 */
 engine_process('vamp', Plugin, Step, Block, Indexes, Output):-
-	
+	restrict_output
+	set_blockSize(Plugin, BlockSize),
+	set_stepSize(Plugin, StepSize),
+	get_channels(Signal, Channels),
+	vmpl_initialize_plugin(Plugin, Channels, StepSize, BlockSize),
+	vamp_compute_feature(Signal, StepSize, BlockSize, Indexes, Plugin, WholeFeature).
 
 /**
 	setting up
