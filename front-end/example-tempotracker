@@ -1,0 +1,3 @@
+decode('/home/david/Repository/Test.mp3', 'Signal'(C, S, L, Data)), apply_transform(signal(C, S, L, Data), transform(feature, engine(vamp, 'libqm-vamp-plugins:qm-tempotracker', _), _, _, _, _, _, _,_,_), OUT).
+
+This retrieves all the outputs of the tempotracker with default parameters. There is a trick i need to change for the signal-'Signal' functor naming.

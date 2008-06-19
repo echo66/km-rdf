@@ -33,6 +33,7 @@
 	,	vamp_feature_system/1
 	,	vamp_plugin_for/3
 	, 	vamp_plugin_numberOutputs/2
+	,	vamp_plugin_features/2
 
 		/** 2nd step lifecycle: loading. We need the sample rate*/			
 	,	vmpl_load_plugin/3
@@ -121,9 +122,8 @@ vamp_feature_system(FeatureType):-
 
 /**
 	vamp_plugin_for(?PluginKey, ?FeatureType, ?Index): Non deterministic relationship among a plugin, the features it ouptus and the index of
-	each of them in the descriptor
+	each of them in the descriptor. Quite powerful.
 	*/
-
 vamp_plugin_for(PluginKey, FeatureType, Index):-
 	var(FeatureType),
 	vamp_plugin_system(PluginKey),
@@ -131,11 +131,26 @@ vamp_plugin_for(PluginKey, FeatureType, Index):-
 	vmpl_plugin_numberOutputs(Plugin, Size),
 	vamp_plugin_features(Plugin, Size, FeatureType, Index).
 vamp_plugin_for(PluginKey, FeatureType, Index):-
+	nonvar(PluginKey),
 	nonvar(FeatureType),
+	is_feature_of_plugin(PluginKey, FeatureType, Index).
+vamp_plugin_for(PluginKey, FeatureType, Index):-
 	var(PluginKey),
-	findall(FT, vamp_plugin_for(PluginKey, Output, _), Outputs),
-	member(FeatureType, Outputs).
-
+	var(Index),
+	nonvar(FeatureType),
+	vamp_plugin_system(Plugin),
+	is_feature_of_plugin(Plugin, FeatureType, Index),
+	PluginKey = Plugin.
+/** 
+	is_feature_of_plugin(+Plugin, ?Feature, ?Index)  and predicates helping for vamp_plugin_for/3 
+**/
+is_feature_of_plugin(Plugin, Feature, Index):-
+	nonvar(Plugin),
+	vamp_plugin_features(Plugin, List),
+	member([Feature,  Index], List).
+vamp_plugin_features(Plugin, OutIn):-
+	nonvar(Plugin),
+	findall([Output, In], vamp_plugin_for(Plugin, Output, In), OutIn).
 vamp_plugin_features(Plugin, Size, FeatureType, Index):-
 	Limit is Size-1,
 	between(0, Limit, Index),
