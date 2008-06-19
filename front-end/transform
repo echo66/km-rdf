@@ -1,0 +1,27 @@
+Transform 'Scenario'. "crappy doc"
+
+:-apply_transform(Signal, Transform, Output).
+
+where T = transform(Type, Engine, SampleRate, StepSize, BlockSize, Parameters, Configuration, Program, WindowType, QueriedOutputsList)
+
+where:
+
+Type = effect;vamp
+
+Engine = engine(API, PluginName, Version)
+
+Sample Rate: if it is variable (mp4 stuff and streaming)
+
+Step and Block Size when specifying framing
+
+Parameters: VampParameter or LADSPA CONTROL PORTS
+
+Configuration: extension for DSSI
+
+Program: Vamp program
+
+WindowType: Extension for frequency Signal
+
+QueriedOutputs: Names of the outputs we desire to obtain in the transform (transform themselves)
+
+Almost every parameters is optional: constraints and non deterministic calls...
