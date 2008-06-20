@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rdf:RDF xmlns:af="http://purl.org/ontology/af/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:event="http://purl.org/NET/c4dm/event.owl#" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:list="http://www.w3.org/2000/10/swap/list#" xmlns:mo="http://purl.org/ontology/mo/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:tl="http://purl.org/NET/c4dm/timeline.owl#" xmlns:vamp="http://purl.org/ontology/vamp/" xmlns:vs="http://www.w3.org/2003/06/sw-vocab-status/ns#" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns="file:///home/david/km-rdf/vamp-n3/vamp.n3">
-  <owl:Ontology rdf:about="">
+<rdf:RDF xmlns:af="http://purl.org/ontology/af/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:event="http://purl.org/NET/c4dm/event.owl#" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:list="http://www.w3.org/2000/10/swap/list#" xmlns:mo="http://purl.org/ontology/mo/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:tl="http://purl.org/NET/c4dm/timeline.owl#" xmlns:vamp="http://purl.org/ontology/vamp/" xmlns:vs="http://www.w3.org/2003/06/sw-vocab-status/ns#" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns="file:///home/moustaki/work/workspace/km-rdf/vamp-n3/vamp.n3">
+  <owl:Ontology rdf:about="file:///home/moustaki/work/workspace/km-rdf/vamp-n3/vamp.n3">
     <dc:title>Vamp Plugins Ontology</dc:title>
     <rdfs:label>Vamp Plugins Ontology</rdfs:label>
     <rdfs:comment>
@@ -142,11 +142,13 @@
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
     <rdfs:label>plugin identifier</rdfs:label>
     <rdfs:comment>
-		Machine-readable identifier for Vamp plugin classes (and Transform).
+		Identifier for Vamp plugin classes (and Transform), used
+		by vamp hosts
 	</rdfs:comment>
     <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/Plugin"/>
     <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/PluginProgram"/>
     <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/PluginOutput"/>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/PluginLibrary"/>
     <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/ParameterDescriptor"/>
     <vs:term_status>stable</vs:term_status>
     <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/Transform"/>
