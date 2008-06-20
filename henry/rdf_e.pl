@@ -1,4 +1,4 @@
-:- module(rdf_e,[rdf_e/3]).
+:- module(rdf_e,[rdf_e/3,cache/3]).
 
 :- use_module(library('semweb/rdf_db'),
               [ rdf_global_id/2,
