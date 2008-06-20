@@ -2,4 +2,4 @@ TODO
 ----
  * Implement Euler paths to avoid infinite recursion
  * Keep track of proofs (inference web or e:evidence)
-
+ * Hack a support for literal-as-nodes. Really messy for now
