@@ -203,11 +203,13 @@ vamp:identifier
 	a owl:DatatypeProperty;
 	rdfs:label "plugin identifier";
 	rdfs:comment """
-		Machine-readable identifier for Vamp plugin classes (and Transform).
+		Identifier for Vamp plugin classes (and Transform), used
+		by vamp hosts
 	""";
 	rdfs:domain vamp:Plugin;
 	rdfs:domain vamp:PluginProgram;
 	rdfs:domain vamp:PluginOutput;
+	rdfs:domain vamp:PluginLibrary;
 	rdfs:domain vamp:ParameterDescriptor;
 	vs:term_status "stable";
 	.
