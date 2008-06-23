@@ -30,8 +30,7 @@ _:signal
 		a tl:Interval;
 		tl:duration ?l;
 		#change this for a time value.
-		tl:onTimeLine _:tl;
-		tl:timeline _:sigtimeline;
+		tl:timeline _:tl;
 	].	
 }.
 
@@ -52,7 +51,7 @@ _:signal
 	mo:time [
 		a tl:Interval;
 		tl:duration ?l;
-		tl:onTimeLine _:tl;
+		tl:timeline _:tl;
 	].
 
 }.

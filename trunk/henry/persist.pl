@@ -1,4 +1,4 @@
-:- module(persist,[init_persistency/0,commit/0,mem_load/1,bin_db/1,assert_tabled/1,just_tabled/1,cached/1,tabled/1,persist/1,s_table/1]).
+:- module(persist,[init_persistency/0,commit/0,bin_db/1,assert_tabled/1,tabled/1,persist/1]).
 
 
 :- use_module(library('semweb/rdf_db')).
@@ -22,12 +22,7 @@ bin_db(bindb).
 
 
 tabled(Predicate) :-
-	rdf_db:rdf(Predicate,rdf:type,t:'TabledPredicate');
-	rdf_db:rdf(Predicate,rdf:type,t:'CachedPredicate').
-just_tabled(Predicate) :-
 	rdf_db:rdf(Predicate,rdf:type,t:'TabledPredicate').
-cached(Predicate) :-
-	rdf_db:rdf(Predicate,rdf:type,t:'CachedPredicate').
 :- rdf_meta assert_tabled(r).
 assert_tabled(Predicate) :-
 	rdf_db:rdf_assert(Predicate,rdf:type,t:'TabledPredicate').
@@ -113,20 +108,6 @@ clean_node(N) :-
         clean_data(N).
 clean_node(_).
 
-mem_load(N) :-
-	atomic(N),
-	atom_concat('__data_',_Id,N),
-	bin_db(DB),\+active_id(N),!,
-	((reserve(N),!);true),
-	format(atom(File),'~w/~w',[DB,N]),
-	format(user_error,'DEBUG: Loading node ~w from ~w\n',[N,File]),
-	data_in(File,N),
-	on_backtracking(N).
-mem_load([]) :- !.
-mem_load([H|T]) :-
-	mem_load(H),!,
-	mem_load(T).
-mem_load(_).
 
 on_backtracking(_).
 on_backtracking(N) :- clean_data(N),!,fail.	
@@ -140,19 +121,5 @@ init_persistency.
 reserve(N) :-
 	format(user_error,'DEBUG: Reserving data ID ~w\n',[N]),
 	reserve_id(N).
-
-/**
- * In session tabling - should not really
- * be used, except for debugging purposes
- *
- * Only for deterministic predicates
- */
-:- dynamic cache/1.
-:- module_transparent s_table/1.
-s_table(Goal) :-
-	persist:cache(Goal),!.
-s_table(Goal) :-
-	Goal,
-	assert(persist:cache(Goal)).
 
 

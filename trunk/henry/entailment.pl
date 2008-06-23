@@ -52,11 +52,15 @@ test(describe_list,[]) :-
 	,	rdf(D,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',b)
 	,	rdf(D,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest','http://www.w3.org/1999/02/22-rdf-syntax-ns#nil')
 	].
+test(convert_skolem,[]) :-
+	clean_skolem(individual('__bnode3',[a,b,c,[d,e]]),E),parse_skolem(E,R),!,
+	R =  individual('__bnode3', [a, b, c, [d, e]]).
 :- end_tests(entailment).
 
 
 rdf(S,P,O) :-
-	copy_term((S,P,O),(SS,PP,OO)),
+	parse_skolem(S,S2),parse_skolem(O,O2),
+	copy_term((S2,P,O2),(SS,PP,OO)),
 	entail(rdf(SS,PP,OO),rdf(SSS,PPP,OOO)),
 	(is_list(SSS) -> rdf_bnode(SSSS) ; SSS=SSSS),
 	(is_list(OOO) -> rdf_bnode(OOOO) ; OOO=OOOO),
@@ -87,14 +91,39 @@ describe_list([_|T],S,Triple) :-
 entail(rdf(S,P,O),rdf(SS,P,OO)) :-
 	rdf_2(S,P,O),
 	% some filtering, to not make SeRQL crash with lists-as-nodes and bnodes-as-terms
-	clean(S,SS),
-	clean(O,OO).
+	clean_skolem(S,SS),
+	clean_skolem(O,OO).
 
-clean(Bnode,NN) :-
-       ground(Bnode), Bnode=individual(B,Vars),
-	concat_atom([B|Vars],'_',NN),!.
-clean(N,N).
+clean_skolem(Bnode,NN) :-
+	ground(Bnode), Bnode=individual(B,Vars),
+	%to_atom_list(Vars,VarsL), % in case some literal terms are in there
+	%concat_atom([B|VarsL],'_',NN),!.
+	term_to_atom(Vars,Vars2),
+	concat_atom([B,'_',Vars2],NN),!.
+clean_skolem(N,N).
 
+parse_skolem(At,individual(Bnode,Args3)) :-
+	%concat_atom(List,'_',At),
+	%List = ['','',BnodeId|Args],
+	%to_term_list(Args,Args2),
+	%atom_concat('__',BnodeId,Bnode).
+	atomic(At),
+	concat_atom(List,'_',At),
+	List = ['','',BnodeId|Args],
+	concat_atom(Args,'_',Args2),
+	atom_to_term(Args2,Args3,[]),
+	atom_concat('__',BnodeId,Bnode).
+parse_skolem(N,N).
+
+to_term_list([],[]) :-!.
+to_term_list([H|T1],[HH|T2]) :-
+	catch(atom_to_term(H,HH,[]),_,H=HH),
+	to_term_list(T1,T2).
+
+to_atom_list([],[]):-!.
+to_atom_list([H|T1],[HH|T2]) :-
+	(\+atomic(H) -> term_to_atom(H,HH); H = HH),
+	to_atom_list(T1,T2).
 
 rdf_2(S,P,O) :-
 	ground(P),
