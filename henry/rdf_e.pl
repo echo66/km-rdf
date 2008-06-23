@@ -14,6 +14,7 @@
 :- use_module(builtins).
 :- use_module(namespaces).
 :- use_module(utils).
+:- use_module(blob_load).
 
 :- dynamic rdf_e/3.
 
@@ -37,6 +38,7 @@ test(query_list) :-
 
 
 rdf_e(S,P,O) :-
+	writeln(rdf_e(S,P,O)),
 	rdf_query(SS,S,Q1),
 	rdf_query(OO,O,Q2),
 	rdf_db:(Q1,Q2,rdf(SS,P,OO,G)),G\=_:_,
@@ -45,7 +47,7 @@ rdf_e(S,P,O) :-
         builtin(P,Pred),
         wrap_list(S,SS),
 	wrap_list(O,OO),
-	call_builtin(P,Pred,SS,OO).
+	catch(call_builtin(P,Pred,SS,OO),_,fail).
 % Use rdf_reachable for handling owl:sameAs
 
 call_builtin(P,Pred,SS,OO) :-
@@ -61,7 +63,8 @@ call_builtin(P,Pred,SS,OO) :-
 	%rdf_db:(rdf_assert(SSSS,P,OOO),G1,G2).
 call_builtin(P,_,SS,OO) :-
 	tabled(P), writeln('looking up in cache'),
-	cache(SS,P,OO).
+	cache(SS,P,OO),
+	mem_load(SS),mem_load(OO).
 
 :- dynamic cache/3.
 cache(S,P,O) :-
