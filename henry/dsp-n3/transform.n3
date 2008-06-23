@@ -1,0 +1,23 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix vamp: <http://purl.org/ontology/vamp/>.
+@prefix examples: <http://vamp-plugins.org/rdf/plugins/vamp-example-plugins#>.
+@prefix : <#>.
+
+:transform0 a vamp:Transform;
+	vamp:plugin examples:percussiononsets;
+	vamp:step_size "512";
+ 	vamp:block_size "1024";
+	vamp:window_type "Hanning"; ###!!! individuals not yet defined
+	vamp:parameter :param0 ;
+	vamp:parameter :param1 .
+
+:param0 a vamp:Parameter;
+	vamp:identifier "sensitivity";
+	vamp:value "40".
+
+:param1 a vamp:Parameter;
+	vamp:identifier "threshold";
+	vamp:value "3".
+
+
+
