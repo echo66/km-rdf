@@ -20,7 +20,7 @@
 	*******************************************************************************/
 
 /**
-	PREDEFINED WAY TO CREATE A DATASET
+	PREDEFINED WAY TO CREATE A DATASET (this is more as example, we are not using this on classification front-end)
 
 	Creates an empty set (no values) for the given attributes and capacity. These predicate is designed to set numerical and nominal predicates
 	as many classifiers don't support more attribute types that those ones. It's also possible on user's responsability to create a string 
@@ -90,6 +90,7 @@ wkpl_set_numAttribute(Name, FastVector):-
 
 /**
 	Sets the nominal and string attributes. The name and the range of values for it must be passed.
+	These are not used in classification front-end
 	
 	Example: [nominal(name, [chris, mary, phil]), nominal(date, []), nominal(surname, [stevenson, healey])]
 	*/
@@ -121,7 +122,7 @@ wkpl_add_numAttribute(Instances, Name, Position):-
 	Adds a nominal attribute once the data has been already created.
 	*/
 
-wkpl_add_nomAttribute(Instances, nominal(Name, Values), Position):-
+wkpl_add_nomAttribute(Instances, Name, Values, Position):-
 	wkpl_attribute_nominal(Name, Values, Attribute),
 	jpl_call(Instances, insertAttributeAt, [Attribute, Position], _).
 

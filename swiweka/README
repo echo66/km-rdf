@@ -1,6 +1,18 @@
 SWIWEKA MODULE KM.
 David Pastor Escuredo 2008, c4dm, Queen Mary, University of London.
 
+1. INSTALL
+
+To successfully use swiweka, please follow these instructions
+
+1- Download the Linux package from weka site
+2- Set the jar in the classpath in the bash
+3- configure your path in jpl_weka
+
+Go :)
+
+2. CONTENT
+
 This is an interface that allows to use the WEKA API for classification within the KM just with some predicates. It's built on the JPL interface available for SWI-Prolog as package (Paul Singleton). The detailed information is so far at the sources. The interface contains the following Prolog programs:
 
 --jpl_weka. This is a bunch of intermediate tools used to make easier the handling of WEKA using JPL. Some of them are deprecated and not used anymore
