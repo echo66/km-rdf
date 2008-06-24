@@ -25,12 +25,17 @@ wkpl_add_weka_to_classpath:-
 	ToDo: Set the Path in the host!
 	*/ 
 
+jar_weka('jar:file:/home/david/weka-3-5-7/weka.jar!/').
+jar_srcweka('jar:file:/home/david/weka-3-5-7/weka_src.jar!/').
+
 wkpl_set_weka_path(Path):-
 	flag('path', _, Path).
 
-wkpl_weka_loader(Loader):-	
-	jpl_new('java.net.URL', ['jar:file:/home/david/weka-3-5-6/weka.jar!/'], Url1),
-	jpl_new('java.net.URL', ['jar:file:/home/david/weka-3-5-6/weka_src.jar!/'], Url2),
+wkpl_weka_loader(Loader):-
+	jar_weka(JAR),
+	jar_srcweka(JARSRC),
+	jpl_new('java.net.URL', [JAR], Url1),
+	jpl_new('java.net.URL', [JARSRC], Url2),
 	wkpl_new_array('java.net.URL', 2, Array),
 	jpl_call('java.lang.reflect.Array', set, [Array, 0, Url1], _),
 	jpl_call('java.lang.reflect.Array', set, [Array, 1, Url2], _),
