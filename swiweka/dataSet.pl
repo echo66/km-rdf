@@ -41,6 +41,7 @@
 	*/
 
 wkpl_create_dataSet(Name, AtVector, Capacity, Instances):-
+	wkpl_new_argsType_array(3, Args),
 	wkpl_add_type_to_args('java.lang.String', Args, 0),
 	wkpl_add_wekaType_to_args('weka.core.FastVector', Args, 1),
 	wkpl_add_primitiveType_to_args(int, Args, 2),
