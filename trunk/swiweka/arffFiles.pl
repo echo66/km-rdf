@@ -1,6 +1,6 @@
 /**
 	Interface to deal with ARFF files
-	David Pastor 2008
+	David Pastor Escuredo, 2008, C4DM, Queen Mary.
 */
 
 :- [dataSet].

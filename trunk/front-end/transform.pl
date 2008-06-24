@@ -4,6 +4,13 @@
 	May 2008
 
 	Contains hardcoded rules for interpretation of a transform predicate. These rules allow the user to call the transform in *many* ways without crashing pointing to a declarative meaning of such a predicate. 
+
+
+SPECIFICATION:
+
+	:-apply_transform(Signal, Transform, Output).
+
+where T = transform(Type, Engine, SampleRate, StepSize, BlockSize, Parameters, Configuration, Program, WindowType, QueriedOutputsList)
 */
 :-module(transform, [api/1
 		,	transform_type/1
@@ -228,7 +235,7 @@ check_plugin(engine(API, PluginName, _), Outputs, [Index]):-
 	member(Output, Outputs),
 	vamp_plugin_for(PluginName, Output, Index).
 
-/** same for ladspa (I have to do it) **/
+/** same for ladspa (FIXME) **/
 check_plugin(engine('ladspa', PluginName, _), Outputs, Indexes):-
 	var(Outputs),
 	ldpl_plugin_system(PluginName),

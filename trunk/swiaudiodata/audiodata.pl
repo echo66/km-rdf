@@ -39,7 +39,7 @@
 			reserve_id/1,
 			is_data_id/1,	
 			register_blob/2, /*reserves a new id and stores the blob*/
-			register_data_list/1,
+			register_data_list/2,
 
 			/*db status*/
 			current_id/1,
@@ -299,7 +299,7 @@ id_db_status(Size, CurrentID, NextID):-
 	next_id(NextID).
 
 /**
-	Register blob register_blob(+Blob)
+	Register blob register_blob(+Blob, -Id)
 */
 register_blob(Blob, Id):-
 	next_id(Id),
@@ -307,11 +307,11 @@ register_blob(Blob, Id):-
 	blob_id(Id, Blob).
 
 /**
-	register_data_list(+List)
+	register_data_list(+List, -Id)
 */
-register_data_list(List):-
+register_data_list(List, ID):-
 	list_to_pointerBlob(List, Blob),
-	register_blob(Blob).
+	register_blob(Blob, ID).
 
 /**
 	Concat and compare
@@ -350,7 +350,7 @@ add_frames([H|T], PCMs, List):-
 concat_frames([], [], _).
 concat_frames([H1|T1], [H2|T2], [H|T]):-
 	data_concat(H1, H2, H),
-	concat_Frames(T1, T2, T).
+	concat_frames(T1, T2, T).
 	
 	
 
