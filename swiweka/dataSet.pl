@@ -40,18 +40,14 @@
 	Note: Other attributes can be added later on with the wkpl_add_xxx predicates, but always before filling the dataset with the data.
 	*/
 
-wkpl_create_dataSet(Name, NumAttributes, NomAttributes, Capacity, Instances):-
-	wkpl_fastVector(FastVector),
-	wkpl_set_numAttributes(NumAttributes, FastVector),
-	wkpl_set_nomAttributes(NomAttributes, FastVector),
-	wkpl_new_argsType_array(3, Args),
+wkpl_create_dataSet(Name, AtVector, Capacity, Instances):-
 	wkpl_add_type_to_args('java.lang.String', Args, 0),
 	wkpl_add_wekaType_to_args('weka.core.FastVector', Args, 1),
 	wkpl_add_primitiveType_to_args(int, Args, 2),
 	wkpl_new_array('java.lang.Object', 3, Values),
 	jpl_new('java.lang.Integer', [Capacity], C),
 	jpl_call('java.lang.reflect.Array', set, [Values, 0, Name], _),
-	jpl_call('java.lang.reflect.Array', set, [Values, 1, FastVector], _),
+	jpl_call('java.lang.reflect.Array', set, [Values, 1, AtVector], _),
 	jpl_call('java.lang.reflect.Array', set, [Values, 2, C], _),
 	wkpl_getObject('weka.core.Instances', [Args], [Values], Instances).
 
@@ -73,42 +69,19 @@ wkpl_create_empty_dataSet(Name, Instances):-
 	wkpl_getObject('weka.core.Instances', [Args], [Values], Instances).
 
 /**
-	Sets numeric attributes. The attributes are just a prolog list of the names. Note that the numAttributes will be placed at the beginning of the 	fast vector and the nominals at the end. The position within each type is user's responsability.
+	Prolog representation of an attribute to be added
+*/
+wkpl_add_attribute(Instances, numAt(Name), Position):-
+	wkpl_add_numAttribute(Instances, Name, Position).
 
-	Example [age, weight, height]
-	*/
+wkpl_add_attribute(Instances, nomAt(Name, Values), Position):-
+	wkpl_add_nomAttribute(Instances, Name, Values, Position).
 
-wkpl_set_numAttributes([], _).
+wkpl_add_attribute(Instances, stringAt(Name), Position):-
+	wkpl_add_stringAttribute(Instances, Name, Position).
 
-wkpl_set_numAttributes([H|T], FastVector):-
-	wkpl_set_numAttribute(H, FastVector),
-	wkpl_set_numAttributes(T, FastVector).
-
-wkpl_set_numAttribute(Name, FastVector):-
-	wkpl_attribute_numerical(Name, Attribute),
-	wkpl_fastVector_add(FastVector, Attribute).
-
-/**
-	Sets the nominal and string attributes. The name and the range of values for it must be passed.
-	These are not used in classification front-end
-	
-	Example: [nominal(name, [chris, mary, phil]), nominal(date, []), nominal(surname, [stevenson, healey])]
-	*/
-
-wkpl_set_nomAttributes([], _).
-
-wkpl_set_nomAttributes([H|T], FastVector):-
-	wkpl_set_nomAttribute(H, FastVector),
-	wkpl_set_nomAttributes(T, FastVector).
-
-wkpl_set_nomAttribute(nominal(Name, Values), FastVector):-
-	Values = [],
-	wkpl_attribute_string(Name, Attribute),
-	wkpl_fastVector_add(FastVector, Attribute).
-
-wkpl_set_nomAttribute(nominal(Name, Values), FastVector):-
-	wkpl_attribute_nominal(Name, Values, Attribute),
-	wkpl_fastVector_add(FastVector, Attribute).
+wkpl_add_attribute(Instances, dateAt(Name, Date), Position):-
+	wkpl_add_dateAttribute(Instances, Name, Date, Position).
 
 /**
 	Adds a numerical attribute once the data has been already created. We only pass the name. 
