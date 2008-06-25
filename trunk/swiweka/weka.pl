@@ -25,17 +25,22 @@
 		, 	wkpl_attribute_date/3
 		, 	wkpl_attribute_relation/3
 		
-	
 		,	wkpl_read_arff/2
 		,	wkpl_write_arff/2
 		,	wkpl_create_arff/6
+
+		,	wkpl_classifier/3
+		,	wkpl_classifier_description/2
+		,	wkpl_set_options/2
+		,	wkpl_get_options/2
+		,	wkpl_list_options/2
+		,
 		]).
 
 :- style_check(-discontiguous).
 
 /**loading interface written in JPL**/
-:-[jpl_weka].
-:-[classification].
+:-[runclassification].
 :-[dataSet].
 :-[arffFiles].
 
