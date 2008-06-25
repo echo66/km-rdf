@@ -1,6 +1,6 @@
 /**
 	Hiding the classifiers creation using the very specific last name in the class formal name
-	Just make the whoooole list. 
+	Just make the whoooole list. Should be a better way!!!!! 
 	David Pastor Escuredo 2008, c4dm, Queen Mary
 	*/
 
@@ -10,7 +10,7 @@
 /**
 	Enumerate Classifiers
 **/
-enumerate_all_classifiers(_C, T):-
+weka_classifiers(_C, T):-
 	wkpl_getObject('weka.core.ClassDiscovery', ClassDiscovery),
 	jpl_call(ClassDiscovery, findPackages, [], Packages),
 	jpl_call(Packages, capacity, [], L),
