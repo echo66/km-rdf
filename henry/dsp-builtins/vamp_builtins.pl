@@ -24,7 +24,7 @@ builtins:builtin('http://purl.org/ontology/vamp/qm-beats',vamp_builtins:beats).
 keydetector(Input,Features) :-
 	nonvar(Input),
 	Input = [literal(Channels),literal(SR),literal(L),Sigs],
-	vmpl_load_plugin_for('libqm-vamp-plugins:qm-keydetector','Signal'(Channels,SR,L,Sigs),Plugin),
+	vmpl_load_plugin_for('qm-vamp-plugins:qm-keydetector','Signal'(Channels,SR,L,Sigs),Plugin),
 	vmpl_get_blockSize(Plugin,Win),
 	vmpl_get_stepSize(Plugin,Hop),
 	vmpl_initialize_plugin(Plugin,Channels,Win,Hop),
@@ -41,7 +41,7 @@ mfccparameters(Input, [MLData, VLData]) :-
 	nonvar(Input),
 	Input = [literal(Channels),literal(SR),literal(L),Sigs],
 	mix_stereo('Signal'(Channels, SR, L, Sigs), 'Signal'(ChannelsM, SRM, LM, SigsMono)),
-	vmpl_load_plugin('libqm-vamp-plugins:qm-similarity',SR,Plugin),
+	vmpl_load_plugin('qm-vamp-plugins:qm-similarity',SR,Plugin),
 	vmpl_set_parameter(Plugin, 'featureType', 0),
 	vmpl_get_blockSize(Plugin, BlockSize),
 	vmpl_get_stepSize(Plugin, StepSize),
