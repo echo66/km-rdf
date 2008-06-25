@@ -65,7 +65,7 @@ rdf(S,P,O) :-
 	(is_list(SSS) -> rdf_bnode(SSSS) ; SSS=SSSS),
 	(is_list(OOO) -> rdf_bnode(OOOO) ; OOO=OOOO),
 	(
-		((is_list(SSS);is_list(OOO)),S=SSS,P=PPP,O=OOO);
+		(once((is_list(SSS);is_list(OOO))),S=SSS,P=PPP,O=OOO);
 		(S=SSSS,P=PPP,O=OOOO);
 		(is_list(SSS),describe_list(SSS,SSSS,rdf(S,P,O)));
 		(is_list(OOO),describe_list(OOO,OOOO,rdf(S,P,O)))
