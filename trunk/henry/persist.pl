@@ -48,8 +48,8 @@ commit :-
 	forall(cache(S,P,O),
 		(
 			persist(rdf(S,P,O)),
-			((pl_list_to_rdf_list(S,Triples1,SS),list(SS,S),!);(S=SS,Triples1=[])),
-			((pl_list_to_rdf_list(O,Triples2,OO),list(OO,O),!);(O=OO,Triples2=[])),
+			((pl_list_to_rdf_list(S,Triples1,SS),!);(S=SS,Triples1=[])),
+			((pl_list_to_rdf_list(O,Triples2,OO),!);(O=OO,Triples2=[])),
 			append(Triples1,Triples2,Triples),
 			free_variables([Triples,SS,OO],Vars),bnode_list(Vars),
 			!,rdf_assert(SS,P,OO,persist),
