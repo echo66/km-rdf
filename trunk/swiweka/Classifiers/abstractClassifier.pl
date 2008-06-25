@@ -1,6 +1,5 @@
 /**
 	Represents the common predicates por any classifier that comes from weka.classifiers.Classifier
-	Prolog needs this to be at the bottom.
 
 	David Pastor Escuredo 2008, c4dm Queen Mary
 	*/
