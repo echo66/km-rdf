@@ -1,5 +1,6 @@
 /**
-	Interface to deal with ARFF files
+	Interface to deal with ARFF files.
+	ToDo: add other formats ACE/XML from jmir and databases or whatever...
 	David Pastor Escuredo, 2008, C4DM, Queen Mary.
 */
 

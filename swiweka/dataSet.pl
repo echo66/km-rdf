@@ -4,7 +4,7 @@
 		-weka.Instances
 		-weka.Instance
 		-weka.Attribute
-
+	ToDo: seems alright
 	It would be useful to extend this, but should be done as we need it.
 	
 	David Pastor 2008, c4dm, Queen Mary, Universtiy of London
