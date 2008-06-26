@@ -30,6 +30,13 @@
 		,	wkpl_create_arff/6
 
 		,	wkpl_classifer/1
+		,	wkpl_filter/1
+		,	wkpl_clusterer/1
+		,	wkpl_resource/1
+		,	wkpl_package/1
+		,	wkpl_resource_packages/3
+
+		,	wkpl_classifier/2
 		,	wkpl_classifier/3
 		,	wkpl_classifier_description/2
 		,	wkpl_set_options/2
@@ -46,6 +53,22 @@
 :-[arffFiles].
 
 /** FAST VECTORS **/
+
+/**
+	wkpl_fastVector(-FastVector): constructs empty fast vector
+*/
+
+/**
+	wkpl_fastVector(-FastVector, +Capacity): constructs a fast vector with the given capacity
+*/
+
+/**
+	wkpl_fastVector_add(+FastVector, +Element): add
+*/
+
+/**
+	wkpl_fastVector_addList(+FastVector, +ListOfElements): add list
+*/
 
 /** ARFF FILES **/
 
