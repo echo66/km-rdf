@@ -59,7 +59,7 @@ similarity(Input, [MLData, VLData, BLData]) :-
 	nonvar(Input),
 	Input = [literal(Channels),literal(SR),literal(L),Sigs],
 	mix_stereo('Signal'(Channels, SR, L, Sigs), 'Signal'(ChannelsM, SRM, LM, SigsMono)),
-	vmpl_load_plugin('libqm-vamp-plugins:qm-similarity',SR,Plugin),
+	vmpl_load_plugin('qm-vamp-plugins:qm-similarity',SR,Plugin),
 	vmpl_set_parameter(Plugin, 'featureType', 1),
 	vmpl_get_blockSize(Plugin, BlockSize),
 	vmpl_get_stepSize(Plugin, StepSize),
@@ -80,7 +80,7 @@ similarity(Input, [MLData, VLData, BLData]) :-
 beats(Input, BeatDetec):-
 	nonvar(Input),
 	Input = [literal(Channels),literal(SR),literal(L),Sigs],
-	vmpl_load_plugin('libqm-vamp-plugins:qm-tempotracker',SR,Plugin),
+	vmpl_load_plugin('qm-vamp-plugins:qm-tempotracker',SR,Plugin),
 	vmpl_get_blockSize(Plugin, BlockSize),
 	vmpl_get_stepSize(Plugin, StepSize),
 	vmpl_initialize_plugin(Plugin, 1, StepSize, BlockSize),
