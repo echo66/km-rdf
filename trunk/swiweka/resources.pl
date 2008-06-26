@@ -82,10 +82,18 @@ wkpl_classifier(Classifier):-
 
 wkpl_filter(Filter):-
 	wkpl_getObject('weka.core.ClassDiscovery', ClassDiscovery),
-	wkpl_resource_packages(classifier, Package, _),
+	wkpl_resource_packages(filter, Package, _),
 	jpl_call(ClassDiscovery, find, ['weka.filters.Filter', Package], Filters),
 	jpl_call(Filters, toArray, [], FArray),
 	jpl_array_to_list(FArray, List),
 	member(Filter, List).
+
+wkpl_clusterer(Clusterer):-
+	wkpl_getObject('weka.core.ClassDiscovery', ClassDiscovery),
+	wkpl_resource_packages(clusterer, Package, _),
+	jpl_call(ClassDiscovery, find, ['weka.filters.Filter', Package], Cls),
+	jpl_call(Cls, toArray, [], CArray),
+	jpl_array_to_list(CArray, List),
+	member(Clusterer, List).
 
 
