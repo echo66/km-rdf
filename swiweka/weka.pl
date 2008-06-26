@@ -29,7 +29,7 @@
 		,	wkpl_write_arff/2
 		,	wkpl_create_arff/6
 
-		,	wkpl_classifer/1
+		,	wkpl_classifier/1
 		,	wkpl_filter/1
 		,	wkpl_clusterer/1
 		,	wkpl_resource/1
@@ -42,7 +42,6 @@
 		,	wkpl_set_options/2
 		,	wkpl_get_options/2
 		,	wkpl_list_options/2
-		,
 		]).
 
 :- style_check(-discontiguous).
