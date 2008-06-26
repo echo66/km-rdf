@@ -13,7 +13,6 @@
 :-[jpl_weka].	
 :-[fastVector].
 :- style_check(-discontiguous).
-:- load_foreign_library(swiweka).
 
 	/*******************************************************************************
 	****************************** CREATING DATASETS *******************************
