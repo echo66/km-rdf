@@ -42,6 +42,10 @@
 		,	wkpl_set_options/2
 		,	wkpl_get_options/2
 		,	wkpl_list_options/2
+
+		,	wkpl_stratify_dataSet/2
+		,	wkpl_create_testSet/4
+		,	wkpl_create_trainSet/4
 		]).
 
 :- style_check(-discontiguous).

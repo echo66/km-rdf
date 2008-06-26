@@ -5,7 +5,21 @@
 	June 2008, c4dm, Queen Mary University of London
 **/
 
-:-module(classification, []).
+:-module(classification, [	classifSets_db/2
+			,	dataSets_db/2
+
+			,	create_classifSet/3
+			,	save_classifSet/2
+			,	load_classifSet/2
+		
+			,	insert_records/3
+			, 	save_dataSet/2
+			,	save_dataSet/2
+
+			,	classifier/1
+			,	classifier_taxonomy/4
+			,	set_classifier/4
+			]).
 
 :-use_module('../swiweka/weka').
 
@@ -17,9 +31,11 @@
 :- dynamic classifSets_db/2.
 
 /**
-	The same for full datasets
+	The same for full datasets, testSets and trainSets
 */
-:-dynamic dataSets_db/1.
+:-dynamic dataSets_db/2.
+:-dynamic testSets_db/2.
+:-dynamic trainSets_db/2.
 
 /************************************* DATE SET MANAGMENT ****************************/
 
@@ -127,6 +143,23 @@ load_dataSet(ArffFilePath, ID):-
 	wkpl_read_arff(ArffFilePath, Instances),
 	assert(dataSets_db(ID, Instances)).
 
+/**
+	Create test and train sets and stratify data set for Cross-validation. Folds and Fold
+*/
+test_set(DataSetID, Folds, Fold, TestID):-
+	dataSets_db(DataSetID, Instances),
+	wkpl_create_testSet(Instances, Folds, Fold, Test),
+	assert(testSets_db(TestID, Test)).
+
+train_set(DataSetID, Folds, Fold, TrainID):-
+	dataSets_db(DataSetID, Instances),
+	wkpl_create_trainSet(Instances, Folds, Fold, Train),
+	assert(trainSets_db(TrainID, Train)).
+
+stratify_dataSet(ID, Folds):-
+	dataSets_db(ID, Set),
+	wkpl_stratify_dataSet(Set, Folds).
+
 /******************************************** CLASSIFIERS ***************************************/	
 
 /**
@@ -138,9 +171,9 @@ classifier(Classifier):-
 /**
 	Hierarchy of classifiers. It allows the user to find the desired classifier
 
-	classifier_type(?Name, ?Type, ?Subtype, ?ClassifierClassName)
+	classifier_taxonomy(?Name, ?Type, ?Subtype, ?ClassifierClassName)
 */
-classifier_type(Name, Type, Subtype, Classifier):-
+classifier_taxonomy(Name, Type, Subtype, Classifier):-
 	wkpl_classifier(Classifier),
 	atom_concat('weka.classifiers.', TypeName, Classifier),
 	concat_atom(List, '.', TypeName),
@@ -184,8 +217,17 @@ create_classifier(Classifier, Options, Object):-
 	wkpl_classifier(Classifier, Options, Object).
 
 /**
-	TODO:
-		Training sets
-		Retrieve results
+	Run classification. Not an id...
 **/
+classify(RealSet, Classifier, Result),
+	jpl_call(RealSet, enumerateInstances, [], Entries),
+	classify_record(Entries, Classifiers, Result).
 
+classify_record(Entries, Classifiers, Result):-
+	jpl_call(Entries, nextElement, [], Record),
+	classification(Classifier, Record, Result).
+
+classification(Classifier, Record, Result):-
+	/**
+		Analyse the classifier and then se..
+	*/
