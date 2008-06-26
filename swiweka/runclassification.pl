@@ -10,36 +10,8 @@
 	*/
 
 :-[dataSet].
-:-consult('/home/david/km-rdf/swiweka/Classifiers/classifiers').
+:-[classifiers].
 
-			/***************************
-			******* GENERAL ************
-			***************************/
-
-/**
-	wkpl_classifier(Name, Classifier) from classifiers.pl hides the specific creation of each classifier type.
-
-	The name can be better seen with one example. 
-
-	For weka.classifiers.bayes.BayesNet
-
-	the name is 'bayes.BayesNet'
-
-	We don't really need it as we have wkpl_classifier/3 but we may want to create with t
-	*/
-
-/**
-	Creates a classifier giving the Class name of the classifier (weka.classifieres.bayes.BayesNet) and a list with the options for the classifier
-	*/
-
-wkpl_classifier(Name, Options, Classifier):-
-	jpl_datums_to_array(Options, Args),
-	jpl_call('weka.classifiers.Classifier', forName, [Name, Args], Classifier).
-
-/**
-	String description of the classifier. The important thing of the predicate that it gives information of the classifier status at different 
-	times so we get dynamic information of the classifier and the classification set.
-	*/
 
 wkpl_classifier_description(Classifier, Description):-
 	jpl_call(Classifier, toString, [], Description).
@@ -90,45 +62,4 @@ wkpl_classify(Classifier, Dataset, Classification):-
 	wkpl_classify_dataSet(Classifier, Dataset, Classification).
 
 
-					/***********************************
-					*********** OPTIONS ****************
-					***********************************/
-
-/**
-	Set options with a prolog list ['-D', '-Q' ...]. This must be checked out for each classifier by the user. Each element of the list is an option 	 synopsis
-	*/
-
-wkpl_set_options(Classifier, Options):-
-	jpl_datums_to_array(Options, Args),
-	jpl_call(Classifier, setOptions, [Args], _).
-
-
-/**
-	gets how the options are configure at a certain point
-	*/
-
-wkpl_get_options(Classifier, Options):-
-	jpl_call(Classifier, getOptions, [], Array),
-	jpl_array_to_list(Array, Options).
-
-/*
-	Lists the possible options for a classifier
-	*/
-
-wkpl_list_options(Classifier, Options):-
-	jpl_call(Classifier, listOptions, [], Enum),
-	jpl_enumeration_to_list(Enum, Options).
-
-/*
-	Description, synopsis for the option
-	*/
-
-wkpl_option_synopsis(Option, Desc):-
-	jpl_call(Option, synopsis, [], Desc).
-
-wkpl_option_description(Option, Desc):-
-	jpl_call(Option, description, [], Desc).
-
-wkpl_option_numArguments(Option, N):-
-	jpl_call(Option, numArguments, [], N).
 

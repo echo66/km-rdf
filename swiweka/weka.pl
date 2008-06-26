@@ -29,6 +29,7 @@
 		,	wkpl_write_arff/2
 		,	wkpl_create_arff/6
 
+		,	wkpl_classifer/1
 		,	wkpl_classifier/3
 		,	wkpl_classifier_description/2
 		,	wkpl_set_options/2
