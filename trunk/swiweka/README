@@ -1,13 +1,15 @@
-SWIWEKA MODULE KM.
-David Pastor Escuredo 2008, c4dm, Queen Mary, University of London.
+SWIWEKA 
+km-rdf 2008
+
+We recommend to use swiweka from the classification front-end.
 
 1. INSTALL
 
 To successfully use swiweka, please follow these instructions
 
-1- Download the Linux package from weka site
+1- Download the Linux package from the weka website and copy weka.jar and weka-src.jar into the swiweka folder
 2- Set the jar in the classpath in the bash
-3- configure your path in jpl_weka
+3- Load weka.pl module from the Prolog prompt
 
 Go :)
 
@@ -17,16 +19,18 @@ This is an interface that allows to use the WEKA API for classification within t
 
 --jpl_weka. This is a bunch of intermediate tools used to make easier the handling of WEKA using JPL. Some of them are deprecated and not used anymore
 
---dataSet. This is the main part of the interface. It mainly wraps the weka.core. package of WEKA to deal with datasets (Instance, Attribute and Instance objects)
+--dataSet. This is the main part of the interface. It mainly wraps the weka.core. package of WEKA to deal with datasets (Instance, Attribute and    	Instance objects)
 
 --fastVector: Just few predicates to handle the weka.fastVector class
 
 --arffFiles: Input/Output operations over ARFF file formats (The basic format supported by WEKA).
 
---classifiers: Hides the constructors of each classifier with wkpl_classifier/2. The predicates are set with no options. Classifiers can be also created from classification.pl
+--resources: Analyzer of the WEKA API to deal with its elements
 
---classification: common calls to classifiers based on weka.classifiers.Classifier abstract class. It allows to set options and call the commong functions that each classifier must implement.
+--classifiers: common predicates to deal with classifier objects
 
---swiwekadb stuff: was aimed to handle ids for each JPL ref to java objects, but presents some garbage-collection problems.
+--runclassification: common calls to run classifiers
 
 --Examples/: few examples of how to use the dataset predicates.
+
+

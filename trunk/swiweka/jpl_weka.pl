@@ -25,8 +25,8 @@ wkpl_add_weka_to_classpath:-
 	ToDo: Set the Path in the host!
 	*/ 
 
-jar_weka('jar:file:/home/david/weka-3-5-7/weka.jar!/').
-jar_srcweka('jar:file:/home/david/weka-3-5-7/weka_src.jar!/').
+jar_weka('jar:file:../swiweka/weka.jar!/').
+jar_srcweka('jar:file:../swiweka/weka_src.jar!/').
 
 wkpl_set_weka_path(Path):-
 	flag('path', _, Path).
