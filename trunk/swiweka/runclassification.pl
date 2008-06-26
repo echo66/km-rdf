@@ -13,10 +13,6 @@
 :-[classifiers].
 
 
-wkpl_classifier_description(Classifier, Description):-
-	jpl_call(Classifier, toString, [], Description).
-
-
 					/*****************************************************
 					********* EVALUATION AND CLASSIFICATION **************
 					*****************************************************/
