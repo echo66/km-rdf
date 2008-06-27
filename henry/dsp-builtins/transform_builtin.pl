@@ -1,6 +1,7 @@
 /**
 	Feature Extraction transform for Henry using the SWI-DSP (vamp plugins).
 	ToDo: Adapt it as built in and constrain the output format
+		Merge this and front-end transform (i'm just taking bits from different parts)
 */
 
 :-use_module('../swiaudiosource/audiosource').
@@ -24,13 +25,19 @@
 		Program	
 
 		eg
-		vamp_transform(Input, [block = 2048, hop = 1024, library = 'qmul-vamp-plugins', pluginid = 'qm-tempotracker', parameters = [parameter(name, value)|...], program = _, outputs = [Output1, Output3]], Result).
+		vamp_transform(Input, [block = 2048, hop = 1024, library = 'qmul-vamp-plugins', pluginid = 'qm-tempotracker', parameters = [parameter(name, value)|...], outputs = [Output1, Output3]], Result).
 */
 		
-		
-vamp_transform(Input, Options, FinalOutputs):-
-	Input =	'Signal'(Ch, Sr, _L, _Pcm),
+rdf_vamp(Input, RDFOptions, ExportedOutputs):-
+	Input = [literal(Ch),literal(Sr),literal(L),Sigs],	
+	Signal = 'Signal'(Ch, Sr, L, Sigs),	
+	%adapt options
+	vamp_transform(Signal, Options, FinalOutputs),
+	%adapt_output(FinalOutputs, ExportedOutputs).
+
+vamp_transform(Signal, Options, FinalOutputs):-
 	is_list(Options),
+	Signal = 'Signal'(Ch, Sr, L, Sigs),	
 	option(block(Block), Options, _),
 	option(step(Step), Options, _),
 	option(library(Lib), Options, _),
@@ -46,7 +53,7 @@ vamp_transform(Input, Options, FinalOutputs):-
 	blockSize(Plugin, Block, BlockSize),
 	stepSize(Plugin, Step, StepSize),
 	vmpl_initialize_plugin(Plugin, Ch, StepSize, BlockSize),
-	vamp_compute_feature2(Input, StepSize, BlockSize, Indexes, Plugin, FinalOutputs).
+	vamp_compute_feature2(Signal, StepSize, BlockSize, Indexes, Plugin, FinalOutputs).
 
 %Different configurations for plugin-output setting
 plugin_output_setting(Key, Outputs, Indexes):-
