@@ -28,7 +28,7 @@
 */
 		
 		
-vamp_transform(Input, Options, Indexes):-
+vamp_transform(Input, Options, FinalOutputs):-
 	Input =	'Signal'(Ch, Sr, _L, _Pcm),
 	is_list(Options),
 	option(block(Block), Options, _),
@@ -46,7 +46,7 @@ vamp_transform(Input, Options, Indexes):-
 	blockSize(Plugin, Block, BlockSize),
 	stepSize(Plugin, Step, StepSize),
 	vmpl_initialize_plugin(Plugin, Ch, StepSize, BlockSize),
-	vamp_compute_feature2(Input, StepSize, BlockSize, Indexes, Plugin, Outputs).
+	vamp_compute_feature2(Input, StepSize, BlockSize, Indexes, Plugin, FinalOutputs).
 
 %Different configurations for plugin-output setting
 plugin_output_setting(Key, Outputs, Indexes):-
