@@ -226,7 +226,8 @@ This provides huge flexibility to call the predicate transform!!!
 check_plugin(engine(API, PlugName, _), Outputs, Indexes):-
 	API = 'vamp',
 	var(Outputs),
-	vamp_plugin_system(PlugName),
+	var(Indexes),
+	nonvar(PlugName),
 	findall(I, vamp_plugin_for(PlugName, _, I), Indexes),
 	findall(O, (member(In, Indexes), vamp_plugin_for(PlugName, O, In)), Outputs).
 check_plugin(engine(API, PluginName, _), Outputs, [Index]):-
