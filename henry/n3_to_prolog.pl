@@ -20,7 +20,11 @@
 /**
  * Some unit tests
  */
-
+:- begin_tests(n3_to_prolog).
+test(remove_bnode_from_body) :-
+	get_bnodes_out_of_body([rdf_e(A,b,bnode(E)),rdf_e(bnode(C),e,A)],L),
+	L == [rdf_e(A, b, E), rdf_e(C, e, A)].
+:- end_tests(n3_to_prolog).
 /**
  *
  */
@@ -36,9 +40,17 @@ n3_prolog_clause(':-'(H,B)) :-
 	append(B1,B2,Bindings),
 	merge_bindings(Bindings),
 	skolemize(PLH,PLB,Skolem),
+	get_bnodes_out_of_body(PLB,PLB2),
 	member(H,Skolem),
-	list_to_conj(PLB,B).
+	list_to_conj(PLB2,B).
 	
+get_bnodes_out_of_body([],[]).
+get_bnodes_out_of_body([rdf_e(S,P,O)|T],[rdf_e(S2,P2,O2)|T2]) :-
+	((compound(S), S=bnode(S2),!) ; S = S2),
+	((compound(P), P=bnode(P2),!) ; P = P2),
+	((compound(O), O=bnode(O2),!) ; O = O2),
+	get_bnodes_out_of_body(T,T2).
+
 n3_pl(Head,PredList,Bindings) :-
         findall(rdf_e(S,P,O),rdf_db:rdf(S,P,O,Head),Triples),
         n3_pl2(Triples,PredList,Bindings).
