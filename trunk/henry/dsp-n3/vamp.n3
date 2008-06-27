@@ -124,14 +124,13 @@ vamp:qm-similarity
 
 } => {
 
-_:tonalregion a to:TonalEvent;
+_:tonalregion a to:Tonality;
 	rdfs:label "Tonal region delimited by the key";
 	event:time [
-		tl:onTimeLine ?stl;
-		tl:timeline _:tl;
+		tl:timeline ?stl;
 		tl:start ?start;
 		tl:end ?end ] ;
-	event:factor ?key.
+	to:key ?key.
 }.
 
 #rule for beat features
