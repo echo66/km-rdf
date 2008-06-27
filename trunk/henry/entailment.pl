@@ -111,6 +111,7 @@ parse_skolem(At,individual(Bnode,Args3)) :-
 	atomic(At),
 	concat_atom(List,'_',At),
 	List = ['','',BnodeId|Args],Args\=[],
+	atom_concat('bnode',_,BnodeId),
 	concat_atom(Args,'_',Args2),
 	atom_to_term(Args2,Args3,[]),
 	atom_concat('__',BnodeId,Bnode),!.
