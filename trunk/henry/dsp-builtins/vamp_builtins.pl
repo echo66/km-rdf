@@ -6,6 +6,7 @@
 
 
 :- use_module('../swivamp/vamp').
+:- use_module('../swivamp/transform').
 :- use_module('../feature-extractor/fe').
 :- use_module('../swiaudiodata/audiodata').
 :- use_module('../swiaudiosource/audiosource').
@@ -24,11 +25,7 @@ builtins:builtin('http://purl.org/ontology/vamp/qm-beats',vamp_builtins:beats).
 keydetector(Input,Features) :-
 	nonvar(Input),
 	Input = [literal(Channels),literal(SR),literal(L),Sigs],
-	vmpl_load_plugin_for('qm-vamp-plugins:qm-keydetector','Signal'(Channels,SR,L,Sigs),Plugin),
-	vmpl_get_blockSize(Plugin,Win),
-	vmpl_get_stepSize(Plugin,Hop),
-	vmpl_initialize_plugin(Plugin,Channels,Win,Hop),
-	vamp_compute_feature('Signal'(Channels,SR,L,Sigs),Win,Hop,[2],Plugin,RF),
+	transform('Signal'(Channels,SR,L,Sigs),'qm-vamp-plugins','qm-keydetector',[key],RF),
 	flatten(RF, F),
 	findall([literal(Otp),literal(TS),literal(TE),Key],(member('Feature'(Otp,'Timestamp'(TS,TE),DataBin),F),data(DataBin,DataL),DataL=[Data], to_key(Data, Key)),Features).
 
