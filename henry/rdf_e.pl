@@ -5,14 +5,14 @@
                 rdf_reachable/3,
                 rdf_has/3,
                 rdf_bnode/1,
-                rdf_is_bnode/1,
+                rdf_global_term/2,
+		rdf_is_bnode/1,
                 rdf_subject/1,
                 rdf_equal/2
               ]).
 :- use_module(library('semweb/rdfs'),
               [ rdfs_list_to_prolog_list/2 ]).
 :- use_module(builtins).
-:- use_module(namespaces).
 :- use_module(utils).
 :- use_module(blob_load).
 
@@ -56,8 +56,10 @@ call_builtin(P,Pred,SS,OO) :-
 	call(Pred,SS,OO).
 call_builtin(P,Pred,SS,OO) :-
 	tabled(P), \+cache(SS,P,OO),!,
+	writeln(call(Pred,SS,OO)),
 	call(Pred,SS,OO),
-	assert(cache(SS,P,OO)).
+	term_to_atom(cache(SS,P,OO),T),atom_to_term(T,ToAssert,_), % FIXME - loss of precision
+	assert(ToAssert).
 	%rdf_assert_g(SSS,SS,G1),
 	%rdf_assert_g(OOO,OO,G2),
 	%literal_to_node(SSS,SSSS),
@@ -91,6 +93,6 @@ wrap_list(S,SS) :-
 wrap_list(S,S).
 
 tabled(P) :-
-	rdf_db:rdf(P,rdf:type,t:'TabledPredicate').
+	rdf_db:rdf(P,rdf:type,'http://purl.org/ontology/tabling/TabledPredicate').
 
 

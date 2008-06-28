@@ -35,7 +35,7 @@ vamp:qm-constantq
 	.
 
 vamp:qm-keydetector
-	a <http://purl.org/ontology/tabling/CachedPredicate>;
+	a <http://purl.org/ontology/tabling/TabledPredicate>;
 	a rdf:Property;
 	rdfs:subPropertyOf vamp:qm-plugin;
 	rdfs:label "Onset detector vamp plugin";
@@ -48,7 +48,7 @@ vamp:qm-onsetdetector
 	.
 
 vamp:qm-beats
-	a <http://purl.org/ontology/tabling/CachedPredicate>;
+	a <http://purl.org/ontology/tabling/TabledPredicate>;
 	a rdf:Property;
 	rdfs:subPropertyOf vamp:qm-plugin;
 	rdfs:label "Tempo tracking vamp plugin";
@@ -61,14 +61,14 @@ vamp:qm-tonalchange
 	.
 
 vamp:qm-mfccparameters
-        a <http://purl.org/ontology/tabling/CachedPredicate>;
+        a <http://purl.org/ontology/tabling/TabledPredicate>;
         a rdf:Property;
         rdfs:subPropertyOf vamp:qm-feature;
         rdfs:label "Mfcc means and vars processing";
         .
 
 vamp:qm-similarity
-        a <http://purl.org/ontology/tabling/CachedPredicate>;
+        a <http://purl.org/ontology/tabling/TabledPredicate>;
         a rdf:Property;
         rdfs:subPropertyOf vamp:qm-feature;
         rdfs:label "Similarity features: timbre and rhythm";
