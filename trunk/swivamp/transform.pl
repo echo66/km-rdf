@@ -35,19 +35,16 @@
 %	vamp_transform(Signal, Options, FinalOutputs),
 	%adapt_output(FinalOutputs, ExportedOutputs).
 
-vamp_transform(Signal, Options, FinalOutputs):-
+transform(Signal, Lib, Id, Outputs, FinalOutputs, Options):-
 	is_list(Options),
-	Signal = 'Signal'(Ch, Sr, _, _),	
-	option(block(Block), Options, _),
-	option(step(Step), Options, _),
-	option(library(Lib), Options, _),
-	option(pluginid(Id), Options, _),
-	option(parameters(Params), Options, []),
-	option(program(Prog), Options, _),
-	option(outputs(Outputs), Options, _),
+	Signal = 'Signal'(Ch, Sr, _, _),
 	plugin_key(Lib, Id, Key),
 	plugin_output_setting(Key, Outputs, Indexes),
 	vmpl_load_plugin(Key, Sr, Plugin),
+	((option(block(Block), Options, _),!) ; (vmpl_get_blockSize(Plugin,Block))),
+        ((option(step(Step), Options, _),!) ; (vmpl_get_stepSize(Plugin,Step))),
+        ((option(parameters(Params), Options, []),!) ; Params=[]),
+        ((option(program(Prog), Options, _),!) ; true),
 	set_parameters(Plugin, Params),
 	set_program(Plugin, Prog),
 	blockSize(Plugin, Block, BlockSize),
