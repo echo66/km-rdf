@@ -43,7 +43,6 @@ rdf_e(S,P,O) :-
         wrap_list(O,OO),
         catch(call_builtin(P,Pred,SS,OO),_,fail).
 rdf_e(S,P,O) :-
-	writeln(rdf_e(S,P,O)),
 	rdf_query(SS,S,Q1),
 	rdf_query(OO,O,Q2),
 	rdf_db:(Q1,Q2,rdf(SS,P,OO,G)),G\=_:_,
@@ -56,7 +55,6 @@ call_builtin(P,Pred,SS,OO) :-
 	call(Pred,SS,OO).
 call_builtin(P,Pred,SS,OO) :-
 	tabled(P), \+cache(SS,P,OO),!,
-	writeln(call(Pred,SS,OO)),
 	call(Pred,SS,OO),
 	term_to_atom(cache(SS,P,OO),T),atom_to_term(T,ToAssert,_), % FIXME - loss of precision
 	assert(ToAssert).

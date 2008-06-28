@@ -1,4 +1,4 @@
-#!/usr/local/bin/pl -g serql_welcome -L128m -G128m -T128m -s
+#!/usr/local/bin/pl -g serql_welcome -L256m -G256m -T256m -s
 
 :- [henry].
 
