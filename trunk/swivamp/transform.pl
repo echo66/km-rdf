@@ -1,3 +1,4 @@
+:- module(transform,[transform/5,transform/6]).
 /**
 	Feature Extraction transform for Henry using the SWI-DSP (vamp plugins).
 	ToDo: Adapt it as built in and constrain the output format
@@ -34,7 +35,8 @@
 	%adapt options
 %	vamp_transform(Signal, Options, FinalOutputs),
 	%adapt_output(FinalOutputs, ExportedOutputs).
-
+transform(Signal,Lib,Id,Outputs,FinalOutputs) :-
+	transform(Signal,Lib,Id,Outputs,FinalOutputs,[]).
 transform(Signal, Lib, Id, Outputs, FinalOutputs, Options):-
 	is_list(Options),
 	Signal = 'Signal'(Ch, Sr, _, _),
