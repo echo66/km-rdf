@@ -13,6 +13,6 @@ source :-
 	n3_load('dsp-n3/vamp.n3'),
 	n3_load('dsp-n3/similarity.n3').
 
-:- source.
-:- compile_all.
+%:- source.
+%:- compile_all.
 
