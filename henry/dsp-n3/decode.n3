@@ -22,8 +22,8 @@ dsp:cache a <http://purl.org/ontology/tabling/TabledPredicate>.
 } => {
 
 ?a a mo:AudioFile.
-?a mo:encodes _:signal.
-_:signal
+?a mo:encodes (?ch ?sr ?l ?signals). # Probably not the best modeling...
+(?ch ?sr ?l ?signals)
 	a mo:Signal;
 	mo:channels ?ch;
 	mo:time [
