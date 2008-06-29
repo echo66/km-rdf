@@ -26,8 +26,8 @@
 
 rdf_e(S,P,O) :-
         builtin(P,Pred),
-        wrap_list(S,SS),
-        wrap_list(O,OO),
+        get_list(S,SS),
+        get_list(O,OO),
         catch(call_builtin(P,Pred,SS,OO),_,fail).
 rdf_e(S,P,O) :-
 	pl_list_to_rdf_list(S,Q1T,SS), list_to_conj(Q1T,Q1),
@@ -58,14 +58,9 @@ call_builtin(P,_,SS,OO) :-
 cache(S,P,O) :-
 	rdf_db:rdf(SS,P,OO,cache),
 	%literal_to_node(SSS,SS),
-	wrap_list(SS,S),wrap_list(OO,O).
+	P\='http://www.w3.org/1999/02/22-rdf-syntax-ns#first',P\='http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',
+	get_list(SS,S),get_list(OO,O).
 	
-
-
-wrap_list(S,SS) :-
-	atomic(S),
-	rdfs_list_to_prolog_list(S,SS),!.
-wrap_list(S,S).
 
 tabled(P) :-
 	rdf_db:rdf(P,rdf:type,'http://purl.org/ontology/tabling/TabledPredicate').

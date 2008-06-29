@@ -53,7 +53,7 @@ commit :-
 			((pl_list_to_rdf_list(O,Triples2,OO),!);(O=OO,Triples2=[])),
 			append(Triples1,Triples2,Triples),
 			free_variables([Triples,SS,OO],Vars),bnode_list(Vars),
-			!,rdf_assert(SS,P,OO,persist),
+			!,rdf_assert(SS,P,OO,cache),
 			assert_all(Triples)
 		)),
 	retractall(rdf_tmp(_,_,_)).
@@ -65,7 +65,7 @@ bnode_list([H|T]) :-
 
 assert_all([]).
 assert_all([rdf(S,P,O)|T]) :-
-	rdf_assert(S,P,O,persist),
+	rdf_assert(S,P,O,cache),
 	assert_all(T).
 
 persist(rdf(S,_,O)) :-
