@@ -65,6 +65,7 @@ bnode_list([H|T]) :-
 
 assert_all([]).
 assert_all([rdf(S,P,O)|T]) :-
+	persist(rdf(S,P,O)),
 	rdf_assert(S,P,O,cache),
 	assert_all(T).
 
@@ -77,8 +78,8 @@ persist_node(N) :-
 	bin_db(DB),
 	format(atom(File),'~w/~w',[DB,N]),
 	format(user_error,'DEBUG: Dumping ~w in ~w\n',[N,File]),
-	!,
-	data_out(N,File),clean_node(N).
+	%!,
+	data_out(N,File),clean_node(N),!.
 persist_node(_).
 
 clean_node(N) :-

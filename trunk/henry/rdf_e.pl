@@ -52,7 +52,7 @@ call_builtin(P,Pred,SS,OO) :-
 call_builtin(P,_,SS,OO) :-
 	tabled(P), writeln('looking up in cache'),
 	cache(SS,P,OO),
-	mem_load(SS),mem_load(OO).
+	mem_load(SS),mem_load(OO). % FIXME - should be in the builtin - all builtins should have their metadata cached anyway
 
 :- dynamic cache/3.
 cache(S,P,O) :-
