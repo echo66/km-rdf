@@ -5,6 +5,7 @@
 :- use_module('../swiaudiodata/audiodata').
 :- use_module(rdf_e).
 :- use_module(namespaces).
+:- use_module(utils).
 
 :- begin_tests(persist).
 test(commit_triple) :-
@@ -66,26 +67,6 @@ assert_all([]).
 assert_all([rdf(S,P,O)|T]) :-
 	rdf_assert(S,P,O,persist),
 	assert_all(T).
-
-pl_list_to_rdf_list([H],[rdf(H2,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',H3),rdf(H2,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest','http://www.w3.org/1999/02/22-rdf-syntax-ns#nil')|Triples],H2) :- is_list(H),pl_list_to_rdf_list(H,Triples,H3),!.
-pl_list_to_rdf_list([H],[rdf(H2,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',H),rdf(H2,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest','http://www.w3.org/1999/02/22-rdf-syntax-ns#nil')],H2) :-  !.
-pl_list_to_rdf_list([H|T],[rdf(H2,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',H3),rdf(H2,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',T2)|Triples],H2) :-
-        is_list(H),!,
-        pl_list_to_rdf_list(H,Triples1,H3),
-        pl_list_to_rdf_list(T,Triples2,T2),
-        append(Triples1,Triples2,Triples).
-pl_list_to_rdf_list([H|T],[rdf(H2,'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',H),rdf(H2,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',T2)|Triples],H2) :-
-	pl_list_to_rdf_list(T,Triples,T2).
-
-%handle_list(A,A) :- \+is_list(A),!,persist_node(A).
-%handle_list([],'http://www.w3.org/1999/02/22-rdf-syntax-ns#nil').
-%handle_list([H|T],Id) :-
-%	rdf_bnode(Id),
-%	rdf_assert(Id,rdf:type,rdf:'List',persist),
-%	rdf_assert(Id,rdf:first,H,persist),
-%	persist_node(H),
-%	handle_list(T,Id2),
-%	rdf_assert(Id,rdf:rest,Id2,persist).
 
 persist(rdf(S,_,O)) :-
 	persist_node(S),persist_node(O).
