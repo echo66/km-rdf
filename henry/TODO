@@ -2,4 +2,5 @@ TODO
 ----
  * Implement Euler paths to avoid infinite recursion
  * Keep track of proofs (inference web or e:evidence)
- * Hack a support for literal-as-nodes. Really messy for now
+ * Hack a support for subject literals (quite hacky for now)
+ * Sort out tabling vs. caching. Henry 1 makes the distinction, but Henry 1.1 is likely to not. 
