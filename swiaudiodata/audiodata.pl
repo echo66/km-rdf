@@ -1,28 +1,28 @@
 /**
 	Prolog module to work with audiodata extracted from the audiosource module. 
 	It handles the data using ID and with the Blobs when it is specifically queried
-	David Pastor 2007, c4dm, Queen Mary, University of London
+	David Pastor 2007, c4dm, Queen Mary, University of London. 
 
-	ToDo: this module puts a lot of things together that may be useful to define somewhere else...
+	Modified June 2008.
+
+	These functos must be managed by any km-rdf client:
+
+		frame(sample rate,  initpos, [listOfPcm])
+		signal(samplerate, [listOfPcm])
+		timestamp(start, duration)	
+		feature(type, MO::timestamp, Event)
 */
 
-:- module(audiodata,[
-			/* Querying audio data */
-			get_sample_rate/2,
-			get_channels/2,
-			get_samples_per_channel/2,
-			get_frame/4,
-			get_frame_timestamp/2,
-			set_limit_framing/3,
-			set_framing/4,
-			framed_signal/4,
-			framed_signal_bis/4, 
-			clean_frame/1,
-			clean_pcm/1,
-			clean_signal/1,
-
-			/* mixing */
-			mix_stereo/2,			
+:- module(audiodata,[	get_sample_rate/2
+			,	get_channels/2
+			,	get_samples_per_channel/2
+			,	get_frame/4
+			,	get_frame_timestamp/2
+			,	set_limit_framing/3
+			,	set_framing/4
+			,	frame_signal/4
+			,	clean_/1
+			,	mix_stereo/2			
 
 			/* Handling binary data. This might me in some other place */
 			pointerBlob_to_list/2,
@@ -65,80 +65,88 @@
 
 :- style_check(-discontiguous).
 :- load_foreign_library(swiaudiodata).
- 
-/** EXPLANATION
-*
-* This module is aimed to deal with binary audio data extracted from audio file as MO::signals.
-*
-* 1. The way we handle the data:
-*
-* This module allows us to store binary data (normally arbitrary size) and deal with it by means of IDs like __data_id
-* The binary data can be input in several ways:
-* 	Through a binary file containing a binary representation of a std::vector<float> (data_in/2)
-*	Through a prolog list of floats (load_data_list/2)
-*
-* In both cases we must have reserved the id for the data to store in memory previously using reserve_id/1	
-* The way we use import data to the database from prolog is by means of BLOBS (blob_id/2 does the job).
-*
-* We can store the data externally in files by using data_out/2. Then the data in memory is cleaned when we use this predicate (clean_data/1)
-* We can also see the data (if it is not arbitrary long) as prolog list using data/2
-* We export the data from the database as prolog BLOBS (id_blob/2 does this)
-* 
-* There is a bunch of lower level predicates that can be also used to deal with the ids and blobs separately.
-*
-* 2. Querying audio data
-*
-*	There is another bunch of predicates to query frames, channels and significant signal details. We obtain signals from the module swiaudiosource
-*/
+:- use_module(library(pldoc)).
 
+%% get_sample_rate(+Signal, -SampleRate) is det
+% Returns back the sample rate of a signal or frame
 
-/** RETURNED FUNCTORS REPRESENTING AUDIO DATA 
-*
-* These functos must be managed by any km-rdf client:
+get_sample_rate(signal(Sr, _), Sr).
+get_sample_rate(frame(Sr, _, _), Sr).
 
-		'Frame'(channels, sample rate,  initpos, [listOfPcm])
-		'Signal'(channels, samplerate, samples/channel, [listOfPcm])
-		'Timestamp'(start, duration)	
-		'Feature'(type, MO::timestamp, Event)
-*/
+%% get_channels(+Signal, -Channels) is det
+% Returns back the number of channels of the signal or frame
 
+get_channels(signal(_, Data), Ch):-
+	is_list(Data),
+	length(Data, Ch).
+get_channels(frame(_, _, Data), Ch):-
+	is_list(Data),
+	length(Data, Ch).
 
-/** PREDICATES */
+%% get_samples_per_channel(+Signal, -SamplesPerChannel) is det
+% Returns back the number of samples per channels (assuming all channels have the same length)
 
-/**
-	framed_signal(+Signal, +StepSize, +BlockSize, -FramedSignal): Returns a framed signal (list of Frames for the given signal) 
-	for the passed parameters.
-	We have to version. One is based on between and findall and the other in recursive access to lists (last one sounds better)
-	*/
-framed_signal_bis(Signal, StepSize, BlockSize, FramedSignal):-
+get_samples_per_channel(signal(_, Data), L):-
+	is_list(Data),
+	data_size(Data, L).
+get_samples_per_channel(frame(_, _, Data), L):-
+	is_list(Data),
+	data_size(Data, L).
+
+%% get_frame(+Signal, +Init, +Block, -Frame) is det
+% Frames a signal(Sr, Data) object returning frame(Sr, Init, Data) object according to the parameters 
+
+get_frame(signal(Sr, Data), Init, Block, frame(Sr, Init, Data2)):-
+	frame_for_signal(Data, Init, Block, Data2).
+
+%% get_frame_timestamp(+Frame, -Timestamp) is det
+% Returns the timestamp (time values) of a frame related to the owner signal timeline
+
+get_frame_timestamp(Frame, timestamp(Start, Duration)):-
+	Frame = frame(Sr, Init, _),
+	get_samples_per_channel(Frame, L),
+	Start is Init/Sr,
+	Duration is L/Sr.
+	
+%% set_framing(+StepSize, +SignalLength, -Limit, -Start) is nondet
+% This predicate returns iteratively the Start of the following frame in a framing process. This framing predicate relies on the procedural meaning and is subject of substitution.
+
+set_framing(StepSize, Samples, Limit, Start):-
+	set_limit_framing(Samples, StepSize, Limit),
+	between(0, Limit, N),
+	Start is StepSize * N.
+		
+%% clean(+DataTerm) is nondet
+% Removes the data from a Frame or a Signal where data is in the type of '__data_id'. This is necessary to relief memory
+
+clean(frame(_, _, ListPcm)):-
+	clean(ListPcm).
+clean(signal(_, ListPcm)):-
+	clean(ListPcm).
+clean([]).
+clean([H|T]):-
+	clean_data(H),
+	clean(T).	
+
+%% frame_signal(+Signal, +StepSize, +BlockSize, -FramedSignal) is nondet
+% Returns a framed signal (list of Frames for the given signal) for the passed parameters.
+	
+frame_signal(Signal, StepSize, BlockSize, FramedSignal):-
 	get_samples_per_channel(Signal, N),
 	findall([Frame], retrieve_frame(Signal, StepSize, BlockSize, N, Frame), FramedSignal).
 
 retrieve_frame(Signal, StepSize, BlockSize, N, Frame):-
 	set_framing(StepSize, N, _, Start),
 	get_frame(Signal, Start, BlockSize, Frame).
+
+% mix_stereo(+StereoSignal, -MonoSignal) is nondet
+% Mixes a stereo signal and returns the mono signal
+
+mix_stereo(signal(Sr, [Ch1, Ch2]), signal(Sr, [Ch])):-
+	data_mean(Ch1, Ch2, Ch).
 	
-framed_signal(Signal, StepSize, BlockSize, FramedSignal):-
-	get_samples_per_channel(Signal, N),
-	set_limit_framing(N, StepSize, Limit),
-	numlist(0, Limit, List),
-	FramedSignal = [],
-	create_frames(Signal, StepSize, BlockSize, List, FramedSignal).
 
-create_frames(_, _, _, [], _).
-create_frames(Signal, StepSize, BlockSize, [H|T], FramedSignal):-
-	Start is StepSize*H,
-	get_frame(Signal, Start, BlockSize, Frame),
-	append(FramedSignal, [Frame], NewList),
-	create_frames(Signal, StepSize, BlockSize, T, NewList).
-
-/**
-	Sets the framing. Sets the Start of each frame. It's an iterative way to go through all the frames using between/3. We then findall the frames.
-	*/
-set_framing(StepSize, Samples, Limit, Start):-
-	set_limit_framing(Samples, StepSize, Limit),
-	between(0, Limit, N),
-	Start is StepSize * N.
+/************************************** STUFF TO MOVE AWAY ********************************/
 
 /**
 	is_data_id(+DataID): True if this is an id for data stored in the system at the running session. The id may be active or not (with actual data 	
@@ -265,30 +273,6 @@ data_in(FilePath, ID):-
 /**
 	file_to_blob(+FilePath, +Blob): reads the file and stores the data pointing it by the blob
 */
-
-/**
-	Cleans the binary data of a frame from memory, we don't really to keep this intermediate result I guess
-
-		clean_frame(+Frame)
-
-	Remember the pcm data is '__data_id'
-*/
-clean_frame('Frame'(_Channels, _SampleRate, _Start, ListPcm)):-
-	clean_pcm(ListPcm).
-
-/**
-	clean_pcm(ListOFPcmChannel).
-*/
-clean_pcm([]).
-clean_pcm([H|T]):-
-	clean_data(H),
-	clean_pcm(T).	
-	
-/**
-	Same for signal
-*/
-clean_signal('Signal'(_Channels, _SampleRate, _Samples, ListPcm)):-
-	clean_pcm(ListPcm).
 
 /**
 	Checking the status of the database

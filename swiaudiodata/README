@@ -1,1 +1,10 @@
-Module loading interfaces to deal with audio data objects and retrieve relevant data: frame, sample rate ...
+This is the "audiodata" module for SWI-Prolog.
+
+This module combined with "audiosource" provides SWI-Prolog with a vocabulary to handle audio signals extracted from audio files. Representation of audio elements is done by means of prolog functors:
+
+	signal(SampleRate, Data),
+	frame(SampleRate, InitPosition, Data),
+	timestamp(Start, Duration)
+
+David Pastor Escuredo for the Centre for Digital Music, Queen Mary University of London.
+2007-2008
