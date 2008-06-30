@@ -3,3 +3,5 @@ ToDo:
 		Handle frequency domain signals
 		Define data_size and data_mean
 		Declarative way of framing
+		
+		I think i should finish this by not having any c++ code at all. Rely on swidata!!!
