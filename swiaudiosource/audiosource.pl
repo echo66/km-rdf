@@ -56,16 +56,14 @@ aspl_supported_file('aiff').
 aspl_supported_file('m4a').
 
 %%	aspl_decode(+AudioFilePath, -Signal). 
-% Main predicate and the only one that should be called. Thus, we hide which interface and library we are using for decoding just having one entry for every file supported:
-%		+AudioFilePath is just a path the file to decode
-%		-Signal is a MO:signal. Check /swilib/ doc out for details.
+% Main predicate that hides decoding of an audio file given the path and returns a compound term: signal (SampleRate, Data) where Data is a list of blobs id (check swilib).
 
 aspl_decode(AudioFile, Signal):-
 	aspl_file_extension(AudioFile, Extension),
 	aspl_decode(Extension, AudioFile, Signal).
 
 %% aspl_clean_signal_inmemory(+Signal)
-% This predicate deletes the audio data in memory when longer needed. Check out aspl.cpp for the source code
+% This predicate deletes the audio data in memory when longer needed. Check out aspl.cpp for the source code.
 
 						/**********************************************
 						********** PROLOG RULES FOR DECODING **********
