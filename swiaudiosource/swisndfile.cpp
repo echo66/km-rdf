@@ -212,31 +212,29 @@ PREDICATE(sfpl_get_decoded_signal, 1)
 {	
 	//-MO::signal	
 	
-	term_t sr = PL_new_term_ref();//all passed as terms
-	term_t channels = PL_new_term_ref();
-	term_t spc = PL_new_term_ref();
+	term_t sr = PL_new_term_ref();
 	term_t pcm1 = PL_new_term_ref();
 	term_t pcm2 = PL_new_term_ref();
-	term_t signal = PL_new_term_ref();
-
+	
 	PL_put_integer(sr, snd_reader.sample_rate);
-	PL_put_integer(channels, snd_reader.channel_count);
-	PL_put_integer(spc, snd_reader.samples_channel);
+	PlTerm pcm;
+	PlTail pcm_list(pcm);
 
 	//The pcm data is returned by a pointer to it and not the data itself as it overflows prolog memory and is not efficient.
 	//The pointer is returned by its ID
 
 	if(snd_reader.channel_count>0){
 		pcm1 = term_t(PlTerm(PlAtom(DataID::assign_data_id(snd_reader.ch1_pcm))));
-		if(snd_reader.channel_count==2){
-			
+		pcm_list.append(pcm1);
+		if(snd_reader.channel_count==2){			
 			pcm2 = term_t(PlTerm(PlAtom(DataID::assign_data_id(snd_reader.ch2_pcm))));
-		}else{
-			pcm2 = term_t(PlTerm(PlAtom("")));
+			pcm_list.append(pcm2);
 		}
-		//Creation of a signal element (swimo.h)
-		MO::signal(channels, sr, spc, pcm1, pcm2, signal);	
-		return A1 = PlTerm(signal);
+		pcm_list.close();
+			
+		A1 = PlTerm(pcm);
+		A2 = PlTerm(sr);
+		return true;
 	
 	}else {
 		cerr<<"No signal"<<endl;

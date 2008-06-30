@@ -1,9 +1,6 @@
+		Module "audiosource" for SWI-Prolog
 
-							Module "audiosource" for the KM (version 1)
-
-Here is a brief description of the module predicates for their use. A context of this module can be found in README and further details in the source (audiosource.pl and the foreign libraries)
-
-List of Files Extensions supported:
+Audio files decoding module for SWI-Prolog. List of file extensions supported:
 
 .wav
 .aif
@@ -13,40 +10,14 @@ List of Files Extensions supported:
 .m4a
 .aac
 
-1. Module predicates.
+This module is built on top of interfaces to external decoding libraries (mad, fishsound, faad, sndfile, oggz).
 
+Content:
 
-1.1. aspl_supported_file(?Extension). 
+-C/C++ files defining the foreign predicates and the communication with the external libraries
+-audiosource module declaration and specification
 
-With this predicate we query about supported files or check if one of our selection is one of them. The implementation of this predicate is just done by simple facts like this one:
-
-aspl_supported_file('mp3').
-
-
-1.2. aspl_decode(+AudioFilePath, -Signal). 
-
-Main predicate and the only one that should be called. Thus, we hide which interface and library we are using for decoding just having one entry for every file supported. It is implemented by a set of rules that extract the file extension and checks the accurate predicate for each one (aspl_decode/3 
-can be looked up in the source)
-
-		+AudioFilePath is just a path the file to decode
-		-Signal is a MO:signal. Check /swilib/ doc out for details.
-	
-This predicate must be done persistent in memory to avoid decoding the whole file each time we want to extract a frame for processing.
-
-
-1.3. aspl_get_frame(+Signal, +Start, +End, -Frame). 
-
-Signal is a MO:signal from which this predicate extracts a MO:frame (/swilib/swimo) for the specific start and end samples. This should be called iterativelly to get interleaved frames for further processing.
-
-This is the simplest way to extract a frame. For a frame extraction using HopSize and BlockSize parameters, it should be necessary to translate those values to the starting and ending samples of the frame
-
-
-1.4. aspl_clean_signal_inmemory(+Signal).
-
-This predicate deletes the audio data in memory when longer needed. One interesting feature of this module is that it allows to work with several MO::signal objects at the same time as they contain pointers to data in memory, but after the use of the data, this should be cleared from memory by using this predicate. A future extension will be a predicate to store the data in an external support
-
-Check out aspl.cpp for the source code
-
-
+David Pastor Escuredo for the Centre for Digital Music, Queen Mary University of London.
+2007-2008
 
 
