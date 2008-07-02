@@ -180,10 +180,10 @@ PREDICATE(mdpl_get_decoded_signal, 2)
 	//The pointer is returned by its ID
 
 	if(mad_reader.channel_count>0){
-		pcm1 = term_t(PlTerm(PlAtom(DataID::assign_data_id(mad_reader.ch1_pcm))));
+		pcm1 = term_t(PlTerm(PlAtom(BLOBID::assign_data_id(mad_reader.ch1_pcm))));
 		pcm_list.append(pcm1);
 		if(mad_reader.channel_count==2){			
-			pcm2 = term_t(PlTerm(PlAtom(DataID::assign_data_id(mad_reader.ch2_pcm))));
+			pcm2 = term_t(PlTerm(PlAtom(BLOBID::assign_data_id(mad_reader.ch2_pcm))));
 			pcm_list.append(pcm2);
 		}
 		pcm_list.close();
