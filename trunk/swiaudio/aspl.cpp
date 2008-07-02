@@ -31,7 +31,7 @@ PREDICATE(aspl_file_extension, 2)
 
 }
 
-/
+
 /*
  * This predicate calculates the number of frames that will be retrieved in the framing for the specific signal and the StepSize of the framing process
  */

@@ -1,7 +1,0 @@
-ToDo: 
-		This module puts a lot of things together that may be useful to define somewhere else...
-		Handle frequency domain signals
-		Define data_size and data_mean
-		Declarative way of framing
-		
-		I think i should finish this by not having any c++ code at all. Rely on swidata!!!

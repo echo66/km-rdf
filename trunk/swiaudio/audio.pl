@@ -1,19 +1,10 @@
 /**
-	Prolog module to work with audiodata extracted from the audiosource module. 
-	It handles the data using ID and with the Blobs when it is specifically queried
-	David Pastor 2007, c4dm, Queen Mary, University of London. 
-
-	Modified June 2008.
-
-	These functos must be managed by any km-rdf client:
-
-		frame(sample rate,  initpos, [listOfPcm])
-		signal(samplerate, [listOfPcm])
-		timestamp(start, duration)	
-		feature(type, Timestamp, Event)
+	Module explanation and rights?	
 */
 
-:- module(audiodata,[	get_sample_rate/2
+:- module(audio,[	supported_file/1
+			,	decode/2
+			,	get_sample_rate/2
 			,	get_channels/2
 			,	get_samples_per_channel/2
 			,	get_frame/4
@@ -22,13 +13,34 @@
 			,	set_framing/4
 			,	frame_signal/4
 			,	clean/1
-			,	mix_stereo/2					
+			,	mix_stereo/2
 			]).
 
 :- style_check(-discontiguous).
-:- load_foreign_library(swiaudiodata).
 :- use_module('../swidata/data').
+:- load_foreign_library(swiaudio). 
 :- use_module(library(pldoc)).
+
+						/**************************************
+						********** MODULE PREDICATES **********
+						**************************************/
+					
+%% supported_file(?Extension). 
+% We query about supported files or check if one of our selection is one of them
+
+supported_file('mp3').
+supported_file('ogg').
+supported_file('wav').
+supported_file('aif').
+supported_file('aiff').
+supported_file('m4a').
+
+%%	decode(+AudioFilePath, -Signal). 
+% Main predicate that hides decoding of an audio file given the path and returns a compound term: signal (SampleRate, Data) where Data is a list of blobs id (check swilib).
+
+decode(AudioFile, Signal):-
+	aspl_file_extension(AudioFile, Extension),
+	aspl_decode(Extension, AudioFile, Signal).
 
 %% get_sample_rate(+Signal, -SampleRate) is det
 % Returns back the sample rate of a signal or frame
@@ -138,7 +150,44 @@ concat_frames([], [], _).
 concat_frames([H1|T1], [H2|T2], [H|T]):-
 	data_concat(H1, H2, H),
 	concat_frames(T1, T2, T).
-	
-	
+
+						/**********************************************
+						********** PROLOG RULES FOR DECODING **********
+						**********************************************/
+
+%% aspl_decode(+Extension, +AudioFilePath, -Signal)
+
+% These are rules to select the correct library to decode the file. By checking the file extension only the correct one will be used. Then each rule calls to the specific predicates of each library interface for the correct decoding and signal extraction. 
+
+aspl_decode(Extension, AudioFile, signal(Sr, Data)):-
+	Extension = 'mp3',
+	mdpl_decode(AudioFile),
+	mdpl_get_decoded_signal(Data, Sr).
+
+aspl_decode(Extension, AudioFile, signal(Sr, Data)):-
+	Extension = 'ogg',
+	ovpl_decode(AudioFile),
+	ovpl_get_decoded_signal(Data, Sr).
+
+aspl_decode(Extension, AudioFile, signal(Sr, Data)):-
+	Extension = 'wav',
+	sfpl_decode(AudioFile),
+	sfpl_get_decoded_signal(Data, Sr).
+
+aspl_decode(Extension, AudioFile, signal(Sr, Data)):-
+	Extension = 'aiff',
+	sfpl_decode(AudioFile),
+	sfpl_get_decoded_signal(Data, Sr).
+
+aspl_decode(Extension, AudioFile, signal(Sr, Data)):-
+	Extension = 'aif',
+	sfpl_decode(AudioFile),
+	sfpl_get_decoded_signal(Data, Sr).
+
+aspl_decode(Extension, AudioFile, signal(Sr, Data)):-
+	Extension = 'm4a',
+	fdpl_decode(AudioFile),
+	fdpl_get_decoded_signal(Data, Sr).
+
 
 

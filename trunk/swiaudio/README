@@ -1,0 +1,27 @@
+		Module "audio" for SWI-Prolog
+
+This module provides audio signal representations and functions to deal with them. The audio elements are represented by SWI-Prolog functors: signal(SampleRate, ListOfData), frame(SampleRate, Start, ListOfData) and timestamp(Start, Duration).
+
+The sources of the terms are open source libraries communication with SWI-Prolog through the foreign interface swiaudio.so. This interface provides a decode/2 predicate which decodes audio files returning a "signal term" common for every file format. These signal terms can be manipulated with predicates defined in this module and serve for communication with other modules that analyse audio information (see km-rdf general doc)
+
+The list of file extensions supported:
+
+.wav,
+ .aif,
+ .aiff,
+ .mp3,
+ .ogg,
+ .m4a,
+ .aac.
+
+This module is built on top of the C++/C decoding libraries (mad, fishsound, faad, sndfile, oggz) and swidata that provides a mechanism to deal with large binary objects of data (BLOBS)
+
+Content:
+
+-C/C++ files defining the foreign predicates and the communication with the external libraries
+-audio module declaration and specification
+
+David Pastor Escuredo for the Centre for Digital Music, Queen Mary University of London.
+2007-2008
+
+
