@@ -1,48 +1,36 @@
 /**
-	Unified way to handle data
-  
-	Blobs, ids, datalists
+	
 */
 
-:- module(data, [/* Handling binary data. This might me in some other place */
-			pointerBlob_to_list/2,
-			vectorBlob_to_list/2,
-			list_to_pointerBlob/2,
-			clean_pointedVector/1,
-			is_audio_blob/1,
+:- module(data, [	reserve_id/1
+		,	current_id/1
+		,	next_id/1
+		, 	blobids/1
+		,	ids_status/3
+		, 	busy_id/1
+		,	is_blobid/1
+		,	clean_blob/1
+		,	blob_size/2
+		,	blobs_mean/3
+		,	equal_blobs/2
+		,	blob_frame/4
+		, 	concat_blobs/3	
 
-			/* data id stuff*/
-			blob_id/2,
-			id_blob/2,
-			is_data_id/2,
-			active_id/1,
-			reserve_id/1,
-			is_data_id/1,	
-			register_blob/2, /*reserves a new id and stores the blob*/
-			register_data_list/2,
+/*FIXME*/
+		,	plblob_blobid/2
+		,	blobid_plblob/2
+		,       register_blob/2
+		,	register_data_list/2
 
-			/*db status*/
-			current_id/1,
-			next_id/1,
-			ids_in_db/1,
-			id_db_status/3,
-
-			/*i/o data operations*/	
-			data/2,
+			
+		,	data/2,
 			load_data_list/2,
 			blob_to_file/2,
 			file_to_blob/2,
 			clean_data/1,
 			data_in/2,
-			data_out/2,
+			data_out/2
 
-			/*other*/			
-			concat_blob/3,
-			equal_blob/2,
-			data_concat/3, /*id wrapped version*/
-			data_compare/2,
-
-			blob_frame/4
 			]).
 
 
@@ -50,148 +38,110 @@
 :- load_foreign_library(swidata).
 :- use_module(library(pldoc)).
 
+/************************************** BLOBIDs DATABASE ***************************/
 
-/************************************** FIXME ********************************/
+%% reserve_blobid(+BLOBID) is det
+% reserves the passed id in the database so it can not be assigned to any outcoming blob unless we pass it for unification
 
-/**
-	is_data_id(+DataID): True if this is an id for data stored in the system at the running session. The id may be active or not (with actual data 	
-	or just reserved id)
-*/
-is_data_id(Id):-
-	is_data_id(Id, _).
+reserve_id(Term):-
+	atom(Term),
+	reserve_data_id(Term).	
 
-/**
-	data(+ID, -ListData): This predicate gets the blob wrapping the data identified by the id and decodes it in a prolog list. 
-	Fails in case the ID is not registered or desactived.
-*/
-:- multifile data/2.
-data(ID, ListData):-
-	id_blob(ID, Blob),
-	pointerBlob_to_list(Blob, ListData).
+%% is_blobid(+Term) is det
+% checks if the passed term is a BLOBID (an atom stored in the ids database). The id may be reserved but not pointing to any block of data
 
-/**
-	data_load(+ListData, +ID): We get the raw data in the blob and store it in memory assigning the id given in the predicate .
-	IMPORTANT: The ID must be already reserved and desactive!!
-*/
-load_data_list(ListData, ID):-
-	list_to_pointerBlob(ListData, Blob),
-	blob_id(ID, Blob).
+is_blobid(T):-
+	atom(T),
+	is_blobid(T, _).
+	
+%% busy_id(+Term) is det
+% checks if the BLOBID is actually pointing to any block of data
 
-/**
-	data_out(+ID, +FilePath): outputs the data dumping it in a binary file to be stored in disk freeing space in memory. 
-*/
-data_out(ID, FilePath):-
-	id_blob(ID, Blob),
-	blob_to_file(Blob, FilePath).
+busy_id(BLOBID):-
+	active_id(BLOBID).
 
-/**
-	data_in(+FilePath, +ID): gets the data from an external file using blobs and stores the data assigning the ID.
-	IMPORTANT: The ID must be already reserved and must be desactive as well (data cleaned)!!!
-*/
-data_in(FilePath, ID):-
-	file_to_blob(FilePath, Blob),
-	blob_id(ID, Blob).
+%% clean_blob(+BLOBID) is det
+% deletes the data pointed by the ID from memory
 
-/**Short explanation of imported predicates**/
+clean_blob(T):-
+	busy_id(T),
+	clean_data(T).
 
-/**
-	pointerBlob_to_list(+Blob, -PrologList). Check audioblobpl.cpp. It basically gets a <#..> blob term and decodes it to get the data in memory
-	pointed by the blob and returns a prolog list. It can be also done for blob containing vectors with real raw data.
-*/
+%% blobids(+Number) is det
+% Number of blobid in the database
 
-/**
-	list_to_pointerVector(+List, -Blob): Creates a blob from the list and unifies it with the argument. There is no definition to return a blob 
-	containing a real vector with the raw data
-*/
+blobids(L):-
+	ids_in_system(C).
 
+%% current_id(?BLOBID) is det
+% Last id assigned by the system
 
-/**
-	clean_pointedVector(+Blob). Cleans the data pointed by the vector freeing space in memory (we really want this). This is not very useful
-	with the new implementation. We should clean_data(+ID) instead. The memory is far better managed right now
-*/
+current_id(I):-	
+	current_blob_id(Id),
+	I = Id.
 
-/**
-	is_audio_blob(+Blob). Low level way to check if a blob is actually an AudioBlob containing data. We are unlikely to use this as we will handle 
-	BlobIds instead and we just have to check if they are in the database or not (we are interested in this high level view). Anyway this stays...
-*/
+%% next_id(?BLOBID) is det
+% Next id to assign automatically by the system
 
-/**
-	blob_id(+Id, +Blob). Unifies the blob with the given id and stores the data in the blob in the database. The id must exist and be stored
-	already
-*/
+next_id(I):-
+	next_blob_id(ID),
+	I = ID.
 
-/**
-	id_blob(+Id, -Blob). Gives back the blob storing the data given by the id. Fails if the id is non active
-*/
+%% ids_status(-CurrentID, -NextID, -IDs)
+% Shows the BLOBIDs status
 
-/**
-	is_data_id(+Id, -Index). Says if the Id exists or not
-*/
+ids_status(A, L, O):-
+	current_id(A),
+	next_id(L),
+	blobids(O).
+	
+%% blob_size(+BLOBID, -Size) is det
+% Returns the size of the blob
 
-/**
-	reserve_id(+Id). We reserve a record in the database for this id. This is designed for flexibility and output/input operations. 
-	IF WE WANT TO RESERVE SOME ID FOR BLOBS WE MUST DO IT BEFORE CREATING NEW BLOBS TO AVOID CRASHES
-*/
+blob_size(T, L):-
+	busy_id(T),
+	get_blob_size(T, L).
 
-/**
-	active_id(+Id). Just tells if the id is in the database and if it is active (there is one real blob pointing data associated at that moment)
-*/
+%% blobs_mean(+BLOBID, +BLOBID2, -BLOBIDMEAN) is det
+% Returns the mean of two blobs
 
-/**
-	clean_data(+ID): cleans the data of the id keeping the id in the database!!!!!!
-*/
+blobs_mean(B1, B2, Mean):-
+	blob_size(B1, L),
+	blob_size(B2, L),
+	mean_of_blobs(B1, B2, Mean).
 
-/**
-	blob_to_file(+Blob, +FilePath): dumps the binary data pointed by the blob into a file given its path
-*/
+%% equal_blobs(+BLOBID1, +BLOBID2) is det
+% Tells if the blobs are equal
 
-/**
-	file_to_blob(+FilePath, +Blob): reads the file and stores the data pointing it by the blob
-*/
+blobs_equal(B1, B2):-
+	blob_size(B1, L),
+	blob_size(B2, L),
+	are_equal_blobs(B1, B2).
 
-/**
-	Checking the status of the database
-*/
-id_db_status(Size, CurrentID, NextID):-
-	ids_in_db(Size),
-	current_id(CurrentID),
-	next_id(NextID).
+%% data_size(+DataObject, -Size) is det
+% Returns the size of the data object (list of BLOBID)
 
-/**
-	Register blob register_blob(+Blob, -Id)
-*/
-register_blob(Blob, Id):-
-	next_id(Id),
-	reserve_id(Id),
-	blob_id(Id, Blob).
+data_size(O, L):-
+	is_list(O),
+	length(O, L).
 
-/**
-	register_data_list(+List, -Id)
-*/
-register_data_list(List, ID):-
-	list_to_pointerBlob(List, Blob),
-	register_blob(Blob, ID).
+data_size(O, L):-
+	is_blobid(O),
+	blob_size(O, L).
 
-/**
-	Concat and compare
-*/
-data_concat(Id1, Id2, Blob):-
-	id_blob(Id1, Blob1),
-	id_blob(Id2, Blob2),
-	concat_blob(Blob1, Blob2, Blob).
+%% blob_frame(+BLOBID1, Start, Size, -BLOBIDFRAME) is det
+% Returns a frame of the original blob
 
-data_compare(Id1, Id2):-
-	id_blob(Id1, Blob1),
-	id_blob(Id2, Blob2),
-	equal_blob(Blob1, Blob2).
+blob_frame(B, S, Si, F):-
+	busy_id(B),
+	get_frame_of_blob(B, S, Si, F).
 
+%% concat_blobs(BLOBID1, BLOBID2, BLOBID3) is det
+% Concats two blobs and returns the new one
 
-
-
-
-
-
-
-
+concat_blobs(B1, B2, B3):-
+	busy_id(B1),
+	busy_id(B2),
+	concat_of_blobs(B1, B2, B3).
 
 

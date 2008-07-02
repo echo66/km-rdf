@@ -66,6 +66,12 @@ assign_data_id(std::vector<float> *);
 int
 get_data_for_id(const char*, std::vector<float>* &);
 
+/**
+	Sets the data for a given id. Success returns 1
+*/
+
+int
+set_data_for_id(const char*, std::vector<float>* );
 
 /**
 	Extracts the data from the blob and stores it in the given id record. This is is thought for the case when the id is reserved and we use a
@@ -78,7 +84,7 @@ get_data_for_id(const char*, std::vector<float>* &);
 */
 
 int 
-set_blob_for_id(const char*, term_t );
+set_plblob_for_id(const char*, term_t );
 
 /**
 	Returns the blob for the given id unifying with the term. Returns:
@@ -92,7 +98,7 @@ set_blob_for_id(const char*, term_t );
 */
 
 int 
-get_blob_from_id(const char*, term_t );
+get_plblob_from_id(const char*, term_t );
 
 /**
 	Checks if the id given in the string is already in the database. Useful in many ways. Returns

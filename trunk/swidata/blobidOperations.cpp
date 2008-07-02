@@ -28,7 +28,7 @@ select_frame(size_t, size_t, vector<float> *);
 	blobs_mean(+Blobid1, +Blobid2, -MeanBlobid). Given 2 blobids
 	*/
 
-PREDICATE(blobs_mean, 3){
+PREDICATE(mean_of_blobs, 3){
 
 	//+blob1
 	//+blob2
@@ -75,7 +75,7 @@ PREDICATE(blobs_mean, 3){
 	blob_size(+Blobid, -Size). Returns the size of the blob
 	*/
 
-PREDICATE(blob_size, 2)
+PREDICATE(get_blob_size, 2)
 {
 
 	PlTerm ch1_id(A1);
@@ -96,7 +96,7 @@ PREDICATE(blob_size, 2)
 	equal_blobs(+Blobid1, +Blobid2): Compares 2 blobs.
 	*/
 
-PREDICATE(equal_blobs, 3){
+PREDICATE(are_equal_blobs, 3){
 
 	//+blob1
 	//+blob2
@@ -130,7 +130,7 @@ PREDICATE(equal_blobs, 3){
 	blob_frame(+Blobid, +Start, +Size, -BlobidFrame)
 	*/
 
-PREDICATE(blob_frame, 4)
+PREDICATE(get_frame_of_blob, 4)
 {
 	//+blobid
 	//+start
@@ -157,7 +157,7 @@ PREDICATE(blob_frame, 4)
 	concat_blobs(+Blobid1, +Blobid2, -Blobid3)
 	*/
 
-PREDICATE(concat_blobs, 3)
+PREDICATE(concat_of_blobs, 3)
 {
 	//+blobid1
 	//+blobid2
@@ -332,6 +332,7 @@ PREDICATE(file_to_blob, 2)
 }
 */
 
+//NEED TO MAKE LISTS...
 
 /***********************************
 ******* C++  functions *************
