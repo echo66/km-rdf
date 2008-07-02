@@ -6,7 +6,6 @@
  *
  */
 #include <swiaudioblob.h>
-#include <swimo.h>
 #include <blobid.h>
 
 #include <sys/stat.h>
