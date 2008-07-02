@@ -141,6 +141,26 @@ get_data_for_id(const char* ident, std::vector<float>* &m_data)
 }
 
 /**
+	Sets the data for a given id. Success returns 1
+*/
+int
+set_data_for_id(const char* ident, std::vector<float>* m_data)
+{
+	long long pos = 0;
+	pos = existing_id(ident);
+	if(pos < 0){
+		 return -1;//no id. -1
+	}
+	else if(audio_data_db[(size_t)pos].active == 1){
+		return 0; //not active
+	}
+	else{		
+		audio_data_db[(size_t)pos].data = m_data;//sets the data.	
+		return 1; //was active	
+	}
+}
+
+/**
 	Extracts the data from the blob and stores it in the given id record. This is is thought for the case when the id is reserved and we use a
 	blob to store the data for that id
 		
@@ -150,7 +170,7 @@ get_data_for_id(const char* ident, std::vector<float>* &m_data)
 		 0 if not active and the blob is stored
 */
 int 
-set_blob_for_id(const char *ident, term_t blob)
+set_plblob_for_id(const char *ident, term_t blob)
 {
 	long long pos = 0;
 	pos = existing_id(ident);
@@ -182,7 +202,7 @@ set_blob_for_id(const char *ident, term_t blob)
 	Here now, we combine the library for swiaudioblob to wrap the data when it is identified.
 */
 int 
-get_blob_from_id(const char *ident, term_t blob)
+get_plblob_from_id(const char *ident, term_t blob)
 {
 	long long pos = 0;
 	pos = existing_id(ident);

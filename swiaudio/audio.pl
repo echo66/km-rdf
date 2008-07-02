@@ -105,7 +105,7 @@ clean(signal(_, ListPcm)):-
 	clean(ListPcm).
 clean([]).
 clean([H|T]):-
-	clean_data(H),
+	clean_blob(H),
 	clean(T).	
 
 %% frame_signal(+Signal, +StepSize, +BlockSize, -FramedSignal) is det
@@ -125,31 +125,6 @@ retrieve_frame(Signal, StepSize, BlockSize, N, Frame):-
 mix_stereo(signal(Sr, [Ch1, Ch2]), signal(Sr, [Ch])):-
 	blobs_mean(Ch1, Ch2, Ch).
 	
-/************************* FIXME ****************/
-
-/** put frames to signal. not sure it works */
-
-frames_to_signal(ListFrames, Signal):-
-	ListFrames = [H|Rest],
-	H = 'Frame'(C, Sr, _Start, PCMs),
-	add_frames(Rest, PCMs, PCMsF),
-	put_to_id(PCMsF, Sigs),
-	Signal = 'Signal'(C, Sr, _, Sigs).
-
-put_to_id([], _).
-put_to_id([H|T], [L|M]):-
-	register_blob(H, L),
-	put_to_id(T, M).
-
-add_frames([], _, _).
-add_frames([H|T], PCMs, List):-
-	H = 'Frame'(_, _, _, PCMs2),
-	concat_frames(PCMs, PCMs2, A),
-	add_frames(T, A, List). 
-concat_frames([], [], _).
-concat_frames([H1|T1], [H2|T2], [H|T]):-
-	data_concat(H1, H2, H),
-	concat_frames(T1, T2, T).
 
 						/**********************************************
 						********** PROLOG RULES FOR DECODING **********
