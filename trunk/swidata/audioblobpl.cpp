@@ -1,5 +1,5 @@
 /**
-	DEPRECATED. This foreign interface defines predicates to deal with data as PL_blob_t terms wrapping long float vectors. Specific functionsa are defined in swilib/swiaudioblob. These terms are replaced now by BLOBIDs and not longer used in km-rdf. (Modified June 2008)
+	DEPRECATED. This foreign interface defines predicates to deal with data as PL_blob_t terms wrapping long float vectors. Specific functions are defined in swilib/swiaudioblob. These terms are replaced now by BLOBIDs and not longer used in km-rdf. (Modified June 2008). Check out blobid* files.
 	
 	David Pastor 2007 for c4dm, Queen Mary, University of London
 */

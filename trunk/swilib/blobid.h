@@ -22,6 +22,7 @@ namespace BLOBID{
 /**
 	This function just creates the id atom using a given value as numerical identification for the id.
 */
+
 QString
 generate_id();
 
