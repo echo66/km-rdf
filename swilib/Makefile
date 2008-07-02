@@ -31,35 +31,26 @@ LIB = /usr/lib/libQtCore.so
 
 #Sources
 SWI_AUDIOBLOB = swiaudioblob.cpp
-SWI_MO = swimo.cpp
 B_ID = blobid.cpp
 
 #Objects
 
 OBJ_AUDIOBLOB = swiaudioblob.$(obj_suf)
-OBJ_MO = swimo.$(obj_suf)
 OBJ_BI = blobid.$(obj_suf)
 
 #DLIB
 
-MO = swimo.so
 AUDIOBLOB = swiaudioblob.so
 BLOBID = blobid.so
 
 #Targets
-all : $(AUDIOBLOB) $(MO) $(BLOBID)
-
-$(OBJ_MO) :
-	$(CPP) -c $(CFLAGS) $(INCLUDE) $(SWI_MO) -o $(OBJ_MO)
+all : $(AUDIOBLOB) $(BLOBID)
 
 $(OBJ_AUDIOBLOB) :
 	$(CPP) -c $(CFLAGS) $(INCLUDE) $(SWI_AUDIOBLOB) -o $(OBJ_AUDIOBLOB)
 
 $(OBJ_BI) :
 	$(CPP) -c $(CFLAGS) $(INCLUDE) $(B_ID) -o $(OBJ_BI)
-
-$(MO) : $(OBJ_MO) Makefile
-	$(CPP) -shared $(OBJ_MO) -o $(MO)
 
 $(AUDIOBLOB) : $(OBJ_AUDIOBLOB) Makefile
 	$(CPP) -shared $(OBJ_AUDIOBLOB) -o $(AUDIOBLOB) 

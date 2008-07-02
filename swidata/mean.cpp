@@ -1,5 +1,5 @@
 /**
-	This is a library to mix down stereo signals to mono ones. We can not try to mix signals with more than 2 channels.	
+	Definition of functions for blobids. The input of these predicates must be a blobid as well as the output
 	David Pastor 2008 for c4dm, Queen Mary, University of London
 */
 
@@ -17,28 +17,19 @@ using namespace std;
 ****** FOREIGN PREDICATES ******
 *******************************/
 
-/**
-	adpl_mix_stereo(+StereoSignal, -MonoSignal).
+/**	
+	blobs_mean(+Blob1, +Blob2, -MeanBlob). Given 2 blobids
 	*/
 
-PREDICATE(mix_stereo, 2){
+PREDICATE(blobs_mean, 3){
 
-	//+stereo
-	//-mono
+	//+blob1
+	//+blob2
+	//-mean
 
 	//getting input
-
-	term_t signal = PL_new_term_ref();
-	signal = term_t(PlTerm(A1));
-
-	//setting variables of signal to be read
-	term_t sample_rate = PL_new_term_ref();
-	term_t channel_count = PL_new_term_ref();
-	term_t samples_channel = PL_new_term_ref();
-	term_t ch1_id = PL_new_term_ref();//gets the id for the channel raw data
-	term_t ch2_id = PL_new_term_ref();
-
-	MO::signal(channel_count, sample_rate, samples_channel, ch1_id, ch2_id, signal);//gets the parameters for signal (swimo.h)
+	PlTerm ch1_id(A1);
+	PlTerm ch2_id(A2);
 
 	char *id1;//atom to const char *
 	char *id2;
@@ -51,43 +42,24 @@ PREDICATE(mix_stereo, 2){
 		return false;
 	}
 
-	int channels;
-	PL_get_integer(channel_count, &channels);
-
-	if(channels == 1){ return true;} //not necessary to support more channels
-	else if(channels == 2){
-		if(DataID::get_data_for_id((const char *)id2, ch2)<=0){//we only check
+	if(DataID::get_data_for_id((const char *)id2, ch2)<=0){//we only check
 			return false;
-		}
+	}
 		
-		//MIXING
-		cerr<<"mixing stereo"<<endl;
-		vector<float> *mono;
-		mono = new vector<float>;
-		for(size_t j=0; j < ch1->size(); j++){
+	//MIXING
+	cerr<<"mixing stereo"<<endl;
+	vector<float> *mono;
+	mono = new vector<float>;
+	for(size_t j=0; j < ch1->size(); j++){
 
-			float mean = (float)ch1->at(j)+ch2->at(j);
-			mean = mean /2.0;
-			mono->push_back(mean);
+		float mean = (float)ch1->at(j)+ch2->at(j);
+		mean = mean /2.0;
+		mono->push_back(mean);
 			//cerr<<mean<<endl;
 			//cerr<<ch1->at(j)<<endl;
 			//cerr<<ch2->at(j)<<endl;
-		}
-	
-		//new signal
-		term_t mono_t = term_t(PlTerm(PlAtom(DataID::assign_data_id(mono))));
-		term_t empty = term_t(PlTerm(PlAtom("")));//we pass this, but swimo is in charge of not even read it and just put one id in the list
-
-		term_t mono_channel = PL_new_term_ref();
-		int c = 1;
-		PL_unify_integer(mono_channel, (long)c);
-
-		term_t signalmono = PL_new_term_ref();
-		MO::signal(mono_channel, sample_rate, samples_channel, mono_t, empty, signalmono);
-
-		return A2 = PlTerm(signalmono);
-
-	}else{
-		return false; //we don't support >2 channels
 	}
+	
+	return A3 = PlTerm(PlAtom(DataID::assign_data_id(mono))));
+
 }

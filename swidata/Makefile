@@ -27,19 +27,20 @@ INCLUDE= 		-I$(swi_dir)/include/ \
 			
 #Libraries
 
-LIB = $(swilib_dir)/swimo.so \
-	$(swilib_dir)/swiaudioblob.so \
+LIB = 	$(swilib_dir)/swiaudioblob.so \
 	$(swilib_dir)/blobid.so
 
 #Sources
 
 SWI_ABPL = audioblobpl.cpp
 SWI_BID = blobidpl.cpp
+SWI_BIDOP = blobidOperations.cpp
 
 #Objects
 
 OBJ_ABPL = abpl.o
 OBJ_BID = blobid.o
+OBJ_BIDO = blobidop.o
 
 #DLIB
 
@@ -48,17 +49,17 @@ AUDIODATA = swidata.so
 #Targets
 all : $(AUDIODATA)
 
-$(OBJ_FRAME) :
-	$(CPP) -c $(CFLAGS) $(INCLUDE) -o $(OBJ_FRAME)
-
 $(OBJ_ABPL) :
 	$(CPP) -c $(CFLAGS) $(INCLUDE) $(SWI_ABPL) -o $(OBJ_ABPL)
 
 $(OBJ_BID) :
 	$(CPP) -c $(CFLAGS) $(INCLUDE) $(SWI_BID) -o $(OBJ_BID)
 
-$(AUDIODATA) : $(OBJ_ABPL) $(OBJ_BID) Makefile
-	$(CPP) -shared $(LIB) $(OBJ_ABPL) $(OBJ_BID) -o $(AUDIODATA) 
+$(OBJ_BIDO) :
+	$(CPP) -c $(CFLAGS) $(INCLUDE) $(SWI_BIDOP) -o $(OBJ_BIDO)
+
+$(AUDIODATA) : $(OBJ_ABPL) $(OBJ_BID) $(OBJ_BIDO) Makefile
+	$(CPP) -shared $(LIB) $(OBJ_ABPL) $(OBJ_BID) $(OBJ_BIDO) -o $(AUDIODATA) 
 
 clean :
 	rm *.o *.so

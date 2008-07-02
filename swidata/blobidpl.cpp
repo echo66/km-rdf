@@ -27,7 +27,7 @@ PREDICATE(blob_id, 2){
 	id_t = term_t(PlTerm(A1));
 	PL_get_atom_chars(id_t,&id);
 
-	if(DataID::set_blob_for_id((const char*)id, blob)<0){
+	if(BLOBID::set_blob_for_id((const char*)id, blob)<0){
 		return false;
 	}else{
 		return true;
@@ -48,7 +48,7 @@ PREDICATE(id_blob, 2){
 	PL_get_atom_chars(id_t,&id);
 
 	term_t blob = PL_new_term_ref();
-	if(DataID::get_blob_from_id((const char *)id, blob)>0){
+	if(BLOBID::get_blob_from_id((const char *)id, blob)>0){
 	
 		return A2 = PlTerm(blob);
 	}else{
@@ -68,7 +68,7 @@ PREDICATE(reserve_id, 1){
 	id_t = term_t(PlTerm(A1));
 	PL_get_atom_chars(id_t,&id);
 	
-	if(DataID::reserve_id(id)<0){
+	if(BLOBID::reserve_id(id)<0){
 		return false;
 	}else{
 		return true;
@@ -88,7 +88,7 @@ PREDICATE(is_data_id, 2){
 	id_t = term_t(PlTerm(A1));
 	PL_get_atom_chars(id_t,&id);
 
-	long index = DataID::existing_id((const char *)id);
+	long index = BLOBID::existing_id((const char *)id);
 	if(index<0) return false;
 	
 	return A2 =PlTerm((long)index);
@@ -106,7 +106,7 @@ PREDICATE(active_id, 1){
 	id_t = term_t(PlTerm(A1));
 	PL_get_atom_chars(id_t,&id);
 
-	if(DataID::active_id((const char *)id)>0) return true;
+	if(BLOBID::active_id((const char *)id)>0) return true;
 
 	return false;
 }
@@ -123,7 +123,7 @@ PREDICATE(clean_data, 1){
 	id_t = term_t(PlTerm(A1));
 	PL_get_atom_chars(id_t,&id);
 
-	if(DataID::clean_data_for_id((const char *)id)<0) return false;
+	if(BLOBID::clean_data_for_id((const char *)id)<0) return false;
 
 	return true;
 }
@@ -134,19 +134,19 @@ PREDICATE(clean_data, 1){
 
 PREDICATE(ids_in_db, 1){
 
-	return A1 = PlTerm((long)DataID::ids_in_db());
+	return A1 = PlTerm((long)BLOBID::ids_in_db());
 
 }
 
 PREDICATE(current_id, 1){
 
-	return A1 = PlTerm(PlAtom(DataID::current_id()));
+	return A1 = PlTerm(PlAtom(BLOBID::current_id()));
 
 }
 
 PREDICATE(next_id, 1){
 
-	return A1 = PlTerm(PlAtom(DataID::next_id_to_assign()));
+	return A1 = PlTerm(PlAtom(BLOBID::next_id_to_assign()));
 
 }
 
