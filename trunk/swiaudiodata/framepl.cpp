@@ -8,7 +8,6 @@
 */
 
 #include <swiaudioblob.h>
-#include <swimo.h>
 #include <blobid.h>
 
 #include <vector>
@@ -55,10 +54,10 @@ PREDICATE(frame_for_signal, 4){
 
 		//Now we retrieve the pointers to the raw data in memory
 		vector<float> *ch;
-		if(DataID::get_data_for_id((const char *)id, ch)<=0) return false;
+		if(BLOBID::get_data_for_id((const char *)id, ch)<=0) return false;
 
 		term_t f_id = PL_new_term_ref();//new ids for frame data
-		f_id = term_t(PlTerm(PlAtom(DataID::assign_data_id(select_frame(start, start+size-1, ch)))));	
+		f_id = term_t(PlTerm(PlAtom(BLOBID::assign_data_id(select_frame(start, start+size-1, ch)))));	
 
 		flist.append(PlAtom(PlTerm(f_id)));
 	}

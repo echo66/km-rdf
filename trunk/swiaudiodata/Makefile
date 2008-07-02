@@ -27,8 +27,7 @@ INCLUDE= 		-I$(swi_dir)/include/ \
 			
 #Libraries
 
-LIB = $(swilib_dir)/swimo.so \
-	$(swilib_dir)/swiaudioblob.so \
+LIB = $(swilib_dir)/swiaudioblob.so \
 	$(swilib_dir)/blobid.so
 
 #Sources

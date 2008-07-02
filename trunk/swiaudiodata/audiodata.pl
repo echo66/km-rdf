@@ -21,7 +21,7 @@
 			,	set_limit_framing/3
 			,	set_framing/4
 			,	frame_signal/4
-			,	clean_/1
+			,	clean/1
 			,	mix_stereo/2					
 			]).
 
@@ -60,7 +60,13 @@ get_samples_per_channel(frame(_, _, Data), L):-
 % Frames a signal(Sr, Data) object returning frame(Sr, Init, Data) object according to the parameters 
 
 get_frame(signal(Sr, Data), Init, Block, frame(Sr, Init, Data2)):-
-	frame_for_signal(Data, Init, Block, Data2).
+	frame_channels(Data, Init, Block, Data2).
+
+frame_channels([], _, _,_).
+frame_channels([H|T], Init, Block, [H2|T2]):-
+	blob_frame(H, Init, Block, H2).
+
+/*frame_for_signal(Data, Init, Block, Data2).*/
 
 %% get_frame_timestamp(+Frame, -Timestamp) is det
 % Returns the timestamp (time values) of a frame related to the owner signal timeline
@@ -106,7 +112,7 @@ retrieve_frame(Signal, StepSize, BlockSize, N, Frame):-
 % Mixes a stereo signal and returns the mono signal
 
 mix_stereo(signal(Sr, [Ch1, Ch2]), signal(Sr, [Ch])):-
-	data_mean(Ch1, Ch2, Ch).
+	blobs_mean(Ch1, Ch2, Ch).
 	
 /************************* FIXME ****************/
 

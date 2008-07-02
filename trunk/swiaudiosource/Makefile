@@ -24,24 +24,20 @@ SWAUDIOSOURCE_LIB = $(swiaudiosource_dir)/swiaudiosource.so
 
 LIB_MAD = /usr/lib/libmad.so \
 	/usr/lib/libQtCore.so \
-	$(swilib_dir)/swimo.so \
 	$(swilib_dir)/swiaudioblob.so \
 	$(swilib_dir)/blobid.so
 
 LIB_OGGVORBIS = /usr/lib/libfishsound.so \
 		/usr/lib/liboggz.so \
-		$(swilib_dir)/swimo.so \
 		$(swilib_dir)/swiaudioblob.so\
 		$(swilib_dir)/blobid.so
 
 LIB_SNDFILE = /usr/lib/libsndfile.so \
-		$(swilib_dir)/swimo.so \
 		$(swilib_dir)/swiaudioblob.so\
 		$(swilib_dir)/blobid.so
 
 LIB_FAAD = /usr/lib/libfaad.so \
 		/usr/lib/libmp4ff.so \
-		$(swilib_dir)/swimo.so \
 		$(swilib_dir)/swiaudioblob.so\
 		$(swilib_dir)/blobid.so
 
