@@ -1,7 +1,6 @@
 /**
-	This source defines type conversion between blobs (pointers and raw data) and prolog lists and some other stuff about AudioBlob (see swilib)
-	This source handles the AudioBlob with prolog, but should be hidden and used through and id reference of the blobs instead
-	The id should be __blob_x form and the assignment is done by blobid stuff in this swiaudiodata
+	DEPRECATED. This foreign interface defines predicates to deal with data as PL_blob_t terms wrapping long float vectors. Specific functionsa are defined in swilib/swiaudioblob. These terms are replaced now by BLOBIDs and not longer used in km-rdf. (Modified June 2008)
+	
 	David Pastor 2007 for c4dm, Queen Mary, University of London
 */
 

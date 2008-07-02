@@ -93,26 +93,6 @@ data_in(FilePath, ID):-
 /**Short explanation of imported predicates**/
 
 /**
-	get_sample_rate(+Signal or Frame, -SampleRate). Check mopl.cpp
-
-*/
-
-/**
-	get_channels(+Signal or Frame, -Channels). Check mopl.cpp
-
-*/
-
-/**
-	get_samples_per_channel(+Signal, -SamplesPerChannels). Check mopl.cpp
-
-*/
-
-/**
-	set_limit_framing(+SamplesChannel, +StepSize, -Limit)
-
-*/
-
-/**
 	pointerBlob_to_list(+Blob, -PrologList). Check audioblobpl.cpp. It basically gets a <#..> blob term and decodes it to get the data in memory
 	pointed by the blob and returns a prolog list. It can be also done for blob containing vectors with real raw data.
 */
@@ -122,16 +102,6 @@ data_in(FilePath, ID):-
 	containing a real vector with the raw data
 */
 
-/**
-	get_frame(+Signal, +Start, +BlockSize, -Frame). Signal is a MO:signal from which this predicate extracts a MO:frame for the specific start and
-	end samples. This should be called iterativelly to get the frames for further processing.
-	Check out framepl.cpp for the source code
-*/
-
-/**
-	get_timestamp(+Frame, -Timestamp). Gets the timestamp of a frame
-	Check out framepl.cpp for the source code
-*/
 
 /**
 	clean_pointedVector(+Blob). Cleans the data pointed by the vector freeing space in memory (we really want this). This is not very useful

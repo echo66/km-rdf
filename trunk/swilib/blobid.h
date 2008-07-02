@@ -1,6 +1,6 @@
 /*
 	This source is aimed to hide the raw data using IDs, a database and blobs to wrap the data when query from prolog
-	It defines the DataID namespace
+	It defines the BLOBID namespace
 	David Pastor 2007, c4dm, Queen Mary, University of London
 */
 
@@ -17,7 +17,7 @@
 /*
  * Prototypes to access the database of BlobID records
  */
-namespace DataID{
+namespace BLOBID{
 
 /**
 	This function just creates the id atom using a given value as numerical identification for the id.

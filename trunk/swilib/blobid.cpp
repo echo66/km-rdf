@@ -52,7 +52,7 @@ size_t lastID = 0;
  */
 size_t ids_in_system = 0;
 
-namespace DataID{
+namespace BLOBID{
 /**** Implementation of functions *****/
 
 /**
@@ -343,4 +343,4 @@ next_id_to_assign()
 	return nextID;
 }
 
-}//end of DataID
+}//end of BLOBID
