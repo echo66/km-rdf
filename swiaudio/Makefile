@@ -1,4 +1,4 @@
-# Makefile for swiaudiosource
+# Makefile for swiaudio
 # David Pastor Escuredo 2007
 
 CC = gcc # C compile
@@ -16,7 +16,7 @@ swiaudio_dir = .
 
 swilib_dir = ../swilib
 
-SWAUDIOSOURCE_LIB = $(swiaudiosource_dir)/swiaudiosource.so
+SWAUDIOSOURCE_LIB = $(swiaudiosource_dir)/swiaudio.so
 
 #######################################################################
 
@@ -72,7 +72,7 @@ OBJ_AACDECODE = swiaacdecode.o
 
 #DLIB
 FAAD_SWI = swifaad.so
-AUDIOSOURCE_SWI = swiaudiosource.so
+AUDIOSOURCE_SWI = swiaudio.so
 
 #Targets
 all : $(AUDIOSOURCE_SWI)
