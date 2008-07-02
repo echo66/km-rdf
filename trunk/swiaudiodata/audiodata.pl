@@ -62,11 +62,10 @@ get_samples_per_channel(frame(_, _, Data), L):-
 get_frame(signal(Sr, Data), Init, Block, frame(Sr, Init, Data2)):-
 	frame_channels(Data, Init, Block, Data2).
 
-frame_channels([], _, _,_).
+frame_channels([], _, _, []).
 frame_channels([H|T], Init, Block, [H2|T2]):-
-	blob_frame(H, Init, Block, H2).
-
-/*frame_for_signal(Data, Init, Block, Data2).*/
+	blob_frame(H, Init, Block, H2),
+	frame_channels(T, Init, Block, T2).
 
 %% get_frame_timestamp(+Frame, -Timestamp) is det
 % Returns the timestamp (time values) of a frame related to the owner signal timeline
