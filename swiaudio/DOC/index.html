@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head><title>swiaudio</title>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="index_files/pldoc.css">
+<script src="index_files/pldoc.js" type="text/javascript">
+</script></head><body>
+<div class="navhdr"><span style="float: left;">
+<div>
+
+<form action="/directory">
+<input value="Go" type="submit">
+<select name="dir">
+<option onclick="document.location='/doc/home/david/km-rdf/swiaudio/index.html';" selected="selected">/home/david/km-rdf/swiaudio</option>
+<option onclick="document.location='/doc/home/david/km-rdf/swidata/index.html';">/home/david/km-rdf/swidata</option>
+<option onclick="document.location='/doc/swi/index.html';">/usr/local/lib/pl-5.6.50</option>
+<option onclick="document.location='/doc/swi/boot/index.html';">/usr/local/lib/pl-5.6.50/boot</option>
+<option onclick="document.location='/doc/swi/library/index.html';">/usr/local/lib/pl-5.6.50/library</option>
+<option onclick="document.location='/doc/swi/library/http/index.html';">/usr/local/lib/pl-5.6.50/library/http</option>
+<option onclick="document.location='/doc/swi/library/pldoc/index.html';">/usr/local/lib/pl-5.6.50/library/pldoc</option>
+<option onclick="document.location='/doc/swi/xpce/prolog/lib/index.html';">/usr/local/lib/pl-5.6.50/xpce/prolog/lib</option>
+</select>
+</form>
+
+<a class="prolog_version" href="http://www.swi-prolog.org/"> SWI-Prolog 5.6.50</a></div>
+</span><span style="float: right;">
+
+<form action="/search">
+<div><input name="for" size="36"><input value="Search" type="submit"></div>
+<div class="search-options"><span class="search-in"><input name="in" value="all" checked="checked" type="radio">All<input name="in" value="app" type="radio">Application<input name="in" value="man" type="radio">Manual</span><span class="search-match"><input name="match" value="name" type="radio">Name<input name="match" value="summary" checked="checked" type="radio">Summary</span><span class="search-help"><a href="http://localhost:56386/package/pldoc.html#sec:browser">Help</a></span></div>
+</form>
+
+</span><br clear="all">
+</div>
+
+<p>
+Module "audio" for SWI-Prolog
+
+</p><p>
+This module provides audio signal representations and functions to deal
+with them. The audio elements are represented by SWI-Prolog functors:
+signal(SampleRate, ListOfData), frame(SampleRate, Start, ListOfData)
+and timestamp(Start, Duration).
+</p><p>The sources of the terms are open source libraries
+communicating with SWI-Prolog through the foreign interface
+swiaudio.so. This interface provides a <a href="http://localhost:56386/doc_for?object=audio%3adecode%2f2">decode/2</a>
+predicate which decodes audio files returning a "signal term" common
+for every file format. These signal terms can be manipulated with
+predicates defined in this module and serve for communication with
+other modules that analyse audio information (see km-rdf general doc)
+</p><p>
+The list of file extensions supported:
+
+</p><p>
+.wav,
+.aif,
+.aiff,
+.mp3,
+.ogg,
+.m4a,
+.aac.
+
+</p><p>This module is built on top of the C++/C decoding libraries
+(mad, fishsound, faad, sndfile, oggz) and swidata that provides a
+mechanism to deal with large binary objects of data (BLOBS)
+</p><p>
+Content:
+
+</p><p>
+-C/C++ files defining the foreign predicates and the communication with the external libraries
+-audio module declaration and specification
+
+</p><p>
+David Pastor Escuredo for the Centre for Digital Music, Queen Mary University of London.
+2007-2008
+
+</p><table class="summary">
+<tbody><tr><th colspan="3" class="file"><span style="float: left;"><a href="http://localhost:56386/doc/home/david/km-rdf/swiaudio/audio.pl">audio.pl</a></span><span style="float: right;"><a href="http://localhost:56386/doc/home/david/km-rdf/swiaudio/audio.pl?source=true"><img alt="Show source" style="border: 0pt none ; padding-top: 4px;" src="index_files/source.gif" height="16"></a><a onclick='HTTPrequest("/edit?file=%2fhome%2fdavid%2fkm-rdf%2fswiaudio%2faudio.pl")' onmouseover="window.status='Edit file'; return true;"><img alt="edit" style="border: 0pt none ;" src="index_files/edit.gif" height="16"></a></span></th></tr>
+<tr class="public"><td><a href="http://localhost:56386/doc_for?object=audio%3aclean%2f1">clean/1</a></td><td class="summary">Removes the data from a Frame or a Signal where data is in the type of '__data_id'.</td><td align="right" width="30"><span style="float: right;"><a href="http://localhost:56386/doc/home/david/km-rdf/swiaudio/audio.pl?source=true#clean%2f1"><img style="border: 0pt none ;" src="index_files/source.gif" height="12"></a><a onclick='HTTPrequest("/edit?name=clean&arity=1&module=audio")'><img style="border: 0pt none ;" src="index_files/edit.gif" height="12"></a></span></td></tr>
+<tr class="public"><td><a href="http://localhost:56386/doc_for?object=audio%3adecode%2f2">decode/2</a></td><td class="summary">Main
+predicate that hides decoding of an audio file given the path and
+returns a compound term: signal (SampleRate, Data) where Data is a list
+of blobs id (check swilib).</td><td align="right" width="30"><span style="float: right;"><a href="http://localhost:56386/doc/home/david/km-rdf/swiaudio/audio.pl?source=true#decode%2f2"><img style="border: 0pt none ;" src="index_files/source.gif" height="12"></a><a onclick='HTTPrequest("/edit?name=decode&arity=2&module=audio")'><img style="border: 0pt none ;" src="index_files/edit.gif" height="12"></a></span></td></tr>
+<tr class="public"><td><a href="http://localhost:56386/doc_for?object=audio%3aframe_signal%2f4">frame_signal/4</a></td><td class="summary">Returns a framed signal (list of Frames for the given signal) for the passed parameters.</td><td align="right" width="30"><span style="float: right;"><a href="http://localhost:56386/doc/home/david/km-rdf/swiaudio/audio.pl?source=true#frame_signal%2f4"><img style="border: 0pt none ;" src="index_files/source.gif" height="12"></a><a onclick='HTTPrequest("/edit?name=frame_signal&arity=4&module=audio")'><img style="border: 0pt none ;" src="index_files/edit.gif" height="12"></a></span></td></tr>
+<tr class="public"><td><a href="http://localhost:56386/doc_for?object=audio%3aget_channels%2f2">get_channels/2</a></td><td class="summary">Returns back the number of channels of the signal or frame.</td><td align="right" width="30"><span style="float: right;"><a href="http://localhost:56386/doc/home/david/km-rdf/swiaudio/audio.pl?source=true#get_channels%2f2"><img style="border: 0pt none ;" src="index_files/source.gif" height="12"></a><a onclick='HTTPrequest("/edit?name=get_channels&arity=2&module=audio")'><img style="border: 0pt none ;" src="index_files/edit.gif" height="12"></a></span></td></tr>
+<tr class="public"><td><a href="http://localhost:56386/doc_for?object=audio%3aget_frame%2f4">get_frame/4</a></td><td class="summary">Frames a signal(Sr, Data) object returning frame(Sr, Init, Data) object according to the parameters .</td><td align="right" width="30"><span style="float: right;"><a href="http://localhost:56386/doc/home/david/km-rdf/swiaudio/audio.pl?source=true#get_frame%2f4"><img style="border: 0pt none ;" src="index_files/source.gif" height="12"></a><a onclick='HTTPrequest("/edit?name=get_frame&arity=4&module=audio")'><img style="border: 0pt none ;" src="index_files/edit.gif" height="12"></a></span></td></tr>
+<tr class="public"><td><a href="http://localhost:56386/doc_for?object=audio%3aget_frame_timestamp%2f2">get_frame_timestamp/2</a></td><td class="summary">Returns the timestamp (time values) of a frame related to the owner signal timeline.</td><td align="right" width="30"><span style="float: right;"><a href="http://localhost:56386/doc/home/david/km-rdf/swiaudio/audio.pl?source=true#get_frame_timestamp%2f2"><img style="border: 0pt none ;" src="index_files/source.gif" height="12"></a><a onclick='HTTPrequest("/edit?name=get_frame_timestamp&arity=2&module=audio")'><img style="border: 0pt none ;" src="index_files/edit.gif" height="12"></a></span></td></tr>
+<tr class="public"><td><a href="http://localhost:56386/doc_for?object=audio%3aget_sample_rate%2f2">get_sample_rate/2</a></td><td class="summary">Returns back the sample rate of a signal or frame.</td><td align="right" width="30"><span style="float: right;"><a href="http://localhost:56386/doc/home/david/km-rdf/swiaudio/audio.pl?source=true#get_sample_rate%2f2"><img style="border: 0pt none ;" src="index_files/source.gif" height="12"></a><a onclick='HTTPrequest("/edit?name=get_sample_rate&arity=2&module=audio")'><img style="border: 0pt none ;" src="index_files/edit.gif" height="12"></a></span></td></tr>
+<tr class="public"><td><a href="http://localhost:56386/doc_for?object=audio%3aget_samples_per_channel%2f2">get_samples_per_channel/2</a></td><td class="summary">Returns back the number of samples per channels (assuming all channels have the same length).</td><td align="right" width="30"><span style="float: right;"><a href="http://localhost:56386/doc/home/david/km-rdf/swiaudio/audio.pl?source=true#get_samples_per_channel%2f2"><img style="border: 0pt none ;" src="index_files/source.gif" height="12"></a><a onclick='HTTPrequest("/edit?name=get_samples_per_channel&arity=2&module=audio")'><img style="border: 0pt none ;" src="index_files/edit.gif" height="12"></a></span></td></tr>
+<tr class="public"><td><a href="http://localhost:56386/doc_for?object=audio%3amix_stereo%2f2">mix_stereo/2</a></td><td class="summary">Mixes a stereo signal and returns the mono signal.</td><td align="right" width="30"><span style="float: right;"><a href="http://localhost:56386/doc/home/david/km-rdf/swiaudio/audio.pl?source=true#mix_stereo%2f2"><img style="border: 0pt none ;" src="index_files/source.gif" height="12"></a><a onclick='HTTPrequest("/edit?name=mix_stereo&arity=2&module=audio")'><img style="border: 0pt none ;" src="index_files/edit.gif" height="12"></a></span></td></tr>
+<tr class="public"><td><a href="http://localhost:56386/doc_for?object=audio%3aset_framing%2f4">set_framing/4</a></td><td class="summary">This predicate returns iteratively the Start of the following frame in a framing process.</td><td align="right" width="30"><span style="float: right;"><a href="http://localhost:56386/doc/home/david/km-rdf/swiaudio/audio.pl?source=true#set_framing%2f4"><img style="border: 0pt none ;" src="index_files/source.gif" height="12"></a><a onclick='HTTPrequest("/edit?name=set_framing&arity=4&module=audio")'><img style="border: 0pt none ;" src="index_files/edit.gif" height="12"></a></span></td></tr>
+<tr class="public"><td><a href="http://localhost:56386/doc_for?object=audio%3asupported_file%2f1">supported_file/1</a></td><td class="summary">We query about supported files or check if one of our selection is one of them.</td><td align="right" width="30"><span style="float: right;"><a href="http://localhost:56386/doc/home/david/km-rdf/swiaudio/audio.pl?source=true#supported_file%2f1"><img style="border: 0pt none ;" src="index_files/source.gif" height="12"></a><a onclick='HTTPrequest("/edit?name=supported_file&arity=1&module=audio")'><img style="border: 0pt none ;" src="index_files/edit.gif" height="12"></a></span></td></tr>
+</tbody></table>
+
+<p>
+<a class="file" href="http://localhost:56386/doc/home/david/km-rdf/swiaudio/TODO">TODO</a>:
+
+</p><ol>
+<li>Add support for more formats</li>
+<li>Test faad library</li>
+<li>Support for frequency domain and time-frequency domain signals</li>
+</ol>
+
+</body></html>

@@ -35,7 +35,7 @@ supported_file('aif').
 supported_file('aiff').
 supported_file('m4a').
 
-%%	decode(+AudioFilePath, -Signal). 
+%%	decode(+AudioFilePath, -Signal) is det
 % Main predicate that hides decoding of an audio file given the path and returns a compound term: signal (SampleRate, Data) where Data is a list of blobs id (check swilib).
 
 decode(AudioFile, Signal):-
@@ -88,7 +88,7 @@ get_frame_timestamp(Frame, timestamp(Start, Duration)):-
 	Start is Init/Sr,
 	Duration is L/Sr.
 	
-%% set_framing(+StepSize, +SignalLength, -Limit, -Start) is nondet
+%% set_framing(+StepSize, +SignalLength, -Limit, -Start) is det
 % This predicate returns iteratively the Start of the following frame in a framing process. This framing predicate relies on the procedural meaning and is subject of substitution.
 
 set_framing(StepSize, Samples, Limit, Start):-
@@ -96,7 +96,7 @@ set_framing(StepSize, Samples, Limit, Start):-
 	between(0, Limit, N),
 	Start is StepSize * N.
 		
-%% clean(+DataTerm) is nondet
+%% clean(+DataTerm) is det
 % Removes the data from a Frame or a Signal where data is in the type of '__data_id'. This is necessary to relief memory
 
 clean(frame(_, _, ListPcm)):-
@@ -108,7 +108,7 @@ clean([H|T]):-
 	clean_data(H),
 	clean(T).	
 
-%% frame_signal(+Signal, +StepSize, +BlockSize, -FramedSignal) is nondet
+%% frame_signal(+Signal, +StepSize, +BlockSize, -FramedSignal) is det
 % Returns a framed signal (list of Frames for the given signal) for the passed parameters.
 	
 frame_signal(Signal, StepSize, BlockSize, FramedSignal):-
@@ -119,7 +119,7 @@ retrieve_frame(Signal, StepSize, BlockSize, N, Frame):-
 	set_framing(StepSize, N, _, Start),
 	get_frame(Signal, Start, BlockSize, Frame).
 
-% mix_stereo(+StereoSignal, -MonoSignal) is nondet
+%% mix_stereo(+StereoSignal, -MonoSignal) is det
 % Mixes a stereo signal and returns the mono signal
 
 mix_stereo(signal(Sr, [Ch1, Ch2]), signal(Sr, [Ch])):-
