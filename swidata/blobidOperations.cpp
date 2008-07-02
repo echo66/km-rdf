@@ -150,7 +150,7 @@ PREDICATE(blob_frame, 4)
 		return false;
 	}
 		
-	return A3 = PlTerm(PlAtom(BLOBID::assign_data_id(select_frame(start, start+size-1, ch1))));
+	return A4 = PlTerm(PlAtom(BLOBID::assign_data_id(select_frame(start, start+size-1, ch1))));
 }
 
 /**
@@ -332,9 +332,18 @@ PREDICATE(file_to_blob, 2)
 }
 */
 
-/**
-	function helping blob_frame/4
-*/
+
+/***********************************
+******* C++  functions *************
+***********************************/
+
+/*
+ * Returns an vector of floats that is a subvector of the pcm vector pointed by the third argument for the specified start and end samples
+ * There are 2 basic constraints:
+			-The frame can not start beyond the size of the signal. Checked before
+			-The length of the frame is obtained with adding zeros if the final point is beyond the size of the signal 
+ */
+
 vector<float> *
 select_frame(size_t start, size_t end, vector<float> *channel){	
 

@@ -40,7 +40,9 @@
 			concat_blob/3,
 			equal_blob/2,
 			data_concat/3, /*id wrapped version*/
-			data_compare/2	
+			data_compare/2,
+
+			blob_frame/4
 			]).
 
 
