@@ -37,11 +37,3 @@ Frame = __data_3424
 3. Data lists and data identifiers should be treated in the same way and be transparent for the case. It is not completely true in practise.
 
 4. The binary files in disk where data is dumped are not written in any standard, surely portable format.
-
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
