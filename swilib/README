@@ -1,7 +1,6 @@
-This folder contains libraries providing general purpose tools for the foreign interfaces designed as evaluation engine of the KM
+SWILIB
 
--swiaudioblob: type conversion vector<float> <-> PL_blob_t
+This library defines a data-identifiers mechanism to manage large data objects. It also defines a library to control Pl_term_t blobs (Which is deprecated after introducing the ids mechanism). This library gives support to SWI-DSP in data management and is available for PROLOG from the swidata module.
 
--swimo: definition and analysis of prog terms represeting Music Ontology entities
-
--blobid: interface hiding blob in id __blob_x
+David Pastor Escuredo, c4dm Queen Mary University of London
+2007-2008
