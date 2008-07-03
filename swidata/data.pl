@@ -1,36 +1,34 @@
 /**
-	
+	Data module for SWI-Prolog: Predicates to handle data in multimedia computations. The are 3 ways of data representation: prolog lists, pl blobs and blob with identifiers.
+	Prolog lists are a limited way to handle data as they easily crash for really long arrays.
+	PL Blobs have also size limitations and are cumbersome as datatype. These terms are still included here but deprecated after introducing the blob with identifiers
+	Blobs with identifiers. Each block of data (now really arbitrarly large) is identified with an id, so we have BLOBIDs which represent data and are used in their place for computations. Each module of SWI-DSP is and must be implemented to read these identifiers and extract the data from the runtime database defined in swilib.
+	This module offers predicates to check the status of the database where each BLOBID is considered as an identifier. The other bunch of predicates treat each BLOBID as a real data object and perform different operations with them.
+
+	David Pastor Escuredo, Centre for Digital Music, Queen Mary University of London,
+	2007-2008.
 */
 
 :- module(data, [	reserve_id/1
 		,	current_id/1
 		,	next_id/1
-		, 	blobids/1
+		, 	blobs/1
 		,	ids_status/3
 		, 	busy_id/1
-		,	is_blobid/1
+		,	is_blob/1
 		,	clean_blob/1
 		,	blob_size/2
+		,	data_size/2
 		,	blobs_mean/3
 		,	equal_blobs/2
 		,	blob_frame/4
 		, 	concat_blobs/3	
-
-/*FIXME*/
-		,	plblob_blobid/2
-		,	blobid_plblob/2
-		,       register_blob/2
-		,	register_data_list/2
-
-			
-		,	data/2,
-			load_data_list/2,
-			blob_to_file/2,
-			file_to_blob/2,
-			clean_data/1,
-			data_in/2,
-			data_out/2
-
+		,	blob_list/2
+		,	list_blob/2
+		,	blob_in/2
+		,	blob_out/2
+		,	plblob_blob/2
+		,	blob_plblob/2
 			]).
 
 
@@ -38,19 +36,17 @@
 :- load_foreign_library(swidata).
 :- use_module(library(pldoc)).
 
-/************************************** BLOBIDs DATABASE ***************************/
-
-%% reserve_blobid(+BLOBID) is det
+%% reserve_id(+BLOBID) is det
 % reserves the passed id in the database so it can not be assigned to any outcoming blob unless we pass it for unification
 
 reserve_id(Term):-
 	atom(Term),
 	reserve_data_id(Term).	
 
-%% is_blobid(+Term) is det
+%% is_blob(+Term) is det
 % checks if the passed term is a BLOBID (an atom stored in the ids database). The id may be reserved but not pointing to any block of data
 
-is_blobid(T):-
+is_blob(T):-
 	atom(T),
 	is_blobid(T, _).
 	
@@ -67,11 +63,11 @@ clean_blob(T):-
 	busy_id(T),
 	clean_data(T).
 
-%% blobids(+Number) is det
+%% blobs(+Number) is det
 % Number of blobid in the database
 
-blobids(L):-
-	ids_in_system(C).
+blobs(L):-
+	ids_in_system(L).
 
 %% current_id(?BLOBID) is det
 % Last id assigned by the system
@@ -113,7 +109,7 @@ blobs_mean(B1, B2, Mean):-
 %% equal_blobs(+BLOBID1, +BLOBID2) is det
 % Tells if the blobs are equal
 
-blobs_equal(B1, B2):-
+equal_blobs(B1, B2):-
 	blob_size(B1, L),
 	blob_size(B2, L),
 	are_equal_blobs(B1, B2).
@@ -144,4 +140,63 @@ concat_blobs(B1, B2, B3):-
 	busy_id(B2),
 	concat_of_blobs(B1, B2, B3).
 
+%% blob_list(+BLOBID, -List) is det
+% Represents the blob as a prolog list. It may crash for very large blobs
 
+blob_list(B, L):-
+	is_blob(B),
+	blobid_to_list(B, L).
+
+%% list_blob(+List, ?Blob) is det
+% Registers a List as a blob. The BLOBID can be passed for unification or assigned as the next id
+
+list_blob(L, B):-
+	var(B),
+	next_id(B),
+	reserve_id(B),
+	list_to_blobid(L, B).
+list_blob(_L, B):-
+	nonvar(B),
+	busy_blob(B), !, fail.
+list_blob(L, B):-
+	nonvar(B),
+	is_blob(B),
+	list_to_blobid(L, B).
+list_blob(L, B):-
+	nonvar(B),
+	\+is_blob(B),
+	reserve_id(B),
+	list_to_blobid(L, B).
+
+%% blob_out(+BLOBID, +FilePath) is det
+% Dumps the binary data held by the blob into a file given the path
+
+blob_out(B, F):-
+	busy_blob(B),
+	blob_to_file(B, F).
+
+%% blob_in(+FilePath, ?BLOBID) is det
+% Loads the data of the file into a blob which can be passed for unification
+
+blob_in(F, B):-
+	var(B),
+	next_id(B), reserve_id(B),
+	blob_from_file(F, B).
+blob_in(_F, B):-
+	nonvar(B),
+	busy_blob(B), !, fail.
+blob_in(F, B):-
+	nonvar(B),
+	is_blob(B),
+	blob_from_file(F, B).
+blob_in(F, B):-
+	nonvar(B),
+	\+is_blob(B),
+	reserve_id(B),
+	blob_from_file(F, B).
+
+%% plblob_to_blob(+PlBlob, +BLOBID) is det
+% Deprecated: registering a pl_term_t blob as blob id
+
+%% blob_to_plblob(+BLOBID, -PlBlob) is det
+% Deprecated: exporting a blob id as pl blob

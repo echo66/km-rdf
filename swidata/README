@@ -1,0 +1,14 @@
+Data module for SWI-Prolog
+
+This module defines predicates to manage large data involved in multimedia computations and other data expensive processes. We require these library as prolog terms to deal with data (lists and Pl_term_t blobs) are not efficient enough and they have serious size restrictions.
+
+Swilib defines an identification mechanism for data objects which are stored in memory along with the data vector. The data itself can be sent to disk relieving memory. Under its identifier, each block of data can be called to be processed as any SWI-DSP module is implemented to read them. We define aslo list-BLOBIDs conversion predicates to reuse prolog literals.
+
+The system has a PREFERRED FORMAT FOR DATA IDENTIFIERS: '__data_x'. These atoms will be automatically assigned by the system incrementally. The user can also reserve ids but we strongly recommend to use this sort of atoms to identify your data blocks. There are predicates to check the status of the database so the user can easily query the next identifier to be assigned and other useful information.
+
+Finally, the most interesting set of predicates perform basic data operations over the identifiers like framing, concatenation or comparison. These predicates are used by other modules providing a high-level and declarative view of data objects. 
+
+For more information check the module documentation in DOC
+
+David Pastor Escuredo for the Centre For Digital Music, Queen Mary University of London
+2007-2008.
