@@ -128,7 +128,7 @@ PREDICATE(is_audio_blob, 1)
 	Dumping the data pointed by a blob into an external file
 */
 
-PREDICATE(blob_to_file, 2)
+PREDICATE(plblob_to_file, 2)
 {
 	//+Blob
 	//+File Path
@@ -151,7 +151,7 @@ PREDICATE(blob_to_file, 2)
 	Loading the data from a file into a blob
 */
 
-PREDICATE(file_to_blob, 2)
+PREDICATE(file_to_plblob, 2)
 {
 	//+File Path
 	//+Blob

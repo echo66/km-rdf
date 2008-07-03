@@ -33,7 +33,7 @@ LIB = 	$(swilib_dir)/swiaudioblob.so \
 #Sources
 
 SWI_ABPL = audioblobpl.cpp
-SWI_BID = blobidpl.cpp
+SWI_BID = blobidDB.cpp
 SWI_BIDOP = blobidOperations.cpp
 
 #Objects

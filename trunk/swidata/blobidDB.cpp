@@ -10,57 +10,10 @@
 #include <iostream>
 
 /*
- *	This predicate SETS a blob in the database for the specific id given. The id must previously exists and not be already active!! otherwise it 
- *      fails. This is interesting when we have desactived an id previously and we load the blob again assigning it its old id.
- *	Now, we don't store the blob but the pointer to the raw data in it.
- */
-
-PREDICATE(blob_id, 2){
-
-	//+id in the database
-	//+blob to unify
-
-	//getting both arguments
-	term_t blob = PL_copy_term_ref(term_t(PlTerm(A2)));
-	char *id;//A1
-	term_t id_t = PL_new_term_ref();
-	id_t = term_t(PlTerm(A1));
-	PL_get_atom_chars(id_t,&id);
-
-	if(BLOBID::set_blob_for_id((const char*)id, blob)<0){
-		return false;
-	}else{
-		return true;
-	}
-}
-/*
- *	This predicate works giving us the blob wrapping the data reprenseted by the id. Success if id exists and is active and fails otherwise 
- */
-
-PREDICATE(id_blob, 2){
-
-	//+id
-	//-data in blob (pointer to raw data in memory)
-	
-	char *id;//A1
-	term_t id_t = PL_new_term_ref();
-	id_t = term_t(PlTerm(A1));
-	PL_get_atom_chars(id_t,&id);
-
-	term_t blob = PL_new_term_ref();
-	if(BLOBID::get_blob_from_id((const char *)id, blob)>0){
-	
-		return A2 = PlTerm(blob);
-	}else{
-		return false;
-	}
-}
-
-/*
  *	This predicate reserves an id in the database for a known data object (that is not stored yet) and sets it to non active
  */
 
-PREDICATE(reserve_id, 1){
+PREDICATE(reserve_data_id, 1){
 
 	//+id to reserve
 	char *id;//A1
@@ -76,10 +29,10 @@ PREDICATE(reserve_id, 1){
 }
 
 /*
- *	This is not related to existing blobs anymore and therefore it's less useful. Just checks if an id is taken or not
+ *	An id is a BLOBID if it exists in the running database of BLOBIDs
  */
 
-PREDICATE(is_data_id, 2){
+PREDICATE(is_blobid, 2){
 
 	//+id
 	//-index
@@ -138,17 +91,66 @@ PREDICATE(ids_in_db, 1){
 
 }
 
-PREDICATE(current_id, 1){
+PREDICATE(current_blob_id, 1){
 
 	return A1 = PlTerm(PlAtom(BLOBID::current_id()));
 
 }
 
-PREDICATE(next_id, 1){
+PREDICATE(next_blob_id, 1){
 
 	return A1 = PlTerm(PlAtom(BLOBID::next_id_to_assign()));
 
 }
 
+/**********************************************************
+********************** DEPRECATED *************************
+**********************************************************/
 
+/*
+ *	This predicate SETS a PL_blob_t in the BLOBID's database giving the id and the blob for the unification. We do not longer use Pl blobs, but we 
+ * 	keep this.
+ */
+
+PREDICATE(plblob_to_blob, 2){
+
+	//+id in the database
+	//+blob to unify
+
+	//getting both arguments
+	term_t blob = PL_copy_term_ref(term_t(PlTerm(A2)));
+	char *id;//A1
+	term_t id_t = PL_new_term_ref();
+	id_t = term_t(PlTerm(A1));
+	PL_get_atom_chars(id_t,&id);
+
+	if(BLOBID::set_plblob_for_id((const char*)id, blob)<0){
+		return false;
+	}else{
+		return true;
+	}
+}
+
+/*
+ *	This predicate works giving us the blob wrapping the data reprenseted by the id. Success if id exists and is active and fails otherwise 
+ */
+
+PREDICATE(blob_to_plblob, 2){
+
+	//+id
+	//-data in blob (pointer to raw data in memory)
+	
+	char *id;//A1
+	term_t id_t = PL_new_term_ref();
+	id_t = term_t(PlTerm(A1));
+	PL_get_atom_chars(id_t,&id);
+
+	term_t blob = PL_new_term_ref();
+	if(BLOBID::get_plblob_from_id((const char *)id, blob)>0){
+	
+		return A2 = PlTerm(blob);
+	}else{
+		return false;
+	}
+}
 

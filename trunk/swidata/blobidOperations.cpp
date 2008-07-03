@@ -200,10 +200,69 @@ PREDICATE(concat_of_blobs, 3)
 }
 
 /**
-	blob_from_file(+FILEPATH, -BLOBID): saves the data (float * binary data) into a file given its path. The system provides a new id for the blob an returns it to the user.
+	Converts a blob id into a list. This may crash if the blob is too large
+	*/
 
-	PROBLEM: what about if the user wants to specify the name of the blob? Should accept both ways
+PREDICATE(blobid_to_list, 2){
 
+
+	//+ reference to blob
+	//- list
+	
+
+	PlTerm ch1_id(A1);
+	char *id1;
+	PL_get_atom_chars(ch1_id, &id1);
+
+	vector<float> *ch1;
+	if(BLOBID::get_data_for_id((const char *)id1, ch1)<=0){//this check is not really important if the rest of the system works well.
+		return false;
+	}
+
+	PlTerm list;
+	PlTail tail(list);
+
+	for(size_t j=0; j<ch1->size(); j++){
+
+		tail.append((double)ch1->at(j));
+	}
+	tail.close();	
+	return A2 = list;
+
+}
+
+/**
+	unifies the data of a list into a given blobid
+	*/
+
+PREDICATE(list_to_blobid, 2){
+
+	//+ list
+	//+ blobid
+	
+	PlTerm e;
+	PlTail tail(A1);
+
+	PlTerm ch1_id(A2);
+	char *id1;
+	PL_get_atom_chars(ch1_id, &id1);
+
+	std::vector<float> *data;
+	data = new std::vector<float>;
+
+	while(tail.next(e)){
+
+		data->push_back((float)(double)e);
+        }
+
+	BLOBID::set_data_for_id((const char*)id1, data);//unifies the pointer and the data
+
+	return true;	
+}
+
+/**
+	blob_from_file(+FILEPATH, +BLOBID): saves the data (float * binary data) into a file given its path. The system provides a new id for the blob an returns it to the user.
+	*/
 
 PREDICATE(blob_from_file, 2)
 {
@@ -211,12 +270,14 @@ PREDICATE(blob_from_file, 2)
 	//+File Path
 	//+BlodId
 	
-	term_t blob = PL_copy_term_ref(term_t(PlTerm(A1)));
-	//+id
-	char *path;//A2
+	char *path;//A1
 	term_t path_t = PL_new_term_ref();
-	path_t = term_t(PlTerm(A2));
+	path_t = term_t(PlTerm(A1));
 	PL_get_atom_chars(path_t,&path);
+
+	PlTerm ch1_id(A2);
+	char *id;
+	PL_get_atom_chars(ch1_id, &id);
 
 	//open the file to read
 	FILE *fileData;
@@ -265,30 +326,36 @@ PREDICATE(blob_from_file, 2)
 		fclose(fileData); //we don't need to read the file anymore
 	
 		//returning the blob
-		return A2 = PlTerm(PlAtom(BLOBID::assign_data_id(data)));
+		BLOBID::set_data_for_id((const char*)id, data);
+		
+		return true;
 	}
 	return false;
 }
 
-
-	blob_to_file(+BlodID, +FilePath)
-
+/**
+	blob_to_file(+BlodID, +FilePath). Dumping content into a file.	
+	*/
 
 PREDICATE(file_to_blob, 2)
 {
-	//+File Path
-	//+Blob
+	//+Blobid
+	//+File path
 	
-	term_t blob = PL_copy_term_ref(term_t(PlTerm(A2)));
-	//+id
-	char *path;//A2
+	PlTerm ch1_id(A1);
+	char *id;
+	PL_get_atom_chars(ch1_id, &id);
+	char *path;
 	term_t path_t = PL_new_term_ref();
-	path_t = term_t(PlTerm(A1));
+	path_t = term_t(PlTerm(A2));
 	PL_get_atom_chars(path_t,&path);
 	
 	//getting the data from the blob
-	AudioVector *data;
-	data = audio_blob_to_pointer(blob);//pointer to vector = data
+	vector<float> *data;
+	if(BLOBID::get_data_for_id((const char *)id, data)<=0){//this check is not really important if the rest of the system works well.
+		return false;
+	}
+
 
 	//open a file and write the data in it as stream of data
 	//we don't store the real values, but the binary data as it is in memory which should make the progress faster
@@ -299,7 +366,7 @@ PREDICATE(file_to_blob, 2)
 	//cerr<<data_size<<endl;
 
 	FILE *fileData;
-	fileData = fopen(filePath, "w");//binary file to write
+	fileData = fopen((const char*)path, "w");//binary file to write
 		
 	if(fileData!=NULL){
 		//writing each float of the vector
@@ -330,9 +397,6 @@ PREDICATE(file_to_blob, 2)
 		return -2;
 	}
 }
-*/
-
-//NEED TO MAKE LISTS...
 
 /***********************************
 ******* C++  functions *************
