@@ -1,0 +1,47 @@
+#labels largedata,identifiers
+#Identifiers for large data objects
+
+= Introduction =
+
+DSP tasks involve the management of arbitrary large data objects such as the PCM of an audio signal channel decoded from an audio file or the chromagram bins of an audio frame. 
+
+These data objects are too difficult to handle using prolog lists which may even crash trying to capture a whole audio signal for example. Swi-Prolog provides special terms to capture binary representation of data in memory, the so-call BLOBS (PL_term_t). These Blobs succeed in wrapping large data but they are really cumbersome to deal with them and give rise to some compatibility problems with other modules.
+
+We develop within this project a mechanism to manage data objects under atomic identifiers. These identifiers are generated each time a vector of data is exported to prolog and stored in a runtime database. This mechanism is defined in swilib.
+
+The automatic and preferred format for identifiers is __data_x which varies incrementally. This format is encouraged to be suitable to represent a bnode in semantic web expressions. Other ids can be assigned by the user though
+
+= SWIDATA MODULE =
+
+Thus, the logic interface to this mechanism allow us to treat each data object as an atom which is a name of the data object at least during the session in execution. Identifiers can be related to the data object along session by keeping a correspondence with the external file with the dumped data.
+
+Module predicates specification can be found at [http://code.google.com/p/km-rdf/source/browse/trunk/swidata/DOC/index.html?r=445 data.pl]. Some examples of this mechanism are:
+
+data_list('__data_4', L).
+L = [4.5, 6.45, 9.87, 3.56, ...]
+
+data_out('__data_4', 'myfile').
+
+concat_blobs('__data_6', '__data3434', Concat).
+Concat = __data_342143
+
+blob_frame('_data_423', 20, 60, Frame).
+Frame = __data_3424
+
+= LIMITATIONS =
+
+1. Each module MUST BE implemented to read these atoms and get the data from the runtime database
+
+2. The database my collapse if the session involves too many operations during a long time
+
+3. Data lists and data identifiers should be treated in the same way and be transparent for the case. It is not completely true in practise.
+
+4. The binary files in disk where data is dumped are not written in any standard, surely portable format.
+
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
