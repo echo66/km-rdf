@@ -5,8 +5,7 @@
 		Merge this and front-end transform (i'm just taking bits from different parts)
 */
 
-:-use_module('../swiaudiosource/audiosource').
-:-use_module('../swiaudiodata/audiodata').
+:-use_module('../swiaudio/audio').
 :-use_module('vamp').
 :-use_module('../feature-extractor/fe').
 %:-use_module('../front-end/transform').
