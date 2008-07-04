@@ -21,8 +21,7 @@ SIM_LIB = $(sim_dir)/similarity.so
 
 #Libraries
 
-LIBS_SIM = $(swilib_dir)/swimo.so \
-	$(swilib_dir)/blobid.so \
+LIBS_SIM = $(swilib_dir)/blobid.so \
 	$(swilib_dir)/swiaudioblob.so 
 		
 #Headers

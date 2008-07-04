@@ -18,7 +18,7 @@
 #include <SWI-cpp.h>
 #endif
 
-#include <swimo.h>
+#include <iostream>
 #include <vector>
 #include <blobid.h>
 #include <cmath>
@@ -130,7 +130,7 @@ PREDICATE(smpl_mfcc_gaussian_parameters, 2){
 		term_t id_t = PL_new_term_ref();
 		id_t = term_t(mfccFrame[3]);//getting the data id
 		PL_get_atom_chars(id_t,&id);		
-		DataID::get_data_for_id((const char*)id, coeff);
+		BLOBID::get_data_for_id((const char*)id, coeff);
 
 		//Init vectors
 		if(frames==1){
@@ -166,7 +166,7 @@ PREDICATE(smpl_mfcc_gaussian_parameters, 2){
 		id_t = term_t(mfccFrame[3]);//getting the data id
 		PL_get_atom_chars(id_t,&id);
 		
-		DataID::get_data_for_id((const char*)id, coeff);
+		BLOBID::get_data_for_id((const char*)id, coeff);
 		//cerr<<coeff->size()<<endl;
 
 		//calculating the mean and the frame
@@ -184,8 +184,8 @@ PREDICATE(smpl_mfcc_gaussian_parameters, 2){
 		vars->at(r) /= frames;
 	}
 
-	PlTerm means_t(PlAtom(DataID::assign_data_id(means)));
-	PlTerm vars_t(PlAtom(DataID::assign_data_id(vars)));
+	PlTerm means_t(PlAtom(BLOBID::assign_data_id(means)));
+	PlTerm vars_t(PlAtom(BLOBID::assign_data_id(vars)));
 	PlTerm gaussian;
 	PlTail tail(gaussian);
 	tail.append(means_t);
@@ -225,8 +225,8 @@ PREDICATE(smpl_chroma_kldiv, 3){
 	id_t2 = term_t(PlTerm(A2));//getting the data id
 	PL_get_atom_chars(id_t2,&id2);
 
-	DataID::get_data_for_id((const char*)id1, hist1);
-	DataID::get_data_for_id((const char*)id2, hist2);
+	BLOBID::get_data_for_id((const char*)id1, hist1);
+	BLOBID::get_data_for_id((const char*)id2, hist2);
 
 	return A4 = PlTerm((double)distanceDistribution(hist1, hist2, true));
 }
@@ -316,7 +316,7 @@ smpl_get_data(term_t data, vector<double> *vec)
 
 	//means
 	vector<float> *tmp;
-	DataID::get_data_for_id((const char*)id, tmp);
+	BLOBID::get_data_for_id((const char*)id, tmp);
 	for(size_t j=0; j<tmp->size() ; j++){
 		vec->push_back((double)tmp->at(j));
 	}
