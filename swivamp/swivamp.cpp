@@ -2,16 +2,13 @@
  * SWI-Prolog external interface to Vamp Plugins
  * This C/C++ source defines foreign functions a library for swivamp. Mainly type-conversion stuff
  * David Pastor Escuredo 2007
+ * Modified in June 2008
  *
  * ToDo:
- 	1- So far we just pass frames to the predicate wrapping the process method. It may be interesting to pass the whole signal and get comletely
-	responsible of the framing as it can reduces time in some cases.
+ 	1- Done. Implemented in swivamphost.cpp
 	
-	2- We are only supporting 2 channels signals and 2 channels input blocks for the plugin. We should support more as some plugins may need to have
-	more channels as input.
+	2- Support n channels now! (june 2008)
 
-	3- The only way to run a process is just by giving a frame from a specific signal. We want to give the whole signal and frames from different 
-	signals as well, forming a multichannel block if necessary.
  */
 
 #include <swivamp.h>
@@ -40,6 +37,10 @@ vamp_plugins_db[MAX_VAMP_PLUGIN];
 
 /* Variables */
 size_t active_plugins = 0;
+
+/* Functors for swivamp output */
+functor_t timestamp_t = PL_new_functor(PL_new_atom("timestamp"), 2);//MO::timestamp
+functor_t feature_t = PL_new_functor(PL_new_atom("feature"), 3);//MO::feature
 
 				/************************************************************************
  				******************* C Interface functions implementation ****************
@@ -103,69 +104,57 @@ vmpl_get_plugin(term_t id_t, Vamp::Plugin * &plugin){
 }
 
 /*
- * This function converts a MO::frame into a proper block of data SPECIFIC for Vamp Plugins input type. There is no need to the other way around in this
- * type
+ * This function converts the frame representation used in SWI-Prolog into a Vamp input multidimensional array to call the plugin process support n
+ * channels
  */
 
 const float* const*
-vmpl_frame_to_input(term_t frame){
+vmpl_frame_to_input(int channels, size_t size, term_t fdata){
 
-	term_t sample_rate = PL_new_term_ref();
-	term_t channel_count = PL_new_term_ref();
-	term_t initpos = PL_new_term_ref();
-	term_t ch1 = PL_new_term_ref();//blobs containing the data of the frame
-	term_t ch2 = PL_new_term_ref();
-	MO::frame(channel_count, sample_rate, initpos, ch1, ch2, frame);
-	
-	//parameters to initialize the block of input data
-	int channels;
-	PL_get_integer(channel_count, &channels);
+	//datalist as input
 
-	char *id1;//atom to const char *
-	char *id2;
-	PL_get_atom_chars(ch1, &id1);
-	PL_get_atom_chars(ch2, &id2);
+	PlTerm flist(fdata);
+	PlTail tail(flist);
 
-	//Now we retrieve the pointers to the raw data in memory
-	vector<float> *vector_ch1;
-	vector<float> *vector_ch2;
-	DataID::get_data_for_id((const char *)id1, vector_ch1);
+	PlTerm ch;
+	size_t index = 0;
+	int count = 0;
+	char *id;
 
-	//Creating the multidimensional array as input
+	//multidimensional array as input
 	float **plugbuf = new float*[channels];
 	for (int c = 0; c < channels; ++c){
-		plugbuf[c] = new float[vector_ch1->size() + 2];//why + 2??????
+		plugbuf[c] = new float[size + 2];//why + 2??????
 	}
-    
-	size_t j = 0;
-        while (j < vector_ch1->size()) {
-                plugbuf[0][j] = vector_ch1->at(j);
-                ++j;
-        }
-	if(channels==2){
 
-		DataID::get_data_for_id((const char *)id2, vector_ch2);		
-		j=0;
-		while (j < vector_ch1->size()){
-			plugbuf[1][j] = vector_ch2->at(j);
-                	++j;
-		}
-	}	
-	
+	while(tail.next(ch)){		
+		PL_get_atom_chars(ch, &id);
+		vector<float> *vector_ch;
+		BLOBID::get_data_for_id((const char*)id, vector_ch);
+		while (index < vector_ch->size()) {
+                	plugbuf[count][index] = vector_ch->at(index);
+               	 	++index;
+        	}
+		index = 0;	
+		count++;
+	}
+		
 	return plugbuf;//the memory is freed afterwards
 }
 
 /*
- * Returns a prolog list of MO::feature for a passed frame of data
- * Our MO::feature is a single feature for one frame and one output. In other words Vamp::FeatureSet[a][b]
- * MO::feature is 'Feature'(type, MO::timestamp, FeatureEvent) where FeatureEvent is (by now) a vector
+ * This predicate converts the information in C code into a Prolog functor feature(Type, timestamp(Start, Duration), BLOBIDDAta)
+ * This still uses something defined in swimo and i may change it to output just the data and create the functor in Prolog, but i think it does not
+ * cause many problems as it its now.
  */
 
 term_t
-vmpl_frame_features_to_prolog(Vamp::Plugin::FeatureSet fs, int output, term_t framets, Vamp::Plugin::OutputDescriptor od){
+vmpl_frame_features_to_prolog(Vamp::Plugin::FeatureSet fs, int output, float startf, float durationf, Vamp::Plugin::OutputDescriptor od){
 
 	//Vamp::FeatureSet (map of a list of features for each frame/output. 
-	//framets is the MO::timestamp of the passed frame
+	//int output index
+	//start of the original frame
+	//duration of the original frame
 	//od is the outputdescriptor for ouput
 	try{
 		//Description of the output
@@ -194,20 +183,24 @@ vmpl_frame_features_to_prolog(Vamp::Plugin::FeatureSet fs, int output, term_t fr
 				if(stype==0){
 					//the MO::timestamp of the frame as there is only one feature in the frame
 
-					featurets = framets; 
+					term_t start = PL_new_term_ref();
+					term_t duration = PL_new_term_ref();
+					PL_put_float(start, startf);	
+					PL_put_float(duration, durationf);	
+
+					timestamp_functor(start, duration, featurets);
 				}
 				else if(stype==1){
 					//Start: the first one will have the same that the input frame and the rest will increase 1/osr
 					//Duration: constant duration 1/osr	
 				
-					float frameStart = MO::GET::start(framets);
-					float start_point=frameStart + (j*(1/osr));
+					float start_point=startf + (j*(1/osr));
 
 					term_t start = PL_new_term_ref();
 					term_t duration = PL_new_term_ref();
 					PL_put_float(start, start_point);	
 					PL_put_float(duration, 1/osr);		
-					MO::timestamp(start, duration, featurets);
+					timestamp_functor(start, duration, featurets);
 				}	
 				else if(stype==2){ 
 					//Start: reads feature.timestamp
@@ -222,7 +215,7 @@ vmpl_frame_features_to_prolog(Vamp::Plugin::FeatureSet fs, int output, term_t fr
 					term_t duration = PL_new_term_ref();
 					PL_put_float(start, vmpl_timestamp_float(fl[j].timestamp));	
 					PL_put_float(duration, d);		
-					MO::timestamp(start, duration, featurets);
+					timestamp_functor(start, duration, featurets);
 
 				}
 				else{ cerr<<"Unexpected sample type"<<endl; }
@@ -236,8 +229,8 @@ vmpl_frame_features_to_prolog(Vamp::Plugin::FeatureSet fs, int output, term_t fr
 					f_vector -> push_back(fl[j].values.at(r));
 				}				
 				//creating an id for the data stored in memory
-				feature_event = term_t(PlTerm(PlAtom(DataID::assign_data_id(f_vector))));				
-				MO::feature(featureType, featurets, feature_event, feature_term);
+				feature_event = term_t(PlTerm(PlAtom(BLOBID::assign_data_id(f_vector))));				
+				feature_functor(featureType, featurets, feature_event, feature_term);//I really should change this
 				tail.append(PlTerm(feature_term));
 			}
 		}
@@ -248,6 +241,77 @@ vmpl_frame_features_to_prolog(Vamp::Plugin::FeatureSet fs, int output, term_t fr
   	{ cerr << (char *) ex << endl;
 	  return FALSE;
   	}
+}
+
+/**
+	timestamp both ways are supported by this function:
+
+	1. timestamp(+start, +duration, -timestamp_term)
+	If timestamp_term is not a compound term, it creates a "timestamp" compound term given: 	
+        	-starting time point (sec)
+		-duration (sec)
+		
+	and unifies to timestamp_term obtaining:
+										
+					'timestamp'(start, duration)
+
+	2. timestamp(-start, -duration, +timestamp_term) 
+	This way it analyzes and extracts the data from the term if timestamp_term does refer to a compound term 
+	(cheking that it is the correct name)
+*/
+
+void
+timestamp_functor(term_t start, term_t duration, term_t timestamp){
+
+	//now, signal_term is checked out. If the results ==0, it means that there is no compound term, so the term is created and unified to it
+	if(PL_is_functor(timestamp, timestamp_t)==0){
+
+		//Construct and unifies the term
+		PL_cons_functor(timestamp, timestamp_t, start, duration);
+	
+	//otherwise the term is read
+	}else{
+		//should check name and arity for security
+		PL_get_arg(1, timestamp, start);		//start is read
+		PL_get_arg(2, timestamp, duration);		//duration
+	}
+
+}
+
+/**
+	feature both ways are supported by this function:
+	
+	1. feature(+type, +timestamp, +featureEvent, -feature)
+	 	
+        	-feature type
+		-MO::timestamp. Can be the one for the frame or a specific one!!!
+		-featureEvent: Encapsulates the values of the feature!!
+		
+	and unifies to feature_term obtaining:
+										
+					'feature'(type, MO::timestamp, Event)
+
+	2. feature(-type, -timestamp, -featureEvent, +feature)
+	This way it analyzes and extracts the data from the term if feature_term does refer to a compound term 
+	(cheking that it is the correct name)
+*/
+
+void
+feature_functor(term_t type, term_t timestamp, term_t featureEvent, term_t feature_term){
+
+	//now, signal_term is checked out. If the results ==0, it means that there is no compound term, so the term is created and unified to it
+	if(PL_is_functor(feature_term, feature_t)==0){
+		
+	//Construct and unifies the term
+	PL_cons_functor(feature_term, feature_t, type, timestamp, featureEvent);
+		
+	//otherwise the term is read
+	}else{
+		//should check name and arity for security
+		PL_get_arg(1, feature_term, type);		
+		PL_get_arg(2, feature_term, timestamp);	
+		PL_get_arg(3, feature_term, featureEvent);			
+	}
 }
 
 /*

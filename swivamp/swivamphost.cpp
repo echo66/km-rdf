@@ -132,56 +132,6 @@ PREDICATE(vmpl_load_plugin, 3)
  	}
 }
 
-
-/**
- *  vmpl_load_plugin_for(+PluginKey, +MO::signal or MO::frame, -Plugin). This is an optional predicate to load the plugin given an MO::element 	  
- *  containing audio data to be processed
- */
-
-PREDICATE(vmpl_load_plugin_for, 3)
-{	
-	//+ name of the plugin = Plugin key (see hostExt of Vamp-SDK)
-	//+ MO::signal or MO::frame
-	//+ Flag for adapters (to set)
-	//- Id for the plugin in memory
-	
-	//This is a pointer to the plugin that will be wrapped and returned to prolog for later queries.
-	Vamp::Plugin *plugin=0; 
-	try{
-		//Getting data from terms
-		string pluginName((char *)A1);//plugin
-
-		//We get the data and check if we are passing a MO::signal or MO::frame
-		term_t data = PL_new_term_ref();//signal and get the isr
-		data = term_t(PlTerm(A2));
-		
-		//A3 would be the adapter flag in case we dont want to adapt all by default
-		
-		//just one prolog loader for every plugin
-		if(!prolog_loader) prolog_loader = PluginLoader::getInstance();
-		
-		float isr = MO::GET::sample_rate(data);//see swimo.h
-		if(isr<0){//incorrect input data
-			return false;
-		}
-		//get instance of a plugin for the correct isr
-		plugin = prolog_loader->loadPlugin(pluginName, isr, PluginLoader::ADAPT_ALL);//All adapters active by default
-		if (!plugin) {
-        		cerr << "ERROR: Failed to load plugin" << endl;
-        		return FALSE;
-		}		
-		//Now we wrap the pointer into a blob so we can use it later on to fullfil the lifecycle
-		term_t prolog_plugin = PL_new_term_ref();
-		vmpl_register_plugin(plugin, prolog_plugin);
-	
-		return A3 = PlTerm(prolog_plugin);		
-		
-	} catch ( PlException &ex )
-  	{ cerr << (char *) ex << endl;
-	  return FALSE;
- 	}
-}
-
 /***  Second step of the plugin lifecycle (use swivampplugin) ****/
 
 /***  Third step of the plugin lifecycle ****/
@@ -327,16 +277,20 @@ PREDICATE(vmpl_initialize_plugin, 4)
 
 
 /*
+	vmpl_process_store_framing(+Plugin, +Channels, +Sr, +DataSize, +WholeSignalListOfBLOBIDs, +StartFrame, +Duration)	
 	This is an alternative predicate which pretends to do better performance in time of running a plugin from prolog doing an internal
 	framing. We then not put the frames into the id_db
 */
 
-PREDICATE(vmpl_process_store_framing, 4){
+PREDICATE(vmpl_process_store_framing, 7){
 
 	//+plugin
-	//+signal
+	//+channels
+	//+samplerate
+	//+datasize
+	//+DataList
 	//+start
-	//+end
+	//+block
 
 	//getting input arguments
 	term_t blob = PL_new_term_ref();
@@ -344,67 +298,37 @@ PREDICATE(vmpl_process_store_framing, 4){
 	Vamp::Plugin *plugin;
 	vmpl_get_plugin(blob, plugin);
 
-	term_t signal = PL_new_term_ref();
-	signal = term_t(PlTerm(A2));
-	size_t start = (size_t)(long)A3;
-	size_t size = (size_t)(long)A4;
+	int channels =(int)(long)A2;
+	size_t datasize = (size_t)(long)A4;
+	size_t sr = (size_t)(long)A3;
+	PlTerm datalist(A5);
+	size_t start = (size_t)(long)A6;
+	size_t size = (size_t)(long)A7;	
 
-	//setting variables of signal to be read
-	term_t sample_rate = PL_new_term_ref();
-	term_t channel_count = PL_new_term_ref();
-	term_t samples_channel = PL_new_term_ref();
-	term_t ch1_id = PL_new_term_ref();//gets the id for the channel raw data
-	term_t ch2_id = PL_new_term_ref();
+	PlTail tail(datalist);
+	PlTerm ch;
+	size_t index = 0;
+	int count = 0;
+	char *id;
 
-	MO::signal(channel_count, sample_rate, samples_channel, ch1_id, ch2_id, signal);//gets the parameters for signal (swimo.h)
-
-	char *id1;//atom to const char *
-	char *id2;
-	PL_get_atom_chars(ch1_id, &id1);
-	PL_get_atom_chars(ch2_id, &id2);
-
-	//Checks that the frame requested is within the signal passed
-	long limit;
-	PL_get_long(samples_channel, &limit);
-	if(start >= (size_t)limit){
-		return false;
-	}
-
-	//Now we retrieve the pointers to the raw data in memory
-	vector<float> *ch1;
-	vector<float> *ch2;
-	if(DataID::get_data_for_id((const char *)id1, ch1)<=0){
-		return false;
-	}
-	int channels;
-	PL_get_integer(channel_count, &channels);
-		
-	vector<float> vector_ch1 = vmpl_select_frame(start, start+size, ch1);
-
-	//Creating the multidimensional array as input
+	//multidimensional array as input
 	float **plugbuf = new float*[channels];
 	for (int c = 0; c < channels; ++c){
-		plugbuf[c] = new float[vector_ch1.size() + 2];//why + 2??????
+		plugbuf[c] = new float[datasize + 2];//why + 2??????
 	}
-    
-	size_t j = 0;
-        while (j < vector_ch1.size()) {
-                plugbuf[0][j] = vector_ch1[j];
-                ++j;
-        }
-	if(channels==2){
 
-		DataID::get_data_for_id((const char *)id2, ch2);
-		vector<float> vector_ch2 = vmpl_select_frame(start, start+size, ch2);
-		j=0;
-		while (j < vector_ch1.size()){
-			plugbuf[1][j] = vector_ch2[j];
-                	++j;
-		}
-	}	
-
-	long sr;
-	PL_get_long(sample_rate, &sr);
+	while(tail.next(ch)){		
+		PL_get_atom_chars(ch, &id);
+		vector<float> *vector_ch;
+		BLOBID::get_data_for_id((const char*)id, vector_ch);
+		vector<float> vector_f = vmpl_select_frame(start, start+size, vector_ch);
+		while (index < vector_f.size()) {
+                	plugbuf[count][index] = vector_f[index];
+               	 	++index;
+        	}
+		count++;
+		index = 0;	
+	}
 
 	//Now we just store the resulting FeatureSet and its default timestamp
 	currentfs = plugin->process(plugbuf, Vamp::RealTime::frame2RealTime(start, (int)sr));
@@ -412,7 +336,7 @@ PREDICATE(vmpl_process_store_framing, 4){
 	durationfs = (float)size/(float)sr;
 	
 	//free memory of the block of data
-	for(size_t k=0; k<channels; k++){
+	for(size_t k=0; k<(size_t)channels; k++){
 		delete[] plugbuf[k];
 	}
 	delete[] plugbuf;
@@ -422,17 +346,19 @@ PREDICATE(vmpl_process_store_framing, 4){
 
 
 /*
-	vmpl_process_block(+plugin, +MO::frame, +MO::timestamp, output, -features) Minimum predicate calling the process of the plugin for a
-	MO::frame object as input
-
+	vmpl_process_store(+Plugin, +Channels, +Sr, +DataSize, +FrameListOfBLOBIDs, +StartFrame, +Duration). Similar to the previous one, but we already pass the frame data instead of the signal to be framed. The framing is carried out by another predicate.
 	vmpl_process_block wraps this predicate and vmpl_featureSet_output
 */
 
-PREDICATE(vmpl_process_store, 3)
+PREDICATE(vmpl_process_store, 8)
 {
 	//+plugin
-	//+Block of data to process (both channels) passed as MO::frame!!!
-	//+MO::timestamp of the MO::frame
+	//+channels
+	//+sr
+	//+length
+	//+Block of data to process (both channels) passed 
+	//+start
+	//+duration
 	
 	//getting input arguments
 	term_t blob = PL_new_term_ref();
@@ -441,25 +367,23 @@ PREDICATE(vmpl_process_store, 3)
 	vmpl_get_plugin(blob, plugin);
  
 	//Frame and the necessary arguments
-	term_t frame = PL_new_term_ref();
-	frame = term_t(PlTerm(A2));
-	float isr = MO::GET::sample_rate(frame);
-	size_t initSample = MO::GET::first_sample(frame);
-	
-	const float* const* input;
-	input = vmpl_frame_to_input(frame);
+	int channels =(int)(long)A2;
+	size_t isr = (size_t)(long)A3;
+	size_t datasize = (size_t)(long)A4;	
+	PlTerm frame(A5);
+	startfs = (size_t)(long)A6;
+	durationfs = (size_t)(long)A7;	
 
-	//Timestamp of the frame. This is important, but careful!!! the feature may not have the same timestamp of its frame!!!
-	term_t framets = PL_new_term_ref();
-	framets = term_t(PlTerm(A3));
-	
+	size_t initSample = (size_t)startfs*isr;
+
+	const float* const* input;
+	input = vmpl_frame_to_input(channels, datasize, frame);
+
 	//Now we just store the resulting FeatureSet and its default timestamp
 	currentfs = plugin->process(input, Vamp::RealTime::frame2RealTime(initSample, (int)isr));
-	startfs = MO::GET::start(framets);
-	durationfs = MO::GET::duration(framets);
 	
 	//free memory of the block of data
-	for(size_t k=0; k<(size_t)MO::GET::channels_count(frame); k++){
+	for(size_t k=0; k<(size_t)channels; k++){
 		delete[] input[k];
 	}
 	delete[] input;
@@ -487,15 +411,7 @@ PREDICATE(vmpl_featureSet_output, 3){
 	Vamp::Plugin *plugin;
 	vmpl_get_plugin(blob, plugin);
 
-	//retrieving stored context
-	term_t duration = PL_new_term_ref();
-	term_t start = PL_new_term_ref();
-	PL_put_float(start, startfs);
-	PL_put_float(duration, durationfs);
-	term_t framets = PL_new_term_ref();
-	MO::timestamp(start, duration, framets);	
-
-	PlTerm feature(vmpl_frame_features_to_prolog(currentfs, (int)A2, framets, plugin -> getOutputDescriptors()[(int)A2]));
+	PlTerm feature(vmpl_frame_features_to_prolog(currentfs, (int)A2, startfs, durationfs, plugin -> getOutputDescriptors()[(int)A2]));
 
 	return A3 = feature;
 

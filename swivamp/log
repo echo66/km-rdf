@@ -5,3 +5,4 @@
 04/07/2008
 
 1- Not using swimo.h and MO namespace anymore
+2- Support for n channels input frame!
