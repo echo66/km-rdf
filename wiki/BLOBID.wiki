@@ -5,7 +5,7 @@
 
 DSP tasks involve the management of arbitrary large data objects such as the PCM of an audio signal channel decoded from an audio file or the chromagram bins of an audio frame. 
 
-These data objects are too difficult to handle using prolog lists which may even crash trying to capture a whole audio signal for example. Swi-Prolog provides special terms to capture binary representation of data in memory, the so-call BLOBS (PL_term_t). These Blobs succeed in wrapping large data but they are really cumbersome to deal with them and give rise to some compatibility problems with other modules.
+These data objects are too difficult to handle using prolog lists which may even crash trying to capture a whole audio signal for example. Swi-Prolog provides special terms to capture binary representation of data in memory, the so-call BLOBS (PL_blob_t). These Blobs succeed in wrapping large data but they are really cumbersome to deal with them and give rise to some compatibility problems with other modules.
 
 We develop within this project a mechanism to manage data objects under atomic identifiers. These identifiers are generated each time a vector of data is exported to prolog and stored in a runtime database. This mechanism is defined in swilib.
 
