@@ -3,16 +3,13 @@
 	Chris Cannam for the c4dm at Queen Mary University of London.
 	Thus, it is possible to deal with the plugins from a SWI-Prolog machine.
 	David Pastor Escuredo 2007 for c4dm, Queen Mary, University of London
-	*/
+ 
 
-/** 
-
-	Prolog library to deal with Vamp Plugins. Most of the useful predicates are defined in swivamp.cpp as vmpl_X so they can be used from this 
-	module or from other modules by using Vamp:predicate syntax
-
-	NOTE: To use this interface it is necessary to load other modules to decode files and manage the audio data
-		-/swiaudiosource/audiosource
-		-/swiaudiodata/audiodata
+	It loads the shared library "swivamp.so" containing the Vamp/SWI-Prolog interface that integrates the host definition libvamp-hostsdk (Chris 		Cannam). Some of the main concepts of the this interface are inherited from this host defintion. Check http://www.vamp-plugins.org/code-doc/
+	
+	There are two types of names:
+		vamp_xxx These can be done as direct calls on prolog (designed on prolog). They are documented in this file
+		vmpl_xxx These should be part of a bigger query (but maybe they can be called isolated). They are the plain interface (see source) 
 	*/
 
 :- module(vamp,[
@@ -88,42 +85,26 @@
 	,	vmpl_destroy_plugin/1
 	]).
 
-
-
 :- style_check(-discontiguous).
 :- load_foreign_library(swivamp).
 
-/**
-	It loads the shared library "swivamp.so" containing the Vamp/SWI-Prolog interface that integrates the host definition libvamp-hostsdk (Chris 		Cannam). Some of the main concepts of the this interface are inherited from this host defintion. Check http://www.vamp-plugins.org/code-doc/
-	
-	There are two types of names:
-		vamp_xxx These can be done as direct calls on prolog (designed on prolog). They are documented in this file
-		vmpl_xxx These should be part of a bigger query (but maybe they can be called isolated). They are the plain interface (see source) 
-	*/
-
-/** 
-	vamp_plugins_sytem(?PluginKey) This predicates checks if the
-	Plugin is on the system (PluginKey nomenclature description is library:pluginName)
-	This predicate is non-deterministic
-	*/
+%% vamp_plugin_sytem(?PluginKey) is nondet
+% Checks plugins available in your local system
 
 vamp_plugin_system(PluginKey):-
 	vmpl_plugins(ListOfPlugins),
 	member(PluginKey, ListOfPlugins).
 
-/** 
-	vamp_feature_system(?PluginKey) says if the feature can be computed by the systems (plugin installed or not). IF not, the plugin should be 	
-	installed. 
-	*/
+%% vamp_feature_system(?PluginKey) is nondet
+% Checks for vamp features computed in your local system (output types for each plugin)
 
 vamp_feature_system(FeatureType):-
 	findall(FeatureTypeIn, vamp_plugin_for(_, FeatureTypeIn, _), AvailableFeatures),
 	member(FeatureType, AvailableFeatures).
 
-/**
-	vamp_plugin_for(?PluginKey, ?FeatureType, ?Index): Non deterministic relationship among a plugin, the features it ouptus and the index of
-	each of them in the descriptor. Quite powerful.
-	*/
+%% vamp_plugin_for(?PluginKey, ?FeatureType, ?Index) is nondet
+% Finds out about relationships between the Plugin key, the different outpout (feature) types and the position they occupy in the plugin.
+
 vamp_plugin_for(PluginKey, FeatureType, Index):-
 	var(FeatureType),
 	vamp_plugin_system(PluginKey),
@@ -141,9 +122,9 @@ vamp_plugin_for(PluginKey, FeatureType, Index):-
 	vamp_plugin_system(Plugin),
 	is_feature_of_plugin(Plugin, FeatureType, Index),
 	PluginKey = Plugin.
-/** 
-	is_feature_of_plugin(+Plugin, ?Feature, ?Index)  and predicates helping for vamp_plugin_for/3 
-**/
+
+%% is_feature_of_plugin(+Plugin, ?Feature, ?Index) is nondet
+% Given a plugin we can check its features and their position
 is_feature_of_plugin(Plugin, Feature, Index):-
 	nonvar(Plugin),
 	vamp_plugin_features(Plugin, List),
@@ -156,42 +137,58 @@ vamp_plugin_features(Plugin, Size, FeatureType, Index):-
 	between(0, Limit, Index),
 	vmpl_outputDescriptor_identifier(Plugin, Index, FeatureType).
 
-/**
-	vamp_plugin_numberOutputs(?PluginKey, -Size): Gets the number of outputs of each plugin on the system given the key (difference with vmpl_x)
-	*/
+%% vamp_plugin_numberOutputs(?PluginKey, -Size) is det
+% Gets the number of outputs of each plugin on the system given the key (difference with vmpl_x)
 
 vamp_plugin_numberOutputs(PluginKey, Size):-
 	vamp_plugin_system(PluginKey),
 	vmpl_load_plugin(PluginKey, 44100, Plugin),
 	vmpl_plugin_numberOutputs(Plugin, Size).
 
-/**
-	Predicates to query about the metadata of the plugin. First is necessary to load an arbitrary plugin (44100 sr).
-	*/
+%% vamp_plugin_maker(+PluginKey, -Maker) is nondet
+% Gets the maker of the plugin
 
 vamp_plugin_maker(PluginKey, Maker):-
 	vmpl_load_plugin(PluginKey, 44100, Plugin),
 	vmpl_get_maker(Plugin, Maker).
 
+%% vamp_plugin_identifier(+PluginKey, -Identifier) is det
+% Gets the plugin machine-readable identifier
+
 vamp_plugin_identifier(PluginKey, Identifier):-
 	vmpl_load_plugin(PluginKey, 44100, Plugin),
 	vmpl_get_identifier(Plugin, Identifier).
+
+%% vamp_plugin_name(+PluginKey, -Name) is det
+% Gets the plugin human-readable identifier
 
 vamp_plugin_name(PluginKey, Name):-
 	vmpl_load_plugin(PluginKey, 44100, Plugin),
 	vmpl_get_name(Plugin, Name).
 
+%% vamp_plugin_copyright(+PluginKey, -Copyright) is det
+% Gets the plugin copyright
+
 vamp_plugin_copyright(PluginKey, Copyright):-
 	vmpl_load_plugin(PluginKey, 44100, Plugin),
 	vmpl_get_copyright(Plugin, Copyright).
+
+%% vamp_plugin_description(+PluginKey, -Description) is det
+% Gets the plugin description as atom
 
 vamp_plugin_description(PluginKey, Description):-
 	vmpl_load_plugin(PluginKey, 44100, Plugin),
 	vmpl_get_description(Plugin, Description).
 
+%% vamp_plugin_vampVersion(+PluginKey, -VampAPIVersion) is det
+% Gets the vamp API version used in this plugin
+
 vamp_plugin_vampVersion(PluginKey, VampVersion):-
 	vmpl_load_plugin(PluginKey, 44100, Plugin),
 	vmpl_get_vampVersion(Plugin, VampVersion).
+
+%% vamp_plugin_version(+PluginKey, -Version) is det
+% Gets the plugin version
 
 vamp_plugin_version(PluginKey, Version):-
 	vmpl_load_plugin(PluginKey, 44100, Plugin),

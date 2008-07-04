@@ -1,5 +1,5 @@
 /**
-	Module explanation and rights?	
+	AUDIO MODULE
 */
 
 :- module(audio,[	supported_file/1

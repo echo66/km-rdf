@@ -5,7 +5,6 @@
  */
 
 #include <swiaudioblob.h>
-#include <swimo.h>
 
 #include <vector>
 #include <qstring.h>
