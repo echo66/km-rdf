@@ -350,7 +350,7 @@ PREDICATE(vmpl_process_store_framing, 7){
 	vmpl_process_block wraps this predicate and vmpl_featureSet_output
 */
 
-PREDICATE(vmpl_process_store, 8)
+PREDICATE(vmpl_process_store, 7)
 {
 	//+plugin
 	//+channels

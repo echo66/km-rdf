@@ -87,6 +87,7 @@
 
 :- style_check(-discontiguous).
 :- load_foreign_library(swivamp).
+:- use_module(library(pldoc)).
 
 %% vamp_plugin_sytem(?PluginKey) is nondet
 % Checks plugins available in your local system
@@ -194,18 +195,20 @@ vamp_plugin_version(PluginKey, Version):-
 	vmpl_load_plugin(PluginKey, 44100, Plugin),
 	vmpl_get_pluginVersion(Plugin, Version).
 
-/**	
-	Querying the outputDescriptor. IMPORTANT: not all the outputdescriptor attributes can be queried at the beginning as some of them may change
-	for different initialization argumentes!! That's why those predicates must be called for a living and working specific plugin at the time we
-	need it
-	*/
+%% vmpl_load_plugin_for(+PluginKey, +Sr, -Plugin) 
+% Loads a plugin for the given sample rate
 
-/**
-	This one returns the same as the vmpl version but with an atom with readable information instead of a number. I think this not change for
-	different intializations.
+%% vmpl_load_plugin_for(+PluginKey, +Input, -Plugin) 
+% Loads a plugin for the given input
 
-	vamp_plugin_sampleType(?PluginKey, ?FeatureType, -SampleType).
-	*/
+vmpl_load_plugin_for(P, signal(Sr, _), Plugin):-
+	vmpl_load_plugin(P, Sr, Plugin).
+
+vmpl_load_plugin_for(P, frame(Sr, _, _), Plugin):-
+	vmpl_load_plugin(P, Sr, Plugin).
+
+%% vamp_plugin_sampleType(?PluginKey, ?FeatureType, -SampleType) is nondet
+% Returns the sample type of the outputs of a plugin
 
 vamp_plugin_output_sampleType(PluginKey, FeatureType, SampleType):-
 	vamp_plugin_system(PluginKey),
@@ -226,9 +229,8 @@ vamp_sampleTypes(SampleTypeIndex, SampleType):-
 	SampleTypeIndex = 2,
 	SampleType = 'VariableSampleRate'.
 
-/**
-	Info about the output given the PluginKey (this can not be applied for some of the values, only for the ones bellow). Non deterministic
-	*/
+%% vamp_plugin_output_metadata(?PluginKey, ?FeatureType,-OutputName, -Description, -Unit, -OutputIndex) is nondet
+% General information about the plugin outputs
 
 vamp_plugin_output_metadata(PluginKey, FeatureType, OutputName, Description, Unit, OutputIndex):-
 	vamp_plugin_system(PluginKey),
@@ -238,28 +240,29 @@ vamp_plugin_output_metadata(PluginKey, FeatureType, OutputName, Description, Uni
 	vmpl_outputDescriptor_description(Plugin, OutputIndex, Description),
 	vmpl_outputDescriptor_unit(Plugin, OutputIndex, Unit).
 	
-/**
-	New predicate making atomic the process and storing with the datatype conversion
-	vmpl_process_block(+Plugin, +Frame, +FrameTimeStamp, +ListofOuptus, -ListOfFeatures)
-	
-	List of Features is a list of lists. example:
-	
-	[[output1frame1], [output2frame1]]
-	*/
+%% vmpl_process_block(+Plugin, +Frame, +FrameTimeStamp, +ListOfOutputs, -ListOfFeatures) is det
+% Process a frame term and returns the outputs queried in the list as a feature terms list
 
-vmpl_process_block(Plugin, Frame, FrameTimeStamp, ListOfOutputs, ListOfFeatures):-
-	vmpl_process_store(Plugin, Frame, FrameTimeStamp),
+vmpl_process_block(Plugin, Frame, timestamp(Start, Duration), ListOfOutputs, ListOfFeatures):-
+	Frame = frame(Sr, _Init, ListOfBlobids),
+	get_channels(Frame, Ch),
+	get_samples_per_channel(Frame, L),
+	vmpl_process_store(Plugin, Ch, Sr, L, ListOfBlobids, Start, Duration),
 	findall(Features, collect_features(Plugin, ListOfOutputs, Features), RawFeatures),
 	delete(RawFeatures, [], ListOfFeatures).
 
-vmpl_process_block_framing(Plugin, Signal, Start, Size, ListOfOutputs, ListOfFeatures):-
-	vmpl_process_store_framing(Plugin, Signal, Start, Size),
+%% vmpl_process_block(+Plugin, +Signal, +StartSample, +Size, +ListOfOutputs, -ListOfFeatures) is det
+% Similar to vmpl_process_block but the framing is done inside the C++ code (actually faster)
+
+vmpl_process_block_framing(Plugin, Signal, StartSample, Size, ListOfOutputs, ListOfFeatures):-
+	Signal = signal(Sr, ListOfBlobids),
+	get_channels(Signal, Ch),
+	get_samples_per_channel(Signal, L),
+	vmpl_process_store_framing(Plugin, Ch, Sr, L, ListOfBlobids, StartSample, Size),
 	findall(Features, collect_features(Plugin, ListOfOutputs, Features), RawFeatures),
 	delete(RawFeatures, [], ListOfFeatures).
 
-/**
-	Same for remaining
-	*/
+%% vmpl_remaining_features(+Plugin, +L, +SR, +ListOfOutputs, -ListOfFeatures)
 
 vmpl_remaining_features(Plugin, L, SR, ListOfOutputs, ListOfFeatures):-
 	vmpl_store_remaining(Plugin, L, SR),	

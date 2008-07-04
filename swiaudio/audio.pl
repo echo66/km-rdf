@@ -25,7 +25,7 @@
 						********** MODULE PREDICATES **********
 						**************************************/
 					
-%% supported_file(?Extension). 
+%% supported_file(?Extension) is nondet
 % We query about supported files or check if one of our selection is one of them
 
 supported_file('mp3').
@@ -35,20 +35,20 @@ supported_file('aif').
 supported_file('aiff').
 supported_file('m4a').
 
-%%	decode(+AudioFilePath, -Signal) is det
+%% decode(+AudioFilePath, -Signal) is semidet
 % Main predicate that hides decoding of an audio file given the path and returns a compound term: signal (SampleRate, Data) where Data is a list of blobs id (check swilib).
 
 decode(AudioFile, Signal):-
 	aspl_file_extension(AudioFile, Extension),
 	aspl_decode(Extension, AudioFile, Signal).
 
-%% get_sample_rate(+Signal, -SampleRate) is det
+%% get_sample_rate(+Signal, -SampleRate) is semidet
 % Returns back the sample rate of a signal or frame
 
 get_sample_rate(signal(Sr, _), Sr).
 get_sample_rate(frame(Sr, _, _), Sr).
 
-%% get_channels(+Signal, -Channels) is det
+%% get_channels(+Signal, -Channels) is semidet
 % Returns back the number of channels of the signal or frame
 
 get_channels(signal(_, Data), Ch):-
@@ -58,7 +58,7 @@ get_channels(frame(_, _, Data), Ch):-
 	is_list(Data),
 	length(Data, Ch).
 
-%% get_samples_per_channel(+Signal, -SamplesPerChannel) is det
+%% get_samples_per_channel(+Signal, -SamplesPerChannel) is semidet
 % Returns back the number of samples per channels (assuming all channels have the same length)
 
 get_samples_per_channel(signal(_, Data), L):-
@@ -68,7 +68,7 @@ get_samples_per_channel(frame(_, _, Data), L):-
 	is_list(Data),
 	data_size(Data, L).
 
-%% get_frame(+Signal, +Init, +Block, -Frame) is det
+%% get_frame(+Signal, +Init, +Block, -Frame) is semidet
 % Frames a signal(Sr, Data) object returning frame(Sr, Init, Data) object according to the parameters 
 
 get_frame(signal(Sr, Data), Init, Block, frame(Sr, Init, Data2)):-
@@ -79,7 +79,7 @@ frame_channels([H|T], Init, Block, [H2|T2]):-
 	blob_frame(H, Init, Block, H2),
 	frame_channels(T, Init, Block, T2).
 
-%% get_frame_timestamp(+Frame, -Timestamp) is det
+%% get_frame_timestamp(+Frame, -Timestamp) is semidet
 % Returns the timestamp (time values) of a frame related to the owner signal timeline
 
 get_frame_timestamp(Frame, timestamp(Start, Duration)):-
