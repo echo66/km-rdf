@@ -88,6 +88,7 @@
 :- style_check(-discontiguous).
 :- load_foreign_library(swivamp).
 :- use_module(library(pldoc)).
+:- use_module('../swiaudio/audio').
 
 %% vamp_plugin_sytem(?PluginKey) is nondet
 % Checks plugins available in your local system

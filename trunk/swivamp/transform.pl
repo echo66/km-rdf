@@ -1,11 +1,14 @@
-:- module(transform,[transform/5,transform/6]).
+
 /**
 	Feature Extraction transform for Henry using the SWI-DSP (vamp plugins).
 	ToDo: Adapt it as built in and constrain the output format
-		Merge this and front-end transform (i'm just taking bits from different parts)
+		Merge this and front-end transform (im just taking bits from different parts)
 */
 
+:- module(transform,[transform/5,transform/6]).
+
 :-use_module('../swiaudio/audio').
+:-use_module('../swidata/data').
 :-use_module('vamp').
 :-use_module('../feature-extractor/fe').
 %:-use_module('../front-end/transform').
@@ -30,15 +33,17 @@
 		
 %rdf_vamp(Input, RDFOptions, ExportedOutputs):-
 %	Input = [literal(Ch),literal(Sr),literal(L),Sigs],	
-%	Signal = 'Signal'(Ch, Sr, L, Sigs),	
+%	Signal = signal(Ch, Sr, L, Sigs),	
 	%adapt options
 %	vamp_transform(Signal, Options, FinalOutputs),
 	%adapt_output(FinalOutputs, ExportedOutputs).
+
 transform(Signal,Lib,Id,Outputs,FinalOutputs) :-
 	transform(Signal,Lib,Id,Outputs,FinalOutputs,[]).
 transform(Signal, Lib, Id, Outputs, FinalOutputs, Options):-
 	is_list(Options),
-	Signal = 'Signal'(Ch, Sr, _, _),
+	Signal = signal(Sr, _Data),
+	get_channels(Signal, Ch),
 	plugin_key(Lib, Id, Key),
 	plugin_output_setting(Key, Outputs, Indexes),
 	vmpl_load_plugin(Key, Sr, Plugin),

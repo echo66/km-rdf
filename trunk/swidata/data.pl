@@ -27,8 +27,8 @@
 		,	list_blob/2
 		,	blob_in/2
 		,	blob_out/2
-		,	plblob_blob/2
-		,	blob_plblob/2
+		,	plblob_to_blob/2
+		,	blob_to_plblob/2
 			]).
 
 
