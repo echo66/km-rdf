@@ -9,7 +9,6 @@
 
 :-module(fe, [decode/2
 				,	decode_mono/2
-				,	decode_framed/4
 				,	feature/2
 				,	feature/1
 				,	feature_of/3
@@ -24,9 +23,9 @@
 				,	vamp_compute_feature_frames/6
 				]).
 
-:-use_module('../swiaudiodata/audiodata').
+:-use_module('../swiaudio/audio').
+:-use_module('../swidata/data').
 :-use_module('../swivamp/vamp').
-:-use_module('../swiaudiosource/audiosource').
 
 :-style_check(-discontiguous).
 
@@ -41,30 +40,12 @@ feature(Feature):-
 	feature(Feature, _).
 
 /**
-	decode(+File, -Signal): calling the audiosource one.
-	Please note that so far the Signal returned is
-		'Signal'(channels, samplerate, samples, [Listofpcm as __data_id])
-	and we don't support more than 2 channel signals (to change).
-*/
-decode(AudioFile, Signal):-
-	aspl_decode(AudioFile, Signal).
-
-/**
 	This ones forces the mixing to a mono signal
 */
 decode_mono(AudioFile, Signal):-
 	aspl_decode(AudioFile, MaybeStereo),
 	mix_stereo(MaybeStereo, Signal).
 
-/**
-	decoded_framed(+AudioFile, +StepSize, +BlockSize, -ListOfFrames): we may want to retrieve a frames instead a whole signal. We must pass
-	framing parameters.
-		'Frame'(channels, samplerate, startingsample, [listofpcm as __data_id]) has the same channels than the parent signal
-*/
-decode_framed(AudioFile, StepSize, BlockSize, Frames):-
-	aspl_decode(AudioFile, Signal),
-	framed_signal(Signal, StepSize, BlockSize, Frames).
-	
 /**
 	get_feature_of(?Type, +Signal, -Feature): this predicate hides any feature extraction process and library. 
 	Signal can be a stereo, mono or framed signal. Should be a redefinition for each library
@@ -229,7 +210,7 @@ vamp_process_frame(Plugin, Frame, Output, Features):-
 /**
 	MFCC parameters.
 	returns just the data id containing the mean and var
-*/
+
 vamp_mfcc_param(Signal, DMean, DVar):-
 	mix_stereo(Signal, S),
 	vmpl_load_plugin_for('libqm-vamp-plugins:qm-similarity', S, Plugin),
@@ -267,9 +248,7 @@ vamp_similarity_features(Signal, DMean, DVar, BeatSpec):-
 	Var = ['Feature'(_TypeV, _TimeV, DVar)],
 	Beat = ['Feature'(_T, _TS, BeatSpec)].
 
-/**This should work now...**/
 
-/** The thing is: rythm, timbre and chroma at the same time ??? **/
 
 vamp_histogram(Signal, Histogram):-
 	mix_stereo(Signal, S),
@@ -282,7 +261,7 @@ vamp_histogram(Signal, Histogram):-
 	F = [Hist],
 	Hist = ['Feature'(_TypeM, _TimeM, Histogram)].
 
-
+*/
 
 
 

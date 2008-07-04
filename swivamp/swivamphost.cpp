@@ -39,8 +39,8 @@ float durationfs = 0;
 /*
 *
 */
-vector<float> 
-vmpl_select_frame(size_t, size_t, vector<float> *);
+int
+vmpl_select_frame(size_t, size_t, vector<float> *, vector<float> *);
 
 				/************************************************************************
  				********************* Foreign predicates (deterministic) ****************
@@ -305,6 +305,7 @@ PREDICATE(vmpl_process_store_framing, 7){
 	size_t start = (size_t)(long)A6;
 	size_t size = (size_t)(long)A7;	
 
+	cerr<<"taken parameters"<<endl;
 	PlTail tail(datalist);
 	PlTerm ch;
 	size_t index = 0;
@@ -320,21 +321,33 @@ PREDICATE(vmpl_process_store_framing, 7){
 	while(tail.next(ch)){		
 		PL_get_atom_chars(ch, &id);
 		vector<float> *vector_ch;
+		cerr<<(const char*)id<<endl;
 		BLOBID::get_data_for_id((const char*)id, vector_ch);
-		vector<float> vector_f = vmpl_select_frame(start, start+size, vector_ch);
-		while (index < vector_f.size()) {
-                	plugbuf[count][index] = vector_f[index];
+		cerr<<vector_ch->size()<<endl;
+
+		vector<float> *data;
+		data = new vector<float>();
+		vmpl_select_frame(start, start+size-1, vector_ch, data);
+	
+		while (index < size) {
+                	plugbuf[count][index] = data->at(index);
                	 	++index;
         	}
+		delete[] data;
 		count++;
 		index = 0;	
 	}
+	cerr<<count<<endl;
+	
+	cerr<<"data ready"<<endl;
 
 	//Now we just store the resulting FeatureSet and its default timestamp
 	currentfs = plugin->process(plugbuf, Vamp::RealTime::frame2RealTime(start, (int)sr));
 	startfs = (float)start/(float)sr;
 	durationfs = (float)size/(float)sr;
-	
+
+	cerr<<"processde frame"<<endl;	
+
 	//free memory of the block of data
 	for(size_t k=0; k<(size_t)channels; k++){
 		delete[] plugbuf[k];
@@ -485,21 +498,22 @@ PREDICATE(vmpl_destroy_plugin, 1)
 	
 //**Redifine this here doesn¡t seem good idea**/
 	
-vector<float>
-vmpl_select_frame(size_t start, size_t end, vector<float> *channel){	
+int
+vmpl_select_frame(size_t start, size_t end, vector<float> *channel, vector<float> *frame){	
 
-	vector<float> frame;
+	
+	cerr<<"framing"<<endl;
 	size_t limit = channel-> size();
 	for(size_t i=start; i<(end+1); i++){
 		if(i < limit){
 			
-			frame.push_back(channel->at(i));			
+			frame->push_back(channel->at(i));			
 		}else{
-			frame.push_back(0.0f);//complete with 0 till fill the size of the frame queried
+			frame->push_back(0.0f);//complete with 0 till fill the size of the frame queried
 		}
 	}
 	
-	return frame;
+	return 0;
 }
 
 
