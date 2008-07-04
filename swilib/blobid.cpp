@@ -4,7 +4,7 @@
  *
  * Define some operations over blob ids (May 2008)
  *
- * Note: that library only is valid during a session of the km, loosing the id in the database afterwards.
+ * Note: ids are not persistent themselves, after a session will get lost unless you keep a correspondence between the id and the dump in disk.
  */
 
 #include <blobid.h>

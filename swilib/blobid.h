@@ -1,5 +1,5 @@
 /*
-	This source is aimed to hide the raw data using IDs, a database and blobs to wrap the data when query from prolog
+	Library that implements an identifier-based mechanism to handle large data objects (std::vector<float> instances). It is loaded by swidata to provide a blob representation in heavy computational prolog predicates.
 	It defines the BLOBID namespace
 	David Pastor 2007, c4dm, Queen Mary, University of London
 */

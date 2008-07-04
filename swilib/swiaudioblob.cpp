@@ -1,9 +1,11 @@
 /**
-	Audio data type conversion: AudioVector/AudioBlob
+	DEPRECATED: Audio data type conversion: AudioVector/AudioBlob
 	Some other utilities are implemented:
 			-I/O operations
 			-Operations with blobs: concat, equality
 	David Pastor 2007/2008, c4dm, Queen Mary University of London		
+
+	NOTE: we not loger use PL_blob_t terms and moved to BLOBIDs mechanism
 */
 
 #include "swiaudioblob.h"

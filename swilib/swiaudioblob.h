@@ -1,5 +1,5 @@
 /**
-	This is a library for general type conversion of vector<float> to PL_blob_t. It has been created in order to store arbitrary large audio data 		objects defined as AudioVector and AudioBlob. We combine it with the namespace AudioID to get the raw data pointed by an ID as prolog blob
+	DEPRECATED: This is a library for general type conversion of vector<float> to PL_blob_t. It has been created in order to store arbitrary large audio data objects defined as AudioVector and AudioBlob. We combine it with the namespace AudioID to get the raw data pointed by an ID as prolog blob
 	David Pastor 2007 for c4dm, Queen Mary, University of London
 
 	Includes:

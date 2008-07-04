@@ -1,16 +1,69 @@
-SWIVAMP package defining the vamp module of the KM
-David Pastor Escuredo 2007, c4dm
+The "VAMP" module for SWI-Prolog version 1.0
 
-Provides the KM with a vamp features extraction interface managing Vamp Plugins (Chris Cannam)
+David Pastor Escuredo for the Centre For Digital Music, Queen Mary University of London
+2007-2008
 
-Contains:
+1- Introduction
 
--swivamp: general type conversion C library for the module
--swivamphost: predicates to deal with the lifecycle of the plugin for any host. Using hostExt definition of Vamp API (Chris Cannam)
--swivampplugin: predicates to query data of the plugin according to the RDF-Vamp defintion (Chris Sutton)
+This is a SWI-Prolog module built on the foreign interface and the CPP package for SWI-Prolog. It provides a communication layer with Vamp Plugins for querying and computations triggering under Prolog predicates. This module defines a stable Vamp Host that controls the plugin lifecycle as defined in the Vamp API. For more information about Vamp Plugins please visit the site www.vamp-plugins.org (Chris Cannam).
+
+The module provides also some higher level predicates defining procedures for feature-extraction and a "Transform" predicate that wraps the feature extraction process for Digital Signal Processing worflows creation.
+
+2- Installation
+
+To run swivamp from Prolog, you need to set and compile the following modules in your machine
+
+-swilib: a C++ library to handle large data objects by using atomic identifiers: BLOBIDs
+-swidata: a SWI-Prolog module to handle BLOBIDs
+-swiaudio: a SWI-Prolog module thar provides "signal" terms decoding a wide range of audio files
+-Download the vamp-sdk from the vamp plugin site and set the folder in your swivamp path
+-Download vamp plugins libraries and set them in one of the preferred plugins paths
+
+So far, swivamp can only run in Linux and MAC OS/X
+
+3- Run
+
+Just launck pl from your swivamp directory and load the vamp module:
+
+?- use_module(vamp).
+
+Check the html documentation in DOC/ for predicates instantation patterns.
+
+4- Content
+
+-swivamp: general type conversion C/C++<-->SWI-Prolog library for the module
+-swivamphost: predicates to deal with the lifecycle of the plugin for any host. Using hostExt definition of Vamp API (www.vamp-plugins.org).
+-swivampplugin: predicates to query data of the plugin according to the Vamp Ontology: http://purl.org/ontology/vamp/
 -vamp.pl: prolog program defining the vamp module
+-fe.pl: routines for feature extraction (host running plugins)
+-transform.pl: top level predicate to set the feature extraction process inside a DSP workflow
 
-NamesExtension
+5- Module name extension
 
-vamp_xxx: predicates defined in vamp.pl. Normally general predicates
-vmpl_xxx: predicates defined in the foreign libraries. More specific dealing predicates for plugins
+vamp_xxx: predicates defined in vamp.pl. Normally general predicates. They can be used statically (just passing plugin keys)
+vmpl_xxx: predicates defined in the foreign libraries. More specific dealing predicates for plugins. Must be used dynamically (with actual plugin objects)
+
+6- SWIVAMP in DSP workflows
+
+This module has signal(Sr, ListOfData) as input and uses BLOBIDs to read/write data objects (signal PCM channels and feature bins). Each feature is output as a functor term like this:
+
+feature(Type, timestamp(start, duration), BINS).
+
+Depending on the size of the bins and the output sample type the BINS term can be:
+
+Prolog list: sparse outputs. These outputs define concrete events along the signal timeline.
+BLOBIDs: dense outputs. These outputs define a signal characterizing the original signal and each feature defines a frame of it.
+
+Interesting readings:
+
+- Vamp ontology: http://purl.org/ontology/vamp/
+- Music ontology: http://musicontology.com
+- Vamp documentation and API: www.vamp-plugins.org
+
+7- Bugs 
+
+This version seems to be stable. Please report bugs to david.pas@gmail.com
+
+
+
+
