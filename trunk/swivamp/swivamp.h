@@ -8,7 +8,6 @@
 #define _SWI_VAMP_H
 
 #include <swiaudioblob.h>
-#include <swimo.h>
 #include <blobid.h>
 #include <qstring.h>
 #include <PluginHostAdapter.h>
@@ -31,10 +30,16 @@ int
 vmpl_get_plugin(term_t, Vamp::Plugin * &);
 
 const float* const*
-vmpl_frame_to_input(term_t);//Constructs a valid block of data as vamp plugin input from a MO::frame
+vmpl_frame_to_input(int, size_t, term_t);//Constructs a valid block of data as vamp plugin input from a prolog frame
 
 term_t
-vmpl_frame_features_to_prolog(Vamp::Plugin::FeatureSet , int, term_t , Vamp::Plugin::OutputDescriptor);//Converts the FutureSet object extracted from the plugins into a complex Prolog term
+vmpl_frame_features_to_prolog(Vamp::Plugin::FeatureSet , int, float, float, Vamp::Plugin::OutputDescriptor);//Converts the FutureSet object extracted from the plugins into a complex Prolog term
+
+void
+timestamp_functor(term_t, term_t, term_t);//creates a timestamp term. Taken from the old swimo
+
+void
+feature_functor(term_t, term_t, term_t, term_t);
 
 float
 vmpl_timestamp_float(Vamp::RealTime );//put the timestamp as a float

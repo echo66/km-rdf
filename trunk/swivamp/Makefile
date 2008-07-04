@@ -25,8 +25,7 @@ SWIVAMP_LIB = $(swivamp_dir)/vampswi.so
 
 #Libraries
 
-LIBS_SWIVAMP = $(swilib_dir)/swimo.so \
-		$(vamp_dir)/libvamp-hostsdk.so \
+LIBS_SWIVAMP = 	$(vamp_dir)/libvamp-hostsdk.so \
 		$(swilib_dir)/swiaudioblob.so \
 		$(swilib_dir)/blobid.so
 
