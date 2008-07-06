@@ -8,8 +8,8 @@
 :- use_module('../swivamp/vamp').
 :- use_module('../swivamp/transform').
 :- use_module('../feature-extractor/fe').
-:- use_module('../swiaudiodata/audiodata').
-:- use_module('../swiaudiosource/audiosource').
+:- use_module('../swidata/data').
+:- use_module('../swiaudio/audio').
 :- use_module('musicutils').
 
 builtins:builtin('http://purl.org/ontology/vamp/qm-keydetector',vamp_builtins:keydetector).
@@ -19,21 +19,22 @@ builtins:builtin('http://purl.org/ontology/vamp/qm-beats',vamp_builtins:beats).
 
 
 /**
-	Outputs a to:key
+	Outputs a to:key. I still need to put some rules for the feature output (lists against blobs and timestamps)
 */
 
 keydetector(Input,Features) :-
 	nonvar(Input),
-	Input = [literal(Channels),literal(SR),literal(L),Sigs],
-	transform('Signal'(Channels,SR,L,Sigs),'qm-vamp-plugins','qm-keydetector',[key],RF),
+	Input = [literal(SR), Sigs],
+	transform(signal(SR,Sigs),'qm-vamp-plugins','qm-keydetector',[key],RF),
 	flatten(RF, F),
-	findall([literal(Otp),literal(TS),literal(TE),Key],(member('Feature'(Otp,'Timestamp'(TS,TE),DataBin),F),data(DataBin,DataL),DataL=[Data], to_key(Data, Key)),Features).
+	findall([literal(Otp),literal(TS),literal(TE),Key],(member(feature(Otp,timestamp(TS,TE),DataBin),F),data(DataBin,DataL),DataL=[Data], to_key(Data, Key)),Features).
 
 /**
 	Specific builtins to extract MFCC means and vars from the similarity plugin. Necessary to mix down the input to not confuse the plugin with 2
 	different tracks. Just timbre mode. (note: how to combine different similarities?)
 */		
 
+%These won't work, but we have to change them anyway
 mfccparameters(Input, [MLData, VLData]) :-
 	nonvar(Input),
 	Input = [literal(Channels),literal(SR),literal(L),Sigs],
