@@ -116,7 +116,7 @@ vamp_outputs_for(Signal, PluginKey, Outputs, WholeFeature):-
 	set_stepSize(Plugin, StepSize),
 	get_channels(Signal, Channels),
 	vmpl_initialize_plugin(Plugin, Channels, StepSize, BlockSize),
-	vamp_compute_feature(Signal, StepSize, BlockSize, Outputs, Plugin, WholeFeature).
+	vamp_compute_feature2(Signal, StepSize, BlockSize, Outputs, Plugin, WholeFeature).
 
 /**
 	This predicate allow us to compute features given the entire signal or a framed version of it.
@@ -174,7 +174,7 @@ vamp_process_signal(Signal, Samples, StepSize, BlockSize, Output, Plugin, Featur
 	set_framing(StepSize, Samples, Limit, Start),
 	get_frame(Signal, Start, BlockSize, Frame),
 	vamp_process_frame(Plugin, Frame, Output, FeatureSet),
-	clean_frame(Frame).
+	clean(Frame).
 
 vamp_process_signal2(Signal, Samples, StepSize, BlockSize, Output, Plugin, FeatureSet):-	
 	set_limit_framing(Samples, StepSize, Limit),	
@@ -187,7 +187,7 @@ vamp_process_signal2(Signal, Samples, StepSize, BlockSize, Output, Plugin, Featu
 vamp_process_frames(Frames, Output, Plugin, FeatureSet):-
 	member(Frame, Frames),
 	vamp_process_frame(Plugin, Frame, Output, FeatureSet),
-	clean_frame(Frame).
+	clean(Frame).
 
 /**
 	Just returns the features for a given frame and output. This may very useful if we demand features in a frame basis

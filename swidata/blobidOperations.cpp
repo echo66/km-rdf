@@ -89,7 +89,7 @@ PREDICATE(get_blob_size, 2)
 		return false;
 	}
 
-	return A2 = PlTerm(double(ch1->size()));		
+	return A2 = PlTerm(long(ch1->size()));		
 }
 
 /**

@@ -63,10 +63,12 @@ get_channels(frame(_, _, Data), Ch):-
 
 get_samples_per_channel(signal(_, Data), L):-
 	is_list(Data),
-	data_size(Data, L).
+	Data = [H|_T],
+	data_size(H, L).
 get_samples_per_channel(frame(_, _, Data), L):-
 	is_list(Data),
-	data_size(Data, L).
+	Data = [H|_T],
+	data_size(H, L).
 
 %% get_frame(+Signal, +Init, +Block, -Frame) is semidet
 % Frames a signal(Sr, Data) object returning frame(Sr, Init, Data) object according to the parameters 

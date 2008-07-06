@@ -39,8 +39,8 @@ float durationfs = 0;
 /*
 *
 */
-int
-vmpl_select_frame(size_t, size_t, vector<float> *, vector<float> *);
+vector<float> *
+vmpl_select_frame(size_t, size_t, vector<float> *);
 
 				/************************************************************************
  				********************* Foreign predicates (deterministic) ****************
@@ -305,7 +305,6 @@ PREDICATE(vmpl_process_store_framing, 7){
 	size_t start = (size_t)(long)A6;
 	size_t size = (size_t)(long)A7;	
 
-	cerr<<"taken parameters"<<endl;
 	PlTail tail(datalist);
 	PlTerm ch;
 	size_t index = 0;
@@ -321,32 +320,25 @@ PREDICATE(vmpl_process_store_framing, 7){
 	while(tail.next(ch)){		
 		PL_get_atom_chars(ch, &id);
 		vector<float> *vector_ch;
-		cerr<<(const char*)id<<endl;
 		BLOBID::get_data_for_id((const char*)id, vector_ch);
-		cerr<<vector_ch->size()<<endl;
-
+		
 		vector<float> *data;
-		data = new vector<float>();
-		vmpl_select_frame(start, start+size-1, vector_ch, data);
-	
+		data = vmpl_select_frame(start, start+size-1, vector_ch);
+
 		while (index < size) {
                 	plugbuf[count][index] = data->at(index);
                	 	++index;
         	}
-		delete[] data;
+		delete data;
 		count++;
-		index = 0;	
+		index = 0;
 	}
-	cerr<<count<<endl;
-	
-	cerr<<"data ready"<<endl;
 
 	//Now we just store the resulting FeatureSet and its default timestamp
 	currentfs = plugin->process(plugbuf, Vamp::RealTime::frame2RealTime(start, (int)sr));
+	
 	startfs = (float)start/(float)sr;
 	durationfs = (float)size/(float)sr;
-
-	cerr<<"processde frame"<<endl;	
 
 	//free memory of the block of data
 	for(size_t k=0; k<(size_t)channels; k++){
@@ -359,19 +351,18 @@ PREDICATE(vmpl_process_store_framing, 7){
 
 
 /*
-	vmpl_process_store(+Plugin, +Channels, +Sr, +DataSize, +FrameListOfBLOBIDs, +StartFrame, +Duration). Similar to the previous one, but we already pass the frame data instead of the signal to be framed. The framing is carried out by another predicate.
+	vmpl_process_store(+Plugin, +Channels, +Sr, +DataSize, +InitSample, +FrameListOfBLOBIDs). Similar to the previous one, but we already pass the frame data instead of the signal to be framed. The framing is carried out by another predicate.
 	vmpl_process_block wraps this predicate and vmpl_featureSet_output
 */
 
-PREDICATE(vmpl_process_store, 7)
+PREDICATE(vmpl_process_store, 6)
 {
 	//+plugin
 	//+channels
 	//+sr
 	//+length
+	//+InitSample
 	//+Block of data to process (both channels) passed 
-	//+start
-	//+duration
 	
 	//getting input arguments
 	term_t blob = PL_new_term_ref();
@@ -382,12 +373,12 @@ PREDICATE(vmpl_process_store, 7)
 	//Frame and the necessary arguments
 	int channels =(int)(long)A2;
 	size_t isr = (size_t)(long)A3;
-	size_t datasize = (size_t)(long)A4;	
-	PlTerm frame(A5);
-	startfs = (size_t)(long)A6;
-	durationfs = (size_t)(long)A7;	
+	size_t datasize = (size_t)(long)A4;
+	size_t initSample = (size_t)(long)A5;	
+	PlTerm frame(A6);	
 
-	size_t initSample = (size_t)startfs*isr;
+	startfs = (float)initSample/(float)isr;
+	durationfs = (float)datasize/(float)isr;
 
 	const float* const* input;
 	input = vmpl_frame_to_input(channels, datasize, frame);
@@ -498,11 +489,11 @@ PREDICATE(vmpl_destroy_plugin, 1)
 	
 //**Redifine this here doesn¡t seem good idea**/
 	
-int
-vmpl_select_frame(size_t start, size_t end, vector<float> *channel, vector<float> *frame){	
+vector<float> *
+vmpl_select_frame(size_t start, size_t end, vector<float> *channel){	
 
-	
-	cerr<<"framing"<<endl;
+	vector<float> *frame;
+	frame = new vector<float>();
 	size_t limit = channel-> size();
 	for(size_t i=start; i<(end+1); i++){
 		if(i < limit){
@@ -512,8 +503,8 @@ vmpl_select_frame(size_t start, size_t end, vector<float> *channel, vector<float
 			frame->push_back(0.0f);//complete with 0 till fill the size of the frame queried
 		}
 	}
-	
-	return 0;
+
+	return frame;
 }
 
 
