@@ -38,7 +38,7 @@
 %	vamp_transform(Signal, Options, FinalOutputs),
 	%adapt_output(FinalOutputs, ExportedOutputs).
 
-transform(Signal,Lib,Id,Outputs,FinalOutputs) :-
+transform(Signal,Lib,Id,Outputs,FinalOutputs):-
 	transform(Signal,Lib,Id,Outputs,FinalOutputs,[]).
 transform(Signal, Lib, Id, Outputs, FinalOutputs, Options):-
 	is_list(Options),

@@ -111,15 +111,14 @@ vmpl_get_plugin(term_t id_t, Vamp::Plugin * &plugin){
 const float* const*
 vmpl_frame_to_input(int channels, size_t size, term_t fdata){
 
-	//datalist as input
+	//datalist as input. Only 2 channels
 
-	PlTerm flist(fdata);
-	PlTail tail(flist);
+	PlTail tail(fdata);
 
 	PlTerm ch;
 	size_t index = 0;
+	char *id;	
 	int count = 0;
-	char *id;
 
 	//multidimensional array as input
 	float **plugbuf = new float*[channels];
@@ -129,15 +128,17 @@ vmpl_frame_to_input(int channels, size_t size, term_t fdata){
 
 	while(tail.next(ch)){		
 		PL_get_atom_chars(ch, &id);
-		vector<float> *vector_ch;
-		BLOBID::get_data_for_id((const char*)id, vector_ch);
-		while (index < vector_ch->size()) {
-                	plugbuf[count][index] = vector_ch->at(index);
+		vector<float> *data;
+		BLOBID::get_data_for_id((const char*)id, data);
+
+		while (index < size) {
+                	plugbuf[count][index] = data->at(index);
                	 	++index;
         	}
-		index = 0;	
 		count++;
+		index = 0;
 	}
+	
 		
 	return plugbuf;//the memory is freed afterwards
 }

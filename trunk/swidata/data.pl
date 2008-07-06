@@ -122,7 +122,6 @@ data_size(O, L):-
 	length(O, L).
 
 data_size(O, L):-
-	is_blobid(O),
 	blob_size(O, L).
 
 %% blob_frame(+BLOBID1, Start, Size, -BLOBIDFRAME) is det

@@ -244,11 +244,11 @@ vamp_plugin_output_metadata(PluginKey, FeatureType, OutputName, Description, Uni
 %% vmpl_process_block(+Plugin, +Frame, +FrameTimeStamp, +ListOfOutputs, -ListOfFeatures) is det
 % Process a frame term and returns the outputs queried in the list as a feature terms list
 
-vmpl_process_block(Plugin, Frame, timestamp(Start, Duration), ListOfOutputs, ListOfFeatures):-
-	Frame = frame(Sr, _Init, ListOfBlobids),
+vmpl_process_block(Plugin, Frame, timestamp(_Start, _Duration), ListOfOutputs, ListOfFeatures):-
+	Frame = frame(Sr, Init, ListOfBlobids),
 	get_channels(Frame, Ch),
 	get_samples_per_channel(Frame, L),
-	vmpl_process_store(Plugin, Ch, Sr, L, ListOfBlobids, Start, Duration),
+	vmpl_process_store(Plugin, Ch, Sr, L, Init, ListOfBlobids),
 	findall(Features, collect_features(Plugin, ListOfOutputs, Features), RawFeatures),
 	delete(RawFeatures, [], ListOfFeatures).
 
