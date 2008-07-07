@@ -8,8 +8,11 @@
 	It loads the shared library "swivamp.so" containing the Vamp/SWI-Prolog interface that integrates the host definition libvamp-hostsdk (Chris 		Cannam). Some of the main concepts of the this interface are inherited from this host defintion. Check http://www.vamp-plugins.org/code-doc/
 	
 	There are two types of names:
-		vamp_xxx These can be done as direct calls on prolog (designed on prolog). They are documented in this file
-		vmpl_xxx These should be part of a bigger query (but maybe they can be called isolated). They are the plain interface (see source) 
+
+		vamp_xxx These can be done as direct calls on prolog (designed on prolog). They are documented in this file. These predicates have a PluginKey as reference to the plugin (libraryidentifier:pluginidentifier)
+
+		vmpl_xxx These should be part of a bigger query (but maybe they can be called isolated). They are the plain interface (see source). These predicates handle a Prolog atom identifying a working instance (__plugin::vamp_id)
+
 	*/
 
 :- module(vamp,[
@@ -30,7 +33,6 @@
 	,	vamp_feature_system/1
 	,	vamp_plugin_for/3
 	, 	vamp_plugin_numberOutputs/2
-	,	vamp_plugin_features/2
 
 		/** 2nd step lifecycle: loading. We need the sample rate*/			
 	,	vmpl_load_plugin/3
@@ -90,7 +92,10 @@
 :- use_module(library(pldoc)).
 :- use_module('../swiaudio/audio').
 
-%% vamp_plugin_sytem(?PluginKey) is nondet
+%% vmpl_plugins(+ListPlugins) is det
+% A list of available plugins after scanning
+
+%% vamp_plugin_system(?PluginKey) is nondet
 % Checks plugins available in your local system
 
 vamp_plugin_system(PluginKey):-
@@ -127,6 +132,7 @@ vamp_plugin_for(PluginKey, FeatureType, Index):-
 
 %% is_feature_of_plugin(+Plugin, ?Feature, ?Index) is nondet
 % Given a plugin we can check its features and their position
+
 is_feature_of_plugin(Plugin, Feature, Index):-
 	nonvar(Plugin),
 	vamp_plugin_features(Plugin, List),
@@ -139,7 +145,7 @@ vamp_plugin_features(Plugin, Size, FeatureType, Index):-
 	between(0, Limit, Index),
 	vmpl_outputDescriptor_identifier(Plugin, Index, FeatureType).
 
-%% vamp_plugin_numberOutputs(?PluginKey, -Size) is det
+%% vamp_plugin_numberOutputs(?PluginKey, -Size) is semidet
 % Gets the number of outputs of each plugin on the system given the key (difference with vmpl_x)
 
 vamp_plugin_numberOutputs(PluginKey, Size):-
@@ -154,21 +160,21 @@ vamp_plugin_maker(PluginKey, Maker):-
 	vmpl_load_plugin(PluginKey, 44100, Plugin),
 	vmpl_get_maker(Plugin, Maker).
 
-%% vamp_plugin_identifier(+PluginKey, -Identifier) is det
+%% vamp_plugin_identifier(+PluginKey, -Identifier) is semidet
 % Gets the plugin machine-readable identifier
 
 vamp_plugin_identifier(PluginKey, Identifier):-
 	vmpl_load_plugin(PluginKey, 44100, Plugin),
 	vmpl_get_identifier(Plugin, Identifier).
 
-%% vamp_plugin_name(+PluginKey, -Name) is det
+%% vamp_plugin_name(+PluginKey, -Name) is semidet
 % Gets the plugin human-readable identifier
 
 vamp_plugin_name(PluginKey, Name):-
 	vmpl_load_plugin(PluginKey, 44100, Plugin),
 	vmpl_get_name(Plugin, Name).
 
-%% vamp_plugin_copyright(+PluginKey, -Copyright) is det
+%% vamp_plugin_copyright(+PluginKey, -Copyright) is semidet
 % Gets the plugin copyright
 
 vamp_plugin_copyright(PluginKey, Copyright):-
@@ -182,24 +188,24 @@ vamp_plugin_description(PluginKey, Description):-
 	vmpl_load_plugin(PluginKey, 44100, Plugin),
 	vmpl_get_description(Plugin, Description).
 
-%% vamp_plugin_vampVersion(+PluginKey, -VampAPIVersion) is det
+%% vamp_plugin_vampVersion(+PluginKey, -VampAPIVersion) is semidet
 % Gets the vamp API version used in this plugin
 
 vamp_plugin_vampVersion(PluginKey, VampVersion):-
 	vmpl_load_plugin(PluginKey, 44100, Plugin),
 	vmpl_get_vampVersion(Plugin, VampVersion).
 
-%% vamp_plugin_version(+PluginKey, -Version) is det
+%% vamp_plugin_version(+PluginKey, -Version) is semidet
 % Gets the plugin version
 
 vamp_plugin_version(PluginKey, Version):-
 	vmpl_load_plugin(PluginKey, 44100, Plugin),
 	vmpl_get_pluginVersion(Plugin, Version).
 
-%% vmpl_load_plugin_for(+PluginKey, +Sr, -Plugin) 
+%% vmpl_load_plugin(+PluginKey, +Sr, -Plugin) is semidet
 % Loads a plugin for the given sample rate
 
-%% vmpl_load_plugin_for(+PluginKey, +Input, -Plugin) 
+%% vmpl_load_plugin_for(+PluginKey, +Input, -Plugin) is semidet
 % Loads a plugin for the given input
 
 vmpl_load_plugin_for(P, signal(Sr, _), Plugin):-
@@ -208,7 +214,7 @@ vmpl_load_plugin_for(P, signal(Sr, _), Plugin):-
 vmpl_load_plugin_for(P, frame(Sr, _, _), Plugin):-
 	vmpl_load_plugin(P, Sr, Plugin).
 
-%% vamp_plugin_sampleType(?PluginKey, ?FeatureType, -SampleType) is nondet
+%% vamp_plugin_output_sampleType(?PluginKey, ?FeatureType, -SampleType) is nondet
 % Returns the sample type of the outputs of a plugin
 
 vamp_plugin_output_sampleType(PluginKey, FeatureType, SampleType):-
@@ -230,6 +236,9 @@ vamp_sampleTypes(SampleTypeIndex, SampleType):-
 	SampleTypeIndex = 2,
 	SampleType = 'VariableSampleRate'.
 
+%% vmpl_plugin_numberOutputs(+Plugin, -NumberOutputs) is semidet
+% Returns the number of outputs for the working plugin
+
 %% vamp_plugin_output_metadata(?PluginKey, ?FeatureType,-OutputName, -Description, -Unit, -OutputIndex) is nondet
 % General information about the plugin outputs
 
@@ -240,8 +249,35 @@ vamp_plugin_output_metadata(PluginKey, FeatureType, OutputName, Description, Uni
 	vmpl_outputDescriptor_name(Plugin, OutputIndex, OutputName),
 	vmpl_outputDescriptor_description(Plugin, OutputIndex, Description),
 	vmpl_outputDescriptor_unit(Plugin, OutputIndex, Unit).
+
+%% vmpl_pluginPrograms(+Plugin, -ListOfPrograms) is semidet
+% Returns available programs for the plugin
 	
-%% vmpl_process_block(+Plugin, +Frame, +FrameTimeStamp, +ListOfOutputs, -ListOfFeatures) is det
+%% vmpl_select_program(+Plugin, +Program) is semidet
+% Selects a program setting the plugin
+
+%% vmpl_pluginParameters(+Plugin, -ListOfParameters) is semidet
+% Selects the processing parameters of the algorithm implemented in the working plugin instance
+
+%% vmpl_set_parameter(+Plugin, -ParameterName, -Value) is semidet
+% Sets a value for the given parameter of the working plugin
+
+%% vmpl_get_blockSize(+Plugin, -PreferredBlockSize) is semidet
+% Retrieves the preferred block size for framing of the working plugin 
+
+%% vmpl_get_stepSize(+Plugin, -PreferredStepSize) is semidet
+% Retrieves the preferred step size of the working plugin 
+	
+%% vmpl_get_min_channel(+Plugin, -MinChannels) is semidet
+% Retrieves the minimum of accepted channels of the working plugin 
+
+%% vmpl_get_max_channel(+Plugin, +MaxChannels) is semidet
+% Retrieves the max of accpted channels of the working plugin
+
+%% vmpl_initialize_plugin(+Plugin, +Channels, +BlockSize, +StepSize) is semidet
+% Initializes the loaded plugin giving the number of channels and the actual hop and window size for framing
+	
+%% vmpl_process_block(+Plugin, +Frame, +FrameTimeStamp, +ListOfOutputs, -ListOfFeatures) is semidet
 % Process a frame term and returns the outputs queried in the list as a feature terms list
 
 vmpl_process_block(Plugin, Frame, timestamp(_Start, _Duration), ListOfOutputs, ListOfFeatures):-
@@ -252,7 +288,7 @@ vmpl_process_block(Plugin, Frame, timestamp(_Start, _Duration), ListOfOutputs, L
 	findall(Features, collect_features(Plugin, ListOfOutputs, Features), RawFeatures),
 	delete(RawFeatures, [], ListOfFeatures).
 
-%% vmpl_process_block(+Plugin, +Signal, +StartSample, +Size, +ListOfOutputs, -ListOfFeatures) is det
+%% vmpl_process_block_framing(+Plugin, +Signal, +StartSample, +Size, +ListOfOutputs, -ListOfFeatures) is semidet
 % Similar to vmpl_process_block but the framing is done inside the C++ code (actually faster)
 
 vmpl_process_block_framing(Plugin, Signal, StartSample, Size, ListOfOutputs, ListOfFeatures):-
@@ -263,7 +299,8 @@ vmpl_process_block_framing(Plugin, Signal, StartSample, Size, ListOfOutputs, Lis
 	findall(Features, collect_features(Plugin, ListOfOutputs, Features), RawFeatures),
 	delete(RawFeatures, [], ListOfFeatures).
 
-%% vmpl_remaining_features(+Plugin, +L, +SR, +ListOfOutputs, -ListOfFeatures)
+%% vmpl_remaining_features(+Plugin, +LastSample, +SampleRate, +ListOfOutputs, -ListOfFeatures) is semidet
+% Retrieves the last features that the plugin may have kept till the end of the process
 
 vmpl_remaining_features(Plugin, L, SR, ListOfOutputs, ListOfFeatures):-
 	vmpl_store_remaining(Plugin, L, SR),	
@@ -272,5 +309,12 @@ vmpl_remaining_features(Plugin, L, SR, ListOfOutputs, ListOfFeatures):-
 collect_features(Plugin, ListOfOutputs, ListOfFeatures):-
 	member(Output, ListOfOutputs),
 	vmpl_featureSet_output(Plugin, Output, ListOfFeatures).
+
+
+%% vmpl_plugin_reset(+Plugin) is semidet
+% Comes back to the earlier stages of the lifecycle before initializing
+
+%% vmpl_destroy_plugin(+Plugin) is semidet
+% Unloads the plugin relieving memory
 
 
