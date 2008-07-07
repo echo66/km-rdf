@@ -17,19 +17,16 @@ dsp:cache a <http://purl.org/ontology/tabling/TabledPredicate>.
 	
 {
 ?a	dsp:cache ?local.
-?local	dsp:aspl_decode (?ch ?sr ?l ?signals).
+?local	dsp:aspl_decode (?sr ?signals).
 
 } => {
 
 ?a a mo:AudioFile.
-?a mo:encodes (?ch ?sr ?l ?signals). # Probably not the best modeling...
-(?ch ?sr ?l ?signals)
+?a mo:encodes (?sr ?signals). # Probably not the best modeling...
+(?sr ?signals)
 	a mo:Signal;
-	mo:channels ?ch;
 	mo:time [
 		a tl:Interval;
-		tl:duration ?l;
-		#change this for a time value.
 		tl:timeline _:tl;
 	].	
 }.
@@ -37,7 +34,7 @@ dsp:cache a <http://purl.org/ontology/tabling/TabledPredicate>.
 {
 
 ?a	dsp:cache ?local.
-?local	dsp:aspl_decode (?ch ?sr ?l ?signals).
+?local	dsp:aspl_decode (?sr ?signals).
 ?signal list:in ?signals
 
 } =>
@@ -50,7 +47,6 @@ dsp:cache a <http://purl.org/ontology/tabling/TabledPredicate>.
 	mo:channels "1";
 	mo:time [
 		a tl:Interval;
-		tl:duration ?l;
 		tl:timeline _:tl;
 	].
 
