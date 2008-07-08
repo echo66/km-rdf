@@ -7,7 +7,7 @@ CPP = g++ # C++ compiler
 CFLAGS = -Wall -fPIC
 
 #######################################################################
-# Define your platform-specific options here. For non-linux machines, some more arrangements should be done!
+# Define your platform-specific options here. 
 #######################################################################
 
 swi_dir = /usr/local/lib/pl-5.6.50

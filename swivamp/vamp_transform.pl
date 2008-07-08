@@ -29,7 +29,7 @@ transform(Signal,Lib,Id,Outputs,FinalOutputs):-
 %% transform(+Signal, +LibraryId, +PluginId, +ListOfOutputIds, -FinalOutput, +Options) is semidet
 % Transform predicate passing arguments. Options:
 
-transform(Signal, Lib, Id, Outputs, FinalOutputs, Options):-
+transform(Signal, Lib, Id, Outputs, Plugin, Options):-
 	is_list(Options),
 	Signal = signal(Sr, _Data),
 	get_channels(Signal, Ch),
@@ -41,9 +41,11 @@ transform(Signal, Lib, Id, Outputs, FinalOutputs, Options):-
         ((option(parameters(Params), Options, []),!) ; Params=[]),
         ((option(program(Prog), Options, _),!) ; true),
 	vamp_set_parameters(Plugin, Params),
-	set_program(Plugin, Prog),
+	set_program(Plugin, Prog).
+
+/**
 	vmpl_initialize_plugin(Plugin, Ch, StepSize, BlockSize),
-	vamp_compute_feature2(Signal, StepSize, BlockSize, Indexes, Plugin, FinalOutputs).
+	vamp_compute_feature2(Signal, StepSize, BlockSize, Indexes, Plugin, FinalOutputs).*/
 
 % concats the plugin key
 plugin_key(Lib, Id, Key):-
@@ -164,7 +166,7 @@ vamp_process_signal2(Signal, Samples, StepSize, BlockSize, Output, Plugin, Featu
 	set_limit_framing(Samples, StepSize, Limit),	
 	set_framing(StepSize, Samples, Limit, Start),
 	vmpl_process_block_framing(Plugin, Signal, Start, BlockSize, Output, FeatureSet).
-
+ 
 % Helping and atomic predicates
 
 vamp_process_frames(Frames, Output, Plugin, FeatureSet):-

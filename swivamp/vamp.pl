@@ -91,6 +91,7 @@
 :- load_foreign_library(swivamp).
 :- use_module(library(pldoc)).
 :- use_module('../swiaudio/audio').
+:- use_module('../swidata/data').
 
 %% vmpl_plugins(+ListPlugins) is det
 % A list of available plugins after scanning
@@ -301,6 +302,7 @@ vmpl_process_block_framing(Plugin, Signal, StartSample, Size, ListOfOutputs, Lis
 
 %% vmpl_remaining_features(+Plugin, +LastSample, +SampleRate, +ListOfOutputs, -ListOfFeatures) is semidet
 % Retrieves the last features that the plugin may have kept till the end of the process
+% ListOfFeatures is a complex list that...
 
 vmpl_remaining_features(Plugin, L, SR, ListOfOutputs, ListOfFeatures):-
 	vmpl_store_remaining(Plugin, L, SR),	
@@ -308,8 +310,40 @@ vmpl_remaining_features(Plugin, L, SR, ListOfOutputs, ListOfFeatures):-
 
 collect_features(Plugin, ListOfOutputs, ListOfFeatures):-
 	member(Output, ListOfOutputs),
-	vmpl_featureSet_output(Plugin, Output, ListOfFeatures).
+	collect_feature(Plugin, Output, ListOfFeatures).
 
+collect_feature(Plugin, Output, ListOfFeatures2):-
+	vmpl_featureSet_output(Plugin, Output, ListOfFeatures),
+	vmpl_outputDescriptor_sampleType(Plugin, Output, SampleType),
+	findall(Feature, constrain_feature(ListOfFeatures, SampleType, Feature), ListOfFeatures2).
+
+constrain_feature(L, ST, F):-
+	member(F1, L),
+	F1 = feature(T, Time, Data),
+	blob_size(Data, Le),
+	format_for_data(Data, ST, Le, Data2),
+	F = feature(T, Time, Data2).
+
+%Sparse output has literals or lists as data representation
+%May constrain the timestamp
+
+format_for_data(_Data, 2, 0, Data2):-
+	Data2 = '__event_'.
+
+format_for_data(Data, 2, 1, Data2):-
+	blob_list(Data, [Data2]).
+
+format_for_data(Data, 2, L, Data2):-
+	L>1,
+	blob_list(Data, Data2).
+
+%Dense output keeps blobids for data representation
+
+format_for_data(Data, 0, _, Data2):-
+	Data2 = Data.
+format_for_data(D, 1, _, D2):-
+	D2 = D.
+	
 
 %% vmpl_plugin_reset(+Plugin) is semidet
 % Comes back to the earlier stages of the lifecycle before initializing
