@@ -19,7 +19,7 @@ vamp_dir = vamp-sdk
 vamp_host_dir = vamp-sdk/hostext
 swilib_dir = ../swilib
 
-suf = so
+suf = dynlib
 SWIVAMP_LIB = $(swivamp_dir)/vampswi.$(suf)
 
 
@@ -69,10 +69,10 @@ $(OBJ_SWIVAMP) :
 	$(CPP) -c $(CFLAGS) $(INCLUDE_SWIVAMP) $(VAMP_LIB) -o $(OBJ_SWIVAMP)
 
 $(SWI_VAMP) : $(OBJ_SWIVAMP) $(OBJ_VAMPHOST) $(OBJ_VAMPPLUGIN) Makefile
-	$(CPP) -shared $(LIBS_SWIVAMP) $(OBJ_SWIVAMP) $(OBJ_VAMPHOST) $(OBJ_VAMPPLUGIN) -o $(SWI_VAMP) 
+	$(CPP) -dynamiclib $(LIBS_SWIVAMP) $(OBJ_SWIVAMP) $(OBJ_VAMPHOST) $(OBJ_VAMPPLUGIN) -o $(SWI_VAMP) 
 
 clean :
-	rm -f *.o *.so 
+	rm -f *.o *.dynlib 
 
 
 
