@@ -1,7 +1,0 @@
-
-								KM-FEATURE-EXTRACTOR
-							David Pastor Escuredo 2008, c4dm, Queen Mary.
-
-
-This module defines feature extraction front for the km. So far we only can retrieve vamp features from the KM by means of swivamp, but we may
-use some other tools to extract audio features. This interface should be responible of presenting just one view through some predicates for all the extractors so we have a unitary km-feature-extractor agent.
