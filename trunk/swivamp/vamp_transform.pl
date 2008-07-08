@@ -27,9 +27,9 @@ transform(Signal,Lib,Id,Outputs,FinalOutputs):-
 	transform(Signal,Lib,Id,Outputs,FinalOutputs,[]).
 
 %% transform(+Signal, +LibraryId, +PluginId, +ListOfOutputIds, -FinalOutput, +Options) is semidet
-% Transform predicate passing arguments. Options:
+% Transform predicate passing arguments. Options and FinalOutput...
 
-transform(Signal, Lib, Id, Outputs, Plugin, Options):-
+transform(Signal, Lib, Id, Outputs, FinalOutputs, Options):-
 	is_list(Options),
 	Signal = signal(Sr, _Data),
 	get_channels(Signal, Ch),
@@ -41,11 +41,11 @@ transform(Signal, Lib, Id, Outputs, Plugin, Options):-
         ((option(parameters(Params), Options, []),!) ; Params=[]),
         ((option(program(Prog), Options, _),!) ; true),
 	vamp_set_parameters(Plugin, Params),
-	set_program(Plugin, Prog).
-
-/**
+	set_program(Plugin, Prog),
+	blockSize(Plugin, Block, BlockSize),
+	stepSize(Plugin, Step, StepSize),
 	vmpl_initialize_plugin(Plugin, Ch, StepSize, BlockSize),
-	vamp_compute_feature2(Signal, StepSize, BlockSize, Indexes, Plugin, FinalOutputs).*/
+	vamp_compute_feature2(Signal, StepSize, BlockSize, Indexes, Plugin, FinalOutputs).
 
 % concats the plugin key
 plugin_key(Lib, Id, Key):-
@@ -119,6 +119,27 @@ set_program(Plugin, Program):-
 	vmpl_select_program(Plugin, Program).
 set_program(_, P):-
 	var(P).
+
+blockSize(P, B, Bs):-
+	vmpl_get_blockSize(P, PB),
+	var(B), nonvar(PB),
+	Bs = PB.
+blockSize(_P, B, Bs):-
+	nonvar(B),
+	Bs=B.
+blockSize(P, B, Bs):-
+	vmpl_get_blockSize(P, PB),
+	var(B), var(PB), Bs is 2048.
+stepSize(P, S, Ss):-
+	vmpl_get_stepSize(P, PS),
+	var(S), nonvar(PS),
+	Ss = PS.
+stepSize(_P, S, Ss):-
+	nonvar(S),
+	Ss=S.
+stepSize(P, S, Ss):-
+	vmpl_get_stepSize(P, PS),
+	var(S), var(PS), Ss is 1024.
 
 %% vamp_compute_feature(+Signal, +StepSize, +BlockSize, +OutputsList, +Plugin, -Feature)
 % Computes the plugin for the given set up returnin the outputs selected in the list. The framing necessary for the processing is done by swiaudio.
