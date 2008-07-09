@@ -24,7 +24,7 @@ builtins:builtin('http://purl.org/ontology/vamp/qm-keydetector',vamp_builtins:ke
 keydetector(Input,Features) :-
 	nonvar(Input),
 	Input = [literal(SR), Sigs],
-	transform(signal(SR,Sigs),'qm-vamp-plugins','qm-keydetector',[key],RF),
+	transform(signal(SR,Sigs),'libqm-vamp-plugins','qm-keydetector',[key],RF),
 	flatten(RF, F),
 	findall([literal(Otp),literal(TS),literal(TE),Key],(member(feature(Otp,timestamp(TS,TE),[Data]),F), to_key(Data, Key)),Features).
 
