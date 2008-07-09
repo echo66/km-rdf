@@ -12,9 +12,9 @@
 :- use_module('musicutils').
 
 builtins:builtin('http://purl.org/ontology/vamp/qm-keydetector',vamp_builtins:keydetector).
-builtins:builtin('http://purl.org/ontology/vamp/qm-mfccparameters',vamp_builtins:mfccparameters).
-builtins:builtin('http://purl.org/ontology/vamp/qm-similarity',vamp_builtins:similarity).
-builtins:builtin('http://purl.org/ontology/vamp/qm-beats',vamp_builtins:beats).
+%builtins:builtin('http://purl.org/ontology/vamp/qm-mfccparameters',vamp_builtins:mfccparameters).
+%builtins:builtin('http://purl.org/ontology/vamp/qm-similarity',vamp_builtins:similarity).
+%builtins:builtin('http://purl.org/ontology/vamp/qm-beats',vamp_builtins:beats).
 
 
 /**
@@ -26,7 +26,7 @@ keydetector(Input,Features) :-
 	Input = [literal(SR), Sigs],
 	transform(signal(SR,Sigs),'qm-vamp-plugins','qm-keydetector',[key],RF),
 	flatten(RF, F),
-	findall([literal(Otp),literal(TS),literal(TE),Key],(member(feature(Otp,timestamp(TS,TE),DataBin),F),data(DataBin,DataL),DataL=[Data], to_key(Data, Key)),Features).
+	findall([literal(Otp),literal(TS),literal(TE),Key],(member(feature(Otp,timestamp(TS,TE),[Data]),F), to_key(Data, Key)),Features).
 
 /**
 	Specific builtins to extract MFCC means and vars from the similarity plugin. Necessary to mix down the input to not confuse the plugin with 2

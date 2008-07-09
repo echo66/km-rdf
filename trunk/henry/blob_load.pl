@@ -1,6 +1,6 @@
 :- module(blob_load,[mem_load/1]).
 
-:- use_module('../swiaudiodata/audiodata').
+:- use_module('../swidata/data').
 
 mem_load(N) :-
         atomic(N),
@@ -9,7 +9,7 @@ mem_load(N) :-
         ((reserve(N),!);true),
         format(atom(File),'~w/~w',[DB,N]),
         format(user_error,'DEBUG: Loading node ~w from ~w\n',[N,File]),
-        data_in(File,N),
+        blob_in(File,N),
         on_backtracking(N).
 mem_load([]) :- !.
 mem_load([H|T]) :-
@@ -23,4 +23,4 @@ reserve(N) :-
 
 
 on_backtracking(_).
-on_backtracking(N) :- clean_data(N),!,fail.
+on_backtracking(N) :- clean_blob(N),!,fail.

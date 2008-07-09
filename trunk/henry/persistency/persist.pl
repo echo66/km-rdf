@@ -2,7 +2,7 @@
 
 
 :- use_module(library('semweb/rdf_db')).
-:- use_module('../swiaudiodata/audiodata').
+:- use_module('../swidata/data').
 :- use_module('persistency/tmp').
 
 :- rdf_register_ns(t,'http://purl.org/ontology/tabling/').
@@ -94,7 +94,7 @@ persist_node(N) :-
 	format(atom(File),'~w/~w',[DB,N]),
 	format(user_error,'DEBUG: Dumping ~w in ~w\n',[N,File]),
 	!,
-	data_out(N,File),clean_node(N).
+	blob_out(N,File),clean_node(N).
 persist_node(_).
 
 clean_node(N) :-
@@ -102,7 +102,7 @@ clean_node(N) :-
         atom_concat('__data',_,N),
         format(user_error,'DEBUG: Spring cleaning of ~w\n',[N]),
         !,
-        clean_data(N).
+        clean_blob(N).
 clean_node(_).
 
 mem_load(N) :-
@@ -112,7 +112,7 @@ mem_load(N) :-
 	((reserve(N),!);true),
 	format(atom(File),'~w/~w',[DB,N]),
 	format(user_error,'DEBUG: Loading node ~w from ~w\n',[N,File]),
-	data_in(File,N),
+	blob_in(File,N),
 	on_backtracking(N).
 mem_load([]) :- !.
 mem_load([H|T]) :-
@@ -121,7 +121,7 @@ mem_load([H|T]) :-
 mem_load(_).
 
 on_backtracking(_).
-on_backtracking(N) :- clean_data(N),!,fail.	
+on_backtracking(N) :- clean_blob(N),!,fail.	
 
 init_persistency :-
 	forall((rdf_db:rdf(_,_,C),atomic(C),atom_concat('__data_',_,C)),reserve(C)),

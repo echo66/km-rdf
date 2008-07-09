@@ -7,8 +7,7 @@
 
 
 :- use_module(library('semweb/rdf_db')).
-:- use_module('../swiaudiodata/audiodata')). %why all prolog operations on blobs are defined there??
-
+:- use_module('../swidata/data')). 
 
 :- dynamic current_db/1.
 
@@ -33,8 +32,8 @@ persist(rdf(S,P,O)) :-
 	rdf_assert(S,P,O).
 
 persist_n(N) :-
-	id_blob(N,_),!,
-	data(N,Data),
+	is_blob(N,_),!,
+	blob_list(N,Data),
 	store_data(N,Data).
 persist(_).
 

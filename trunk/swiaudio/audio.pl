@@ -19,7 +19,7 @@
 :- style_check(-discontiguous).
 :- use_module('../swidata/data').
 :- load_foreign_library(swiaudio). 
-:- use_module(library(pldoc)).
+%:- use_module(library(pldoc)).
 
 						/**************************************
 						********** MODULE PREDICATES **********
