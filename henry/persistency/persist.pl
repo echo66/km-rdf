@@ -108,7 +108,7 @@ clean_node(_).
 mem_load(N) :-
 	atomic(N),
 	atom_concat('__data_',_Id,N),
-	bin_db(DB),\+active_id(N),!,
+	bin_db(DB),\+busy_id(N),!,
 	((reserve(N),!);true),
 	format(atom(File),'~w/~w',[DB,N]),
 	format(user_error,'DEBUG: Loading node ~w from ~w\n',[N,File]),
