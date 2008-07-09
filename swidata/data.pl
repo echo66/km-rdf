@@ -34,7 +34,7 @@
 
 :- style_check(-discontiguous).
 :- load_foreign_library(swidata).
-:- use_module(library(pldoc)).
+%:- use_module(library(pldoc)).
 
 %% reserve_id(+BLOBID) is det
 % reserves the passed id in the database so it can not be assigned to any outcoming blob unless we pass it for unification
@@ -143,7 +143,7 @@ concat_blobs(B1, B2, B3):-
 % Represents the blob as a prolog list. It may crash for very large blobs
 
 blob_list(B, L):-
-	is_blob(B),
+	busy_id(B),
 	blobid_to_list(B, L).
 
 %% list_blob(+List, ?Blob) is det

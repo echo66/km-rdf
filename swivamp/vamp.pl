@@ -89,7 +89,7 @@
 
 :- style_check(-discontiguous).
 :- load_foreign_library(swivamp).
-:- use_module(library(pldoc)).
+%:- use_module(library(pldoc)).
 :- use_module('../swiaudio/audio').
 :- use_module('../swidata/data').
 

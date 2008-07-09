@@ -16,7 +16,6 @@
 :-use_module('../swiaudio/audio').
 :-use_module('../swidata/data').
 :-use_module('vamp').
-%:-use_module('../feature-extractor/fe').
 %:-use_module('../front-end/transform').
 :-use_module(library('option')).
 

@@ -2,7 +2,7 @@
 
 
 :- use_module(library('semweb/rdf_db')).
-:- use_module('../swiaudiodata/audiodata').
+:- use_module('../swidata/data').
 :- use_module(rdf_e).
 :- use_module(namespaces).
 :- use_module(utils).
@@ -79,7 +79,7 @@ persist_node(N) :-
 	format(atom(File),'~w/~w',[DB,N]),
 	format(user_error,'DEBUG: Dumping ~w in ~w\n',[N,File]),
 	%!,
-	data_out(N,File),clean_node(N),!.
+	blob_out(N,File),clean_node(N),!.
 persist_node(_).
 
 clean_node(N) :-
@@ -87,12 +87,12 @@ clean_node(N) :-
         atom_concat('__data',_,N),
         format(user_error,'DEBUG: Spring cleaning of ~w\n',[N]),
         !,
-        clean_data(N).
+        clean_blob(N).
 clean_node(_).
 
 
 on_backtracking(_).
-on_backtracking(N) :- clean_data(N),!,fail.	
+on_backtracking(N) :- clean_blob(N),!,fail.	
 
 init_persistency :-
 	forall((rdf_db:rdf(_,_,C),atomic(C),atom_concat('__data_',_,C)),reserve(C)),
