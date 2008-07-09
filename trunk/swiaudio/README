@@ -11,13 +11,7 @@ The sources of the terms are open source libraries communicating with SWI-Prolog
 
 The list of file extensions supported:
 
-.wav,
- .aif,
- .aiff,
- .mp3,
- .ogg,
- .m4a,
- .aac.
+.wav, .aif, .aiff, .mp3, .ogg, .m4a, .aac.
 
 2. Install
 

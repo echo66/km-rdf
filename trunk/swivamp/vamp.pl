@@ -279,7 +279,7 @@ vamp_plugin_output_metadata(PluginKey, FeatureType, OutputName, Description, Uni
 % Initializes the loaded plugin giving the number of channels and the actual hop and window size for framing
 	
 %% vmpl_process_block(+Plugin, +Frame, +FrameTimeStamp, +ListOfOutputs, -ListOfFeatures) is semidet
-% Process a frame term and returns the outputs queried in the list as a feature terms list
+% Process a frame term and returns the outputs queried in the list as a feature terms list. See vmpl_process_blob_framing/6
 
 vmpl_process_block(Plugin, Frame, timestamp(_Start, _Duration), ListOfOutputs, ListOfFeatures):-
 	Frame = frame(Sr, Init, ListOfBlobids),
@@ -290,7 +290,7 @@ vmpl_process_block(Plugin, Frame, timestamp(_Start, _Duration), ListOfOutputs, L
 	delete(RawFeatures, [], ListOfFeatures).
 
 %% vmpl_process_block_framing(+Plugin, +Signal, +StartSample, +Size, +ListOfOutputs, -ListOfFeatures) is semidet
-% Similar to vmpl_process_block but the framing is done inside the C++ code (actually faster)
+% Similar to vmpl_process_block but the framing is done inside the C++ code (actually faster) so you need to pass the framing parameters. ListOfOutputs is a plain list with the outputs identifiers to retrieve in the process. ListOfFeatures is a list of features of the given frame which is sub-divided into lists for the features of the same type within the input data frame. SparseOutputs data is represented with a list and DenseOutputs use a BLOBID (the swivamp library outputs BLOBIDs for any type).
 
 vmpl_process_block_framing(Plugin, Signal, StartSample, Size, ListOfOutputs, ListOfFeatures):-
 	Signal = signal(Sr, ListOfBlobids),
@@ -302,7 +302,7 @@ vmpl_process_block_framing(Plugin, Signal, StartSample, Size, ListOfOutputs, Lis
 
 %% vmpl_remaining_features(+Plugin, +LastSample, +SampleRate, +ListOfOutputs, -ListOfFeatures) is semidet
 % Retrieves the last features that the plugin may have kept till the end of the process
-% ListOfFeatures is a complex list that...
+
 
 vmpl_remaining_features(Plugin, L, SR, ListOfOutputs, ListOfFeatures):-
 	vmpl_store_remaining(Plugin, L, SR),	
@@ -327,14 +327,11 @@ constrain_feature(L, ST, F):-
 %Sparse output has literals or lists as data representation
 %May constrain the timestamp
 
-format_for_data(_Data, 2, 0, Data2):-
-	Data2 = '__event_'.
+%format_for_data(_Data, 2, 0, Data2):- Data2 = '__event_'.
 
-format_for_data(Data, 2, 1, Data2):-
-	blob_list(Data, [Data2]).
+%format_for_data(Data, 2, 1, Data2):- blob_list(Data, [Data2]).
 
-format_for_data(Data, 2, L, Data2):-
-	L>1,
+format_for_data(Data, 2, _L, Data2):-
 	blob_list(Data, Data2).
 
 %Dense output keeps blobids for data representation
