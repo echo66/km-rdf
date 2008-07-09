@@ -144,9 +144,12 @@ vmpl_frame_to_input(int channels, size_t size, term_t fdata){
 }
 
 /*
- * This predicate converts the information in C code into a Prolog functor feature(Type, timestamp(Start, Duration), BLOBIDDAta)
+ * This predicate converts the information in C code into a Prolog functor feature(Type, timestamp(Start, DurationTRICKY), BLOBIDDAta). The returned term is a list of these features for a given input frame and an output index!
+
  * This still uses something defined in swimo and i may change it to output just the data and create the functor in Prolog, but i think it does not
- * cause many problems as it its now.
+ * cause many problems as it its now. It follows the VAMP recommendations for hosts http://www.vamp-plugins.org/guide.pdf
+
+ * IMPORTANT: Duration of the timestamp is DOUBTFUL!! it has to be interpreted properly afterwards, here we just try to capture all the info possible
  */
 
 term_t
@@ -182,26 +185,41 @@ vmpl_frame_features_to_prolog(Vamp::Plugin::FeatureSet fs, int output, float sta
 				
 				//Different MO::timestamp algorithm for each sample type
 				if(stype==0){
-					//the MO::timestamp of the frame as there is only one feature in the frame
-
+					//the MO::timestamp of the frame as there is only one feature in the frame if there is not timestamp
 					term_t start = PL_new_term_ref();
 					term_t duration = PL_new_term_ref();
 					PL_put_float(start, startf);	
-					PL_put_float(duration, durationf);	
-
+					PL_put_float(duration, durationf);
+					
 					timestamp_functor(start, duration, featurets);
 				}
 				else if(stype==1){
+					//If there is not timestamp
 					//Start: the first one will have the same that the input frame and the rest will increase 1/osr
 					//Duration: constant duration 1/osr	
-				
-					float start_point=startf + (j*(1/osr));
+					
+					//if there is timestamp, we read it instead of the frame
+					if(fl[j].hasTimestamp==1){
+						float d = 0.0f;
+						if(osr!= 0.0f){
+							d = 1/osr;
+						}			
+						term_t start = PL_new_term_ref();
+						term_t duration = PL_new_term_ref();
+						PL_put_float(start, vmpl_timestamp_float(fl[j].timestamp));	
+						PL_put_float(duration, d);
+						timestamp_functor(start, duration, featurets);
+					}else{				
 
-					term_t start = PL_new_term_ref();
-					term_t duration = PL_new_term_ref();
-					PL_put_float(start, start_point);	
-					PL_put_float(duration, 1/osr);		
-					timestamp_functor(start, duration, featurets);
+						float start_point=startf + (j*(1/osr));
+
+						term_t start = PL_new_term_ref();
+						term_t duration = PL_new_term_ref();
+						PL_put_float(start, start_point);	
+						PL_put_float(duration, 1/osr);	
+						timestamp_functor(start, duration, featurets);
+					}	
+					
 				}	
 				else if(stype==2){ 
 					//Start: reads feature.timestamp

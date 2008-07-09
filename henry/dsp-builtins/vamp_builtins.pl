@@ -6,8 +6,7 @@
 
 
 :- use_module('../swivamp/vamp').
-:- use_module('../swivamp/transform').
-:- use_module('../feature-extractor/fe').
+:- use_module('../swivamp/vamp_transform').
 :- use_module('../swidata/data').
 :- use_module('../swiaudio/audio').
 :- use_module('musicutils').
@@ -32,9 +31,9 @@ keydetector(Input,Features) :-
 /**
 	Specific builtins to extract MFCC means and vars from the similarity plugin. Necessary to mix down the input to not confuse the plugin with 2
 	different tracks. Just timbre mode. (note: how to combine different similarities?)
-*/		
 
-%These won't work, but we have to change them anyway
+
+%These wont work, but we have to change them anyway
 mfccparameters(Input, [MLData, VLData]) :-
 	nonvar(Input),
 	Input = [literal(Channels),literal(SR),literal(L),Sigs],
@@ -85,6 +84,8 @@ beats(Input, BeatDetec):-
 	vamp_compute_feature2('Signal'(Channels, SR, L, Sigs), StepSize, BlockSize, [0], Plugin, F),
 	flatten(F, BeatsList),
 	findall(literal(BeatPoint), member('Feature'(_T, 'Timestamp'(BeatPoint, _Res), _NoData), BeatsList), BeatDetec).
+
+*/
 
 to_literal_list([],[]).
 to_literal_list([H|T],[literal(H)|T2]) :-

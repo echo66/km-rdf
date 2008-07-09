@@ -27,7 +27,7 @@ transform(Signal,Lib,Id,Outputs,FinalOutputs):-
 	transform(Signal,Lib,Id,Outputs,FinalOutputs,[]).
 
 %% transform(+Signal, +LibraryId, +PluginId, +ListOfOutputIds, -FinalOutput, +Options) is semidet
-% Transform predicate passing arguments. Options and FinalOutput...
+% Transform predicate passing arguments. Final Output is described in vamp_compute_feature2/6. Options are block and step for framing, parameters where each parameter is a parameter(name, value) functorm and program which is a predefined Vamp setup.
 
 transform(Signal, Lib, Id, Outputs, FinalOutputs, Options):-
 	is_list(Options),
@@ -36,12 +36,13 @@ transform(Signal, Lib, Id, Outputs, FinalOutputs, Options):-
 	plugin_key(Lib, Id, Key),
 	plugin_output_setting(Key, Outputs, Indexes),
 	vmpl_load_plugin(Key, Sr, Plugin),
-	((option(block(Block), Options, _),!) ; (vmpl_get_blockSize(Plugin,Block))),
-        ((option(step(Step), Options, _),!) ; (vmpl_get_stepSize(Plugin,Step))),
-        ((option(parameters(Params), Options, []),!) ; Params=[]),
-        ((option(program(Prog), Options, _),!) ; true),
+	((option(parameters(Params), Options, []),!) ; Params=[]),
+        ((option(program(Prog), Options, _),!) ; true),     
 	vamp_set_parameters(Plugin, Params),
 	set_program(Plugin, Prog),
+	((option(block(Block), Options, _),!) ; (vmpl_get_blockSize(Plugin,Block))),
+        ((option(step(Step), Options, _),!) ; (vmpl_get_stepSize(Plugin,Step))),
+	%preferred sizes for framing can only be retrieved after setting the plugin   
 	blockSize(Plugin, Block, BlockSize),
 	stepSize(Plugin, Step, StepSize),
 	vmpl_initialize_plugin(Plugin, Ch, StepSize, BlockSize),
@@ -142,7 +143,7 @@ stepSize(P, S, Ss):-
 	var(S), var(PS), Ss is 1024.
 
 %% vamp_compute_feature(+Signal, +StepSize, +BlockSize, +OutputsList, +Plugin, -Feature)
-% Computes the plugin for the given set up returnin the outputs selected in the list. The framing necessary for the processing is done by swiaudio.
+% Computes the plugin for the given set up returnin the outputs selected in the list. The framing necessary for the processing is done by swiaudio. See vamp_comput_feature2/6.
 
 vamp_compute_feature(Signal, StepSize, BlockSize, Output, Plugin, WholeFeature):-
 	get_samples_per_channel(Signal, Samples),
@@ -153,7 +154,8 @@ vamp_compute_feature(Signal, StepSize, BlockSize, Output, Plugin, WholeFeature):
 	delete(RawFeatures, [], WholeFeature).
 
 %% vamp_compute_feature2(+Signal, +StepSize, +BlockSize, +OutputsList, +Plugin, -Feature)
-% Computes the plugin for the given set up returnin the outputs selected in the list. The framing necessary for the processing is done in C++ code (is faster than the first version)
+% Computes the plugin for the given set up returning the outputs selected in the list. The framing necessary for the processing is done in C++ code (is faster than the first version). The Feature list is subdivided in list as explained in vamp_process_block_framing/6. 
+% [[FeaturesDataFrame1]|...] where each list is [[FeaturesForThisFrameAndThisOutput]|...] where each list is [feature(Type, timestamp(S, D), Data)|...] and Data is a BLOBID for dense outputs and a list for sparse outputs.
 
 vamp_compute_feature2(Signal, StepSize, BlockSize, Output, Plugin, WholeFeature):-
 	get_samples_per_channel(Signal, Samples),
