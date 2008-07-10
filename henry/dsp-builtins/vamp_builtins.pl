@@ -11,11 +11,35 @@
 :- use_module('../swiaudio/audio').
 :- use_module('musicutils').
 
+builtins:builtin('http://purl.org/ontology/vamp/transform',vamp_builtins:vamp_transform).
 builtins:builtin('http://purl.org/ontology/vamp/qm-keydetector',vamp_builtins:keydetector).
 %builtins:builtin('http://purl.org/ontology/vamp/qm-mfccparameters',vamp_builtins:mfccparameters).
 %builtins:builtin('http://purl.org/ontology/vamp/qm-similarity',vamp_builtins:similarity).
 %builtins:builtin('http://purl.org/ontology/vamp/qm-beats',vamp_builtins:beats).
 
+
+/** 
+	General builtin for transforms using vamp plugins
+	
+	Input is an N3 list (pluginuri, input, outputs, optionslist)
+	Output is ...
+
+	FData is a list for sparse output for each feature term and a BLOBID for dense output. We need to do something with this output...
+	It is still organized by frames of input data and for each of those lists there are sublists for each type of feature.
+	
+	[[[Frame1Feature1List]|...]|]
+*/
+vamp_transform(Transform, F):-
+	nonvar(Transform),
+	Transform = [literal(PluginURI), Input, OutputsList, OptionsList],
+	Input = [literal(SR), Sigs],
+	atom_concat('http://purl.org/ontology/vamp/', LibPlug, PluginURI),
+	concat_atom([LibID, PluginID], '/', LibPlug),
+	to_prolog_list(OutputsList, Outputs),
+	OptionsList = [],
+	transform(signal(SR,Sigs), LibID, PluginID, Outputs, RF),
+	flatten(RF, F).
+	%findall([literal(Otp),literal(TS),literal(TE), FData],member(feature(Otp,timestamp(TS,TE),[Data]),F),Features).
 
 /**
 	Outputs a to:key. I still need to put some rules for the feature output (lists against blobs and timestamps)
@@ -90,4 +114,8 @@ beats(Input, BeatDetec):-
 to_literal_list([],[]).
 to_literal_list([H|T],[literal(H)|T2]) :-
 	to_literal_list(T,T2).
+
+to_prolog_list([], []).
+to_prolog_list([literal(H)|T], [H|T2]):-
+	to_prolog_list(T, T2).
 
