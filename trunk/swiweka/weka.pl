@@ -1,6 +1,9 @@
 /**	
 	SWI-Prolog/Weka module. This module provides a quite rough set of predicates to interact with the WEKA API and deal with ARFF files.
-	This module is loaded by classification.pl which provides a framework to use it properly.
+	
+	This module is loaded by the classification front end which provides a framework to use it properly.
+
+	This module defines the general and more important predicates. There are more useful predicates spread in the specific sources which are named according to its functionality. 
 
 	Centre for Digital Music, Queen Mary, University of London.
 	Copyright (c) 2008 David Pastor Escuredo and QMUL.
@@ -106,6 +109,26 @@
 %% wkpl_create_arff(+FilePath, +Name, +NumAttributes, +NomAttributes, +Capacity, +ListOfInstances) is semidet
 %% Writes and ARFF file given the elements of the data set (This is deprecated) 
 
+%% wkpl_classifier(?ClassifierName) is nondet
+% Checks for classifiers in the WEKA API. The classifier name is its Java class name.
 
+%% wkpl_filter(?FilterName) is nondet
+% Checks for filters in the WEKA API.
 
+%% wkpl_clusterer(?Clusterer) is nondet
+% Checks for clusterers in the WEKA API.
 
+%% wkpl_resource(?Resource) is nondet
+% Checks for any WEKA API resource.
+
+%% wkpl_resource_packages(?Resource, ?Package, ?Type) is nondet
+% Checks the relationships between resources, packages and also the family of the resource in the package hierarchy
+
+%% wkpl_stratify_dataSet(+Instances, +Folds) is semidet
+% Stratifies a dataset given the number of folds for cross-validation
+
+%% wkpl_create_testSet(+Instances, +NumberFolds, +Fold, -TestSet) is semidet
+% Creates a test set for the given parameters
+
+%% wkpl_create_trainSet(+Instances, +NumberFolds, +Fold, -TrainSet) is semidet
+% Creates a training set for the given parameters
