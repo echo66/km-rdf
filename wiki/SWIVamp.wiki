@@ -31,6 +31,14 @@ To run swivamp from Prolog, you need to set and compile the following modules in
 -Download the vamp-sdk from the vamp plugin site and set the folder in your swivamp path
 -Download vamp plugins libraries and set them in one of the preferred plugins paths
 
+= Running =
+
+This Prolog host is developed in two submodules: vamp and vamp_transform. The first can be loaded from the Prolog prompt and allows interactive communication with the Vamp Plugins, so the user can control the plugin lifecycle and call any plugin method from the prompt.
+
+The latter builds a transform/6 predicate on top of vamp.pl that hides the actual procedure followed to extract vamp features. The user can easily and efficiently retrieve outputs as a complex list of feature terms.
+
+To check modules specification, call doc_server/1 after loading the module.
+
 = Status =
 
 At this point, this version 1.0 is stable and works for existing plugins using the sdk 1.2. There is still some ongoing work to provide a better and clearer front-end of the transform predicate and structure of the plugin outputs
