@@ -6,7 +6,8 @@
 	This program imports classifiers which is a program to define specific-classifier predicates that will be hide within this program using the 
 	same name for any of them.
 
-	David Pastor Escuredo, c4dm, Queen Mary, 2008.
+	Centre for Digital Music, Queen Mary, University of London.
+	Copyright (c) 2008 David Pastor Escuredo and QMUL
 	*/
 
 :-[dataSet].

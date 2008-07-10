@@ -1,6 +1,8 @@
 /**
 	Module to manage Weka::FastVector
-	David Pastor 2008
+	
+	Centre for Digital Music, Queen Mary, University of London.
+	Copyright (c) 2008 David Pastor Escuredo and QMUL.
 */
 
 :-[jpl_weka].

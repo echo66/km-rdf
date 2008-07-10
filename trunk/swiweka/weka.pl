@@ -1,11 +1,11 @@
-/**
-	
+/**	
 	SWI-Prolog/Weka module. This module provides a quite rough set of predicates to interact with the WEKA API and deal with ARFF files.
 	This module is loaded by classification.pl which provides a framework to use it properly.
 
-	David Pastor Escuredo 2008,
-	Centre for Digital Music, Queen Mary	
-	*/
+	Centre for Digital Music, Queen Mary, University of London.
+	Copyright (c) 2008 David Pastor Escuredo and QMUL.
+*/	
+	 
 
 :-module(weka, [	wkpl_fastVector/1
 		,	wkpl_fastVector/2
@@ -50,37 +50,62 @@
 
 :- style_check(-discontiguous).
 
-/**loading interface written in JPL**/
+%%loading interface written in JPL* 
 :-[runclassification].
 :-[dataSet].
 :-[arffFiles].
 
-/** FAST VECTORS **/
+%% wkpl_fastVector(-FastVector) is det
+% Constructs an empty WEKA::FastVector
 
-/**
-	wkpl_fastVector(-FastVector): constructs empty fast vector
-*/
+%% wkpl_fastVector(-FastVector, +Capacity) is det
+% Constructs a fast vector with the given capacity
+ 
+%% wkpl_fastVector_add(+FastVector, +Element) is semidet
+% Adds a valid element at the end of the fast vector
 
-/**
-	wkpl_fastVector(-FastVector, +Capacity): constructs a fast vector with the given capacity
-*/
+%% wkpl_fastVector_addList(+FastVector, +ListOfElements) is semidet
+% Adds a list of elements (JPL references or datums, check JPL doc).
 
-/**
-	wkpl_fastVector_add(+FastVector, +Element): add
-*/
+%% wkpl_create_empty_dataSet(+Name, -Dataset) is det
+% Creates an Instances object completely empty. Only the dataset name.
 
-/**
-	wkpl_fastVector_addList(+FastVector, +ListOfElements): add list
-*/
+%% wkpl_add_attribute(+Dataset, +Attribute, +Pos) is semidet
+% Sets an attribute (JPL referece to an attribute object) in the given position
 
-/** ARFF FILES **/
+%% wkpl_set_class(+Dataset, +Attribute) is semidet
+% Sets the attribute (JPL reference) as class for classification of the dataset
 
-/** read:
-		wkpl_read_arff(+ArffFilePath, -Instances)
-**/
+%% wkpl_set_classIndex(+Dataset, +Index) is semidet
+% The same but passing the index of the attribute
 
-/** write:
-		wkpl_write_arff(+ArffFilePath, +Instances)
+%% wkpl_fill_dataSet(+Dataset, +ListOfRecords) is semidet
+% Fills the dataset with the list of records (Instance objects) passed as a list: [Record1|...] where Record1 = [ValueAt1, ValueAt2, ...]
 
-		wkpl_create_arff(+FilePath, +Name, +NumAttributes, +NomAttributes, +Capacity, +ListOfInstances)
-**/
+%% wkpl_attribute_nominal(+Name, +ListOfValuesRange, -Attribute) is semidet
+% Returns a JPL ref to a nominal attribute given the name and the range of values. e.g. x_x_x(weather, [sunny, cloudy, warm], At).
+
+%% wkpl_attribute_numerical(+Name, -Attribute) is semidet
+% Returns an object wrapping a numerical attribute given its name
+
+%% wkpl_attribute_string(+Name, -Attibute) is semidet
+% A string attribute is returned given its name
+
+%% wkpl_attribute_date(+Name, +Date, -Attribute) is semidet
+% Creates a date attribute given the name an a date in a correct format
+
+%% wkpl_attribute_relation(+Name, +Instances, -Attribute) is semidet
+% Creates an attribute given a dataset and the name
+
+%% wkpl_read_arff(+ArffFilePath, -Instances) is semidet
+% Gets the dataset written in the ARFF file and wraps into a JPL reference (an Instances object) 
+
+%% wkpl_write_arff(+ArffFilePath, +Instances) is semidet
+% Writes an Instances object as JPL reference into an ARFF file
+
+%% wkpl_create_arff(+FilePath, +Name, +NumAttributes, +NomAttributes, +Capacity, +ListOfInstances) is semidet
+%% Writes and ARFF file given the elements of the data set (This is deprecated) 
+
+
+
+

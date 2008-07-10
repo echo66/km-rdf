@@ -5,8 +5,8 @@
 		-Try to get a better format for names instead of the classnames.
 		-What to do with the non common stuff?
 
-	David Pastor 
-	2008, c4dm, Queen Mary
+	Centre for Digital Music, Queen Mary, University of London.
+	Copyright (c) 2008 David Pastor Escuredo and QMUL.
 */
 
 :-[jpl_weka].

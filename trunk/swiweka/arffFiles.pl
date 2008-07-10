@@ -1,7 +1,9 @@
 /**
 	Interface to deal with ARFF files.
 	ToDo: add other formats ACE/XML from jmir and databases or whatever...
-	David Pastor Escuredo, 2008, C4DM, Queen Mary.
+	
+	Centre for Digital Music, Queen Mary, University of London.
+	Copyright (c) 2008 David Pastor Escuredo and QMUL.
 */
 
 :- [dataSet].

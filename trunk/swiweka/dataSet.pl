@@ -7,7 +7,8 @@
 	ToDo: seems alright
 	It would be useful to extend this, but should be done as we need it.
 	
-	David Pastor 2008, c4dm, Queen Mary, Universtiy of London
+	Centre for Digital Music, Queen Mary, University of London.
+	Copyright (c) 2008 David Pastor Escuredo and QMUL.
 */
 
 :-[jpl_weka].	
@@ -37,7 +38,8 @@
 
 	Note: This predicate establishes an order numerical / nominal-string attributes. We can create it empty and fill it as we want.
 	Note: Other attributes can be added later on with the wkpl_add_xxx predicates, but always before filling the dataset with the data.
-	*/
+
+*/
 
 wkpl_create_dataSet(Name, AtVector, Capacity, Instances):-
 	wkpl_new_argsType_array(3, Args),
