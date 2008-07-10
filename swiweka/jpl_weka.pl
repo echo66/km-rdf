@@ -1,7 +1,9 @@
 /**
 	This is a prolog file defining more jpl utils that make easier dealing with the interface. It is mainly oriented to create instances. 
 	Need to set correctly paths in wkpl_weka_loader
-	David Pastor 2008.
+	
+	Centre for Digital Music, Queen Mary, University of London.
+	Copyright (c) 2008 David Pastor Escuredo and QMUL.
 */
 
 :- style_check(-discontiguous).
