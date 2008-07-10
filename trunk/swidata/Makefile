@@ -1,5 +1,6 @@
 # Makefile for swidata
 # David Pastor Escuredo 2008
+# Works fine for Linux, not tested for MAC OS/X nor Windows
 
 CC = gcc # C compile
 CPP = g++ # C++ compiler
@@ -10,13 +11,9 @@ CFLAGS = -Wall -fPIC
 # Define your platform-specific options here
 #############################################################
 
-swi_dir = /usr/local/lib/pl-5.6.50
-
 swiaudiodata_dir = .
 swilib_dir = ../swilib
 
-lib_suf = .so
-obj_suf = .o
 #######################################################################
 
 #Headers
@@ -27,8 +24,8 @@ INCLUDE= 		-I$(swi_dir)/include/ \
 			
 #Libraries
 
-LIB = 	$(swilib_dir)/swiaudioblob.so \
-	$(swilib_dir)/blobid.so
+LIB = 	$(swilib_dir)/swiaudioblob.$(lib_suf) \
+	$(swilib_dir)/blobid.$(lib_suf)
 
 #Sources
 
@@ -38,13 +35,13 @@ SWI_BIDOP = blobidOperations.cpp
 
 #Objects
 
-OBJ_ABPL = abpl.o
-OBJ_BID = blobid.o
-OBJ_BIDO = blobidop.o
+OBJ_ABPL = abpl.$(obj_suf)
+OBJ_BID = blobid.$(obj_suf)
+OBJ_BIDO = blobidop.$(obj_suf)
 
 #DLIB
 
-AUDIODATA = swidata.so
+AUDIODATA = swidata.$(lib_suf)
 
 #Targets
 all : $(AUDIODATA)
@@ -59,10 +56,10 @@ $(OBJ_BIDO) :
 	$(CPP) -c $(CFLAGS) $(INCLUDE) $(SWI_BIDOP) -o $(OBJ_BIDO)
 
 $(AUDIODATA) : $(OBJ_ABPL) $(OBJ_BID) $(OBJ_BIDO) Makefile
-	$(CPP) -shared $(LIB) $(OBJ_ABPL) $(OBJ_BID) $(OBJ_BIDO) -o $(AUDIODATA) 
+	$(CPP) $(dynlib_com) $(LIB) $(OBJ_ABPL) $(OBJ_BID) $(OBJ_BIDO) -o $(AUDIODATA) 
 
 clean :
-	rm *.o *.so
+	rm *.$(obj_suf) *.$(lib_suf)
 
 
 
