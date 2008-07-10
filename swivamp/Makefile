@@ -1,5 +1,6 @@
-# Makefile for swivamp: Interface to wrap Vamp plugins into SWI-Prolog (Linux)
+# Makefile for swivamp
 # David Pastor Escuredo 2008
+# Works fine for Linux, not tested for MAC OS/X nor Windows
 
 CC = gcc # C compile
 CPP = g++ # C++ compiler
@@ -20,16 +21,16 @@ vamp_host_dir = vamp-sdk/hostext
 swilib_dir = ../swilib
 
 suf = so
-SWIVAMP_LIB = $(swivamp_dir)/vampswi.$(suf)
+SWIVAMP_LIB = $(swivamp_dir)/vampswi.$(lib_suf)
 
 
 #######################################################################
 
 #Libraries
 
-LIBS_SWIVAMP = 	$(vamp_dir)/libvamp-hostsdk.$(suf) \
-		$(swilib_dir)/swiaudioblob.$(suf) \
-		$(swilib_dir)/blobid.$(suf)
+LIBS_SWIVAMP = 	$(vamp_dir)/libvamp-hostsdk.$(lib_suf) \
+		$(swilib_dir)/swiaudioblob.$(lib_suf) \
+		$(swilib_dir)/blobid.$(lib_suf)
 
 #Headers
 INCLUDE_SWIVAMP = -I$(swi_dir)/include \
@@ -48,13 +49,13 @@ VAMP_PLUGIN = swivampplugin.cpp
 
 #Objects
 
-OBJ_SWIVAMP = swivamp.o
-OBJ_VAMPHOST = swivamphost.o
-OBJ_VAMPPLUGIN = swivampplugin.o
+OBJ_SWIVAMP = swivamp.$(obj_suf)
+OBJ_VAMPHOST = swivamphost.$(obj_suf)
+OBJ_VAMPPLUGIN = swivampplugin.$(obj_suf)
 
 #DLIB
 
-SWI_VAMP = swivamp.$(suf)
+SWI_VAMP = swivamp.$(lib_suf)
 
 #Targets
 all : $(SWI_VAMP)
@@ -69,10 +70,10 @@ $(OBJ_SWIVAMP) :
 	$(CPP) -c $(CFLAGS) $(INCLUDE_SWIVAMP) $(VAMP_LIB) -o $(OBJ_SWIVAMP)
 
 $(SWI_VAMP) : $(OBJ_SWIVAMP) $(OBJ_VAMPHOST) $(OBJ_VAMPPLUGIN) Makefile
-	$(CPP) -shared $(LIBS_SWIVAMP) $(OBJ_SWIVAMP) $(OBJ_VAMPHOST) $(OBJ_VAMPPLUGIN) -o $(SWI_VAMP) 
+	$(CPP) $(dynlib_com) $(LIBS_SWIVAMP) $(OBJ_SWIVAMP) $(OBJ_VAMPHOST) $(OBJ_VAMPPLUGIN) -o $(SWI_VAMP) 
 
 clean :
-	rm -f *.o *.so 
+	rm -f *.$(obj_suf) *.$(lib_suf) 
 
 
 

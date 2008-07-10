@@ -15,14 +15,14 @@ swi_dir = /usr/local/lib/pl-5.6.50
 sim_dir = .
 swilib_dir = ../swilib
 
-SIM_LIB = $(sim_dir)/similarity.so
+SIM_LIB = $(sim_dir)/similarity.$(lib_suf)
 
 #######################################################################
 
 #Libraries
 
-LIBS_SIM = $(swilib_dir)/blobid.so \
-	$(swilib_dir)/swiaudioblob.so 
+LIBS_SIM = $(swilib_dir)/blobid.$(lib_suf) \
+	$(swilib_dir)/swiaudioblob.$(lib_suf) 
 		
 #Headers
 INCLUDE_SIM = -I$(swi_dir)/include/ \
@@ -37,12 +37,12 @@ SB_SIM = sbsimilarity.cpp
 
 #Objects
 
-OBJ_SBSIM = sbsimilarity.o
+OBJ_SBSIM = sbsimilarity.$(obj_suf)
 
 
 #DLIB
 
-SWI_SIM = similarity.so
+SWI_SIM = similarity.$(lib_suf)
 
 #Targets
 all : $(SWI_SIM)
@@ -51,10 +51,10 @@ $(OBJ_SBSIM) :
 	$(CPP) -c $(CFLAGS) $(INCLUDE_SIM) $(SB_SIM) -o $(OBJ_SBSIM)
 
 $(SWI_SIM) : $(OBJ_SBSIM) Makefile
-	$(CPP) -shared $(LIBS_SIM) $(OBJ_SBSIM) -o $(SWI_SIM)
+	$(CPP) $(dynlib_com) $(LIBS_SIM) $(OBJ_SBSIM) -o $(SWI_SIM)
 
 clean :
-	rm -f *.o *.so 
+	rm -f *.$(obj_suf) *.$(lib_suf) 
 
 
 

@@ -1,5 +1,6 @@
-# Makefile for swiaudio
+# Makefile for swiaudio 
 # David Pastor Escuredo 2007
+# Works fine for Linux, not tested for MAC OS/X nor Windows
 
 CC = gcc # C compile
 CPP = g++ # C++ compiler
@@ -10,32 +11,30 @@ CFLAGS = -Wall -fPIC
 # Define your platform-specific options here. For non-linux machines, some more arrangements should be done!
 #######################################################################
 
-swi_dir = /usr/local/lib/pl-5.6.50
-
 swiaudio_dir = .
 
 swilib_dir = ../swilib
 
-SWAUDIOSOURCE_LIB = $(swiaudiosource_dir)/swiaudio.so
+SWAUDIOSOURCE_LIB = $(swiaudiosource_dir)/swiaudio.$(lib_suf)
 
 #######################################################################
 
 #Libraries
 
-LIB_MAD = /usr/lib/libmad.so \
-	/usr/lib/libQtCore.so \
-	$(swilib_dir)/blobid.so
+LIB_MAD = /usr/lib/libmad.$(lib_suf) \
+	/usr/lib/libQtCore.$(lib_suf) \
+	$(swilib_dir)/blobid.$(lib_suf)
 
-LIB_OGGVORBIS = /usr/lib/libfishsound.so \
-		/usr/lib/liboggz.so \
-		$(swilib_dir)/blobid.so
+LIB_OGGVORBIS = /usr/lib/libfishsound.$(lib_suf) \
+		/usr/lib/liboggz.$(lib_suf) \
+		$(swilib_dir)/blobid.$(lib_suf)
 
-LIB_SNDFILE = /usr/lib/libsndfile.so \
-		$(swilib_dir)/blobid.so
+LIB_SNDFILE = /usr/lib/libsndfile.$(lib_suf) \
+		$(swilib_dir)/blobid.$(lib_suf)
 
-LIB_FAAD = /usr/lib/libfaad.so \
-		/usr/lib/libmp4ff.so \
-		$(swilib_dir)/blobid.so
+LIB_FAAD = /usr/lib/libfaad.$(lib_suf) \
+		/usr/lib/libmp4ff.$(lib_suf) \
+		$(swilib_dir)/blobid.$(lib_suf)
 
 #Headers
 INCLUDE= 		-I$(swi_dir)/include/ \
@@ -63,16 +62,16 @@ SWI_FAAD = swifaad.cpp
 SWI_AACDECODE = faadDecode.cpp
 
 #Objects
-OBJ_SWIMAD = swimad.o
-OBJ_SWIOGGVORBIS = swioggvorbis.o
-OBJ_SWISNDFILE = swisndfile.o
-OBJ_UTILS = aspl.o
-OBJ_SWIFAAD = swifaad.o
-OBJ_AACDECODE = swiaacdecode.o
+OBJ_SWIMAD = swimad.$(obj_suf)
+OBJ_SWIOGGVORBIS = swioggvorbis.$(obj_suf)
+OBJ_SWISNDFILE = swisndfile.$(obj_suf)
+OBJ_UTILS = aspl.$(obj_suf)
+OBJ_SWIFAAD = swifaad.$(obj_suf)
+OBJ_AACDECODE = swiaacdecode.$(obj_suf)
 
 #DLIB
-FAAD_SWI = swifaad.so
-AUDIOSOURCE_SWI = swiaudio.so
+FAAD_SWI = swifaad.$(lib_suf)
+AUDIOSOURCE_SWI = swiaudio.$(lib_suf)
 
 #Targets
 all : $(AUDIOSOURCE_SWI)
@@ -96,14 +95,14 @@ $(OBJ_AACDECODE) :
 	$(CPP) -c $(CFLAGS) $(INCLUDE_SWIFAAD) $(SWI_AACDECODE) -o $(OBJ_AACDECODE)
 
 $(FAAD_SWI) : $(OBJ_AACDECODE) $(OBJ_SWIFAAD)
-	$(CPP) --shared $(LIB_FAAD) $(OBJ_SWIFAAD) $(OBJ_AACDECODE) -o $(FAAD_SWI)
+	$(CPP) -$(dynlib_com) $(LIB_FAAD) $(OBJ_SWIFAAD) $(OBJ_AACDECODE) -o $(FAAD_SWI)
 
 $(AUDIOSOURCE_SWI) : $(OBJ_SWIOGGVORBIS) $(OBJ_SWISNDFILE) $(OBJ_SWIMAD) $(OBJ_UTILS) $(OBJ_AACDECODE) $(OBJ_SWIFAAD) Makefile
-	$(CPP) -shared $(LIB_MAD) $(LIB_OGGVORBIS) $(LIB_FAAD) $(LIB_SNDFILE) $(OBJ_UTILS) $(OBJ_SWIOGGVORBIS) $(OBJ_AACDECODE) $(OBJ_SWIFAAD) $(OBJ_SWISNDFILE) $(OBJ_SWIMAD) -o $(AUDIOSOURCE_SWI) 
+	$(CPP) $(dynlib_com) $(LIB_MAD) $(LIB_OGGVORBIS) $(LIB_FAAD) $(LIB_SNDFILE) $(OBJ_UTILS) $(OBJ_SWIOGGVORBIS) $(OBJ_AACDECODE) $(OBJ_SWIFAAD) $(OBJ_SWISNDFILE) $(OBJ_SWIMAD) -o $(AUDIOSOURCE_SWI) 
 
 
 clean :
-	rm *.o *.so
+	rm *.$(obj_suf) *.$(lib_suf)
 
 
 

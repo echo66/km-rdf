@@ -1,5 +1,6 @@
-# Makefile for 
+# Makefile for swilib 
 # David Pastor Escuredo 2007
+# Works fine for Linux, not tested for MAC OS/X nor Windows
 
 CC = gcc # C compile
 CPP = g++ # C++ compiler
@@ -10,13 +11,9 @@ CFLAGS = -Wall -fPIC
 # Define your platform-specific options here
 #######################################################################
 
-swi_dir = /usr/local/lib/pl-5.6.50
 
 swilib_dir = .
 
-lib_suf = .so
-mac_lib_suf = .dylib
-obj_suf = o
 #######################################################################
 
 #Headers
@@ -27,7 +24,7 @@ INCLUDE= 		-I$(swi_dir)/include/ \
 			
 #Library
 
-LIB = /usr/lib/libQtCore.so 
+LIB = /usr/lib/libQtCore.$(lib_suf)
 
 #Sources
 SWI_AUDIOBLOB = swiaudioblob.cpp
@@ -35,13 +32,13 @@ B_ID = blobid.cpp
 
 #Objects
 
-OBJ_AUDIOBLOB = swiaudioblob.$(obj_suf)
-OBJ_BI = blobid.$(obj_suf)
+OBJ_AUDIOBLOB = swiaudioblob.o
+OBJ_BI = blobid.o
 
 #DLIB
 
-AUDIOBLOB = swiaudioblob.so
-BLOBID = blobid.so
+AUDIOBLOB = swiaudioblob.$(lib_suf)
+BLOBID = blobid.$(lib_suf)
 
 #Targets
 all : $(AUDIOBLOB) $(BLOBID)
@@ -53,13 +50,13 @@ $(OBJ_BI) :
 	$(CPP) -c $(CFLAGS) $(INCLUDE) $(B_ID) -o $(OBJ_BI)
 
 $(AUDIOBLOB) : $(OBJ_AUDIOBLOB) Makefile
-	$(CPP) -shared $(OBJ_AUDIOBLOB) -o $(AUDIOBLOB) 
+	$(CPP) $(dynlib_com) $(OBJ_AUDIOBLOB) -o $(AUDIOBLOB) 
 
 $(BLOBID) : $(OBJ_BI) Makefile
-	$(CPP) -shared $(LIB) $(OBJ_BI) -o $(BLOBID)
+	$(CPP) $(dynlib_com) $(LIB) $(OBJ_BI) -o $(BLOBID)
 
 clean :
-	rm *.o *.so
+	rm *.$(obj_suf) *.$(lib_suf)
 
 
 
