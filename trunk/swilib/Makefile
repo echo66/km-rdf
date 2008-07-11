@@ -18,13 +18,12 @@ swilib_dir = .
 
 #Headers
 INCLUDE= 		-I$(swi_dir)/include/ \
-			-I/usr/include/qt4/Qt/ \
-			-I/usr/include/qt4/ \
+			$(qt_include) \
 			-I$(swilib_dir)/
 			
 #Library
 
-LIB = /usr/lib/libQtCore.$(lib_suf)
+LIB = $(qt_lib)
 
 #Sources
 SWI_AUDIOBLOB = swiaudioblob.cpp

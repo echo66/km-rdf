@@ -28,8 +28,6 @@ LIBS_SWIL = $(swilib_dir)/swimo.so \
 #Headers
 INCLUDE_SWIL = -I$(swi_dir)/include \
 	-I$(swiladspa_dir) \
-	-I/usr/include/qt4/Qt \
-	-I/usr/include/qt4 \
 	-I$(swilib_dir) 
 
 #Sources
