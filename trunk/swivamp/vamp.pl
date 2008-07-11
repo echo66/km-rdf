@@ -2,10 +2,8 @@
 	This is the Prolog bridge to the Vamp Plugins API, written by
 	Chris Cannam for the c4dm at Queen Mary University of London.
 	Thus, it is possible to deal with the plugins from a SWI-Prolog machine.
-	David Pastor Escuredo 2007 for c4dm, Queen Mary, University of London
- 
-
-	It loads the shared library "swivamp.so" containing the Vamp/SWI-Prolog interface that integrates the host definition libvamp-hostsdk (Chris 		Cannam). Some of the main concepts of the this interface are inherited from this host defintion. Check http://www.vamp-plugins.org/code-doc/
+	
+	It loads the shared library "swivamp.so" containing the Vamp/SWI-Prolog interface that integrates the host definition libvamp-hostsdk (Chris 		Cannam). Some of the main concepts of the this interface are inherited from this host defintion. Check <www.vamp-plugins.org/>
 	
 	There are two types of names:
 
@@ -13,7 +11,14 @@
 
 		vmpl_xxx These should be part of a bigger query (but maybe they can be called isolated). They are the plain interface (see source). These predicates handle a Prolog atom identifying a working instance (__plugin::vamp_id)
 
-	*/
+
+	Centre for Digital Music, Queen Mary, University of London.
+	Copyright (c) 2008 David Pastor Escuredo and QMUL.
+
+	@author David Pastor Escuredo	
+	@license GPL
+	@version 1.0
+*/
 
 :- module(vamp,[
 
@@ -291,6 +296,7 @@ vmpl_process_block(Plugin, Frame, timestamp(_Start, _Duration), ListOfOutputs, L
 
 %% vmpl_process_block_framing(+Plugin, +Signal, +StartSample, +Size, +ListOfOutputs, -ListOfFeatures) is semidet
 % Similar to vmpl_process_block but the framing is done inside the C++ code (actually faster) so you need to pass the framing parameters. ListOfOutputs is a plain list with the outputs identifiers to retrieve in the process. ListOfFeatures is a list of features of the given frame which is sub-divided into lists for the features of the same type within the input data frame. SparseOutputs data is represented with a list and DenseOutputs use a BLOBID (the swivamp library outputs BLOBIDs for any type).
+% deprecated vmpl_process_block_framing/6
 
 vmpl_process_block_framing(Plugin, Signal, StartSample, Size, ListOfOutputs, ListOfFeatures):-
 	Signal = signal(Sr, ListOfBlobids),
