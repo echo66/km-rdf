@@ -26,11 +26,7 @@ export obj_suf:= o
 export dynlib_com:= -shared
 #export dynlib_com = -dynamiclib $(libpl_path)/libpl.dylib
 
-############# YOUR SWI PATH ###############
-export swi_dir:= /usr/local/lib/pl-5.6.50
-
-#export swi_lib_dir:-
-# for mac os/x u need to link the libpl library
+###################################################
 all: swidsp
 
 swidata:

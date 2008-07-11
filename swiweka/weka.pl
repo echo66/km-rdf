@@ -58,7 +58,7 @@
 :- style_check(-discontiguous).
 
 %loading interface written in JPL
-:-use_module(library(pldoc)). 
+%:-use_module(library(pldoc)). 
 :-[runclassification].
 :-[dataSet].
 :-[arffFiles].
