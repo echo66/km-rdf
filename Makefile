@@ -10,7 +10,7 @@ export swi_dir:= /usr/local/lib/pl-5.6.50
 #export libpl_path:= /home/david/master/lib/libpl.so
 
 
-### QT LIB ###
+### QT LIB ### try to remove it
 
 export qt_lib:= /usr/lib/libQtCore.so
 export qt_include:= -I/usr/include/qt4/Qt/ \

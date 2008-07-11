@@ -34,9 +34,8 @@ LIBS_SWIVAMP = 	$(vamp_dir)/libvamp-hostsdk.$(lib_suf) \
 
 #Headers
 INCLUDE_SWIVAMP = -I$(swi_dir)/include \
-	-I/usr/include/qt4/Qt \
-	-I/usr/include/qt4 \
 	-I$(vamp_dir) \
+	$(qt_include) \
 	-I$(vamp_host_dir) \
 	-I$(swilib_dir) \
 	-I$(swivamp_dir)

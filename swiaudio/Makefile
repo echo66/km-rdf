@@ -22,7 +22,7 @@ SWAUDIOSOURCE_LIB = $(swiaudiosource_dir)/swiaudio.$(lib_suf)
 #Libraries
 
 LIB_MAD = /usr/lib/libmad.$(lib_suf) \
-	/usr/lib/libQtCore.$(lib_suf) \
+	$(qt_lib) \
 	$(swilib_dir)/blobid.$(lib_suf)
 
 LIB_OGGVORBIS = /usr/lib/libfishsound.$(lib_suf) \
@@ -38,8 +38,7 @@ LIB_FAAD = /usr/lib/libfaad.$(lib_suf) \
 
 #Headers
 INCLUDE= 		-I$(swi_dir)/include/ \
-			-I/usr/include/qt4/Qt/ \
-			-I/usr/include/qt4/ \
+			$(qt_include) \
 			-I$(swilib_dir)/
 
 INCLUDE_SWIMAD = $(INCLUDE)
