@@ -108,7 +108,7 @@ wkpl_classify_instance_of(ListOfInstances, Classifier, Result):-
 	wkpl_classify_instance(Instance, Classifier, Result).
 	
 /**
-	Distribution fro instance. The result is a distribution (array of doubles).
+	Distribution for instance. The result is a distribution (array of doubles).
 	This is a method of the classes that are sublclasses of DistributionClassifier
 	*/
 
