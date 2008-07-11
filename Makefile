@@ -6,10 +6,15 @@
 ############# YOUR SWI PATH ###############
 export swi_dir:= /usr/local/lib/pl-5.6.50
 
-#Your path to the libpl
-#export libpl_path:= /home/david/master/lib
+#Your path to the libpl (not necessary for Linux)
+#export libpl_path:= /home/david/master/lib/libpl.so
 
-### You may need to set paths to your other libraries, mainly qt
+
+### QT LIB ###
+
+export qt_lib:= /usr/lib/libQtCore.so
+export qt_include:= -I/usr/include/qt4/Qt/ \
+			-I/usr/include/qt4/
 
 ############# PLATFORM DEPENDENCIES ############
 export lib_suf:= so
@@ -19,7 +24,7 @@ export lib_suf:= so
 export obj_suf:= o
 
 export dynlib_com:= -shared
-#export dynlib_com = -dynamiclib $(libpl_path)/libpl.$(lib_suf)
+#export dynlib_com = -dynamiclib $(libpl_path)/libpl.dylib
 
 ############# YOUR SWI PATH ###############
 export swi_dir:= /usr/local/lib/pl-5.6.50
