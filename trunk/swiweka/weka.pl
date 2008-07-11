@@ -1,5 +1,5 @@
 /**	
-	SWI-Prolog/Weka module. This module provides a quite rough set of predicates to interact with the WEKA API and deal with ARFF files.
+	<module> SWI-Prolog/Weka. This module provides a quite rough set of predicates to interact with the WEKA API and deal with ARFF files.
 	
 	This module is loaded by the classification front end which provides a framework to use it properly.
 
@@ -7,6 +7,10 @@
 
 	Centre for Digital Music, Queen Mary, University of London.
 	Copyright (c) 2008 David Pastor Escuredo and QMUL.
+
+	@author David Pastor Escuredo	
+	@license GPL
+	@version 1.0
 */	
 	 
 
@@ -53,7 +57,8 @@
 
 :- style_check(-discontiguous).
 
-%%loading interface written in JPL* 
+%loading interface written in JPL
+:-use_module(library(pldoc)). 
 :-[runclassification].
 :-[dataSet].
 :-[arffFiles].
