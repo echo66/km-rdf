@@ -9,7 +9,7 @@
 	Copyright (c) 2008 David Pastor Escuredo and QMUL.
 
 	@author David Pastor Escuredo	
-	@license GPL
+	@license LGPL
 	@version 1.0
 */	
 	 
