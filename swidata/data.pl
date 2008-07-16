@@ -171,7 +171,7 @@ list_blob(L, B):-
 % Dumps the binary data held by the blob into a file given the path
 
 blob_out(B, F):-
-	busy_blob(B),
+	busy_id(B),
 	blob_to_file(B, F).
 
 %% blob_in(+FilePath, ?BLOBID) is det
