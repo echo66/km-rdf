@@ -16,6 +16,8 @@ export qt_lib:= /usr/lib/libQtCore.so
 export qt_include:= -I/usr/include/qt4/Qt/ \
 			-I/usr/include/qt4/
 
+#export qt_include:= -I/usr/local/Trolltech/Qt-4.4.0/include/QtCore/ -I/usr/local/Trolltech/Qt-4.4.0/include/
+
 ############# PLATFORM DEPENDENCIES ############
 export lib_suf:= so
 #lib_suf = dynlib

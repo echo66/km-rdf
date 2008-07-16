@@ -337,7 +337,7 @@ PREDICATE(blob_from_file, 2)
 	blob_to_file(+BlodID, +FilePath). Dumping content into a file.	
 	*/
 
-PREDICATE(file_to_blob, 2)
+PREDICATE(blob_to_file, 2)
 {
 	//+Blobid
 	//+File path

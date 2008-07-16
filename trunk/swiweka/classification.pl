@@ -66,7 +66,7 @@ create_classifSet(Id, ListOfAttributes, Class):-
 	wkpl_fastVector(FastVector),
 	set_attributes(ListOfAttributes, FastVector),
 	wkpl_create_dataSet(Id, FastVector, 0, Instances),
-	set_class(Class, Instances),	
+	((nonvar(Class), !, set_class(Class, Instances));(var(Class))),	
 	assert(classifSets_db(Id, Instances)).
 
 set_class(_, _).
@@ -260,17 +260,19 @@ constrain_result(R1, R, Class):-
 %not numeric
 constrain_result(R1, R, Class):-
 	\+is_list(R1),!,
-	jpl_call(Class, value,  [R1], R).
-	
+	jpl_call(Class, value,  [R1], R).	
 
 classify_record(Entries, Classifier, Result):-
 	jpl_call(Entries, nextElement, [], Record),
 	classification(Classifier, Record, Result).
 
-classification(Classifier, Record, Result):-
-	wkpl_classify_instance(Record, Classifier, Result), !.
+%Depending on the classification method implemented by the classifier (classifies categories or not). The classifier will fail if u try to classify a 
+%nominal class if it is not implemented and vice versa
 
 classification(Classifier, Record, Result):-
-	wkpl_distributionFor_instance(Record, Classifier, Result), !.
+	wkpl_classification_method(Classifier, 'classifyInstance'), !, wkpl_classify_instance(Record, Classifier, Result).
+
+classification(Classifier, Record, Result):-
+	wkpl_classification_method(Classifier, 'distributionForInstance'), !, wkpl_distributionFor_instance(Record, Classifier, Result).
 	
 
