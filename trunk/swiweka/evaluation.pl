@@ -43,6 +43,12 @@ wkpl_train_classifier(ClassifierName, Train, Classifier):-
 	wkpl_classifier(ClassifierName, Classifier),
 	wkpl_build_classifier(Train, Classifier).
 
+% Train classifier with options
+
+wkpl_train_classifier(ClassifierName, Options, Train, Classifier):-
+	wkpl_classifier(ClassifierName, Options, Classifier),
+	wkpl_build_classifier(Train, Classifier).
+
 % Predictions. Get the predictions for a passed set once the Classifier is trainned. It will return a single value for methods with a numeric class and 
 % a prediction within the distribution for nominal class datasets. This can be also done by retrieving the classification of each instance (are almost
 % equivalent procedures).
