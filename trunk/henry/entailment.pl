@@ -142,7 +142,7 @@ rdf_l([_|T],'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',T) :- T\=='http://
 
 
 /**
- * We'll know register the rdf/3 predicate to 
+ * We now register the rdf/3 predicate to 
  * be used as an entailment module within the
  * SeRQL SWI Semantic Web server.
  */
