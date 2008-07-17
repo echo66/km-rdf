@@ -243,7 +243,7 @@ create_classifier(Classifier, Options, Object):-
 	L>0, !, 
 	wkpl_classifier(Classifier, Options, Object).
 
-%%	classify(+SetJPLRef, +ClassifierJPLref, -Result) is nondet
+%% classify(+SetJPLRef, +ClassifierJPLref, -Result) is nondet
 %
 %	Run classification. The result can be one literal (the value of the class attribute) or a list with the distribution for the class attribute.
 % 	I should try to give a better look to the result

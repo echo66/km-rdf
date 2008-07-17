@@ -28,35 +28,32 @@
 	For specific options of each classifier, would be necessary to go the WEKA API
 	
 	This is not the best way to run a classifier within the KM as we need to handle the acutal statistics of each instance for further 
-	processing. This may require a lot of effor to set a proper, sensible and handy way to deal with WEKA. Working on it...
+	processing. 
 	*/
 
-wkpl_run_classifier(ClassifierName, Options, Evaluation):-
-		jpl_datums_to_array(Options, Args),
+wkpl_run_classifier(ClassifierName, WekaOptions, Evaluation):-
+		jpl_datums_to_array(WekaOptions, Args),
 		jpl_call('weka.core.Evaluation', evaluateModel, [ClassifierName, Args], Evaluation).
 	
 
-/**
-	This a lower level alternative predicate to classify and run a classifier. We don't get as much information as with the previous one but we 
-	can handle the results in prolog for further management.
-		+Classifier
-		-Classification
-	
-	This is a very simple call which needs important considerations:
-		1. The classifier must be already an instance with the set options but not built with the dataset.
-		2. The classification can be done with:
-			2.1. wkpl_classify_instance/2 and we get just one value for each instance, so at the end we get a simple list of values
-			with the classification of the instances (value within the class attribute I guess).
+% Train classifier. Just pass a training set to the classifier and build it. We could make a more complex training stratifying the training set
+% I'm not sure this is alright...
 
-			2.2. wkpl_distributionFor_instance/2 and we get a distribution of values for each instance as a prolog list and thefore a list
-			of sublists for the whole dataset.
+wkpl_train_classifier(ClassifierName, Train, Classifier):-
+	wkpl_classifier(ClassifierName, Classifier),
+	wkpl_build_classifier(Train, Classifier).
 
-	The specific way is hidden by using classifiers.pl. Every interfaced classifier needs a specific prolog program for it implementing this
-	predicate and will be loaded by classifiers.
-	*/
+% Predictions. Get the predictions for a passed set once the Classifier is trainned. It will return a single value for methods with a numeric class and 
+% a prediction within the distribution for nominal class datasets. This can be also done by retrieving the classification of each instance (are almost
+% equivalent procedures).
 
-wkpl_classify(Classifier, Dataset, Classification):-
-	wkpl_classify_dataSet(Classifier, Dataset, Classification).
+wkpl_predictions(DataSet, Classifier, Predictions):-
+	jpl_call('weka.core.Evaluation', evaluateModel, [Classifier, DataSet, _], ArrayPred),
+	jpl_array_to_list(ArrayPred, Predictions).
 
+% The same predictions but for individual instances. It varies from wkpl_classification_for/3 that the latter returns list of distribution for a nominal class
+
+wkpl_prediction_for(Instance, Classifier, Prediction):-
+	jpl_call('weka.core.Evaluation', evaluateModelOnce, [Classifier, Instance, _], Prediction).
 
 
