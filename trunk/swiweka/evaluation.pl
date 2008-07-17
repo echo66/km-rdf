@@ -1,10 +1,5 @@
 /**
-	Prolog wrapping WEKA Classification. It just contains the common calls to any classifier that inherit it from weka.classifier.Classifier. These 
-	methods can be called separately and manually if the user knows how to do it properly. There is a wkpl_run_classifier that makes sort of the 
-	same that what the calling from the terminal does in the WEKA does.
-
-	This program imports classifiers which is a program to define specific-classifier predicates that will be hide within this program using the 
-	same name for any of them.
+	Prolog wrapping WEKA Classification (evaluation of classifiers). This program wraps functios of the Evaluation class.
 
 	Centre for Digital Music, Queen Mary, University of London.
 	Copyright (C) 2008 David Pastor Escuredo and QMUL.
