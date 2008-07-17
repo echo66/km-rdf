@@ -155,5 +155,5 @@ rdf_l([_|T],'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest',T) :- T\=='http://
 :- multifile
         serql:entailment/2.
 
-serql:entailment(n3, n3_entailment).
+serql:entailment(n3, entailment).
 
