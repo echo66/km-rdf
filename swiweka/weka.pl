@@ -63,13 +63,18 @@
 		, 	wkpl_classification_method/2
 		,	wkpl_classify_instance/3
 		,	wkpl_distributionFor_instance/3
+
+		,	wkpl_run_classifier/3
+		,	wkpl_train_classifier/3
+		,	wkpl_predictions/3
+		,	wkpl_prediction_for/3
 		]).
 
 :- style_check(-discontiguous).
 
 %loading interface written in JPL
 %:-use_module(library(pldoc)). 
-:-[runclassification].
+:-[evaluation].
 :-[dataSet].
 :-[arffFiles].
 
@@ -156,5 +161,20 @@
 
 %% wkpl_distributionFor_instance(+Instance, +Classifier, -Distribution) is semidet
 % Returns the distribution (list of values) of the classified instance for the nominal class
+
+%% wkpl_run_classifier(+ClassifierName, +WekaOptions, -Evaluation) is semidet
+% Wrapping predicate of the command line call of weka. Check the Doc to see available options. The evaluation is by default a large string but output 
+% files can be set as options
+
+%% wkpl_train_classifier(+ClassifierName, +Train, -Classifier) is semidet
+% Trains the classifier given the train. The trainning is performed without cross-validation. May need to provide an alternative trainning.
+
+%% wkpl_predictions(+DataSet, +Classifier, -Predictions) is semidet
+% Returns the predictions for the dataset given the trainned classifier. For nominal class datasets the prediction will be one of the values in the distribution
+
+%% wkpl_prediction_for(+Instance, +Classifier, -Prediction) is semidet
+% Returns the prediction for one single instance
+
+
 
 
