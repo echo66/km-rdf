@@ -66,6 +66,7 @@
 
 		,	wkpl_run_classifier/3
 		,	wkpl_train_classifier/3
+		,	wkpl_train_classifier/4
 		,	wkpl_predictions/3
 		,	wkpl_prediction_for/3
 		]).
@@ -168,6 +169,9 @@
 
 %% wkpl_train_classifier(+ClassifierName, +Train, -Classifier) is semidet
 % Trains the classifier given the train. The trainning is performed without cross-validation. May need to provide an alternative trainning.
+
+wkpl_train_classifier(ClassifierName, Options, Train, Classifier) is semidet
+% With options in the inti classifier
 
 %% wkpl_predictions(+DataSet, +Classifier, -Predictions) is semidet
 % Returns the predictions for the dataset given the trainned classifier. For nominal class datasets the prediction will be one of the values in the distribution
