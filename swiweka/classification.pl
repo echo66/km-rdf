@@ -1,12 +1,17 @@
 /**
-	<module> Classification 'scenario'. This module offers an understandable logic framework to manage machine learning algorithms from SWI-Prolog. This module relies on just one external API called WEKA. For a deeper control of WEKA possibilities, please check out the weka module.
+	<module> Classification 'scenario'. This module offers an understandable logic framework to manage machine learning algorithms from SWI-Prolog.
+	This module relies on just one external API called WEKA. For a deeper control of WEKA possibilities, please check out the weka module.
 	
-	For more information about, please visit <http://www.cs.waikato.ac.nz/ml/weka/>
 	Centre for Digital Music, Queen Mary, University of London.
-	Copyright (c) 2008 David Pastor Escuredo and QMUL.
+	Copyright (C) 2008 David Pastor Escuredo and QMUL.
+
+	This program is free software: you can redistribute it and/or modify
+  	it under the terms of the GNU General Public License as published by
+   	the Free Software Foundation, either version 3 of the License, or
+    	(at your option) any later version.
 
 	@author David Pastor Escuredo	
-	@license LGPL
+	@license GPLv3
 	@version 1.0
 	@tbd specific functions for particular classifiers. Add filters and clusterers
 **/

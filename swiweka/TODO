@@ -1,8 +1,9 @@
-1. Nuevas fuentes para DataSet
-	Database
-	jmir
-	otros
-2. Nombres para todos los clasificadores
+1. New data sources
 
-Ver como se hace la clasificion!!!!!!!!!!!
-Poner esto de forma inteligente
+XML/ACE
+XRFF
+RDF
+
+2. Classifier specific options
+3. Statistics
+
