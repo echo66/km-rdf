@@ -1,15 +1,21 @@
 /**	
-	<module> SWI-Prolog/Weka. This module provides a quite rough set of predicates to interact with the WEKA API and deal with ARFF files.
+	<module> SWI-Prolog/Weka 1.0. This module provides a quite rough set of predicates to interact with the WEKA API and deal with ARFF files.
 	
 	This module is loaded by the classification front end which provides a framework to use it properly.
 
-	This module defines the general and more important predicates. There are more useful predicates spread in the specific sources which are named according to its functionality. 
+	This module defines the general and more important predicates. There are more useful predicates spread in the specific sources which are named 
+	according to its functionality. 
 
 	Centre for Digital Music, Queen Mary, University of London.
-	Copyright (c) 2008 David Pastor Escuredo and QMUL.
+	Copyright (C) 2008 David Pastor Escuredo and QMUL.
+
+	This program is free software: you can redistribute it and/or modify
+  	it under the terms of the GNU General Public License as published by
+   	the Free Software Foundation, either version 3 of the License, or
+    	(at your option) any later version.
 
 	@author David Pastor Escuredo	
-	@license LGPL
+	@license GPLv3
 	@version 1.0
 */	
 	 
@@ -53,6 +59,10 @@
 		,	wkpl_stratify_dataSet/2
 		,	wkpl_create_testSet/4
 		,	wkpl_create_trainSet/4
+
+		, 	wkpl_classification_method/2
+		,	wkpl_classify_instance/3
+		,	wkpl_distributionFor_instance/3
 		]).
 
 :- style_check(-discontiguous).
@@ -137,3 +147,14 @@
 
 %% wkpl_create_trainSet(+Instances, +NumberFolds, +Fold, -TrainSet) is semidet
 % Creates a training set for the given parameters
+
+%% wkpl_classification_method(+Classifier, -Method) is semidet
+% Returns if the classifier is able to classify nominal classes (distributionFor) or numerical classes (classify)
+
+%% wkpl_classify_instance(+Instance, +Classifier, -Result) is semidet
+% Returns the value of the classified instance (a numerical value)
+
+%% wkpl_distributionFor_instance(+Instance, +Classifier, -Distribution) is semidet
+% Returns the distribution (list of values) of the classified instance for the nominal class
+
+

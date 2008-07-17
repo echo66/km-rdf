@@ -1,12 +1,18 @@
 /**
-	Classifiers' common stuff
+	Common functions and methods of all classifiers
 
 	ToDO:
 		-Try to get a better format for names instead of the classnames.
 		-What to do with the non common stuff?
 
 	Centre for Digital Music, Queen Mary, University of London.
-	Copyright (c) 2008 David Pastor Escuredo and QMUL.
+	Copyright (C) 2008 David Pastor Escuredo and QMUL.
+
+	This program is free software: you can redistribute it and/or modify
+  	it under the terms of the GNU General Public License as published by
+   	the Free Software Foundation, either version 3 of the License, or
+    	(at your option) any later version.
+
 */
 
 :-[jpl_weka].
@@ -75,6 +81,7 @@ wkpl_option_description(Option, Desc):-
 wkpl_option_numArguments(Option, N):-
 	jpl_call(Option, numArguments, [], N).
 
+/**************************** TRAIN CLASSIFIER **********************************/
 
 %	Loads a dataset in the classifier passing a weka.Instances object that can be read from an arff file or somehow else.
 %	Each classifier implements this in a different way.
