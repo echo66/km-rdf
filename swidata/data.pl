@@ -67,7 +67,7 @@ clean_blob(T):-
 % Number of blobid in the database
 
 blobs(L):-
-	ids_in_system(L).
+	ids_in_db(L).
 
 %% current_id(?BLOBID) is det
 % Last id assigned by the system
