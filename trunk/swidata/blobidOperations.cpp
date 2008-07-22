@@ -96,7 +96,7 @@ PREDICATE(get_blob_size, 2)
 	equal_blobs(+Blobid1, +Blobid2): Compares 2 blobs.
 	*/
 
-PREDICATE(are_equal_blobs, 3){
+PREDICATE(are_equal_blobs, 2){
 
 	//+blob1
 	//+blob2
