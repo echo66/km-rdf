@@ -1,6 +1,7 @@
 #!/usr/local/bin/pl -g serql_welcome -L256m -G256m -T256m -s
 
 :- [henry].
+:- use_module(namespaces).
 
 :- 
 	use_module('dsp-builtins/aspl_builtins'), 

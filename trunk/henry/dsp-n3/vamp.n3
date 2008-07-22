@@ -112,16 +112,17 @@ vamp:qm-similarity
 # 23 -> key:Asminor
 # 24 -> key:Bminor
 
-{
+# Should it be the default behavior?
+vamp:transform a <http://purl.org/ontology/tabling/TabledPredicate>.
 
-#?af <http://purl.org/ontology/dsp/cache> ?local.
-#?local <http://purl.org/ontology/dsp/aspl_decode> ?signal.
+
+{
 ?af mo:encodes ?signal.
 ?signal mo:time [tl:timeline ?stl].
-?signal vamp:qm-keydetector ?otp.
-("key" ?start _:fduration ?key) list:in ?otp.
-(("key" ?start _:fduration ?key) ("key" ?end _:fduration2 _:key)) list:nextto ?otp.
-
+("qm-vamp-plugins" "qm-keydetector" ?signal ("key")) vamp:transform ?otp.
+("key" ?start _:fduration ?keys) list:in ?otp.
+?key list:in ?keys.
+(("key" ?start _:fduration ?keys) ("key" ?end _:fduration2 _:keys2)) list:nextto ?otp.
 } => {
 
 _:tonalregion a to:Tonality;
@@ -131,6 +132,22 @@ _:tonalregion a to:Tonality;
 		tl:start ?start;
 		tl:end ?end ] ;
 	to:key ?key.
+}.
+
+{
+?af1 mo:encodes ?signal1.
+("qm-vamp-plugins" "qm-similarity" ?signal1 ("means" "variances")) vamp:transform ?otp1.
+("means" _:start1 _:duration1 ?meanv1) list:in ?otp1.
+("variances" _:start1 _:duration1 ?varv1) list:in ?otp1.
+
+?af2 mo:encodes ?signal2.
+("qm-vamp-plugins" "qm-similarity" ?signal2 ("means" "variances")) vamp:transform ?otp2.
+("means" _:start2 _:duration2 ?meanv2) list:in ?otp2.
+("variances" _:start2 _:duration2 ?varv2) list:in ?otp2.
+
+((?meanv1 ?varv1) (?meanv2 ?varv2)) <http://purl.org/ontology/dsp/mfcc_kldiv> ?div
+} => {
+(?af1 ?af2) <http://purl.org/ontology/similarity/div> ?div
 }.
 
 #rule for beat features
