@@ -239,17 +239,24 @@ vmpl_frame_features_to_prolog(Vamp::Plugin::FeatureSet fs, int output, float sta
 				}
 				else{ cerr<<"Unexpected sample type"<<endl; }
 
-				term_t feature_event; //new id for the feature values. Id of the form __data_id
+				//term_t feature_event; //new id for the feature values. Id of the form __data_id
 				
-				vector<float> *f_vector;
-				f_vector = new vector<float>();
+				//WE CAN COME BACK TO BLOBIDs INSTEAD
+
+				//vector<float> *f_vector;
+				//f_vector = new vector<float>();
+
+				PlTerm feature_event;
+				PlTail datalist(feature_event);
 
 				for(size_t r=0; r<fl[j].values.size(); r++){
-					f_vector -> push_back(fl[j].values.at(r));
-				}				
+					datalist.append((double)fl[j].values.at(r));
+				}			
+				datalist.close();				
+		
 				//creating an id for the data stored in memory
-				feature_event = term_t(PlTerm(PlAtom(BLOBID::assign_data_id(f_vector))));				
-				feature_functor(featureType, featurets, feature_event, feature_term);//I really should change this
+				//feature_event = term_t(PlTerm(PlAtom(BLOBID::assign_data_id(f_vector))));				
+				feature_functor(featureType, featurets, feature_event, (term_t)feature_term);//I really should change this
 				tail.append(PlTerm(feature_term));
 			}
 		}

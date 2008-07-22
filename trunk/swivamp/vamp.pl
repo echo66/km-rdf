@@ -318,10 +318,10 @@ collect_features(Plugin, ListOfOutputs, ListOfFeatures):-
 	member(Output, ListOfOutputs),
 	collect_feature(Plugin, Output, ListOfFeatures).
 
-collect_feature(Plugin, Output, ListOfFeatures2):-
-	vmpl_featureSet_output(Plugin, Output, ListOfFeatures),
-	vmpl_outputDescriptor_sampleType(Plugin, Output, SampleType),
-	findall(Feature, constrain_feature(ListOfFeatures, SampleType, Feature), ListOfFeatures2).
+collect_feature(Plugin, Output, ListOfFeatures):-
+	vmpl_featureSet_output(Plugin, Output, ListOfFeatures).
+	%vmpl_outputDescriptor_sampleType(Plugin, Output, SampleType),
+	%findall(Feature, constrain_feature(ListOfFeatures, SampleType, Feature), ListOfFeatures2).
 
 constrain_feature(L, ST, F):-
 	member(F1, L),
