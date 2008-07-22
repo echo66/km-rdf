@@ -21,7 +21,7 @@
 
 builtins:builtin('http://purl.org/ontology/dsp/aspl_decode',aspl_builtins:audio_decode).
 
-% if u need channels and samples/channel use audio predicats get_channels/2 and get_samples_per_channel/2
+% if you need channels and samples/channel use audio predicats get_channels/2 and get_samples_per_channel/2
 audio_decode(Af,[literal(Sr), Sigs]) :- %plug uri resolution for Af here
 	atom_concat('file://',File,Af),
 	format(user_error,'DEBUG: Decoding file ~w\n',[File]),

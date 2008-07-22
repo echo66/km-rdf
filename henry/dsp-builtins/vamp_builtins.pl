@@ -29,17 +29,25 @@ builtins:builtin('http://purl.org/ontology/vamp/qm-keydetector',vamp_builtins:ke
 	
 	[[[Frame1Feature1List]|...]|]
 */
-vamp_transform(Transform, F):-
+vamp_transform(Transform, F3):-
 	nonvar(Transform),
-	Transform = [literal(PluginURI), Input, OutputsList, OptionsList],
+	Transform = [literal(LibID),literal(PluginID), Input, Outputs],
 	Input = [literal(SR), Sigs],
-	atom_concat('http://purl.org/ontology/vamp/', LibPlug, PluginURI),
-	concat_atom([LibID, PluginID], '/', LibPlug),
-	to_prolog_list(OutputsList, Outputs),
-	OptionsList = [],
-	transform(signal(SR,Sigs), LibID, PluginID, Outputs, RF),
-	flatten(RF, F).
+	to_prolog_list(Outputs,O),
+	transform(signal(SR,Sigs), LibID, PluginID, O, F),
+	flatten(F,F2), %hmm - to investigate
+	feature_list_to_tuples(F2,F3).
+	%(length(Outputs,1)->findall(FS,member([FS],F2),F3);F2=F3).
 	%findall([literal(Otp),literal(TS),literal(TE), FData],member(feature(Otp,timestamp(TS,TE),[Data]),F),Features).
+
+feature_list_to_tuples([],[]).
+feature_list_to_tuples([feature(O,timestamp(S,E),V)|T],[[literal(O),literal(S),literal(E),V2]|T2]) :-
+	to_literal_list(V,V2),
+	!,feature_list_to_tuples(T,T2). % ADD Typing
+feature_list_to_tuples([F|T],[F2|T2]) :-
+	feature_list_to_tuples(F,F2),
+	feature_list_to_tuples(T,T2).
+
 
 /**
 	Outputs a to:key. I still need to put some rules for the feature output (lists against blobs and timestamps)
@@ -48,7 +56,7 @@ vamp_transform(Transform, F):-
 keydetector(Input,Features) :-
 	nonvar(Input),
 	Input = [literal(SR), Sigs],
-	transform(signal(SR,Sigs),'libqm-vamp-plugins','qm-keydetector',[key],RF),
+	transform(signal(SR,Sigs),'qm-vamp-plugins','qm-keydetector',[key],RF),
 	flatten(RF, F),
 	findall([literal(Otp),literal(TS),literal(TE),Key],(member(feature(Otp,timestamp(TS,TE),[Data]),F), to_key(Data, Key)),Features).
 
