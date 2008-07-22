@@ -207,7 +207,7 @@ PREDICATE(sfpl_reset, 0)
  * Returning the name without path??
  */
 
-PREDICATE(sfpl_get_decoded_signal, 1)
+PREDICATE(sfpl_get_decoded_signal, 2)
 {	
 	//-MO::signal	
 	

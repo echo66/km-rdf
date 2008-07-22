@@ -89,7 +89,7 @@ next_id(I):-
 ids_status(A, L, O):-
 	current_id(A),
 	next_id(L),
-	blobids(O).
+	blobs(O).
 	
 %% blob_size(+BLOBID, -Size) is det
 % Returns the size of the blob
