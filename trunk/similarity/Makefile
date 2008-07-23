@@ -10,7 +10,6 @@ CFLAGS = -Wall -fPIC
 # Define your platform-specific options here
 #######################################################################
 
-swi_dir = /usr/local/lib/pl-5.6.50
 
 sim_dir = .
 swilib_dir = ../swilib
