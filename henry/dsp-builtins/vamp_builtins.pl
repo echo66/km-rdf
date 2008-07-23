@@ -32,13 +32,21 @@ builtins:builtin('http://purl.org/ontology/vamp/qm-keydetector',vamp_builtins:ke
 vamp_transform(Transform, F3):-
 	nonvar(Transform),
 	Transform = [literal(LibID),literal(PluginID), Input, Outputs],
-	Input = [literal(SR), Sigs],
+	mix(Input, PluginID, I),
 	to_prolog_list(Outputs,O),
-	transform(signal(SR,Sigs), LibID, PluginID, O, F),
+	transform(I, LibID, PluginID, O, F),
 	flatten(F,F2), %hmm - to investigate
 	feature_list_to_tuples(F2,F3).
 	%(length(Outputs,1)->findall(FS,member([FS],F2),F3);F2=F3).
 	%findall([literal(Otp),literal(TS),literal(TE), FData],member(feature(Otp,timestamp(TS,TE),[Data]),F),Features).
+
+mix(Input, 'qm-similarity', I):-
+	!, Input = [literal(SR), Sigs],
+	Is = signal(SR, Sigs),
+	mix_stereo(Is, I).
+mix(Input, _, I):-
+	Input = [literal(SR), Sigs],
+	I = signal(SR, Sigs).
 
 feature_list_to_tuples([],[]).
 feature_list_to_tuples([feature(O,timestamp(S,E),V)|T],[[literal(O),literal(S),literal(E),V2]|T2]) :-
@@ -67,7 +75,7 @@ keydetector(Input,Features) :-
 
 %These wont work, but we have to change them anyway
 mfccparameters(Input, [MLData, VLData]) :-
-	nonvar(Input),
+	nonvar(Input),http://www.wordreference.com/es/translation.asp?tranword=swindle
 	Input = [literal(Channels),literal(SR),literal(L),Sigs],
 	mix_stereo('Signal'(Channels, SR, L, Sigs), 'Signal'(ChannelsM, SRM, LM, SigsMono)),
 	vmpl_load_plugin('qm-vamp-plugins:qm-similarity',SR,Plugin),
