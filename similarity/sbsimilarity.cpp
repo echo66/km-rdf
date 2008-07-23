@@ -59,8 +59,10 @@ PREDICATE(smpl_mfcc_kldiv, 5){
 	mfccmean_1 = new vector<double>();
 	mfccvar_1 = new vector<double>();
 
-	if(smpl_get_data(term_t(PlTerm(A1)), mfccmean_1)<0) return false;
-	if(smpl_get_data(term_t(PlTerm(A2)), mfccvar_1)<0) return false;
+	PlTail mean1(A1);
+	PlTail var1(A2);
+	PlTail mean2(A3);
+	PlTail var2(A4);
 
 	//Audiofile 2
 	vector<double> *mfccmean_2;
@@ -68,10 +70,19 @@ PREDICATE(smpl_mfcc_kldiv, 5){
 	mfccmean_2 = new vector<double>();
 	mfccvar_2 = new vector<double>();
 
-	if(smpl_get_data(term_t(PlTerm(A3)), mfccmean_2)<0) return false;
-	if(smpl_get_data(term_t(PlTerm(A4)), mfccvar_2)<0) return false;
-
-	
+	PlTerm e;
+	while(mean1.next(e)){
+		mfccmean_1->push_back((float)(double)e);
+	}
+while(var1.next(e)){
+		mfccvar_1->push_back((float)(double)e);
+	}
+	while(mean2.next(e)){
+		mfccmean_2->push_back((float)(double)e);
+	}
+while(var2.next(e)){
+		mfccvar_2->push_back((float)(double)e);
+	}
 	//may need some checkings if there are vectors or not
 
 	int K = mfccmean_1 -> size();		// dimensionality i.e. number of MFCCs
@@ -228,7 +239,7 @@ PREDICATE(smpl_chroma_kldiv, 3){
 	BLOBID::get_data_for_id((const char*)id1, hist1);
 	BLOBID::get_data_for_id((const char*)id2, hist2);
 
-	return A4 = PlTerm((double)distanceDistribution(hist1, hist2, true));
+	return A3 = PlTerm((double)distanceDistribution(hist1, hist2, true));
 }
 
 //---------------------------------------------------------------

@@ -30,11 +30,7 @@ builtins:builtin('http://purl.org/ontology/dsp/cosine_dis',similarity_builtins:c
 mfcc_kldiv([[Means1, Vars1], [Means2, Vars2]], literal(Distance)):- 
 	literal_list_to_list(Means1,Means1D),literal_list_to_list(Vars1,Vars1D),
 	literal_list_to_list(Means2,Means2D),literal_list_to_list(Vars2,Vars2D),
-	list_blob(Means1D, IM1),	
-	list_blob(Means2D, IM2),
-	list_blob(Vars1D, IV1),
-	list_blob(Vars2D, IV2),
-	smpl_mfcc_kldiv(IM1, IV1, IM2, IV2, Distance).
+	smpl_mfcc_kldiv(Means1D, Vars1D, Means2D, Vars2D, Distance).
 
 cosine_dis([Beat1, Beat2], literal(D)):-
 	literal_list_to_list(Beat1, Beat1D), list_blob(Beat1D, I1),
