@@ -136,12 +136,12 @@ _:tonalregion a to:Tonality;
 
 {
 ?af1 mo:encodes ?signal1.
-("libqm-vamp-plugins" "qm-similarity" ?signal1 ("means" "variances")) vamp:transform ?otp1.
+("qm-vamp-plugins" "qm-similarity" ?signal1 ("means" "variances")) vamp:transform ?otp1.
 ("means" _:start1 _:duration1 ?meanv1) list:in ?otp1.
 ("variances" _:start1 _:duration1 ?varv1) list:in ?otp1.
 
 ?af2 mo:encodes ?signal2.
-("libqm-vamp-plugins" "qm-similarity" ?signal2 ("means" "variances")) vamp:transform ?otp2.
+("qm-vamp-plugins" "qm-similarity" ?signal2 ("means" "variances")) vamp:transform ?otp2.
 ("means" _:start2 _:duration2 ?meanv2) list:in ?otp2.
 ("variances" _:start2 _:duration2 ?varv2) list:in ?otp2.
 
