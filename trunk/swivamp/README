@@ -1,13 +1,26 @@
-The "VAMP" module for SWI-Prolog version 1.0
-
-David Pastor Escuredo for the Centre For Digital Music, Queen Mary University of London
-2007-2008
+					The "VAMP" module for SWI-Prolog version 1.0
+						Feature Extraction for SWI-DSP
+					           David Pastor Escuredo 
 
 1- Introduction
 
 This is a SWI-Prolog module built on the foreign interface and the CPP package for SWI-Prolog. It provides a communication layer with Vamp Plugins for querying and computations triggering under Prolog predicates. This module defines a stable Vamp Host that controls the plugin lifecycle as defined in the Vamp API. For more information about Vamp Plugins please visit the site www.vamp-plugins.org (Chris Cannam).
 
 The module provides also some higher level predicates defining procedures for feature-extraction and a "Transform" predicate that wraps the feature extraction process for Digital Signal Processing worflows creation.
+
+vamp_transform is also offered to perform feature extraction queries under a unified predicate. With an easy predicate the user can query features by selection the plugin library, plugin identifier, options and queried outputs.
+
+Parameters:
+
+program(ProgName)
+step(StepSize)
+block(BlockSize)
+parameters([parameter(Name, Value)|...])
+
+Outputs are a list of feature terms: feature(Type, timestamp(Start, Duration), Data)
+
+Timestamp is obtained interpreting the sample type as suggested in the vamp host guide. 
+Data can be a Prolog list or a BLOBID. This choice is still under testing.
 
 2- Installation
 
@@ -23,9 +36,11 @@ So far, swivamp can only run in Linux and MAC OS/X
 
 3- Run
 
-Just launck pl from your swivamp directory and load the vamp module:
+Just launch pl from your swivamp directory and load the vamp module:
 
 ?- use_module(vamp).
+
+If u just want to extract features, then launch pl and load the vamp_transform module
 
 Check the html documentation in DOC/ for predicates instantation patterns.
 
@@ -38,7 +53,7 @@ Check the html documentation in DOC/ for predicates instantation patterns.
 -fe.pl: routines for feature extraction (host running plugins)
 -transform.pl: top level predicate to set the feature extraction process inside a DSP workflow
 
-5- Module name extension
+5- Module name extension (vamp.pl)
 
 vamp_xxx: predicates defined in vamp.pl. Normally general predicates. They can be used statically (just passing plugin keys)
 vmpl_xxx: predicates defined in the foreign libraries. More specific dealing predicates for plugins. Must be used dynamically (with actual plugin objects)
@@ -53,6 +68,8 @@ Depending on the size of the bins and the output sample type the BINS term can b
 
 Prolog list: sparse outputs. These outputs define concrete events along the signal timeline.
 BLOBIDs: dense outputs. These outputs define a signal characterizing the original signal and each feature defines a frame of it.
+
+NOTE: now everything is a list. We are trying different approaches about how to interpret and present vamp features.
 
 Interesting readings:
 
