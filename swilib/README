@@ -1,6 +1,20 @@
-SWILIB
+							SWILIB 1.0
+					  Data management support for SWI-DSP
+						  David Pastor Escuredo
 
-This library defines a data-identifiers mechanism to manage large data objects. It also defines a library to control Pl_term_t blobs (Which is deprecated after introducing the ids mechanism). This library gives support to SWI-DSP in data management and is available for PROLOG from the swidata module.
+This library built in C++ defines a mechanism to deal with BLOBs (large binary data objets) through data identifiers. These identifiers called BLOBIDs are indirect references to data that has to be retrieved using a function get_data_for_id (there is not automatic indexing).
 
-David Pastor Escuredo, c4dm Queen Mary University of London
-2007-2008
+The benefit of this mechanism is that identifiers are also Universal names for data objects, so that we can uniquevically represent a data object by its identifier. This is useful for declarative relationships of computations.
+
+The default format for identifiers is __data_x where x is a numerical variable. This format will be output by the system automatically but other ids can be used for unification.
+
+The system will increment the identifiers one by one jumping the identifiers taken. This means that identifiers can be reserved if we have used them previously and made them persistent in disk or in some database. Functions are divided in data setting and retrieving and mechanism status querying.
+
+The system is a bit experimental and may not scale very well (see TODO).
+
+The library also includes a deprecated namespace to convert data to PL_blob_t (a SWI-Prolog type with the same purpose but it works as a local reference).
+
+There is a SWI-Prolog module wrapping this library: swidata.
+
+Please check out COPYING file for distribution.
+

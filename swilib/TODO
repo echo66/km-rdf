@@ -1,0 +1,4 @@
+1. remove Qt dependencies (just qstring)
+2. check and improve scalability of ids
+3. blind persistency
+4. standard for binary files

@@ -1,12 +1,18 @@
 /**
 	DEPRECATED: This is a library for general type conversion of vector<float> to PL_blob_t. It has been created in order to store arbitrary large audio data objects defined as AudioVector and AudioBlob. We combine it with the namespace AudioID to get the raw data pointed by an ID as prolog blob
-	David Pastor 2007 for c4dm, Queen Mary, University of London
-
 	Includes:
 		-Vector of float / blob type conversion
 		-some checking operations
 		-Input/output to files (may rely on a standard???)
-*/
+
+	Centre for Digital Music, Queen Mary, University of London.
+	Copyright (C) 2007 David Pastor Escuredo and QMUL.
+
+	This program is free software: you can redistribute it and/or modify
+  	it under the terms of the GNU General Public License as published by
+   	the Free Software Foundation, either version 3 of the License, or
+    	(at your option) any later version.
+	*/
 
 #ifndef _AUDIO_BLOB_H_
 #define _AUDIO_BLOB_H_
