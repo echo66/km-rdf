@@ -148,6 +148,7 @@ set_data_for_id(const char* ident, std::vector<float>* m_data)
 {
 	long long pos = 0;
 	pos = existing_id(ident);
+	cerr<<pos<<endl;
 	if(pos < 0){
 		 return -1;//no id. -1
 	}
@@ -155,7 +156,8 @@ set_data_for_id(const char* ident, std::vector<float>* m_data)
 		return 0; //not active
 	}
 	else{		
-		audio_data_db[(size_t)pos].data = m_data;//sets the data.	
+		audio_data_db[(size_t)pos].data = m_data;//sets the data.
+		audio_data_db[(size_t)pos].active = 1;	
 		return 1; //was active	
 	}
 }

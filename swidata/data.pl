@@ -150,7 +150,7 @@ blob_list(B, L):-
 % Registers a List as a blob. The BLOBID can be passed for unification or assigned as the next id
 
 list_blob(L, B):-
-	var(B),
+	var(B),!,
 	next_id(B),
 	reserve_id(B),
 	list_to_blobid(L, B).

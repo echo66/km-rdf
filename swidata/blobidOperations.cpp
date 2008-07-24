@@ -239,8 +239,7 @@ PREDICATE(list_to_blobid, 2){
 
 	//+ list
 	//+ blobid
-	
-	PlTerm e;
+
 	PlTail tail(A1);
 
 	PlTerm ch1_id(A2);
@@ -250,6 +249,7 @@ PREDICATE(list_to_blobid, 2){
 	std::vector<float> *data;
 	data = new std::vector<float>;
 
+	PlTerm e;
 	while(tail.next(e)){
 
 		data->push_back((float)(double)e);
