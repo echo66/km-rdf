@@ -58,9 +58,8 @@ wkpl_create_dataSet(Name, AtVector, Capacity, Instances):-
 	jpl_call('java.lang.reflect.Array', set, [Values, 2, C], _),
 	wkpl_getObject('weka.core.Instances', [Args], [Values], Instances).
 
-/**
-	This version allows to create a Instances with no attributes, so we can fill them later on
-	*/
+%	This version allows to create a Instances with no attributes, so we can fill them later on
+	
 
 wkpl_create_empty_dataSet(Name, Instances):-
 	wkpl_fastVector(FastVector),
@@ -75,9 +74,8 @@ wkpl_create_empty_dataSet(Name, Instances):-
 	jpl_call('java.lang.reflect.Array', set, [Values, 2, C], _),
 	wkpl_getObject('weka.core.Instances', [Args], [Values], Instances).
 
-/**
-	Prolog representation of an attribute to be added
-*/
+%	Prolog representation of an attribute to be added
+
 wkpl_add_attribute(Instances, numAt(Name), Position):-
 	wkpl_add_numAttribute(Instances, Name, Position).
 
@@ -90,41 +88,31 @@ wkpl_add_attribute(Instances, stringAt(Name), Position):-
 wkpl_add_attribute(Instances, dateAt(Name, Date), Position):-
 	wkpl_add_dateAttribute(Instances, Name, Date, Position).
 
-/**
-	Adds a numerical attribute once the data has been already created. We only pass the name. 
-	*/
+%	Adds a numerical attribute once the data has been already created. We only pass the name. 
 
 wkpl_add_numAttribute(Instances, Name, Position):-
 	wkpl_attribute_numerical(Name, Attribute),
 	jpl_call(Instances, insertAttributeAt, [Attribute, Position], _).
 
-/**
-	Adds a nominal attribute once the data has been already created.
-	*/
+%	Adds a nominal attribute once the data has been already created.
 
 wkpl_add_nomAttribute(Instances, Name, Values, Position):-
 	wkpl_attribute_nominal(Name, Values, Attribute),
 	jpl_call(Instances, insertAttributeAt, [Attribute, Position], _).
 
-/**
-	Adds a string attribute
-	*/
+%	Adds a string attribute
 
 wkpl_add_stringAttribute(Instances, Name, Position):-
 	wkpl_attribute_string(Name, Attribute),
 	jpl_call(Instances, insertAttributeAt, [Attribute, Position], _).
 
-/**
-	Adds a date attribute
-	*/	
+%	Adds a date attribute
 
 wkpl_add_dateAttribute(Instances, Name, Date, Position):-
 	wkpl_attribute_date(Name, Date, Attribute),
 	jpl_call(Instances, insertAttributeAt, [Attribute, Position], _).
 
-/**
-	Sets the class. I AM NOT SURE HOW IMPORTANT THIS IS IN ORDER TO DO THE CLASSIFICATION AND IF IT SHOULD BE SET IN ANY CASE
-	*/
+%	Sets the class. I AM NOT SURE HOW IMPORTANT THIS IS IN ORDER TO DO THE CLASSIFICATION AND IF IT SHOULD BE SET IN ANY CASE
 
 wkpl_set_class(Instances, Attribute):-
 	jpl_call(Instances, setClass, [Attribute], _).
@@ -137,9 +125,7 @@ wkpl_set_classIndex(Instances, Index):-
 	****************************** FILLING A DATASETS ******************************
 	*******************************************************************************/
 
-/**
-	After creating the dataset (relation and attributes) we can set the values of each Isntance of the dataset
-	*/
+%	After creating the dataset (relation and attributes) we can set the values of each Isntance of the dataset
 
 /**
 	Sets the dataset with values with a list of Instance objects (records). Each record is itself a prolog list with a value for each attribute.
@@ -169,82 +155,72 @@ wkpl_add_instance(Instances, InstanceList):-
 				************* QUERYING A DATASET ******************
 				**************************************************/
 	
-/**
+%
 	Gets the name of the dataset
-	*/
+	
 wkpl_dataSet_name(Instances, Name):-
 	jpl_call(Instances, relationName, [], Name).
-	
-/**
-	Get a weka::Attribute from the dataset (Instances)
-	*/
+
+%	Get a weka::Attribute from the dataset (Instances)
+
 wkpl_get_attribute(Instances, Index, Attribute):-
 	jpl_call(Instances, attribute, [Index], Attribute).
 
-/**
-	Non deterministic way to obtain all the attributes of a data set
-	*/
+%	Non deterministic way to obtain all the attributes of a data set
+	
 wkpl_get_attributes(Instances, Attribute):-
 	jpl_call(Instances, numAttributes, [], Num),
 	Limit is Num-1,
 	between(0, Limit, Index),
 	wkpl_get_attribute(Instances, Index, Attribute).
 
-/**
-	Number of attributes
-	*/
+%	Number of attributes
+	
 wkpl_numberAttributes(Instances, Number):-
 	jpl_call(Instances, numAttributes, [], Number).
 	
-/**
-	Number of instance elements
-	*/
+%	Number of instance elements
+	
 wkpl_numberInstances(Instances, Number):-
 	jpl_call(Instances, numInstances, [], Number).
 
-/**
-	Get instance at
-	*/
+%	Get instance at
+	
 wkpl_get_instance(Instances, Index, I):-
 	jpl_call(Instances, instance, [Index], I).
 
-/**
-	Non deterministic way to obtain all the attributes of a data set
-	*/
+%	Non deterministic way to obtain all the attributes of a data set
+	
 wkpl_get_instances(Instances, I):-
 	jpl_call(Instances, numInstances, [], Num),
 	Limit is Num-1,
 	between(0, Limit, Index),
 	wkpl_get_instance(Instances, Index, I).
 
-/**
-	get the class attribute
-	*/
+%	get the class attribute
+	
 wkpl_get_class(Instances, AttributeName):-
 	jpl_call(Instances, classAttribute, [], At),
 	wkpl_attribute_name(At, AttributeName).
 
-/**
-	Variance of one attribute
-	*/
+%	Variance of one attribute
+	
 wkpl_attribute_variance(Instances, Attribute, Var):-
 	jpl_call(Instances, variance, [Attribute], Var).
 
 wkpl_attributeIndex_variance(Instances, Index, Var):-
 	jpl_call(Instances, variance, [Index], Var).
 
-/**
-	Mean (numerical) or mode (nominal) of one attribute. Always like a double.
-	*/ 
+%	Mean (numerical) or mode (nominal) of one attribute. Always like a double.
+	
 wkpl_attribute_meanOrMode(Instances, Attribute, Mean):-
 	jpl_call(Instances, meanOrMode, [Attribute], Mean).
 
 wkpl_attributeIndex_meanOrMode(Instances, Index, Mean):-
 	jpl_call(Instances, meanOrMode, [Index], Mean).
 
-/**
-	Sort a dataset using one attribute (the index to it) as reference
-	*/
+%	Sort a dataset using one attribute (the index to it) as reference
+	
 wkpl_sort_for(Instances, Index):-
 	jpl_call(Instances, sort, [Index], _).
 
@@ -253,21 +229,18 @@ wkpl_sort_for(Instances, Index):-
 				********* TESTING AND TRAINING SET ***************
 				*************************************************/
 
-/**
-	Stratify if the class is nominal for a stratified cross-validation
-	*/
+%	Stratify if the class is nominal for a stratified cross-validation
+	
 wkpl_stratify_dataSet(Instances, NumFolds):-
 	jpl_call(Instances, stratify, [NumFolds], _).
 
-/**
-	Create a testing set
-	*/
+%	Create a testing set
+	
 wkpl_create_testSet(Instances, NumFolds, Fold, Set):-
 	jpl_call(Instances, testCV, [NumFolds, Fold], Set).
 
-/**
-	Create training set
-	*/
+%	Create training set
+	
 wkpl_create_trainSet(Instances, NumFolds, Fold, Set):-
 	jpl_call(Instances, trainCV, [NumFolds, Fold], Set).
 
@@ -288,9 +261,8 @@ wkpl_instance(Instance, Number):-
 	jpl_call('java.lang.reflect.Array', set, [Values, 0, Value], _),
 	wkpl_getObject('weka.core.Instance', [Args], [Values], Instance).
 
-/**
-	Sets the value for the att on the index
-	*/
+%	Sets the value for the att on the index
+	
 wkpl_set_instanceValue(Instance, Index, Value):-
 	jpl_call(Instance, setValue, [Index, Value], _).
 
@@ -316,9 +288,8 @@ wkpl_set_instance(Instance, Index, List):-
 wkpl_attach_to_dataSet(Instance, Instances):-
 	jpl_call(Instance, setDataset, [Instances], _).
 
-/**
-	Get the value which is always a double (Weka internal represneation) for the index given
-	*/
+%	Get the value which is always a double (Weka internal represneation) for the index given
+	
 wkpl_instance_value(Instance, Index, Value):-
 	jpl_call(Instance, value, [Index], Value).
 
@@ -327,9 +298,8 @@ wkpl_instance_value(Instance, Index, Value):-
 				************** DEALING WITH ATTRIBUTES *************
 				***************************************************/
 
-/**
-	Creates a numerical attribute given the name. 
-	*/
+%	Creates a numerical attribute given the name. 
+	
 wkpl_attribute_numerical(Name, Attribute):-
 	wkpl_new_argsType_array(1, Args),
 	wkpl_add_type_to_args('java.lang.String', Args, 0),	
@@ -351,9 +321,8 @@ wkpl_attribute_nominal(Name, Values, Attribute):-
 	jpl_datums_to_array([Name, FastVector], Parameters),
 	wkpl_getObject('weka.core.Attribute', [Args], [Parameters], Attribute).
 
-/**
-	Creates a string attribute given the name.
-	*/
+%	Creates a string attribute given the name.
+	
 wkpl_attribute_string(Name, Attribute):-
 	jpl_null(Vector),
 	wkpl_new_array('java.lang.String', 2, Args),
@@ -362,9 +331,8 @@ wkpl_attribute_string(Name, Attribute):-
 	wkpl_getAt_constructor('weka.core.Attribute', 4, C),
 	jpl_call(C, newInstance, [Args], Attribute).
 
-/**
-	Create a date attribute with a specific format for the date!
-	*/
+%	Create a date attribute with a specific format for the date!
+	
 wkpl_attribute_date(Name, Date, Attribute):-
 	wkpl_new_argsType_array(2, Args),
 	wkpl_add_type_to_args('java.lang.String', Args, 0),
@@ -384,15 +352,13 @@ wkpl_attribute_relation(Name, Instances, Attribute):-
 	jpl_datums_to_array([Name, Instances], Args),
 	jpl_new('weka.core.Attribute', [Args], Attribute).
 
-/**
-	Gets the name of the attribute
-	*/
+%	Gets the name of the attribute
+	
 wkpl_attribute_name(Attribute, Name):-
 	jpl_call(Attribute, name, [], Name).
 
-/**
-	Gets the type of the attribute
-	*/
+%	Gets the type of the attribute
+	
 wkpl_attribute_type(Attribute, Type):-
 	jpl_call(Attribute, type, [], TypeNum),
 	wkpl_type(TypeNum, Type).
