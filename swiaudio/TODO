@@ -1,5 +1,3 @@
-TODO:
-
 1. Add support for more formats
-2. Test faad library
+2. Test and fix faad library
 3. Support for frequency domain and time-frequency domain signals
