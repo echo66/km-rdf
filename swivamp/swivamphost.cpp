@@ -1,11 +1,17 @@
 /**
- * SWI-Prolog external interface to Vamp Plugins
- * This C/C++ source defines foreign prediactes loaded by the vamp module (direct interface with prolog).
- * This interface integrates the libvamp-hostsdk library for vamp hosts definition written by Chris Cannam (c4dm). This interfaces defines the functions
- * that should be supported by the host to extract features (see swivamplugin for predicates to describe the plugin)
- * David Pastor Escuredo 2007, c4dm, Queen Mary University of London
- *
- */
+ 	SWI-Prolog external interface to Vamp Plugins
+ 	This C/C++ source defines foreign prediactes loaded by the vamp module (direct interface with prolog).
+ 	This interface integrates the libvamp-hostsdk library for vamp hosts definition written by Chris Cannam (c4dm). This interfaces defines the functions
+	that should be supported by the host to extract features (see swivamplugin for predicates to describe the plugin)
+
+	Centre for Digital Music, Queen Mary, University of London.
+	Copyright (C) 2007 David Pastor Escuredo and QMUL.
+
+	This program is free software: you can redistribute it and/or modify
+  	it under the terms of the GNU General Public License as published by
+   	the Free Software Foundation, either version 3 of the License, or
+    	(at your option) any later version.
+	 */
 
 #include <swivamp.h>
 

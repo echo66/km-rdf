@@ -1,11 +1,16 @@
 /**
- * SWI-Prolog external interface to Vamp Plugins
- * This C/C++ source defines foreign predicates loaded by the vamp module (direct interface with prolog).
- * This interface pretends to provide any host with a set of effective queries over the plugin according to an RDF description of the Vamp Plugins  
- * (Chris Sutton, c4dm)
- * David Pastor Escuredo 2007, c4dm, Queen Mary University of London 
- *
- */
+	SWI-Prolog external interface to Vamp Plugins
+	This C/C++ source defines foreign predicates loaded by the vamp module (direct interface with prolog).
+	This interface pretends to provide any host with a set of effective queries over the plugin according to the Vamp Ontology (http://purl.org/ontology/vamp/).
+
+	Centre for Digital Music, Queen Mary, University of London.
+	Copyright (C) 2007 David Pastor Escuredo and QMUL.
+
+	This program is free software: you can redistribute it and/or modify
+  	it under the terms of the GNU General Public License as published by
+   	the Free Software Foundation, either version 3 of the License, or
+    	(at your option) any later version.
+ 	*/
 
 #include <swivamp.h>
 

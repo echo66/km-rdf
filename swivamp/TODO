@@ -1,2 +1,1 @@
-TODO:
-	1. swivamp always output BLOBIDs. This may be inefficient and too much identifiers wasting
+1. BLOBIDs or Prolog list for features data?

@@ -1,15 +1,15 @@
 /**
- * SWI-Prolog external interface to Vamp Plugins
- * This C/C++ source defines foreign functions a library for swivamp. Mainly type-conversion stuff
- * David Pastor Escuredo 2007
- * Modified in June 2008
- *
- * ToDo:
- 	1- Done. Implemented in swivamphost.cpp
+	SWI-Prolog external interface to Vamp Plugins
+	This C/C++ source defines foreign functions a library for swivamp. Mainly type-conversion stuff
 	
-	2- Support n channels now! (june 2008)
+	Centre for Digital Music, Queen Mary, University of London.
+	Copyright (C) 2007 David Pastor Escuredo and QMUL.
 
- */
+	This program is free software: you can redistribute it and/or modify
+  	it under the terms of the GNU General Public License as published by
+   	the Free Software Foundation, either version 3 of the License, or
+    	(at your option) any later version.
+ 	*/
 
 #include <swivamp.h>
 
