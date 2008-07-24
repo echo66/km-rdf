@@ -1,6 +1,6 @@
 # Makefile for swidata
 # David Pastor Escuredo 2008
-# Works fine for Linux, not tested for MAC OS/X nor Windows
+# Works fine for Linux
 
 CC = gcc # C compile
 CPP = g++ # C++ compiler

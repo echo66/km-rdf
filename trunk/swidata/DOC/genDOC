@@ -1,0 +1,8 @@
+To see the dynamic html documentation
+
+1. Go back to the module path
+2. run pl
+3. uncomment loading pldoc
+4. :-use_module('data').
+5. :-doc_server(X) and :-doc_browser.
+

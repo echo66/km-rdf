@@ -3,7 +3,14 @@
 	(id, pointerToData, active).
 	The revision of this source has been done to wrap the data referred by the IDs when it is query from prolog wrapping some of the functions
 	of blobid.
-	David Pastor 2007 for c4dm, Queen Mary, University of London
+	
+	Centre for Digital Music, Queen Mary, University of London.
+	Copyright (C) 2008 David Pastor Escuredo and QMUL.
+
+	This program is free software: you can redistribute it and/or modify
+  	it under the terms of the GNU General Public License as published by
+   	the Free Software Foundation, either version 3 of the License, or
+    	(at your option) any later version.
 */
 
 #include <blobid.h>

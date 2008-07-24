@@ -1,8 +1,14 @@
 /**
 	DEPRECATED. This foreign interface defines predicates to deal with data as PL_blob_t terms wrapping long float vectors. Specific functions are defined in swilib/swiaudioblob. These terms are replaced now by BLOBIDs and not longer used in km-rdf. (Modified June 2008). Check out blobid* files.
 	
-	David Pastor 2007 for c4dm, Queen Mary, University of London
-*/
+	Centre for Digital Music, Queen Mary, University of London.
+	Copyright (C) 2008 David Pastor Escuredo and QMUL.
+
+	This program is free software: you can redistribute it and/or modify
+  	it under the terms of the GNU General Public License as published by
+   	the Free Software Foundation, either version 3 of the License, or
+    	(at your option) any later version.
+	*/
 
 #include <swiaudioblob.h>
 

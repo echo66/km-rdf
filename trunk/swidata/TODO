@@ -1,11 +1,7 @@
-PROBLEMS:
-
-	1.Modules must read BLOBIDs all the time. It means a huge consume of ids. It may be interesting to consider prolog list as input either way.
-
-TODO:
-	1.Improve the id storage mechanism of swilib
-	2.Add more computations	
-	3.Treat lists and BLOBIDs under the same predicates?
+1. Modules must read BLOBIDs all the time. It means a huge consume of ids. It may be interesting to consider prolog list as input either way.
+2. List and blobs could work as the same thing blindly?
+3. Add more computations	
+4. operations over blobids should go to swilib
 
 
 	

@@ -5,9 +5,14 @@
 	Blobs with identifiers. Each block of data (now really arbitrarly large) is identified with an id, so we have BLOBIDs which represent data and are used in their place for computations. Each module of SWI-DSP is and must be implemented to read these identifiers and extract the data from the runtime database defined in swilib.
 	This module offers predicates to check the status of the database where each BLOBID is considered as an identifier. The other bunch of predicates treat each BLOBID as a real data object and perform different operations with them.
 
-	David Pastor Escuredo, Centre for Digital Music, Queen Mary University of London,
-	2007-2008.
-*/
+	Centre for Digital Music, Queen Mary, University of London.
+	Copyright (C) 2007-2008 David Pastor Escuredo and QMUL.
+
+	This program is free software: you can redistribute it and/or modify
+  	it under the terms of the GNU General Public License as published by
+   	the Free Software Foundation, either version 3 of the License, or
+    	(at your option) any later version.
+	*/
 
 :- module(data, [	reserve_id/1
 		,	current_id/1
