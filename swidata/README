@@ -1,4 +1,6 @@
-Data module for SWI-Prolog
+						Data module for SWI-Prolog
+				  Data module embedded in SWI-DSP to deal with BLOBS
+						 David Pastor Escuredo
 
 This module defines predicates to manage large data involved in multimedia computations and other data expensive processes. We require these library as prolog terms to deal with data (lists and Pl_term_t blobs) are not efficient enough and they have serious size restrictions.
 
@@ -10,5 +12,4 @@ Finally, the most interesting set of predicates perform basic data operations ov
 
 For more information check the module documentation in DOC
 
-David Pastor Escuredo for the Centre For Digital Music, Queen Mary University of London
-2007-2008.
+Check out COPYING file for distribution
