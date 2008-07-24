@@ -1,5 +1,13 @@
 /**
-	AUDIO MODULE
+	<module> audio for SWI-Prolog. This module wraps decoding libraries to decode several file formats under the same predicate decode/2. The resto of the module defines operations over a signal term (see README).
+
+	Centre for Digital Music, Queen Mary, University of London.
+	Copyright (C) 2007 David Pastor Escuredo and QMUL.
+
+	This program is free software: you can redistribute it and/or modify
+  	it under the terms of the GNU General Public License as published by
+   	the Free Software Foundation, either version 3 of the License, or
+    	(at your option) any later version.
 */
 
 :- module(audio,[	supported_file/1
@@ -39,7 +47,7 @@ supported_file('m4a').
 % Main predicate that hides decoding of an audio file given the path and returns a compound term: signal (SampleRate, Data) where Data is a list of blobs id (check swilib).
 
 decode(AudioFile, Signal):-
-	aspl_file_extension(AudioFile, Extension),
+	aspl_extension(AudioFile, Extension),
 	aspl_decode(Extension, AudioFile, Signal).
 
 %% get_sample_rate(+Signal, -SampleRate) is semidet
@@ -81,7 +89,13 @@ frame_channels([H|T], Init, Block, [H2|T2]):-
 	blob_frame(H, Init, Block, H2),
 	frame_channels(T, Init, Block, T2).
 
-%% get_frame_timestamp(+Frame, -Timestamp) is semidet
+%% get_frame_timestamp(+FraCentre for Digital Music, Queen Mary, University of London.
+	Copyright (C) 2008 David Pastor Escuredo and QMUL.
+
+	This program is free software: you can redistribute it and/or modify
+  	it under the terms of the GNU General Public License as published by
+   	the Free Software Foundation, either version 3 of the License, or
+    	(at your option) any later version.me, -Timestamp) is semidet
 % Returns the timestamp (time values) of a frame related to the owner signal timeline
 
 get_frame_timestamp(Frame, timestamp(Start, Duration)):-
@@ -90,7 +104,7 @@ get_frame_timestamp(Frame, timestamp(Start, Duration)):-
 	Start is Init/Sr,
 	Duration is L/Sr.
 	
-%% set_framing(+StepSize, +SignalLength, -Limit, -Start) is det
+%% set_framing(+StepSize, +SignalLength, -Limit, -Start) is nondet
 % This predicate returns iteratively the Start of the following frame in a framing process. This framing predicate relies on the procedural meaning and is subject of substitution.
 
 set_framing(StepSize, Samples, Limit, Start):-
@@ -166,5 +180,14 @@ aspl_decode(Extension, AudioFile, signal(Sr, Data)):-
 	fdpl_decode(AudioFile),
 	fdpl_get_decoded_signal(Data, Sr).
 
+%% aspl_extension(+AudioFile, -Extension) is semidet
+% Returns the file extension
 
+aspl_extension(AudioFile, Extension):-
+	concat_atom([_Name, Extension], '.', AudioFile).
 
+%% set_limit_framing(+Samples, +StepSize, -Limit) is semidet
+% Limit of framing
+
+set_limit_framing(A, B, C):-
+	C is A//B.
