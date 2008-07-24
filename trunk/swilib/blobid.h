@@ -1,8 +1,15 @@
-/*
+/**
 	Library that implements an identifier-based mechanism to handle large data objects (std::vector<float> instances). It is loaded by swidata to provide a blob representation in heavy computational prolog predicates.
 	It defines the BLOBID namespace
-	David Pastor 2007, c4dm, Queen Mary, University of London
-*/
+	
+	Centre for Digital Music, Queen Mary, University of London.
+	Copyright (C) 2007 David Pastor Escuredo and QMUL.
+
+	This program is free software: you can redistribute it and/or modify
+  	it under the terms of the GNU General Public License as published by
+   	the Free Software Foundation, either version 3 of the License, or
+    	(at your option) any later version.
+	*/
 
 #include <swiaudioblob.h>
 #ifndef _FLI_H_INCLUDED

@@ -1,11 +1,17 @@
-/*
- * Source for the data ids database. These ids wrap BLOB (binarly large objects of data) so we can deal with them easily from a prolog
- * David Pastor 2007, c4dm, Queen Mary, University of London
- *
- * Define some operations over blob ids (May 2008)
- *
- * Note: ids are not persistent themselves, after a session will get lost unless you keep a correspondence between the id and the dump in disk.
- */
+/**
+ 	Source for the data ids database. These ids wrap BLOB (binarly large objects of data) so we can deal with them easily from a prolog
+	Define some operations over blob ids (May 2008)
+
+	Note: ids are not persistent themselves, after a session will get lost unless you keep a correspondence between the id and the dump in disk.
+
+	Centre for Digital Music, Queen Mary, University of London.
+	Copyright (C) 2007 David Pastor Escuredo and QMUL.
+
+	This program is free software: you can redistribute it and/or modify
+  	it under the terms of the GNU General Public License as published by
+   	the Free Software Foundation, either version 3 of the License, or
+    	(at your option) any later version.
+	*/
 
 #include <blobid.h>
 #include <iostream>
