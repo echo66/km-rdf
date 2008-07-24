@@ -41,7 +41,7 @@ distanceDistribution(vector<float> *, vector<float> *, bool);
 //			Input is the data id for each feature (mean and variance of both tracks)
 //			Returns a distance between the audiofiles with the features belong to
 //			This features come from the similarity vamp plugin. The means and variances can be also extracted from the chromagram.
-//
+// NOTE: now we use lists as input instead of blobs
 //--------------------------------------------------------------------------
 
 PREDICATE(smpl_mfcc_kldiv, 5){
@@ -74,13 +74,13 @@ PREDICATE(smpl_mfcc_kldiv, 5){
 	while(mean1.next(e)){
 		mfccmean_1->push_back((float)(double)e);
 	}
-while(var1.next(e)){
+	while(var1.next(e)){
 		mfccvar_1->push_back((float)(double)e);
 	}
 	while(mean2.next(e)){
 		mfccmean_2->push_back((float)(double)e);
 	}
-while(var2.next(e)){
+	while(var2.next(e)){
 		mfccvar_2->push_back((float)(double)e);
 	}
 	//may need some checkings if there are vectors or not
@@ -258,10 +258,16 @@ PREDICATE(smpl_cosine_distance, 3){
 	beatspec1 = new vector<double>();
 	beatspec2 = new vector<double>();
 
-	if(smpl_get_data(term_t(PlTerm(A1)), beatspec1)<0) return false;
-	if(smpl_get_data(term_t(PlTerm(A2)), beatspec2)<0) return false;
+	PlTail beat1(A1);
+	PlTail beat2(A2);
 
-
+	PlTerm e;
+	while(beat1.next(e)){
+		beatspec1->push_back((float)(double)e);
+	}
+	while(beat2.next(e)){
+		beatspec2->push_back((float)(double)e);
+	}
     	dist = 1.0; dDenTot = 0; dDen1 = 0; dDen2 = 0; dSum1 =0;
 
     	//check if v1 v2 same size
