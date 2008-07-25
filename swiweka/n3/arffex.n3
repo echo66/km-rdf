@@ -1,0 +1,36 @@
+@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .
+@prefix vamp:     <http://purl.org/ontology/vamp/> .
+@prefix vampex:   <http://www.purl.org/ontology/vamp/examples/> .
+@prefix plugbase: <http://purl.org/ontology/vamp/examples/> .
+@prefix owl:      <http://www.w3.org/2002/07/owl#> .
+@prefix dc:       <http://purl.org/dc/elements/1.1/> .
+@prefix weka:     <http://purl.org/ontology/weka/> .
+@prefix arffex:   <http://purl.org/ontology/weka/arffex#> .
+@prefix foaf:     <http://xmlns.com/foaf/0.1/> .
+@prefix cc:       <http://web.resource.org/cc/> .
+@prefix :         <> .
+
+<>  a   weka:DataSet;
+	foaf:maker          "David Pastor Escuredo";
+	foaf:maker          "Queen Mary University of London";
+	weka:identifier	    "weather";
+        .
+
+<> 	weka:attribute	[weka:identifier "outlook";
+			weka:range_value "sunny";
+			weka:range_value "overcast";
+			weka:range_value "rainy"],
+			[weka:identifier "temperature"],
+			[weka:identifier "humidity"],
+			[weka:identifier "windy";
+			weka:range_value "TRUE";
+			weka:range_value "FALSE";
+			[weka:identifier "play;
+			weka:range_value "yes";
+			weka:range_value "no"];
+
+	weka:record	[weka:value "sunny"; weka:value 85; weka:value 85; weka:value "FALSE"; weka:value "yes"],
+			[weka:value "sunny"; weka:value 80; weka:value 90; weka:value "TRUE"; weka:value "no"];
+			.
+
