@@ -1,30 +1,14 @@
 #labels Featured,Phase-Deploy
 =[http://km-rdf.googlecode.com/files/henry.tar.gz HENRY] (N3 parser and reasoner for SWI-Prolog)=
 
-==First==
-
- * Where does this name come from?
-From [http://sonictruths.net Chris Sutton]- thanks Chris!
-
- * What are the known limitations?
-A lot. Among them: lack
-of recursive rule support (transitive predicate 
-handling and such...). Check out [http://code.google.com/p/km-rdf/issues/list the issues list]. Also look at the [http://km-rdf.googlecode.com/svn/trunk/n3-km/examples/ illustrative examples of these bugs].
- 
- * Is it stable?
-No.
-
 
 ==Install==
 
  * Make sure you have [http://www.swi-prolog.org/ SWI-Prolog] installed.
-
+ * Download [http://km-rdf.googlecode.com/files/henry-1.01.tar.gz the latest stable version]
  * If you want to query your N3-entailed store using SPARQL, get SeRQL from:
-
    http://e-culture.multimedian.nl/software/ClioPatria.shtml
-
    And put the SeRQL directory in the Henry directory.
-
 
 ==Use==
 
@@ -32,9 +16,9 @@ No.
 
    `$ cwm $1 --think --rdf --data`
 
- * From the Prolog command-line, you need to load n3_entailment.pl:
+ * From the Prolog command-line, you can load henry.pl:
  
-   `?- [n3_entailment].`
+   `?- [henry].`
 
    You can then load some n3 files using:
   
@@ -46,24 +30,10 @@ No.
 
    Then, you can compile the N3 rules you have in store using:
 
-   `?- compile.`
+   `?- compile_all.`
 
    Then, the derived statements are accessible through:
 
    `?- n3_entailment:rdf(Subject,Predicate,Object).`
    
-   You can then load some n3 files using:
-  
-   `?- n3_load('file.n3').`
-
-   Or some RDF (XML or turtle) files using:
-
-   `?- rdf_load('file.rdf').`
-
-   Then, you can compile the N3 rules you have in store using:
-
-   `?- compile.`
-
-   Then, the derived statements are accessible through:
-
-   `?- n3_entailment:rdf(Subject,Predicate,Object).`
+   Or through the SPARQL end-point at http://localhost:3020/sparql (make sure you specify N3 as the entailment module)
