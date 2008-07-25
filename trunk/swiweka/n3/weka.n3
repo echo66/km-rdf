@@ -1,0 +1,286 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix foaf: <http://xmlns.com/foaf/0.1/>.
+@prefix vs: <http://www.w3.org/2003/06/sw-vocab-status/ns#>.
+@prefix list: <http://www.w3.org/2000/10/swap/list#>.
+@prefix dc: <http://purl.org/dc/elements/1.1/>.
+@prefix mo: <http://purl.org/ontology/mo/>.
+@prefix weka: <http://purl.org/ontology/weka/>.
+@prefix :         <> .
+
+<> 
+	a owl:Ontology;
+	dc:title "WEKA Ontology";
+	rdfs:label "WEKA Ontology";
+	rdfs:comment """
+			Ontology to describe Weka environments and machine learning scenarios
+	""";
+	foaf:maker "David Pastor Escuredo";
+        dc:date "$Date: 2008/08/ 17:05:11 $";
+	.
+
+vs:term_status a owl:AnnotationProperty.
+
+#Authors foaf
+
+#########################################
+# CLASSES
+#########################################
+
+weka:DataSet
+	a owl:Class; 
+	rdfs:label "Data Set";
+	rdfs:comment """
+		A dataset for classification (Instances class in weka)
+	""";
+	vs:term_status "stable";
+	.
+
+weka:Attribute
+	a owl:Class;
+	rdfs:label "Attribute";
+	rdfs:comment """
+		A classification parameter.
+	""";
+	vs:term_status "stable";
+	.
+
+
+weka:Record
+	a owl:Class;
+	rdfs:label "Record";
+	rdfs:comment """
+		A Instance class in weka
+	""";
+	vs:term_status "stable";
+	.
+
+weka:Classifier
+	a owl:Class;
+	rdfs:label "Classifier";
+	rdfs:comment """
+		Classifier. Machine Learning implementation 
+	""";
+	vs:term_status "unstable";
+	.
+
+weka:Model
+	a owl:Class;
+	rdfs:label "Model";
+	rdfs:comment """
+		Trained classifier as model for classification
+	""";
+	vs:term_status "unstable";
+	.
+
+weka:TrainingSet
+	a owl:Class;
+	rdfs:label "Training Set";
+	rdfs:subClassOf weka:DataSet;
+	rdfs:comment """
+		Data set for training.
+	""";
+	vs:term_status "unstable";
+	.
+
+weka:TestSet
+	a owl:Class;
+	rdfs:label "Test set";
+	rdfs:subClassOf weka:DataSet;
+	rdfs:comment """
+		Data set for testing.
+	""";
+	vs:term_status "unstable";
+	.
+
+weka:StringAttribute
+	a owl:Class;
+	rdfs:label "String Attribute";
+	rdfs:subClassOf weka:Attribute;
+	rdfs:comment """
+		Attribute representing an arbitrary text string
+	""";
+	vs:term_status "stable";
+	.
+
+weka:NumericalAttribute
+	a owl:Class;
+	rdfs:label "Numerical Attribute";
+	rdfs:subClassOf weka:Attribute;
+	rdfs:comment """
+		Attribute representing a numerical attribute
+	""";
+	vs:term_status "stable";
+	.
+
+weka:NominalAttribute
+	a owl:Class;
+	rdfs:label "Nominal Attribute";
+	rdfs:subClassOf weka:Attribute;
+	rdfs:comment """
+		Attribute representing a set of text values
+	""";
+	vs:term_status "stable";
+	.
+
+weka:DateAttribute
+	a owl:Class;
+	rdfs:label "Date Attribute";
+	rdfs:subClassOf weka:Attribute;
+	rdfs:comment """
+		Attribute representing a date
+	""";
+	vs:term_status "stable";
+	.
+
+weka:RelationAttribute
+	a owl:Class;
+	rdfs:label "Relation Attribute";
+	rdfs:subClassOf weka:Attribute;
+	rdfs:comment """
+		Attribute representing a relation
+	""";
+	vs:term_status "stable";
+	.
+
+weka:RecordDatum
+	a owl:Class;
+	rdfs:label "Record Datum";
+	rdfs:comment """
+		Each of the values of a record
+	""";
+	vs:term_status "stable";
+	.
+
+##################################################################
+# PROPERTIES. 
+##################################################################
+
+weka:identifier
+	a rdf:Property;
+	a owl:DatatypeProperty;
+	a owl:FunctionalProperty;
+	rdfs:label "identifier";
+	rdfs:comment """
+		Identifier of data sets and classifiers.
+	""";
+	rdfs:domain weka:DataSet;
+	rdfs:domain weka:Classifier;
+	rdfs:domain weka:Attribute;
+	vs:term_status "stable";
+	.
+
+weka:attribute
+	a rdf:Property;
+	a owl:ObjectProperty;
+	rdfs:label "attribute";
+	rdfs:comment """
+			Links the attributes of a specific data set.
+	""";
+	rdfs:range weka:Attribute;
+	rdfs:domain weka:DataSet;
+	rdfs:domain weka:RecordDatum;
+	vs:term_status "stable";
+	.
+
+weka:record
+	a rdf:Property;
+	a owl:ObjectProperty;
+	rdfs:label "record";
+	rdfs:comment """
+			Links each record of data (must match the attributes)
+	""";
+	rdfs:range weka:Record;
+	rdfs:domain weka:DataSet;
+	vs:term_status "stable";
+	.
+
+weka:class
+	a rdf:Property;
+	a owl:FunctionalProperty;
+	a owl:ObjectProperty;
+	rdfs:label "class";
+	rdfs:comment """
+			The specific class for classification within the dataset
+	""";
+	rdfs:range weka:Attribute;
+	rdfs:domain weka:DataSet;
+	vs:term_status "stable";
+	.
+
+weka:range_value
+	a rdf:Property;
+	a owl:ObjectProperty;
+	rdfs:label "range value";
+	rdfs:comment """
+			Value of the nominal class
+	""";
+	rdfs:domain weka:NominalAttribute;
+	vs:term_status "stable";
+	.	
+
+#functional
+weka:date
+	a rdf:Property;
+	a owl:DatatypeProperty;
+	rdfs:label "date";
+	rdfs:comment """
+			Date value of the date class
+	""";
+	rdfs:domain weka:DateAttribute;
+	#rdfs:range xsd::date;
+	vs:term_status "stable";
+	.
+
+weka:relation
+	a rdf:Property;
+	a owl:ObjectProperty;
+	rdfs:label "relation";
+	rdfs:comment """
+			Relation attribute
+	""";
+	rdfs:domain weka:RelationAttribute;
+	rdfs:range weka:DataSet;
+	vs:term_status "stable";
+	.
+
+
+weka:datum
+	a rdf:Property;
+	a owl:ObjectProperty;
+	rdfs:label "datum";
+	rdfs:comment """
+		Values of the record for each attribute
+	""";
+	rdfs:domain weka:Record;
+	rdfs:range weka:RecordDatum;
+	vs:term_status "stable";
+	.
+
+weka:value
+	a rdf:Property;
+	a owl:DatatypeProperty;
+	a owl:FunctionalProperty;
+	rdfs:label "value";
+	rdfs:comment """
+		Values of the record for each attribute
+	""";
+	rdfs:domain weka:Record;
+	rdfs:domain weka:RecordDatum;
+	vs:term_status "stable";
+	.
+
+weka:available_as
+	a rdf:Property;
+	a owl:ObjectProperty;
+	rdfs:label "available as";
+	rdfs:comment """
+		Available format for the dataset
+	""";
+	#some range for arff files, ace xml or whatever
+	rdfs:domain weka:available_as;
+	vs:term_status "stable";
+	.
+

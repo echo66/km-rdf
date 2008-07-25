@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:list="http://www.w3.org/2000/10/swap/list#" xmlns:mo="http://purl.org/ontology/mo/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:vs="http://www.w3.org/2003/06/sw-vocab-status/ns#" xmlns:weka="http://purl.org/ontology/weka/" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns="file:///home/david/km-rdf/swiweka/n3/weka.n3">
+  <owl:Ontology rdf:about="">
+    <dc:title>WEKA Ontology</dc:title>
+    <rdfs:label>WEKA Ontology</rdfs:label>
+    <rdfs:comment>
+			Ontology to describe Weka environments and machine learning scenarios
+	</rdfs:comment>
+    <foaf:maker>David Pastor Escuredo</foaf:maker>
+    <dc:date>$Date: 2008/08/ 17:05:11 $</dc:date>
+  </owl:Ontology>
+  <owl:AnnotationProperty rdf:about="http://www.w3.org/2003/06/sw-vocab-status/ns#term_status"/>
+  <owl:Class rdf:about="http://purl.org/ontology/weka/DataSet">
+    <rdfs:label>Data Set</rdfs:label>
+    <rdfs:comment>
+		A dataset for classification (Instances class in weka)
+	</rdfs:comment>
+    <vs:term_status>stable</vs:term_status>
+  </owl:Class>
+  <owl:Class rdf:about="http://purl.org/ontology/weka/Attribute">
+    <rdfs:label>Attribute</rdfs:label>
+    <rdfs:comment>
+		A classification parameter.
+	</rdfs:comment>
+    <vs:term_status>stable</vs:term_status>
+  </owl:Class>
+  <owl:Class rdf:about="http://purl.org/ontology/weka/Record">
+    <rdfs:label>Record</rdfs:label>
+    <rdfs:comment>
+		A Instance class in weka
+	</rdfs:comment>
+    <vs:term_status>stable</vs:term_status>
+  </owl:Class>
+  <owl:Class rdf:about="http://purl.org/ontology/weka/Classifier">
+    <rdfs:label>Classifier</rdfs:label>
+    <rdfs:comment>
+		Classifier. Machine Learning implementation 
+	</rdfs:comment>
+    <vs:term_status>unstable</vs:term_status>
+  </owl:Class>
+  <owl:Class rdf:about="http://purl.org/ontology/weka/Model">
+    <rdfs:label>Model</rdfs:label>
+    <rdfs:comment>
+		Trained classifier as model for classification
+	</rdfs:comment>
+    <vs:term_status>unstable</vs:term_status>
+  </owl:Class>
+  <owl:Class rdf:about="http://purl.org/ontology/weka/TrainingSet">
+    <rdfs:label>Training Set</rdfs:label>
+    <rdfs:subClassOf rdf:resource="http://purl.org/ontology/weka/DataSet"/>
+    <rdfs:comment>
+		Data set for training.
+	</rdfs:comment>
+    <vs:term_status>unstable</vs:term_status>
+  </owl:Class>
+  <owl:Class rdf:about="http://purl.org/ontology/weka/TestSet">
+    <rdfs:label>Test set</rdfs:label>
+    <rdfs:subClassOf rdf:resource="http://purl.org/ontology/weka/DataSet"/>
+    <rdfs:comment>
+		Data set for testing.
+	</rdfs:comment>
+    <vs:term_status>unstable</vs:term_status>
+  </owl:Class>
+  <owl:Class rdf:about="http://purl.org/ontology/weka/StringAttribute">
+    <rdfs:label>String Attribute</rdfs:label>
+    <rdfs:subClassOf rdf:resource="http://purl.org/ontology/weka/Attribute"/>
+    <rdfs:comment>
+		Attribute representing an arbitrary text string
+	</rdfs:comment>
+    <vs:term_status>stable</vs:term_status>
+  </owl:Class>
+  <owl:Class rdf:about="http://purl.org/ontology/weka/NumericalAttribute">
+    <rdfs:label>Numerical Attribute</rdfs:label>
+    <rdfs:subClassOf rdf:resource="http://purl.org/ontology/weka/Attribute"/>
+    <rdfs:comment>
+		Attribute representing a numerical attribute
+	</rdfs:comment>
+    <vs:term_status>stable</vs:term_status>
+  </owl:Class>
+  <owl:Class rdf:about="http://purl.org/ontology/weka/NominalAttribute">
+    <rdfs:label>Nominal Attribute</rdfs:label>
+    <rdfs:subClassOf rdf:resource="http://purl.org/ontology/weka/Attribute"/>
+    <rdfs:comment>
+		Attribute representing a set of text values
+	</rdfs:comment>
+    <vs:term_status>stable</vs:term_status>
+  </owl:Class>
+  <owl:Class rdf:about="http://purl.org/ontology/weka/DateAttribute">
+    <rdfs:label>Date Attribute</rdfs:label>
+    <rdfs:subClassOf rdf:resource="http://purl.org/ontology/weka/Attribute"/>
+    <rdfs:comment>
+		Attribute representing a date
+	</rdfs:comment>
+    <vs:term_status>stable</vs:term_status>
+  </owl:Class>
+  <owl:Class rdf:about="http://purl.org/ontology/weka/RelationAttribute">
+    <rdfs:label>Relation Attribute</rdfs:label>
+    <rdfs:subClassOf rdf:resource="http://purl.org/ontology/weka/Attribute"/>
+    <rdfs:comment>
+		Attribute representing a relation
+	</rdfs:comment>
+    <vs:term_status>stable</vs:term_status>
+  </owl:Class>
+  <owl:Class rdf:about="http://purl.org/ontology/weka/RecordDatum">
+    <rdfs:label>Record Datum</rdfs:label>
+    <rdfs:comment>
+		Each of the values of a record
+	</rdfs:comment>
+    <vs:term_status>stable</vs:term_status>
+  </owl:Class>
+  <rdf:Property rdf:about="http://purl.org/ontology/weka/identifier">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label>identifier</rdfs:label>
+    <rdfs:comment>
+		Identifier of data sets and classifiers.
+	</rdfs:comment>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/weka/DataSet"/>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/weka/Classifier"/>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/weka/Attribute"/>
+    <vs:term_status>stable</vs:term_status>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/weka/attribute">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:label>attribute</rdfs:label>
+    <rdfs:comment>
+			Links the attributes of a specific data set.
+	</rdfs:comment>
+    <rdfs:range rdf:resource="http://purl.org/ontology/weka/Attribute"/>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/weka/DataSet"/>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/weka/RecordDatum"/>
+    <vs:term_status>stable</vs:term_status>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/weka/record">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:label>record</rdfs:label>
+    <rdfs:comment>
+			Links each record of data (must match the attributes)
+	</rdfs:comment>
+    <rdfs:range rdf:resource="http://purl.org/ontology/weka/Record"/>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/weka/DataSet"/>
+    <vs:term_status>stable</vs:term_status>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/weka/class">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:label>class</rdfs:label>
+    <rdfs:comment>
+			The specific class for classification within the dataset
+	</rdfs:comment>
+    <rdfs:range rdf:resource="http://purl.org/ontology/weka/Attribute"/>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/weka/DataSet"/>
+    <vs:term_status>stable</vs:term_status>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/weka/range_value">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:label>range value</rdfs:label>
+    <rdfs:comment>
+			Value of the nominal class
+	</rdfs:comment>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/weka/NominalAttribute"/>
+    <vs:term_status>stable</vs:term_status>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/weka/date">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:label>date</rdfs:label>
+    <rdfs:comment>
+			Date value of the date class
+	</rdfs:comment>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/weka/DateAttribute"/>
+    <vs:term_status>stable</vs:term_status>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/weka/relation">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:label>relation</rdfs:label>
+    <rdfs:comment>
+			Relation attribute
+	</rdfs:comment>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/weka/RelationAttribute"/>
+    <rdfs:range rdf:resource="http://purl.org/ontology/weka/DataSet"/>
+    <vs:term_status>stable</vs:term_status>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/weka/datum">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:label>datum</rdfs:label>
+    <rdfs:comment>
+		Values of the record for each attribute
+	</rdfs:comment>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/weka/Record"/>
+    <rdfs:range rdf:resource="http://purl.org/ontology/weka/RecordDatum"/>
+    <vs:term_status>stable</vs:term_status>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/weka/value">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label>value</rdfs:label>
+    <rdfs:comment>
+		Values of the record for each attribute
+	</rdfs:comment>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/weka/Record"/>
+    <vs:term_status>stable</vs:term_status>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/weka/available_as">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:label>available as</rdfs:label>
+    <rdfs:comment>
+		Available format for the dataset
+	</rdfs:comment>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/weka/available_as"/>
+    <vs:term_status>stable</vs:term_status>
+  </rdf:Property>
+</rdf:RDF>
