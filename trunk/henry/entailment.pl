@@ -4,6 +4,7 @@
 :- use_module(utils).
 :- use_module(library('semweb/rdf_db'),[rdf_bnode/1]).
 
+:- set_prolog_flag(float_format, '%.20e'). % FIXME - I shouldn't need that - remove term_to_atom stuff
 
 :- begin_tests(entailment).
 test(list_construction,[]) :-
@@ -98,7 +99,7 @@ clean_skolem(Bnode,NN) :-
 	ground(Bnode), Bnode=individual(B,Vars),
 	%to_atom_list(Vars,VarsL), % in case some literal terms are in there
 	%concat_atom([B|VarsL],'_',NN),!.
-	term_to_atom(Vars,Vars2),
+	term_to_atom(Vars,Vars2), % FIXME - this should be avoided
 	concat_atom([B,'_',Vars2],NN),!.
 clean_skolem(N,N).
 
