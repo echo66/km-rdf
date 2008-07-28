@@ -53,7 +53,7 @@ call_builtin(P,Pred,SS,OO) :-
 	\+tabled(P),
 	call(Pred,SS,OO).
 call_builtin(P,Pred,SS,OO) :-
-	tabled(P), \+cache(SS,P,OO,cache),!,
+	tabled(P), \+cache(SS,P,_,cache),!, % input predicate output ! (for tabled predicate)
 	call(Pred,SS,OO),
 	term_to_atom(cache(SS,P,OO,cache),T),atom_to_term(T,ToAssert,_), % FIXME - loss of precision
 	assert(ToAssert).
