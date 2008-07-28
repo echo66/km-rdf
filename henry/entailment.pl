@@ -2,9 +2,9 @@
 
 :- use_module(rdf_e).
 :- use_module(utils).
-:- use_module(library('semweb/rdf_db'),[rdf_bnode/1]).
+:- use_module(library('semweb/rdf_db'),[rdf_bnode/1,rdf_reachable/3]).
 
-:- set_prolog_flag(float_format, '%.20e'). % FIXME - I shouldn't need that - remove term_to_atom stuff
+%:- set_prolog_flag(float_format, '%.20e'). % FIXME - I shouldn't need that - remove term_to_atom stuff
 
 :- begin_tests(entailment).
 test(list_construction,[]) :-
@@ -54,10 +54,15 @@ test(describe_list,[]) :-
 	,	rdf(D,'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest','http://www.w3.org/1999/02/22-rdf-syntax-ns#nil')
 	].
 test(convert_skolem,[]) :-
-	clean_skolem(individual('__bnode3',[a,b,c,[d,e]]),E),parse_skolem(E,R),!,
-	R =  individual('__bnode3', [a, b, c, [d, e]]).
+	clean_skolem(individual('__skolem3',[a,b,c,[d,e]]),E),parse_skolem(E,R),!,
+	R =  individual('__skolem3', [a, b, c, [d, e]]).
 :- end_tests(entailment).
 
+sparql_in_graph(G,rdf(S,P,O)) :-
+        rdf_db:rdf(S,P,O,G:_).
+% More - proof
+%sparql_in_graph(G,rdf(S,P,O)) :-
+%	rdf(S,P,O)
 
 rdf(S,P,O) :-
 	parse_skolem(S,S2),parse_skolem(O,O2),
@@ -88,7 +93,6 @@ describe_list([_|T],S,Triple) :-
 	
 	
 
-
 entail(rdf(S,P,O),rdf(SS,P,OO)) :-
 	rdf_2(S,P,O),
 	% some filtering, to not make SeRQL crash with lists-as-nodes and bnodes-as-terms
@@ -112,7 +116,7 @@ parse_skolem(At,individual(Bnode,Args3)) :-
 	atomic(At),
 	concat_atom(List,'_',At),
 	List = ['','',BnodeId|Args],Args\=[],
-	atom_concat('bnode',_,BnodeId),
+	atom_concat('skolem',_,BnodeId),
 	concat_atom(Args,'_',Args2),
 	atom_to_term(Args2,Args3,[]),
 	atom_concat('__',BnodeId,Bnode),!.
@@ -128,12 +132,21 @@ to_atom_list([H|T1],[HH|T2]) :-
 	(\+atomic(H) -> term_to_atom(H,HH); H = HH),
 	to_atom_list(T1,T2).
 
+
 rdf_2(S,P,O) :-
 	ground(P),
 	rdf_l(S,P,O).
 rdf_2(S,P,O) :-
 	rdf_e(S,P,O).
-
+% FIXME - namespaces
+% sameAs simmetry handling (could perhaps be in an n3 rule)
+rdf_2(S,'http://www.w3.org/2002/07/owl#sameAs',O) :-
+	rdf_e(O,'http://www.w3.org/2002/07/owl#sameAs',S).
+% sameAs transitivity handling (could perhaps be in an n3 rule)
+rdf_2(S,P,O) :-
+	rdf_e(S,'http://www.w3.org/2002/07/owl#sameAs',_), % uh... quite sub-optimal
+	rdf_reachable(S,'http://www.w3.org/2002/07/owl#sameAs',S2),
+	rdf_e(S2,P,O).
 
 rdf_l([_],'http://www.w3.org/1999/02/22-rdf-syntax-ns#rest','http://www.w3.org/1999/02/22-rdf-syntax-ns#nil').
 rdf_l([H|_],'http://www.w3.org/1999/02/22-rdf-syntax-ns#first',H).
