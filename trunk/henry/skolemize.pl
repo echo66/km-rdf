@@ -23,21 +23,24 @@ skolemize(Head,Body,Skolem) :-
 
 skolemize2(_,[],[]).
 skolemize2(Vars,[rdf_e(S,P,O)|T1],[rdf_e(individual(B,Vars),P,individual(C,Vars))|T2]) :-
-	compound(S),S=bnode(B),((var(B),rdf_bnode(B));true),
-	compound(O),O=bnode(C),((var(C),rdf_bnode(C));true),
+	compound(S),S=bnode(B),((var(B),new_skolem(B));true),
+	compound(O),O=bnode(C),((var(C),new_skolem(C));true),
 	!,
 	skolemize2(Vars,T1,T2).
 skolemize2(Vars,[rdf_e(S,P,O)|T1],[rdf_e(individual(B,Vars),P,O)|T2]) :-
-	compound(S),S=bnode(B),((var(B),rdf_bnode(B));true),
+	compound(S),S=bnode(B),((var(B),new_skolem(B));true),
 	!,
 	skolemize2(Vars,T1,T2).
 skolemize2(Vars,[rdf_e(S,P,O)|T1],[rdf_e(S,P,individual(B,Vars))|T2]) :-
-        compound(O),O=bnode(B),((var(B),rdf_bnode(B));true),
+        compound(O),O=bnode(B),((var(B),new_skolem(B));true),
 	!,
         skolemize2(Vars,T1,T2).
 skolemize2(Vars,[H|T1],[H|T2]) :-
 	skolemize2(Vars,T1,T2).
 
 
-
+new_skolem(Skolem) :-
+	rdf_bnode(B),
+	atom_concat('__bnode',N,B),
+	atom_concat('__skolem',N,Skolem).
 

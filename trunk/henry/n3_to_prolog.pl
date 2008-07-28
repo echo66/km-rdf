@@ -1,4 +1,4 @@
-:- module(n3_to_prolog,[n3_prolog_clause/1,compile_all/0]).
+:- module(n3_to_prolog,[n3_prolog_clause/1,compile_all/0,implies/2,n3_pl/4]).
 
 :- use_module(skolemize).
 :- use_module(utils).
@@ -30,7 +30,7 @@
 compile_all :-
 	forall(n3_prolog_clause(Clause),(format(user_error,'~w\n\n',[Clause]),assert(rdf_e:Clause))).
 
-n3_prolog_clause(':-'(H,B)) :-
+n3_prolog_clause(':-'(conclusion(H,proof(B,Skolem)),B)) :-
 	implies(BodyGraph,HeadGraph),
 	n3_pl(head,HeadGraph,PLH,B1),
 	n3_pl(body,BodyGraph,PLB,B2),

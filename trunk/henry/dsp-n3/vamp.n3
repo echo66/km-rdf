@@ -9,7 +9,7 @@
 @prefix to: <http://purl.org/ontology/tonality/>.
 @prefix key: <http://purl.org/ontology/tonality/key/>.
 @prefix tl: <http://purl.org/NET/c4dm/timeline.owl#>.
-@prefix : <>.
+@prefix : <#>.
 
 vamp:plugin 
 	a rdf:Property;
@@ -115,35 +115,42 @@ vamp:qm-similarity
 # Should it be the default behavior?
 vamp:transform a <http://purl.org/ontology/tabling/TabledPredicate>.
 
+:key_translation = ((1.0 key:Cmajor) (2.0 key:Csmajor) (3.0 key:Dmajor) (4.0 key:Dsmajor) (5.0 key:Emajor) (6.0 key:Fmajor) (7.0 key:Fsmajor) (8.0 key:Gmajor) (9.0 key:Gsmajr) (10.0 key:Amajor) (11.0 key:Asmajor) (12.0 key:Bmajor) (13.0 key:Cminor) (14.0 key:Csminor) (15.0 key:Dminor) (16.0 key:Dsminor) (17.0 key:Eminor) (18.0 key:Fminor) (19.0 key:Fsminor) (20.0 key:Gminor) (21.0 key:Gsminor) (22.0 key:Aminor) (23.0 key:Asminor) (24.0 key:Bminor)).
 
 {
+
 ?af mo:encodes ?signal.
 ?signal mo:time [tl:timeline ?stl].
 ("qm-vamp-plugins" "qm-keydetector" ?signal ("key")) vamp:transform ?otp.
 ("key" ?start _:fduration ?keys) list:in ?otp.
-?key list:in ?keys.
-(("key" ?start _:fduration ?keys) ("key" ?end _:fduration2 _:keys2)) list:nextto ?otp.
+?key_number list:in ?keys.
+(?key_number ?key) list:in :key_translation.
+
 } => {
 
-_:tonalregion a to:Tonality;
+_:tonalregion a af:KeyChange;
 	rdfs:label "Tonal region delimited by the key";
 	event:time [
 		tl:timeline ?stl;
-		tl:start ?start;
-		tl:end ?end ] ;
-	to:key ?key.
+		tl:at ?start ] ;
+	af:new_key ?key.
 }.
 
 {
+
 ?af1 mo:encodes ?signal1.
 ("qm-vamp-plugins" "qm-similarity" ?signal1 ("means" "variances")) vamp:transform ?otp1.
 ("means" _:start1 _:duration1 ?meanv1) list:in ?otp1.
 ("variances" _:start1 _:duration1 ?varv1) list:in ?otp1.
 
+#
+
 ?af2 mo:encodes ?signal2.
 ("qm-vamp-plugins" "qm-similarity" ?signal2 ("means" "variances")) vamp:transform ?otp2.
 ("means" _:start2 _:duration2 ?meanv2) list:in ?otp2.
 ("variances" _:start2 _:duration2 ?varv2) list:in ?otp2.
+
+#>>
 
 ((?meanv1 ?varv1) (?meanv2 ?varv2)) <http://purl.org/ontology/dsp/mfcc_kldiv> ?div
 } => {

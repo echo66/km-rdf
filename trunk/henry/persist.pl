@@ -9,9 +9,9 @@
 
 :- begin_tests(persist).
 test(commit_triple) :-
-	assert(rdf_e:cache(a,b,c)),
+	assert(rdf_e:cache(a,b,c,cache)),
 	commit,!,
-	rdf_db:rdf(a,b,c),!,
+	rdf_db:rdf(a,b,c,cache),!,
 	rdf_db:rdf_reset_db. % Ouch
 :- end_tests(persist).
 
@@ -46,15 +46,15 @@ clean_l(_).
 :- multifile list/2.
 
 commit :- 
-	forall(cache(S,P,O),
+	forall(cache(S,P,O,G),
 		(
 			persist(rdf(S,P,O)),
 			((pl_list_to_rdf_list(S,Triples1,SS),!);(S=SS,Triples1=[])),
 			((pl_list_to_rdf_list(O,Triples2,OO),!);(O=OO,Triples2=[])),
 			append(Triples1,Triples2,Triples),
 			free_variables([Triples,SS,OO],Vars),bnode_list(Vars),
-			!,rdf_assert(SS,P,OO,cache),
-			assert_all(Triples)
+			!,rdf_assert(SS,P,OO,G),
+			assert_all(G,Triples)
 		)),
 	retractall(rdf_tmp(_,_,_)).
 
@@ -63,10 +63,10 @@ bnode_list([H|T]) :-
 	rdf_bnode(H),
 	bnode_list(T).
 
-assert_all([]).
-assert_all([rdf(S,P,O)|T]) :-
+assert_all(_,[]).
+assert_all(G,[rdf(S,P,O)|T]) :-
 	persist(rdf(S,P,O)),
-	rdf_assert(S,P,O,cache),
+	rdf_assert(S,P,O,G),
 	assert_all(T).
 
 persist(rdf(S,_,O)) :-

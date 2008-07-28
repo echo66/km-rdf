@@ -1,7 +1,8 @@
 :- module(utils,[list_to_conj/2,literal_to_node/2,pl_list_to_rdf_list/3,get_list/2]).
 
-:- begin_tests(utils).
 :- use_module(library('semweb/rdf_db')).
+
+:- begin_tests(utils).
 test(list_conversion) :-
 	rdf_db:(rdf_assert(l1,rdf:first,a),rdf_assert(l1,rdf:rest,l2),rdf_assert(l2,rdf:first,l3),rdf_assert(l2,rdf:rest,rdf:nil),rdf_assert(l3,rdf:first,b),rdf_assert(l3,rdf:rest,l4),rdf_assert(l4,rdf:first,c),rdf_assert(l4,rdf:rest,rdf:nil)),
 	get_list(l1,[a,[b,c]]),!,
