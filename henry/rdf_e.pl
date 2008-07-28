@@ -37,10 +37,10 @@ rdf_e(S,P,O) :-
 	rdf_db:(Q1,Q2,rdf(SS,P,OO,G)),G\=_:_,
 	\+rdf_db:rdf(G,_,_),\+rdf_db:rdf(_,_,G),P\='http://www.w3.org/2000/10/swap/log#implies'.
 rdf_e(S,P,O) :-
-	conclusion(rdf_e(S,P,O),proof(Body,Head)),
+	conclusion(rdf_e(S,P,O),proof(_Body,_Head)).
 	%rdf_bnode(HeadG),rdf_bnode(BodyG),
 	% record entailment step
-	assert(cache(Body,'http://example.org/entails',Head,proof)).
+	%assert(cache(Body,'http://example.org/entails',Head,proof)).
 
 % sameAs on builtin arguments
 same_node(N,N) :- \+atomic(N),!.
@@ -62,7 +62,7 @@ call_builtin(P,Pred,SS,OO) :-
 	%literal_to_node(SSS,SSSS),
 	%rdf_db:(rdf_assert(SSSS,P,OOO),G1,G2).
 call_builtin(P,_,SS,OO) :-
-	tabled(P), writeln('looking up in cache'),
+	tabled(P), format(user_error,'looking up in cache\n',[]),
 	cache(SS,P,OO,cache),
 	mem_load(SS),mem_load(OO). % FIXME - should be in the builtin - all builtins should have their metadata cached anyway
 
