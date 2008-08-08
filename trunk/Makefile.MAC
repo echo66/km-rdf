@@ -38,6 +38,9 @@ swivamp::
 	cd swidata && $(MAKE)
 	cd swiaudio && $(MAKE)
 	cd swivamp && $(MAKE)
+	cp swilib/swiaudioblob.dylib swivamp/
+	cp swilib/blobid.dylib swivamp/
+	
 
 swidsp::
 	cd swilib && $(MAKE)
@@ -45,6 +48,8 @@ swidsp::
 	cd swiaudio && $(MAKE)
 	cd swivamp && $(MAKE)
 	cd similarity && $(MAKE)
+	cp swilib/swiaudioblob.dylib swivamp/
+	cp swilib/blobid.dylib swivamp/
 	#install-swiladspa
 
 
