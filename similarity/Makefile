@@ -21,12 +21,12 @@ SIM_LIB = $(sim_dir)/similarity.$(lib_suf)
 #Libraries
 
 LIBS_SIM = $(swilib_dir)/blobid.$(lib_suf) \
-	$(swilib_dir)/swiaudioblob.$(lib_suf) 
+	$(swilib_dir)/swiaudioblob.$(lib_suf) \
+	$(qt_lib) 
 		
 #Headers
 INCLUDE_SIM = -I$(swi_dir)/include/ \
-	-I/usr/include/qt4/Qt/ \
-	-I/usr/include/qt4/ \
+	$(qt_include) \
 	-I$(swilib_dir)/ \
 	-I$(sim_dir)/
 
