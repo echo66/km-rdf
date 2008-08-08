@@ -194,7 +194,7 @@ PREDICATE(concat_blob, 3)
 }
 
 /*
-	equal_blob(+Blob1, +Blob2)
+	equal_blobs(+Blob1, +Blob2)
 */
 
 PREDICATE(equal_blob, 2)
