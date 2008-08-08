@@ -48,7 +48,7 @@ $(OBJ_BI) :
 	$(CPP) -c $(CFLAGS) $(INCLUDE) $(B_ID) -o $(OBJ_BI)
 
 $(AUDIOBLOB) : $(OBJ_AUDIOBLOB) Makefile
-	$(CPP) $(dynlib_com) $(OBJ_AUDIOBLOB) -o $(AUDIOBLOB) 
+	$(CPP) $(dynlib_com) $(LIB) $(OBJ_AUDIOBLOB) -o $(AUDIOBLOB) 
 
 $(BLOBID) : $(OBJ_BI) Makefile
 	$(CPP) $(dynlib_com) $(LIB) $(OBJ_BI) -o $(BLOBID)
