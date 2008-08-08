@@ -18,14 +18,14 @@ swilib_dir = ../swilib
 
 #Headers
 INCLUDE= 		-I$(swi_dir)/include/ \
-			-I/usr/include/qt4/Qt/ \
-			-I/usr/include/qt4/ \
+                        $(qt_include) \
 			-I$(swilib_dir)/
 			
 #Libraries
 
 LIB = 	$(swilib_dir)/swiaudioblob.$(lib_suf) \
-	$(swilib_dir)/blobid.$(lib_suf)
+	$(swilib_dir)/blobid.$(lib_suf) \
+	$(qt_lib)
 
 #Sources
 

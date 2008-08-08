@@ -301,7 +301,7 @@ load_file_data(term_t blob, const char* filePath){
 	All terms are blobs.
 */
 int 
-concat_blobs(term_t blob1, term_t blob2, term_t concat){
+concat_blob(term_t blob1, term_t blob2, term_t concat){
 
 	AudioVector *data;
 	data = new vector<float>();
@@ -331,7 +331,7 @@ concat_blobs(term_t blob1, term_t blob2, term_t concat){
 	return 0 if equal
 */
 int
-equal_blobs(term_t blob1, term_t blob2){
+equal_blob(term_t blob1, term_t blob2){
 
 	AudioVector *data1;
 	data1 = audio_blob_to_pointer(blob1);
