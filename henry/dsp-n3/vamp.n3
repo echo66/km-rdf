@@ -115,7 +115,7 @@ vamp:qm-similarity
 # Should it be the default behavior?
 vamp:transform a <http://purl.org/ontology/tabling/TabledPredicate>.
 
-:key_translation = ((1.0 key:Cmajor) (2.0 key:Csmajor) (3.0 key:Dmajor) (4.0 key:Dsmajor) (5.0 key:Emajor) (6.0 key:Fmajor) (7.0 key:Fsmajor) (8.0 key:Gmajor) (9.0 key:Gsmajr) (10.0 key:Amajor) (11.0 key:Asmajor) (12.0 key:Bmajor) (13.0 key:Cminor) (14.0 key:Csminor) (15.0 key:Dminor) (16.0 key:Dsminor) (17.0 key:Eminor) (18.0 key:Fminor) (19.0 key:Fsminor) (20.0 key:Gminor) (21.0 key:Gsminor) (22.0 key:Aminor) (23.0 key:Asminor) (24.0 key:Bminor)).
+:key_translation = ((1.0 key:Cmajor) (2.0 key:Csmajor) (3.0 key:Dmajor) (4.0 key:Dsmajor) (5.0 key:Emajor) (6.0 key:Fmajor) (7.0 key:Fsmajor) (8.0 key:Gmajor) (9.0 key:Gsmajor) (10.0 key:Amajor) (11.0 key:Asmajor) (12.0 key:Bmajor) (13.0 key:Cminor) (14.0 key:Csminor) (15.0 key:Dminor) (16.0 key:Dsminor) (17.0 key:Eminor) (18.0 key:Fminor) (19.0 key:Fsminor) (20.0 key:Gminor) (21.0 key:Gsminor) (22.0 key:Aminor) (23.0 key:Asminor) (24.0 key:Bminor)).
 
 {
 
