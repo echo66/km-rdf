@@ -125,13 +125,13 @@ vamp_feature_system(FeatureType):-
 
 vamp_plugin_for(PluginKey, FeatureType, Index):-
 	var(FeatureType),
-	vamp_plugin_system(PluginKey),
+	vamp_plugin_system(PluginKey),!,
 	vmpl_load_plugin(PluginKey, 44100, Plugin),
 	vmpl_plugin_numberOutputs(Plugin, Size),
 	vamp_plugin_features(Plugin, Size, FeatureType, Index).
 vamp_plugin_for(PluginKey, FeatureType, Index):-
 	nonvar(PluginKey),
-	nonvar(FeatureType),
+	nonvar(FeatureType),!,
 	is_feature_of_plugin(PluginKey, FeatureType, Index).
 vamp_plugin_for(PluginKey, FeatureType, Index):-
 	var(PluginKey),

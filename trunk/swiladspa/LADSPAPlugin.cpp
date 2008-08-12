@@ -1,10 +1,15 @@
-
 /**
-	LADSPA Plugin Loader. This class is in charge of scanning system for plugins and providing a public interface for a SWI-Prolog host to deal 
-	with the plugins.
-	Some part of the code is taken from the Sonic Visualiser code (Chris Cannam)
-	David Pastor 2008, c4dm, Queen Mary University of London.
-*/
+	LADSPA Plugins wrapper.
+
+	Centre for Digital Music, Queen Mary, University of London.
+	Copyright (C) 2008 David Pastor Escuredo and QMUL.
+
+	This program is free software: you can redistribute it and/or modify
+  	it under the terms of the GNU General Public License as published by
+   	the Free Software Foundation, either version 3 of the License, or
+    	(at your option) any later version.
+	*/
+
 
 #ifndef _LADSPA_PLUGIN_
 #define _LADSPA_PLUGIN_

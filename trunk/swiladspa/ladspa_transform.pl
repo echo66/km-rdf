@@ -18,7 +18,7 @@
 
 :-use_module('../swiaudio/audio').
 :-use_module('../swidata/data').
-:-use_module('vamp').
+:-use_module('ladspa').
 %:-use_module('../front-end/transform').
 :-use_module(library('option')).
 
@@ -29,6 +29,11 @@ transform(Signal,Lib,Id,Outputs,FinalOutputs):-
 	transform(Signal,Lib,Id,Outputs,FinalOutputs,[]).
 
 %% transform(+Signal, +LibraryId, +PluginId, +ListOfOutputIds, -FinalOutput, +Options) is semidet
+%
+% Options:
+%	parameters (List)
+%	block
+%	outcontrols (List)
 
 transform(Signal, Lib, Id, Outputs, FinalOutputs, Options):-
 	is_list(Options),
@@ -36,15 +41,15 @@ transform(Signal, Lib, Id, Outputs, FinalOutputs, Options):-
 	get_channels(Signal, Ch),
 	plugin_key(Lib, Id, Key),
 	option(block(Block), Options, 2048),
-        ldpl_instantiate_plugin(Key, Sr, Block, Plugin)
-	vmpl_initialize_plugin(Plugin, Ch, StepSize, BlockSize),
-	vamp_compute_feature2(Signal, StepSize, BlockSize, Indexes, Plugin, FinalOutputs).
+        ldpl_instantiate_plugin(Key, Sr, Block, Plugin),
+	ldpl_connect_ports(Plugin).
+	%((option(parameters(Parameters), Options, _), option(outcontrols(OutCtrl), Options, _), !) ; (ldpl_set_default_controls(Plugin))),
+	
 
 % concats the plugin key
 
-plugin_key(Lib, Id, Key):-
-	nonvar(Lib),
-	nonvar(Id),
+plugin_key(_Lib, Id, Key):-
+	nonvar(Id),!,
 	atom_concat('ladspa-plugin', :, HalfKey),
 	atom_concat(HalfKey, Id, Key).
 plugin_key(Lib, Id, _):-

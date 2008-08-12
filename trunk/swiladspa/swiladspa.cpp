@@ -1,8 +1,14 @@
 /**
- * SWI-Prolog external interface to LADSPA Plugins
- * This C/C++ source defines foreign functions a library for swiladspa. Mainly type-conversion stuff and DB of active plugins
- * David Pastor Escuredo 2008, c4dm, Queen Mary University of London.
- */
+	LADSPA/SWI-Prolog foreign interface. This source deals with working plugin instances.
+
+	Centre for Digital Music, Queen Mary, University of London.
+	Copyright (C) 2008 David Pastor Escuredo and QMUL.
+
+	This program is free software: you can redistribute it and/or modify
+  	it under the terms of the GNU General Public License as published by
+   	the Free Software Foundation, either version 3 of the License, or
+    	(at your option) any later version.
+	*/
 
 #include <swiladspa.h>
 #include <iostream>
