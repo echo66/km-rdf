@@ -1,9 +1,13 @@
 /**
-	LADSPA Module for audio analysis.
-	This module defines a LADSPA host for SWI-Prolog allowing querying plugin meta-data and calling plugin processing. 
-	Input and Output are MO::Signal or MO::Frame functors defined in swilib.
+	LADSPA Module for audio analysis. This module offers communication with the plugin libraries.	
 
-	David Pastor Escuredo 2008, c4dm, Queen Mary University of London
+	Centre for Digital Music, Queen Mary, University of London.
+	Copyright (C) 2008 David Pastor Escuredo and QMUL.
+
+	This program is free software: you can redistribute it and/or modify
+  	it under the terms of the GNU General Public License as published by
+   	the Free Software Foundation, either version 3 of the License, or
+    	(at your option) any later version.
 */
 
 :-module(ladspa, [ladspa_plugin_system/1
@@ -109,7 +113,7 @@ is_inAu(T, InAu, I):-
 is_outAu(T, OutAu, I):-
 	member(I, OutAu),
 	T = 'OutputAudio'.
-is_inC(T, InC, I)%:- use_module(library(pldoc)):-
+is_inC(T, InC, I):- 
 	member(I, InC),
 	T = 'InputControl'.
 is_outC(T, OutC, I):-
@@ -145,7 +149,7 @@ ladspa_plugin_for(PluginKey, Effect, Index):-
 	
 
 ldpl_ladspa(Input, Key, Block, Output):-
-	Input = signal(Sr, Data)
+	Input = signal(Sr, Data),
 	ldpl_instantiate_plugin(Key, Sr, Block, Plugin),
 	ldpl_connect_ports(Plugin),
 	ldpl_set_default_controls(Plugin),

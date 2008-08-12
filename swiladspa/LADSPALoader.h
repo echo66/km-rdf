@@ -1,8 +1,15 @@
 /**
-	Loader for ladspa plugins
-	David Pastor 2008
-	code taken from SV
-*/
+	LADSPA plugins Loader
+        This code is mainly inspired in the Sonic Visualiser host (Chris Cannam)
+
+	Centre for Digital Music, Queen Mary, University of London.
+	Copyright (C) 2008 David Pastor Escuredo and QMUL.
+
+	This program is free software: you can redistribute it and/or modify
+  	it under the terms of the GNU General Public License as published by
+   	the Free Software Foundation, either version 3 of the License, or
+    	(at your option) any later version.
+	*/
 
 #ifndef _LADSPA_LOADER_H_
 #define _LADSPA_LOADER_H_
@@ -39,6 +46,7 @@ public:
 	int plugin_parameter_count(std::string);
 	std::string plugin_maker(std::string);
 	std::string plugin_soname(std::string);
+	std::string plugin_name(std::string);
 	std::vector<int> inputAudio_ports(std::string);
 	std::vector<int> outputAudio_ports(std::string);
 	std::vector<int> inputControl_ports(std::string);

@@ -1,8 +1,14 @@
 /**
- * SWI-Prolog external interface to LADSPA Plugins. This source provides working plugins management and type-conversion utilities.
- * David Pastor Escuredo 2008, c4dm, Queen Mary University of London
- *
- */
+	LADSPA/SWI-Prolog foreign interface. 
+
+	Centre for Digital Music, Queen Mary, University of London.
+	Copyright (C) 2008 David Pastor Escuredo and QMUL.
+
+	This program is free software: you can redistribute it and/or modify
+  	it under the terms of the GNU General Public License as published by
+   	the Free Software Foundation, either version 3 of the License, or
+    	(at your option) any later version.
+	*/
 
 #ifndef _SWI_LADSPA_H_
 #define _SWI_LADSPA_H_

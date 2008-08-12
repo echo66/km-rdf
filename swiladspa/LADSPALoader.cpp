@@ -1,9 +1,16 @@
 /**
-	LADSPA Plugin Loader. This class is in charge of scanning system for plugins and providing a public interface for a SWI-Prolog host to deal 
-	with the plugins.
-	Some part of the code is taken from the Sonic Visualiser code (Chris Cannam)
-	David Pastor 2008, c4dm, Queen Mary University of London.
-*/
+	LADSPA plugins Loader
+ 	This code is mainly inspired in the Sonic Visualiser host (Chris Cannam)
+
+	Centre for Digital Music, Queen Mary, University of London.
+	Copyright (C) 2008 David Pastor Escuredo and QMUL.
+
+	This program is free software: you can redistribute it and/or modify
+  	it under the terms of the GNU General Public License as published by
+   	the Free Software Foundation, either version 3 of the License, or
+    	(at your option) any later version.
+	*/
+
 
 #ifndef _LADSPA_LOADER_
 #define _LADSPA_LOADER_
@@ -87,6 +94,18 @@ LADSPALoader::plugin_soname(std::string name){
 
 		if(name.compare(ladspa_plugins_db[j].key) == 0){
 			return ladspa_plugins_db[j].soname;
+		}
+	}	
+	return "";
+}
+
+std::string
+LADSPALoader::plugin_name(std::string pkey){
+
+	for(int j = 0; j < plugins_sys; j++){
+
+		if(pkey.compare(ladspa_plugins_db[j].key) == 0){
+			return ladspa_plugins_db[j].name;
 		}
 	}	
 	return "";
@@ -354,9 +373,11 @@ LADSPALoader::getLADSPADescriptor(std::string name)
 
     const LADSPA_Descriptor *descriptor = 0;
     
-    int index = 0;
+    int index = 0; 
+    std::string realname = plugin_name(name);
+    std::cerr<< realname<<std::endl;
     while ((descriptor = fn(index))) {
-	if (descriptor->Name == name) return descriptor;
+	if (descriptor->Name == realname.data()) return descriptor;
 	++index;
     }
 
