@@ -6,17 +6,18 @@
 	David Pastor Escuredo 2008, c4dm, Queen Mary University of London
 */
 
-:-module(ladspa, [ldpl_plugin_system/1
+:-module(ladspa, [ladspa_plugin_system/1
 		,	ldpl_plugins/1
 		,	ldpl_plugin_maker/2
 		,	ldpl_plugin_library/2
 		,	ldpl_plugin_ports_count/2
 		,	ldpl_input_audio/2
 		,	ldpl_output_audio/2
+		,	ladspa_port_description/2
+		, 	ladspa_plugin_for/3
 		,	ldpl_input_control/2
 		,	ldpl_output_control/2
 		, 	ldpl_port_name_for/3
-		,	ldpl_port_description/2
 		,	ldpl_set_parameter/3
 		,	ldpl_set_output_control/3
 		,	ldpl_instantiate_plugin/4
@@ -33,26 +34,13 @@
 
 :- use_module('../swidata/data').
 :- use_module('../swiaudio/audio').
+%:- use_module(library(pldoc)).
 
 :-ldpl_loader.
 
 /************************
 ****** PATTERNS *********
 ************************/
-
-/* 	ldpl_plugins(-ListOfPluginsInSystem)
-
-	ldpl_plugin_maker(+PluginName, -PluginMaker)
-
-	ldpl_plugin_library(+PluginName, -LibraryOwningThePlugin)
-
-	ldpl_plugin_ports_count(+PluginName, -NumberOfPorts)
-
-	ldpl_input_audio(-PluginName, -ListOfIndexesOfInputAudioPorts) Eg: ldpl_input_audio('AmplifierStereo', [0, 1])
-
-	ldpl_output_audio(-PluginName, -ListOfIndexesOfOutputAudioPorts)
-
-**/
 
 /**************************** USING PLUGIN ***********************/
 
@@ -96,24 +84,19 @@
 
 /****************************** Building specific rules ************************/
 
-/**
-	Non-deterministic scan of plugins in system
-	ldpl_plugin_system(?Plugin)
+%%  ladspa_plugin_system(?PluginKey) is nondet
+% Checks the LADSPA plugins in the system
 
-	IS FAILING AGAIN!!!!
-	*/
-ldpl_plugin_system(Plugin):-
+ladspa_plugin_system(Plugin):-
 	ldpl_plugins(List),
 	member(Plugin, List).
 
-/**
-	Returns a functor 'LadspaPort'(Type, Index, Name). Non-deterministic
+%%  ladspa_port_description(?PluginKey, 'LadpsaPort'(?Type, ?Index, -Name)) is nondet
+% Returns a functor 'LadspaPort'(Type, Index, Name) describing the differt ports of the plugin (audio and control input and output controls)
 
-	ldpl_port_description(?PluginName, 'LadpsaPort'(?Type, ?Index, -Name))
-*/
-ldpl_port_description(Name, 'LadspaPort'(T, I, N)):-
-	var(N),
-	ldpl_plugin_system(Name),
+ladspa_port_description(Name, 'LadspaPort'(T, I, N)):-
+	var(N),!,
+	ladspa_plugin_system(Name),
 	ldpl_input_audio(Name, InAu),
 	ldpl_output_audio(Name, OutAu),
 	ldpl_input_control(Name, InC),
@@ -126,47 +109,43 @@ is_inAu(T, InAu, I):-
 is_outAu(T, OutAu, I):-
 	member(I, OutAu),
 	T = 'OutputAudio'.
-is_inC(T, InC, I):-
+is_inC(T, InC, I)%:- use_module(library(pldoc)):-
 	member(I, InC),
 	T = 'InputControl'.
 is_outC(T, OutC, I):-
 	member(I, OutC),
 	T = 'OutputControl'.
-ldpl_port_descriptor(Name, 'LasdpaPort'(T, I, N)):-
-	nonvar(N),
-	ldpl_port_descriptor(Name, 'LasdpaPort'(T, I, N2)),
+ladspa_port_description(Name, 'LasdpaPort'(T, I, N)):-
+	nonvar(N),!,
+	ladspa_port_description(Name, 'LasdpaPort'(T, I, N2)),
 	N=N2.
 	
 
-/**
-	LADSPSA EFFECTS
-*/
-ladspa_plugin_effects(PluginName, Effects):-
-	findall(Effect,	ldpl_port_description(PluginName, 'LadspaPort'(_, _, Effect)), Effects).
+%% ladspa_transform_system(?Transform) is nondet
+% Checks available transforms in your system	
 
-ladspa_effect_system(Effect):-
+ladspa_transform_system(Effect):-
 	ldpl_plugin_system(PluginName),
-	ladspa_plugin_effects(PluginName, Effects),
+	findall(E, ladspa_port_description(PluginName, 'LadspaPort'('OutputAudio', _, E)), Effects),
 	member(Effect, Effects).
 
+%% lasdpa_plugin_for(?PluginKey, ?Transform, ?Index) is nondet
+% Relationships amongst plugins and transforms.
+
 ladspa_plugin_for(PluginKey, Effect, Index):-
-	var(Effect),
-	var(Index),
-	vamp_plugin_system(PluginKey),
-	vmpl_port_descriptor(PluginKey, 'LadspaPort'(_, Index, Effect)).
+	var(Effect),var(Index),!,
+	ladspa_port_description(PluginKey, 'LadspaPort'('OutputAudio', Index, Effect)).
+
 ladspa_plugin_for(PluginKey, Effect, Index):-
-	nonvar(Effect),
-	var(PluginKey),
-	findall(FT, lasdpa_plugin_for(PluginKey, FT, _), Outputs),
+	nonvar(Effect),var(PluginKey),var(Index),!,
+	findall(FT, ladspa_plugin_for(PluginKey, FT, _), Outputs),
 	member(Effect, Outputs),	
-	vmpl_port_descriptor(PluginKey, 'LadspaPort'(_, Index, Effect)).
+	ladspa_port_description(PluginKey, 'LadspaPort'('OutputAudio', Index, Effect)).
 	
 	
-/**
-	LADSPA PROCESSOR
-*/
+
 ldpl_ladspa(Input, Key, Block, Output):-
-	Input = 'Signal'(C, Sr, L, Signals),
+	Input = signal(Sr, Data)
 	ldpl_instantiate_plugin(Key, Sr, Block, Plugin),
 	ldpl_connect_ports(Plugin),
 	ldpl_set_default_controls(Plugin),
