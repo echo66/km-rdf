@@ -11,6 +11,7 @@
 	*/
 
 #include <LADSPALoader.h>
+#include <iostream>
 
 /*************************************************** VARIABLES *****************************************/
 
@@ -219,6 +220,7 @@ PREDICATE(ldpl_instantiate_plugin, 4)
 
 	LADSPAPlugin::LADSPAPlugin *plugin = l_loader->LADSPALoader::instantiate(ident, sr, bsize);
 
+	std::cerr<<"instantiated"<<std::endl;
 	term_t plugin_t;
 	plugin_t = PL_new_term_ref();
 	ldpl_register_plugin(plugin, ident, plugin_t);

@@ -100,12 +100,14 @@ LADSPALoader::plugin_soname(std::string name){
 }
 
 std::string
-LADSPALoader::plugin_name(std::string pkey){
+LADSPALoader::get_name(std::string pkey){
 
 	for(int j = 0; j < plugins_sys; j++){
 
+		std::string m_label;
 		if(pkey.compare(ladspa_plugins_db[j].key) == 0){
-			return ladspa_plugins_db[j].name;
+			m_label = ladspa_plugins_db[j].label;
+			return m_label;
 		}
 	}	
 	return "";
@@ -318,10 +320,8 @@ LADSPALoader::discoverPlugins(QString soname)
 
         ladspa_plugins_db[plugins_sys].name = descriptor->Name;
 	ladspa_plugins_db[plugins_sys].label = descriptor->Label;
-
 	//public identifier
 	ladspa_plugins_db[plugins_sys].key = ldpl_plugin_key(descriptor->Label);
-
         ladspa_plugins_db[plugins_sys].maker = descriptor->Maker;
         ladspa_plugins_db[plugins_sys].copyright = descriptor->Copyright;
 	ladspa_plugins_db[plugins_sys].portCount = descriptor->PortCount;
@@ -372,16 +372,20 @@ LADSPALoader::getLADSPADescriptor(std::string name)
     }
 
     const LADSPA_Descriptor *descriptor = 0;
-    
-    int index = 0; 
-    std::string realname = plugin_name(name);
-    std::cerr<< realname<<std::endl;
+    int index = 0;
+    std::string label = get_name(name);
+
     while ((descriptor = fn(index))) {
-	if (descriptor->Name == realname.data()) return descriptor;
+	
+	std:string test(descriptor->Label);
+	if (test == label){
+		//std::cerr<<test<<std::endl;
+		//std::cerr<<label<<std::endl;
+		return descriptor;
+	}
 	++index;
     }
-
-    std::cerr << "WARNING: LADSPALoader: No such plugin as " << name << " in library " << soname.toStdString() << std::endl;
+    std::cerr << "WARNING: LADSPALoader: No such plugin as " << label << " in library " << son << std::endl;
 
     return 0;
 }
@@ -540,7 +544,7 @@ LADSPALoader::instantiate(std::string name, size_t sr, size_t blockSize)
 	if(!desc){
 		std::cerr << "LADSPALoader::instantiate_plugin: failed to instantiate plugin" << std::endl;
 	}	
-
+	
 	LADSPAPlugin *plugin = new LADSPAPlugin(name, desc, sr, inputAudio_ports(name).size(),
 						outputAudio_ports(name).size(),
 						inputControl_ports(name).size(),

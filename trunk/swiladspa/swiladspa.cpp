@@ -12,6 +12,10 @@
 
 #include <swiladspa.h>
 #include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+
+using namespace std;
 
 static struct SwiLADSPAPlugin{
 
@@ -31,8 +35,6 @@ LADSPA_plugins_db[MAX_LADSPA_PLUGIN];
 /* Variables */
 size_t active_plugins = 0;
 
-using namespace std;
-
 				/************************************************************************
  				******************* C Interface functions implementation ****************
 				************************************************************************/
@@ -48,8 +50,9 @@ ldpl_register_plugin(LADSPAPlugin::LADSPAPlugin *plugin, string type, term_t id)
 
 	LADSPA_plugins_db[active_plugins].plugin = plugin;
 	LADSPA_plugins_db[active_plugins].type = type;
+	cerr<<"bien"<<endl;
 	LADSPA_plugins_db[active_plugins].id = ldpl_id_for_ladspa();
-	
+	cerr<<"bien"<<endl;
 	PL_unify(id, term_t(PlTerm(PlAtom((LADSPA_plugins_db[active_plugins].id).data()))));
 	active_plugins++;
 	return 0; //success
@@ -64,9 +67,12 @@ ldpl_id_for_ladspa()
 {
 	string head("__ladspa::plugin_");
 
-	//incremental id for blobs	
-	string var = (const char*)active_plugins;
-	return head+var;
+	char *number;
+	itoa(active_plugins, number, 10);	
+	string id((const char *)number);
+	cerr<<id<<endl;
+	head += id;
+	return head;
 
 }
 
