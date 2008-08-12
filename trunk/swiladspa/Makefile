@@ -10,10 +10,6 @@ CFLAGS = -Wall -fPIC
 # Define your SWI-Prolog path here
 #######################################################################
 
-swi_dir = /usr/local/lib/pl-5.6.50
-
-#######################################################################
-
 swiladspa_dir = .
 swilib_dir = ../swilib
 
@@ -21,14 +17,15 @@ swilib_dir = ../swilib
 
 #Libraries
 
-LIBS_SWIL = $(swilib_dir)/swimo.so \
-		$(swilib_dir)/swiaudioblob.so \
-		$(swilib_dir)/blobid.so
+LIBS_SWIL = 	$(swilib_dir)/swiaudioblob.$(lib_suf) \
+		$(swilib_dir)/blobid.$(lib_suf) \
+		$(qt_lib)
 
 #Headers
 INCLUDE_SWIL = -I$(swi_dir)/include \
 	-I$(swiladspa_dir) \
-	-I$(swilib_dir) 
+	-I$(swilib_dir) \
+        $(qt_include)
 
 #Sources
 
@@ -39,14 +36,14 @@ L_PLUG = LADSPAPlugin.cpp
 
 #Objects
 
-OBJ_LDB = swiladspa.o
-OBJ_LLOAD = loader.o
-OBJ_LHOST = host.o
-OBJ_LPLUG = plug.o
+OBJ_LDB = swiladspa.$(obj_suf)
+OBJ_LLOAD = loader.$(obj_suf)
+OBJ_LHOST = host.$(obj_suf)
+OBJ_LPLUG = plug.$(obj_suf)
 
 #DLIB
 
-SWI_L = swiladspa.so
+SWI_L = swiladspa.$(lib_suf)
 
 #Targets
 all : $(SWI_L)
@@ -64,10 +61,10 @@ $(OBJ_LHOST) :
 	$(CPP) -c $(CFLAGS) $(INCLUDE_SWIL) $(L_HOST) -o $(OBJ_LHOST)
 
 $(SWI_L) : $(OBJ_LDB) $(OBJ_LLOAD) $(OBJ_LHOST) $(OBJ_LPLUG) Makefile
-	$(CPP) -shared $(LIBS_SWIL) $(OBJ_LLOAD) $(OBJ_LDB) $(OBJ_LHOST) $(OBJ_LPLUG) -o $(SWI_L) 
+	$(CPP) $(dynlib_com) $(LIBS_SWIL) $(OBJ_LLOAD) $(OBJ_LDB) $(OBJ_LHOST) $(OBJ_LPLUG) -o $(SWI_L) 
 
 clean :
-	rm -f *.o *.so 
+	rm -f *.$(obj_suf) *.$(lib_suf) 
 
 
 

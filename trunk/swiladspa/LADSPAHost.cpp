@@ -403,7 +403,7 @@ PREDICATE(ldpl_return_output, 2){
 		for(int h=0; h<l; h++){
 			v->push_back((float)data[h]);
 		}
-		const char *id = DataID::assign_data_id(v);
+		const char *id = BLOBID::assign_data_id(v);
 		tail.append(PlAtom(id));
 	}
 	tail.close();

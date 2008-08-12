@@ -5,11 +5,12 @@
  */
 
 #include <swiladspa.h>
+#include <iostream>
 
 static struct SwiLADSPAPlugin{
 
 	/* id: __plugin_id */
-	QString id;
+	string id;
 	/* pointer a LADSPA Plugin */
 	LADSPAPlugin::LADSPAPlugin *plugin;
 	/* name of the plugin */
@@ -23,6 +24,8 @@ LADSPA_plugins_db[MAX_LADSPA_PLUGIN];
 
 /* Variables */
 size_t active_plugins = 0;
+
+using namespace std;
 
 				/************************************************************************
  				******************* C Interface functions implementation ****************
@@ -41,7 +44,7 @@ ldpl_register_plugin(LADSPAPlugin::LADSPAPlugin *plugin, string type, term_t id)
 	LADSPA_plugins_db[active_plugins].type = type;
 	LADSPA_plugins_db[active_plugins].id = ldpl_id_for_ladspa();
 	
-	PL_unify(id, term_t(PlTerm(PlAtom((LADSPA_plugins_db[active_plugins].id).toLocal8Bit().data()))));
+	PL_unify(id, term_t(PlTerm(PlAtom((LADSPA_plugins_db[active_plugins].id).data()))));
 	active_plugins++;
 	return 0; //success
 }
@@ -50,17 +53,14 @@ ldpl_register_plugin(LADSPAPlugin::LADSPAPlugin *plugin, string type, term_t id)
  * Creates a simple id incrementally for the plugins __ladspa::plugin_id
  */
 
-QString
+string
 ldpl_id_for_ladspa()
 {
-	QString head("__ladspa::plugin_");
+	string head("__ladspa::plugin_");
 
 	//incremental id for blobs	
-	QString var;
-	var = QString("%1")
-		.arg((long)active_plugins);
-	head.append(var);
-	return head;
+	string var = (const char*)active_plugins;
+	return head+var;
 
 }
 
@@ -73,7 +73,7 @@ ldpl_get_plugin(term_t id_t, LADSPAPlugin::LADSPAPlugin * &plugin, string &type)
 
 	char *id;
 	PL_get_atom_chars(id_t,&id);
-	QString qid((const char*)id);
+	string qid((const char*)id);
 	
 	for(size_t r=0; r<MAX_LADSPA_PLUGIN; r++){
 		
@@ -116,7 +116,7 @@ ldpl_set_input_buffers(term_t data, LADSPA_Data **buf, int ports, size_t block){
 
 		//Now we retrieve the pointers to the raw data in memory
 		vector<float> *vector;
-		DataID::get_data_for_id((const char *)id, vector);
+		BLOBID::get_data_for_id((const char *)id, vector);
 
 		//Vector should have blocksize length...
 		
@@ -154,24 +154,26 @@ ldpl_string_to_atom(string x){
 }
 
 /*
- *
+ * Creates a plugin key (simarity with swivamp)
+ *//*
+ * Creates a plugin key (simarity with swivamp)
  */
-std::string
-ldpl_plugin_identifier(std::string label){
+string
+ldpl_plugin_key(string label){
 
-	QString head("ladspa-plugin::");
+	string head("ladspa-plugin::");//put libraries here?
 
-	//incremental id for blobs	
-	QString ql;
-	ql = QString("%1")
-		.arg(label.data());
-	std::cerr<<label.data()<<std::endl;
-	head.append(ql);
-	const char *idc = (const char *) head.data();
+	return head+label;
+}
 
-	std::string id(idc);
-	std::cerr <<idc<<std::endl;
-	return id;
+string
+ldpl_plugin_key(string lib, string label){
+
+	string key;
+	key+=lib;
+	key+=":";
+	key+=label;
+	return key;
 }
 
 

@@ -46,13 +46,19 @@ swivamp::
 	cd swiaudio && $(MAKE)
 	cd swivamp && $(MAKE)
 
+swiladspa::
+	cd swilib && $(MAKE)
+	cd swidata && $(MAKE)
+	cd swiaudio && $(MAKE)
+	cd swiladspa && $(MAKE)
+
 swidsp::
 	cd swilib && $(MAKE)
 	cd swidata && $(MAKE)
 	cd swiaudio && $(MAKE)
 	cd swivamp && $(MAKE)
 	cd similarity && $(MAKE)
-	#install-swiladspa
+	cd swiladspa && $(MAKE)
 
 
 clean :
@@ -61,6 +67,6 @@ clean :
 	cd swiaudio && rm -f *.o *.$(lib_suf)
 	cd swivamp && rm -f *.o *.$(lib_suf)
 	cd similarity && rm -f *.o *.$(lib_suf)
-
+	cd swiladspa && rm -f *.o *.$(lib_suf)
 
 
