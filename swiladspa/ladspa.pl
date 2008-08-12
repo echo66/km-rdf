@@ -31,8 +31,8 @@
 :- style_check(-discontiguous).
 :- load_foreign_library(swiladspa).
 
-:- use_module('../swiaudiodata/audiodata').
-:- use_module('../swiaudiosource/audiosource').
+:- use_module('../swidata/data').
+:- use_module('../swiaudio/audio').
 
 :-ldpl_loader.
 

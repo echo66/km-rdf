@@ -8,9 +8,8 @@
 #define _SWI_LADSPA_H_
 
 #include <swiaudioblob.h>
-#include <swimo.h>
-#include <blobid.h>
 #include <qstring.h>
+#include <blobid.h>
 #include <LADSPAPlugin.h>
 
 #define MAX_LADSPA_PLUGIN 1000 //1000 active plugins in one session
@@ -26,7 +25,7 @@ using namespace std;
 int
 ldpl_register_plugin(LADSPAPlugin::LADSPAPlugin *, string, term_t); //registers the plugin assigning an id. We also keep the plugin type
 
-QString
+string
 ldpl_id_for_ladspa();//creates the id for the plugin: __plugin::ladspa_id
 
 int
@@ -39,7 +38,10 @@ ldpl_set_input_buffers(term_t, LADSPA_Data **, int, size_t);//fills the buffer w
 PlAtom
 ldpl_string_to_atom(string );//should be in a more general library
 
-std::string
-ldpl_plugin_identifier(std::string);
+string
+ldpl_plugin_key(string);//creates a plugin key as swivamp
+
+string
+ldpl_plugin_key(string, string);//creates a plugin key as swivamp
 
 #endif
