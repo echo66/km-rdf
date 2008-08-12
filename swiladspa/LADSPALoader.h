@@ -46,7 +46,7 @@ public:
 	int plugin_parameter_count(std::string);
 	std::string plugin_maker(std::string);
 	std::string plugin_soname(std::string);
-	std::string plugin_name(std::string);
+	std::string get_name(std::string);
 	std::vector<int> inputAudio_ports(std::string);
 	std::vector<int> outputAudio_ports(std::string);
 	std::vector<int> inputControl_ports(std::string);

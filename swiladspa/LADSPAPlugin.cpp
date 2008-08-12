@@ -27,6 +27,7 @@
 */
 LADSPAPlugin::LADSPAPlugin(std::string name, const LADSPA_Descriptor *des, size_t sr, size_t ia, size_t oa, size_t ic, size_t oc, size_t b){
 
+	std::cerr << "aqui"<< std::endl;
 	m_name = name;
 	m_inAudio = ia;
 	m_outAudio = oa;
@@ -37,7 +38,9 @@ LADSPAPlugin::LADSPAPlugin(std::string name, const LADSPA_Descriptor *des, size_
 	m_descriptor = des;
 	
 	init_buffers();
+	std::cerr<<"done"<<std::endl;
 	plugin = des->instantiate(des, sr);
+	std::cerr<<"done2"<<std::endl;
 
 }
 
@@ -111,6 +114,7 @@ LADSPAPlugin::cleanup(){
 void
 LADSPAPlugin::init_buffers(){
 
+	std::cerr<<"init buffers"<<std::endl;	
 	if (m_inAudio == 0) {
 		inputbuffers = 0;
 	} else {
