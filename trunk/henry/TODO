@@ -1,6 +1,6 @@
 TODO
 ----
- * Implement Euler paths to avoid infinite recursion
+ * Implement Euler paths to avoid infinite recursion - see http://eulersharp.sourceforge.net/
+ * Get more builtins, re-using the code in sem.pl at http://eulersharp.sourceforge.net/
  * Keep track of proofs (inference web or e:evidence)
  * Hack a support for subject literals (quite hacky for now)
- * Sort out tabling vs. caching. Henry 1 makes the distinction, but Henry 1.1 is likely to not. 
