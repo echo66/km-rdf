@@ -323,7 +323,7 @@ PREDICATE(ldpl_run_plugin_framing, 4)
 	int ports = l_loader->LADSPALoader::inputAudio_ports(ident).size();
 	for (size_t j=0; j<ports; j++){
 		delete [] bufs[j]; //is ok like this?
-		bufs[j] = new LADSPA_Data[(long)A3];
+		bufs[j] = new LADSPA_Data[(long)A4];
 	}	
 
 	//Setting input buffers 
@@ -337,7 +337,7 @@ PREDICATE(ldpl_run_plugin_framing, 4)
 /**
 	Run
 */
-PREDICATE(ldpl_run_plugin, 3)
+PREDICATE(ldpl_run_plugin_frame, 3)
 {
 	//+List of PCM channels
 	//+pluginblob

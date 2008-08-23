@@ -37,16 +37,32 @@ transform(Signal,Lib,Id,Outputs,FinalOutputs):-
 
 transform(Signal, Lib, Id, Outputs, Key, Options):-
 	is_list(Options),
-	Signal = signal(Sr, Data),
-	get_channels(Signal, Ch),
+	Signal = signal(Sr, _D),
 	plugin_key(Lib, Id, Key),
 	option(block(Block), Options, 2048),
         ldpl_instantiate_plugin(Key, Sr, Block, Plugin),
 	ldpl_connect_ports(Plugin),
+	adapt_input(Signal, Key, signal(_Sr2, Data)),
 	((option(parameters(Parameters), Options, _), option(outcontrols(OutCtrl), Options, _), !) ; (ldpl_set_default_controls(Plugin))),
-	(ldpl_activate_plugin(Plugin) ; true),
+	((ldpl_activate_plugin(Plugin),!) ; true),
 	ldpl_run_plugin_framing(Data, Plugin, 0, Block).
 	
+
+% count input ports
+ladspa_input_channels(Key, Count):-
+	ldpl_input_audio(Key, L),
+	length(L, Count).
+
+adapt_input(Signal, Key, Signal2):-
+	get_channels(Signal, Ch),
+	ladspa_input_channels(Key, Input),
+	Input = Ch, !,
+	Signal2 = Signal.
+adapt_input(S, K, S2):-
+	get_channels(S, Ch),
+	ladspa_input_channels(K, L),
+	Ch=2, L=1,!,
+	mix_stereo(S, S2).
 
 % concats the plugin key
 
