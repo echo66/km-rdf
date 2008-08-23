@@ -119,7 +119,7 @@ ldpl_set_input_buffers(term_t data, LADSPA_Data **buf, int ports, size_t start, 
 
 	PlTail frame(data);
 	PlTerm pcm;
-	int data_blocks = 1;
+	int count=0;
 	for(int j = 0; j < ports; j++){
 
 		frame.next(pcm);
@@ -134,15 +134,16 @@ ldpl_set_input_buffers(term_t data, LADSPA_Data **buf, int ports, size_t start, 
 		f = ldpl_select_frame(start, start+block-1, ch);
 				
 		for(int r =0 ; r<block; r++){	
-			std::cerr<<r<<std::endl;
-			std::cerr<<j<<std::endl;	
-			std::cerr<<f->at(r)<<std::endl;
-			buf[j][r] = f->at(r);
-			
+			//std::cerr<<r<<std::endl;
+			//std::cerr<<j<<std::endl;	
+			//std::cerr<<f->size()<<std::endl;
+			//std::cerr<<f->at(r)<<std::endl;
+			buf[j][r] = f->at(r);	
+			count++;		
 		}
 		delete f;
-	}	
-
+		std::cerr<<count<<std::endl;
+	}
 	return 1;
 }
 
