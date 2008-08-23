@@ -27,7 +27,6 @@
 */
 LADSPAPlugin::LADSPAPlugin(std::string name, const LADSPA_Descriptor *des, size_t sr, size_t ia, size_t oa, size_t ic, size_t oc, size_t b){
 
-	std::cerr << "aqui"<< std::endl;
 	m_name = name;
 	m_inAudio = ia;
 	m_outAudio = oa;
@@ -38,10 +37,7 @@ LADSPAPlugin::LADSPAPlugin(std::string name, const LADSPA_Descriptor *des, size_
 	m_descriptor = des;
 	
 	init_buffers();
-	std::cerr<<"done"<<std::endl;
 	plugin = des->instantiate(des, sr);
-	std::cerr<<"done2"<<std::endl;
-
 }
 
 /***********************************************
@@ -72,6 +68,7 @@ LADSPAPlugin::run(size_t blockSize){
 		std::cerr << "Plugin: no process routine"<<std::endl;
 		return;
 	}
+	std::cerr << "se supone q debe funcionar"<< std::endl;
 	m_descriptor -> run(plugin, (unsigned long)blockSize);
 	std::cerr << "block processed"<<std::endl;
 }

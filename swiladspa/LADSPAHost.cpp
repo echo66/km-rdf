@@ -25,6 +25,7 @@ LADSPALoader::LADSPALoader *l_loader;
 	extend it to cover input singls or something???
 */
 
+
 /************************************ PREDICATES ******************************/
 /**
 	Get a LADSPA plugins loader
@@ -201,8 +202,7 @@ PREDICATE(ldpl_port_name_for, 3)
 }
 
 /**************************************************
-******** MANAGE THE PLUGIN ************************
-**************************************************/
+******** MANAGE THE PLUGIN ************************/
 
 /**
 	Instantiate plugin
@@ -217,7 +217,7 @@ PREDICATE(ldpl_instantiate_plugin, 4)
 	std::string ident((char *)A1);
 	unsigned long sr = (unsigned long)(long)A2;
 	size_t bsize = (size_t)(long)A3;
-
+	
 	LADSPAPlugin::LADSPAPlugin *plugin = l_loader->LADSPALoader::instantiate(ident, sr, bsize);
 
 	std::cerr<<"instantiated"<<std::endl;
@@ -303,6 +303,36 @@ PREDICATE(ldpl_activate_plugin, 1)
 	return true;
 }
 
+/**
+	Run
+*/
+PREDICATE(ldpl_run_plugin_framing, 4)
+{
+	//+Signal data list
+	//+pluginblob
+	//+Start
+	//+BlockSize
+
+	string ident;
+	LADSPAPlugin::LADSPAPlugin *plugin;	
+	ldpl_get_plugin(term_t(A2), plugin, ident);
+
+	LADSPA_Data **bufs = plugin -> LADSPAPlugin::get_audio_input();
+		
+	//cleaning buffers (in case)
+	int ports = l_loader->LADSPALoader::inputAudio_ports(ident).size();
+	for (size_t j=0; j<ports; j++){
+		delete [] bufs[j]; //is ok like this?
+		bufs[j] = new LADSPA_Data[(long)A3];
+	}	
+
+	//Setting input buffers 
+	if(ldpl_set_input_buffers(term_t(A1), bufs, l_loader->LADSPALoader::inputAudio_ports(ident).size(), (size_t)(long)A3, (size_t)(long)A4)<0) return false;
+	std::cerr<<"input set"<<std::endl;
+	plugin->LADSPAPlugin::run((size_t)(long)A3);
+
+	return true;
+}
 
 /**
 	Run
@@ -418,7 +448,6 @@ PREDICATE(ldpl_return_output, 2){
 	tail.close();
 	return A2 = outputData;
 }
-
 
 
 

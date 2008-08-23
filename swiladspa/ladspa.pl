@@ -29,6 +29,7 @@
 		,	ldpl_set_default_controls/1
 		,	ldpl_activate_plugin/1
 		,	ldpl_run_plugin/3
+		,	ldpl_run_plugin_framing/4
 		,	ldpl_deactivate_plugin/1
 		, 	ldpl_cleanup_plugin/1
 		]).
@@ -145,21 +146,7 @@ ladspa_plugin_for(PluginKey, Effect, Index):-
 	findall(FT, ladspa_plugin_for(PluginKey, FT, _), Outputs),
 	member(Effect, Outputs),	
 	ladspa_port_description(PluginKey, 'LadspaPort'('OutputAudio', Index, Effect)).
-	
-	
 
-ldpl_ladspa(Input, Key, Block, Output):-
-	Input = signal(Sr, Data),
-	ldpl_instantiate_plugin(Key, Sr, Block, Plugin),
-	ldpl_connect_ports(Plugin),
-	ldpl_set_default_controls(Plugin),
-	ldpl_set_parameter(Plugin, 0, 2),
-	ldpl_activate_plugin(Plugin),
-	End is Block-1,
-	get_frame(Input, 4000, Block, 'Frame'(_, _, _, Data)),
-	ldpl_run_plugin(Data, Plugin, Block),
-	ldpl_return_output(Plugin, Output),
-	ldpl_return_output(Plugin, Output).
 	
 	
 	

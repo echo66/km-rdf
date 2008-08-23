@@ -14,6 +14,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
+#include <qstring.h>
 
 using namespace std;
 
@@ -50,9 +51,8 @@ ldpl_register_plugin(LADSPAPlugin::LADSPAPlugin *plugin, string type, term_t id)
 
 	LADSPA_plugins_db[active_plugins].plugin = plugin;
 	LADSPA_plugins_db[active_plugins].type = type;
-	cerr<<"bien"<<endl;
 	LADSPA_plugins_db[active_plugins].id = ldpl_id_for_ladspa();
-	cerr<<"bien"<<endl;
+	
 	PL_unify(id, term_t(PlTerm(PlAtom((LADSPA_plugins_db[active_plugins].id).data()))));
 	active_plugins++;
 	return 0; //success
@@ -65,14 +65,14 @@ ldpl_register_plugin(LADSPAPlugin::LADSPAPlugin *plugin, string type, term_t id)
 string
 ldpl_id_for_ladspa()
 {
-	string head("__ladspa::plugin_");
+	QString head("__ladspa::plugin_");
 
-	char *number;
-	itoa(active_plugins, number, 10);	
-	string id((const char *)number);
-	cerr<<id<<endl;
-	head += id;
-	return head;
+	QString var;
+	var = QString("%1")
+		.arg((long)active_plugins);
+	head.append(var);
+	string id(head.toStdString());
+	return id;
 
 }
 
@@ -100,9 +100,9 @@ ldpl_get_plugin(term_t id_t, LADSPAPlugin::LADSPAPlugin * &plugin, string &type)
 
 /************************************ TYPE CONVERSION ******************************/
 
-/**Take a list of data ids (framed stuff) and set the buff**/
+/**Take a list of the original DATAIDs to be framed and set the buff**/
 int
-ldpl_set_input_buffers(term_t data, LADSPA_Data **buf, int ports, size_t block){
+ldpl_set_input_buffers(term_t data, LADSPA_Data **buf, int ports, size_t start, size_t block){
 
 	PlTail tail(data);
 	PlTerm ch;
@@ -123,6 +123,53 @@ ldpl_set_input_buffers(term_t data, LADSPA_Data **buf, int ports, size_t block){
 	for(int j = 0; j < ports; j++){
 
 		frame.next(pcm);
+		char *id;//atom to const char *
+		PL_get_atom_chars(pcm, &id);
+
+		//Now we retrieve the pointers to the raw data in memory
+		vector<float> *ch;
+		BLOBID::get_data_for_id((const char *)id, ch);
+
+		vector<float> *f;
+		f = ldpl_select_frame(start, start+block-1, ch);
+				
+		for(int r =0 ; r<block; r++){	
+			std::cerr<<r<<std::endl;
+			std::cerr<<j<<std::endl;	
+			std::cerr<<f->at(r)<<std::endl;
+			buf[j][r] = f->at(r);
+			
+		}
+		delete f;
+	}	
+
+	return 1;
+}
+
+
+/**Take a list of data ids (framed stuff) and set the buff**/
+int
+ldpl_set_input_buffers(term_t data, LADSPA_Data **buf, int ports, size_t block){
+
+	PlTail tail(data);
+	PlTerm ch;
+	unsigned int chCount=0;
+	while(tail.next(ch)){		
+		chCount++;
+	}
+	if(chCount>ports) { std::cerr<<"More channels than input ports"<<std::endl; }
+	else if(chCount<ports) { 
+		std::cerr << "Ports not filled!!" << std::endl; 
+		return -1;
+	}
+	else{}
+
+	PlTail signal(data);
+	PlTerm pcm;
+	int data_blocks = 1;
+	for(int j = 0; j < ports; j++){
+
+		signal.next(pcm);
 		char *id;//atom to const char *
 		PL_get_atom_chars(pcm, &id);
 
@@ -148,6 +195,10 @@ ldpl_set_input_buffers(term_t data, LADSPA_Data **buf, int ports, size_t block){
 	}	
 	return 1;
 }
+
+/* 
+ *	Frame
+ */
 
 /*
  * util
@@ -188,7 +239,26 @@ ldpl_plugin_key(string lib, string label){
 	return key;
 }
 
+/*
+ * Chunks the input 
+ */	
+vector<float> *
+ldpl_select_frame(size_t start, size_t end, vector<float> *channel){	
 
+	vector<float> *frame;
+	frame = new vector<float>();
+	size_t limit = channel-> size();
+	for(size_t i=start; i<(end+1); i++){
+		if(i < limit){
+			
+			frame->push_back(channel->at(i));			
+		}else{
+			frame->push_back(0.0f);//complete with 0 till fill the size of the frame queried
+		}
+	}
+
+	return frame;
+}
 
 
 

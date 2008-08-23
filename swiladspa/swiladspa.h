@@ -41,6 +41,9 @@ ldpl_get_plugin(term_t, LADSPAPlugin::LADSPAPlugin * &, string &);//retrieves pl
 int
 ldpl_set_input_buffers(term_t, LADSPA_Data **, int, size_t);//fills the buffer with the input data (data id)
 
+int
+ldpl_set_input_buffers(term_t, LADSPA_Data **, int, size_t, size_t);//fills the buffer with the input data (data id) framing
+
 PlAtom
 ldpl_string_to_atom(string );//should be in a more general library
 
@@ -50,4 +53,6 @@ ldpl_plugin_key(string);//creates a plugin key as swivamp
 string
 ldpl_plugin_key(string, string);//creates a plugin key as swivamp
 
+vector<float> *
+ldpl_select_frame(size_t, size_t , vector<float> *);
 #endif

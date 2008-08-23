@@ -49,6 +49,7 @@ public:
 	//get data
 	LADSPA_Data* get_output(int);
 	LADSPA_Data **get_audio_input();
+	
 
 protected:   
 
