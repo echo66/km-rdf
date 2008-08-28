@@ -25,6 +25,8 @@ LADSPALoader::LADSPALoader *l_loader;
 	extend it to cover input singls or something???
 */
 
+std::vector<float> *out1;
+std::vector<float> *out2;
 
 /************************************ PREDICATES ******************************/
 /**
@@ -112,6 +114,30 @@ PREDICATE(ldpl_plugin_ports_count,  2)
 	long count = l_loader->LADSPALoader::plugin_ports_count(ident);
 	return A2 = PlTerm(count);
 }
+
+/**
+	Get the key of a working plugin
+*/
+
+PREDICATE(ldpl_get_key, 2)
+{
+	//+Plugin
+	//-PluginKey
+	
+	std::string ident;
+	LADSPAPlugin::LADSPAPlugin *plugin;
+	ldpl_get_plugin(term_t(A1), plugin, ident);
+
+	string key = plugin->m_name;
+
+	char k[key.size()+1];
+	for(unsigned int j=0;j<key.size();j++){
+		k[j]=key[j];
+	}
+	k[key.size()] = '\000';
+
+	return A2 = PlAtom(k);
+}	
 
 /*************************************************
 ******************* PORTS ************************
@@ -225,6 +251,13 @@ PREDICATE(ldpl_instantiate_plugin, 4)
 	plugin_t = PL_new_term_ref();
 	ldpl_register_plugin(plugin, ident, plugin_t);
 
+
+	//init new outputs
+	out1 = 0;
+	out2 = 0;
+	
+	out1 = new std::vector<float>(bsize);
+	out2 = new std::vector<float>(bsize);
 	return A4 = PlTerm(plugin_t);
 }
 
@@ -298,7 +331,7 @@ PREDICATE(ldpl_activate_plugin, 1)
 	LADSPAPlugin::LADSPAPlugin *plugin;	
 
 	ldpl_get_plugin(term_t(A1), plugin, ident);
-	plugin->LADSPAPlugin::activate();
+	if(plugin->LADSPAPlugin::activate()<0) return false;
 
 	return true;
 }
@@ -398,7 +431,8 @@ PREDICATE(ldpl_cleanup_plugin, 1)
 
 /**
 	collect output
-PREDICATE(ldpl_collect_output, 1)
+*/
+PREDICATE(ldpl_collect_output, 2)
 {
 	//+plugin
 	string ident;
@@ -406,16 +440,54 @@ PREDICATE(ldpl_collect_output, 1)
 
 	ldpl_get_plugin(term_t(A1), plugin, ident);
 
-	std::vector<int> outputs = l_loader->LADSPALoader::outputAudio_ports(ident);
-	std::vector<float> data;
+	size_t block = (size_t)(long)A2;
 
+	std::vector<int> outputs = l_loader->LADSPALoader::outputAudio_ports(ident);
+
+	//only process 2 channels
 	for(int j=0; j<outputs.size(); j++){
 
-		data = ladspa_output.find(outputs[j])
+		if(j==0){
+					
+			LADSPA_Data *data = plugin->LADSPAPlugin::get_output(outputs[j]);
+			//int l = sizeof(*data)/sizeof(float);
+			//std::cerr<<"port"<<outputs[j]<<std::endl;
+			//std::cerr<<l<<std::endl;
+			//for(int r = 0; r<block; r++){
+			//	std::cerr<<"datum"<<(float)data[r]<<std::endl;		
+			//}
+			//delete[] data;
+
+		/**}else{
+
+			std::cerr<<"only 2 channels max"<<std::endl;
+			return false;
+		}*/
+		}
+		return true;
 	}
 
 }
+
+/**
+	processed_output
 */
+PREDICATE(lpdl_processed_data, 1){
+
+	PlTerm outputData;
+	PlTail tail(outputData);
+	
+	const char *id1 = BLOBID::assign_data_id(out1);
+	tail.append(PlAtom(id1));
+
+	const char *id2 = BLOBID::assign_data_id(out2);
+	tail.append(PlAtom(id2));
+
+	tail.close();
+
+	return A1 = outputData;
+
+}
 
 /**
 	ldpl_return_output. 

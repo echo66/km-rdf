@@ -47,15 +47,17 @@ LADSPAPlugin::LADSPAPlugin(std::string name, const LADSPA_Descriptor *des, size_
 /**
 	Activate plugin
 */
-void
+int
 LADSPAPlugin::activate(){
 
 	if(!m_descriptor -> activate){
 		std::cerr << "Plugin: no activate() routine"<<std::endl;
-		return;
+		return -1;
 	}
 	m_descriptor -> activate(plugin);
 	std::cerr << "Plugin activated"<<std::endl;
+
+	return 0;
 }
 
 /**
@@ -63,6 +65,13 @@ LADSPAPlugin::activate(){
 */
 void
 LADSPAPlugin::run(size_t blockSize){
+
+	std::cerr<<"port in1 val"<<inputbuffers[0][0]<<std::endl;
+	std::cerr<<"port out1 val"<<outputbuffers[0][0]<<std::endl;
+
+	std::cerr<<sizeof(inputbuffers)<<std::endl;
+	std::cerr<<sizeof(inputbuffers[0])<<std::endl;
+	//std::cerr<<sizeof(inputbuffers*)<<std::endl;
 
 	if(!m_descriptor -> run){
 		std::cerr << "Plugin: no process routine"<<std::endl;
@@ -111,24 +120,41 @@ LADSPAPlugin::cleanup(){
 void
 LADSPAPlugin::init_buffers(){
 
+
+	//CHANGE THIS FOR MALLOC VERSION!!!!!!!!!!!!!!!!!!!!
+
 	std::cerr<<"init buffers"<<std::endl;	
+
+	//std::cerr<<m_inAudio<<std::endl;
+	//std::cerr<<m_outAudio<<std::endl;
+
 	if (m_inAudio == 0) {
 		inputbuffers = 0;
 	} else {
 		inputbuffers  = new LADSPA_Data*[m_inAudio];
 	}
-	if (m_outAudio == 0) {
-		outputbuffers = 0;
-	} else {
-		outputbuffers = new LADSPA_Data*[m_outAudio];
-	}
-
 	for (size_t i = 0; i < m_inAudio; ++i) {
 		inputbuffers[i] = new LADSPA_Data[m_blockSize];
 	}
-	for (size_t i = 0; i < m_outAudio; ++i) {
-	         outputbuffers[i] = new LADSPA_Data[m_blockSize];
+
+
+	outputbuffers = (LADSPA_Data **)calloc(m_outAudio, sizeof(LADSPA_Data *));
+  	for (int s = 0; s<m_outAudio; s++){
+	    outputbuffers[s]     = (LADSPA_Data *)calloc(m_blockSize, sizeof(LADSPA_Data));
 	}
+	//Fill with zeros???
+
+	std::cerr<<"port in1 ad"<<inputbuffers[0]<<std::endl;
+	std::cerr<<"port in2 ad"<<inputbuffers[1]<<std::endl;
+
+	std::cerr<<"port out1 ad"<<outputbuffers[0]<<std::endl;
+	std::cerr<<"port out2 ad"<<outputbuffers[1]<<std::endl;
+
+	std::cerr<<"port in1,1value"<<inputbuffers[0][0]<<std::endl; //Random value!!!!!!
+	std::cerr<<"port in1,6 value"<<inputbuffers[0][5]<<std::endl;
+	std::cerr<<"port in2,6 value"<<inputbuffers[1][5]<<std::endl;
+	std::cerr<<"port out1,1 value"<<outputbuffers[0][0]<<std::endl; 
+	std::cerr<<"port out2,2 value"<<outputbuffers[1][1]<<std::endl; 
 }
 
 /**
@@ -138,6 +164,7 @@ void
 LADSPAPlugin::connect_input_port(int port, int index){
 
 	if(m_descriptor -> connect_port){
+		std::cerr<< "LADSPAPlugin: connecting input port "<<port<<" to the buffer at "<<inputbuffers[index]<<std::endl;
 		m_descriptor -> connect_port(plugin, port, inputbuffers[index]);	
 	}else{
 		std::cerr<<"no port connection routine"<<std::endl;
@@ -150,6 +177,7 @@ LADSPAPlugin::connect_input_port(int port, int index){
 void
 LADSPAPlugin::connect_output_port(int port, int index){
 
+	std::cerr<< "LADSPAPlugin: connecting output port "<<port<<" to the buffer at "<<outputbuffers[index]<<std::endl;
 	if(m_descriptor -> connect_port){
 		m_descriptor -> connect_port(plugin, port, outputbuffers[index]);	
 	}else{
@@ -158,12 +186,14 @@ LADSPAPlugin::connect_output_port(int port, int index){
 }
 
 /**
-	Set control port (in or out)
+	Set control port (in (parameter) or out (outputcontrol))
 */
 void
 LADSPAPlugin::set_control_port(int port, LADSPA_Data value){
 
 	if(m_descriptor -> connect_port){
+
+		std::cerr<<"LADSPAPlugin: setting control port "<<port<<" to "<<value<<std::endl;
 		m_descriptor -> connect_port(plugin, port, &value);	
 	}else{
 		std::cerr<<"no port connection routine"<<std::endl;
@@ -181,6 +211,18 @@ LADSPAPlugin::set_control_port(int port, LADSPA_Data value){
 LADSPA_Data *
 LADSPAPlugin::get_output(int o){
 
+	std::cerr<<"port out1 ad"<<outputbuffers[0]<<std::endl;
+	std::cerr<<"port out 2ad"<<outputbuffers[1]<<std::endl;
+
+	std::cerr<<"port in1 ad"<<inputbuffers[0]<<std::endl;
+	std::cerr<<"port in2 ad"<<inputbuffers[1]<<std::endl;
+
+	std::cerr<<"port in1,1value"<<inputbuffers[0][0]<<std::endl; //Random value!!!!!!
+	std::cerr<<"port in1,6 value"<<inputbuffers[0][5]<<std::endl;
+	std::cerr<<"port in2,6 value"<<inputbuffers[1][5]<<std::endl;
+	std::cerr<<"port out1,1 value"<<outputbuffers[0][0]<<std::endl; 
+	std::cerr<<"port out2,2 value"<<outputbuffers[1][1]<<std::endl; 
+	std::cerr<<"port out2,1000 value"<<outputbuffers[1][999]<<std::endl; 
 	return outputbuffers[o];
 }
 
@@ -190,6 +232,8 @@ LADSPAPlugin::get_output(int o){
 LADSPA_Data **
 LADSPAPlugin::get_audio_input(){
 
+	std::cerr<<"port in1 ad"<<inputbuffers[0]<<std::endl;
+	std::cerr<<"port in2 ad"<<inputbuffers[1]<<std::endl;
 	return inputbuffers;
 }
 
