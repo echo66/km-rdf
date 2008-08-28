@@ -566,7 +566,7 @@ LADSPALoader::connect_audio_ports(LADSPAPlugin::LADSPAPlugin *plugin){
 	//connecting input audio ports
 
 	std::vector<int> input = inputAudio_ports(name);
-	std::vector<int> output = inputAudio_ports(name);
+	std::vector<int> output = outputAudio_ports(name);
 
 	for(int j=0; j<input.size(); j++){
 		
@@ -576,6 +576,7 @@ LADSPALoader::connect_audio_ports(LADSPAPlugin::LADSPAPlugin *plugin){
 	//connecting output audio ports
 	for(int r=0; r<output.size(); r++){
 		
+		//std::cerr<<"output port connectedd"<<std::endl;	
 		plugin->LADSPAPlugin::connect_output_port(output[r], out);
 		out++;
 	}
@@ -583,7 +584,7 @@ LADSPALoader::connect_audio_ports(LADSPAPlugin::LADSPAPlugin *plugin){
 }
 
 /**
-	Sets every control to 0
+	Sets every control to 0. This may not be valid!
 */
 void
 LADSPALoader::set_default_controls(LADSPAPlugin::LADSPAPlugin *plugin){
@@ -593,13 +594,13 @@ LADSPALoader::set_default_controls(LADSPAPlugin::LADSPAPlugin *plugin){
 	//connecting input controls
 	for(int j=0; j<inputControl_ports(name).size(); j++){
 		
-		plugin->LADSPAPlugin::set_control_port(inputAudio_ports(name)[j], 0);
+		plugin->LADSPAPlugin::set_control_port(inputControl_ports(name)[j], 0);
 	}
 
 	//connecting output controls
 	for(int j=0; j<outputControl_ports(name).size(); j++){
 		
-		plugin->LADSPAPlugin::set_control_port(outputAudio_ports(name)[j], 0);
+		plugin->LADSPAPlugin::set_control_port(outputControl_ports(name)[j], 0);
 	}
 }
 

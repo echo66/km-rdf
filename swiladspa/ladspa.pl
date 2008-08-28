@@ -15,6 +15,7 @@
 		,	ldpl_plugin_maker/2
 		,	ldpl_plugin_library/2
 		,	ldpl_plugin_ports_count/2
+		,	ldpl_get_key/2
 		,	ldpl_input_audio/2
 		,	ldpl_output_audio/2
 		,	ladspa_port_description/2
@@ -28,10 +29,12 @@
 		,	ldpl_connect_ports/1
 		,	ldpl_set_default_controls/1
 		,	ldpl_activate_plugin/1
-		,	ldpl_run_plugin/3
+		,	ldpl_run_plugin_frame/3
 		,	ldpl_run_plugin_framing/4
 		,	ldpl_deactivate_plugin/1
 		, 	ldpl_cleanup_plugin/1
+		,	ldpl_collect_output/2
+		,	ldpl_processed_signal/2
 		]).
 
 :- style_check(-discontiguous).
@@ -120,10 +123,10 @@ is_inC(T, InC, I):-
 is_outC(T, OutC, I):-
 	member(I, OutC),
 	T = 'OutputControl'.
-ladspa_port_description(Name, 'LasdpaPort'(T, I, N)):-
-	nonvar(N),!,
-	ladspa_port_description(Name, 'LasdpaPort'(T, I, N2)),
-	N=N2.
+ladspa_port_description(Name, 'LadspaPort'(T, I, N)):-
+	nonvar(N),
+	ladspa_port_description(Name, 'LadspaPort'(T, I, N2)),
+	N = N2.
 	
 
 %% ladspa_transform_system(?Transform) is nondet
@@ -147,7 +150,8 @@ ladspa_plugin_for(PluginKey, Effect, Index):-
 	member(Effect, Outputs),	
 	ladspa_port_description(PluginKey, 'LadspaPort'('OutputAudio', Index, Effect)).
 
-	
+ldpl_processed_signal(Sr, signal(Sr, Data)):-
+	ldpl_processed_data(Data).	
 	
 	
 	

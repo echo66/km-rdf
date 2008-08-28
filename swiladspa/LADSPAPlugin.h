@@ -41,7 +41,7 @@ public:
 	void connect_output_port(int, int);
 
 	//plugin	
-	void activate();
+	int activate();
 	void run(size_t);
 	void deactivate();
 	void cleanup();
@@ -50,10 +50,11 @@ public:
 	LADSPA_Data* get_output(int);
 	LADSPA_Data **get_audio_input();
 	
+	std::string m_name; //identifier used in this host ladspa-plugin::label
 
 protected:   
 
-	std::string m_name; //identifier used in this host ladspa-plugin::label
+	
 
 	//The wrapped plugin
 	LADSPA_Handle plugin;
