@@ -254,7 +254,6 @@ PREDICATE(ldpl_instantiate_plugin, 4)
 	out1 = new std::vector<float>();
 	out2 = new std::vector<float>();
 
-	std::cerr <<"aqui"<<std::endl;
 	return A4 = PlTerm(plugin_t);
 }
 
@@ -267,7 +266,7 @@ PREDICATE(ldpl_connect_ports, 1)
 	std::string ident;
 	LADSPAPlugin::LADSPAPlugin *plugin;
 	ldpl_get_plugin(term_t(A1), plugin, ident);
-std::cerr <<"aqui"<<std::endl;
+
 	l_loader->LADSPALoader::connect_audio_ports(plugin);
 
 	return true;
@@ -358,7 +357,7 @@ PREDICATE(ldpl_run_plugin_framing, 4)
 
 	//Setting input buffers 
 	if(ldpl_set_input_buffers(term_t(A1), bufs, l_loader->LADSPALoader::inputAudio_ports(ident).size(), (size_t)(long)A3, (size_t)(long)A4)<0) return false;
-	std::cerr<<"input set"<<std::endl;
+	std::cerr<<"PluginHost:: input set"<<std::endl;
 	plugin->LADSPAPlugin::run((size_t)(long)A4);
 
 	return true;
@@ -423,7 +422,17 @@ PREDICATE(ldpl_cleanup_plugin, 1)
 
 	return true;
 
-	//CLEAN BUFFERS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	//The plugin cleans the buffer
+	
+	//delete plugin;
+	//plugin 0; I may need to specify the ~
+	
+	//unload the library 
+
+	//delete out1;
+	out1=0;
+	//delete out2;
+	out2=0;
 }
 
 /**
@@ -441,35 +450,44 @@ PREDICATE(ldpl_collect_output, 2)
 
 	std::vector<int> outputs = l_loader->LADSPALoader::outputAudio_ports(ident);
 
+	LADSPA_Data **data = plugin->LADSPAPlugin::get_output();
+
+	std::cerr<<data<<std::endl;
+		
 	//only process 2 channels
 	for(int j=0; j<outputs.size(); j++){
-
-		if(j==0){
-					
-			LADSPA_Data *data = plugin->LADSPAPlugin::get_output(outputs[j]);
+		if(j==0){					
+			
 			//int l = sizeof(*data)/sizeof(float);
 			//std::cerr<<"port"<<outputs[j]<<std::endl;
 			//std::cerr<<l<<std::endl;
-			//for(int r = 0; r<block; r++){
-			//	std::cerr<<"datum"<<(float)data[r]<<std::endl;		
-			//}
-			//delete[] data;
+				
+			for(int r = 0; r<block; r++){
+				out1->push_back((float)data[j][r]);
+				//	std::cerr<<"datum"<<(float)data[r]<<std::endl;		
+			}
+					
+		}else if(j==1){
+			
+			for(int r = 0; r<block; r++){
+				out2->push_back((float)data[j][r]);
+				//	std::cerr<<"datum"<<(float)data[r]<<std::endl;		
+			}	
+		}else{
 
-		/**}else{
-
-			std::cerr<<"only 2 channels max"<<std::endl;
+			std::cerr<<"LADSPAHost: error (2 channels max)"<<std::endl;
 			return false;
-		}*/
 		}
-		return true;
+		std::cerr<<out1->size()<<std::endl;
+		std::cerr<<out2->size()<<std::endl;
 	}
-
+	return true;
 }
 
 /**
-	processed_output
+	ldpl_processed_output(-ListOfDataBlobs) converts the stored output in a prolog list of blobs
 */
-PREDICATE(lpdl_processed_data, 1){
+PREDICATE(ldpl_processed_data, 1){
 
 	PlTerm outputData;
 	PlTail tail(outputData);
@@ -489,7 +507,7 @@ PREDICATE(lpdl_processed_data, 1){
 /**
 	ldpl_return_output. 
 	This one returns the output of a plugin	after calling run as a list of prolog blob ids.
-*/
+
 PREDICATE(ldpl_return_output, 2){
 
 	string ident;
@@ -503,7 +521,7 @@ PREDICATE(ldpl_return_output, 2){
 	PlTail tail(outputData);
 	for(int j = 0; j<outputs.size(); j++){
 
-		LADSPA_Data *data = plugin->LADSPAPlugin::get_output(outputs[j]);
+		LADSPA_Data *data = plugin->LADSPAPlugin::get_output();
 		int l = sizeof(*data)/sizeof(float);
 
 		std::vector<float> *v;
@@ -516,7 +534,7 @@ PREDICATE(ldpl_return_output, 2){
 	}
 	tail.close();
 	return A2 = outputData;
-}
+}*/
 
 
 

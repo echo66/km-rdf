@@ -47,7 +47,7 @@ public:
 	void cleanup();
 
 	//get data
-	LADSPA_Data* get_output(int);
+	LADSPA_Data **get_output();
 	LADSPA_Data **get_audio_input();
 	
 	std::string m_name; //identifier used in this host ladspa-plugin::label

@@ -35,7 +35,7 @@ transform(Signal,Lib,Id,Outputs,FinalOutputs):-
 %	block
 %	outControls (List) where outControl(Name, Value)
 
-transform(Signal, Lib, Id, _TrickyOutputs, Plugin, Options):-
+transform(Signal, Lib, Id, _TrickyOutputs, OutputSignal, Options):-
 	is_list(Options),
 	Signal = signal(Sr, _D),
 	plugin_key(Lib, Id, Key),
@@ -43,15 +43,18 @@ transform(Signal, Lib, Id, _TrickyOutputs, Plugin, Options):-
         ldpl_instantiate_plugin(Key, Sr, Block, Plugin),
 	ldpl_connect_ports(Plugin),
 	adapt_input(Signal, Key, S2),
-	S2 = signal(Sr, Data),	
+	%S2 = signal(Sr, Data),	
 	((ldpl_activate_plugin(Plugin),ldpl_connect_ports(Plugin),!) ; true),
 	%This default set up may not be enough!!!
 	ldpl_set_default_controls(Plugin),
 	((option(outControls(OutCtrls), Options, _),ladspa_set_output_controls(Plugin, OutCtrls),!) ; true),
 	((option(parameters(Params), Options, _),ladspa_set_parameters(Plugin, Params),!) ; true),
 	ldpl_connect_ports(Plugin),
-	ldpl_run_plugin_framing(Data, Plugin, 10000, Block).
-	%		ldpl_collect_output(Plugin, Block).
+	%ldpl_run_plugin_framing(Data, Plugin, 10000, Block),
+	%ldpl_collect_output(Plugin, Block),	
+	%ldpl_processed_signal(Sr, OutputSignal).
+	ldpl_process_signal(S2, Plugin, Block, OutputSignal),
+	ldpl_cleanup_plugin(Plugin).
 
 /** works for one block but fails from there on...*/
 /**
@@ -103,15 +106,16 @@ plugin_key(Lib, Id, _):-
 
 % routine for processing frames
 
-ldpl_process_signal(Signal, Plugin, Block):-
-	Signal = signal(_Sr, Data),
+ldpl_process_signal(Signal, Plugin, Block, S2):-
+	Signal = signal(Sr, Data),
 	get_samples_per_channel(Signal, L),
-	findall(_,ldpl_process_frames(Data, Plugin, L, Block), _).
+	findall(_,ldpl_process_frames(Data, Plugin, L, Block), _),
+	ldpl_processed_signal(Sr, S2).
 	
 ldpl_process_frames(Data, Plugin, L, Block):-
 	set_framing(Block, L, _, Start),	
 	ldpl_run_plugin_framing(Data, Plugin, Start, Block),
-	ldpl_collect_output(Plugin).
+	ldpl_collect_output(Plugin, Block).
 
 %another routine relying on swiaudio for framing
 
