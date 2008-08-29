@@ -251,13 +251,10 @@ PREDICATE(ldpl_instantiate_plugin, 4)
 	plugin_t = PL_new_term_ref();
 	ldpl_register_plugin(plugin, ident, plugin_t);
 
+	out1 = new std::vector<float>();
+	out2 = new std::vector<float>();
 
-	//init new outputs
-	out1 = 0;
-	out2 = 0;
-	
-	out1 = new std::vector<float>(bsize);
-	out2 = new std::vector<float>(bsize);
+	std::cerr <<"aqui"<<std::endl;
 	return A4 = PlTerm(plugin_t);
 }
 
@@ -270,7 +267,7 @@ PREDICATE(ldpl_connect_ports, 1)
 	std::string ident;
 	LADSPAPlugin::LADSPAPlugin *plugin;
 	ldpl_get_plugin(term_t(A1), plugin, ident);
-
+std::cerr <<"aqui"<<std::endl;
 	l_loader->LADSPALoader::connect_audio_ports(plugin);
 
 	return true;
@@ -362,7 +359,7 @@ PREDICATE(ldpl_run_plugin_framing, 4)
 	//Setting input buffers 
 	if(ldpl_set_input_buffers(term_t(A1), bufs, l_loader->LADSPALoader::inputAudio_ports(ident).size(), (size_t)(long)A3, (size_t)(long)A4)<0) return false;
 	std::cerr<<"input set"<<std::endl;
-	plugin->LADSPAPlugin::run((size_t)(long)A3);
+	plugin->LADSPAPlugin::run((size_t)(long)A4);
 
 	return true;
 }
