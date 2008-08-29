@@ -147,9 +147,6 @@ LADSPAPlugin::cleanup(){
 void
 LADSPAPlugin::init_buffers(){
 
-
-	//CHANGE THIS FOR MALLOC VERSION!!!!!!!!!!!!!!!!!!!!
-
 	std::cerr<<"init buffers"<<std::endl;	
 
 	//std::cerr<<m_inAudio<<std::endl;
@@ -242,8 +239,8 @@ LADSPAPlugin::set_control_port(int port, LADSPA_Data value){
 /**
 	Return output selected
 */
-LADSPA_Data *
-LADSPAPlugin::get_output(int o){
+LADSPA_Data **
+LADSPAPlugin::get_output(){
 
 	std::cerr<<"port out1 ad"<<outputbuffers[0]<<std::endl;
 	std::cerr<<"port out 2ad"<<outputbuffers[1]<<std::endl;
@@ -257,7 +254,7 @@ LADSPAPlugin::get_output(int o){
 	std::cerr<<"port out1,1 value"<<outputbuffers[0][0]<<std::endl; 
 	std::cerr<<"port out2,2 value"<<outputbuffers[1][1]<<std::endl; 
 	std::cerr<<"port out2,1000 value"<<outputbuffers[1][999]<<std::endl; 
-	return outputbuffers[o];
+	return outputbuffers;
 }
 
 /**
