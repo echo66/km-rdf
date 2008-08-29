@@ -50,8 +50,8 @@ transform(Signal, Lib, Id, _TrickyOutputs, Plugin, Options):-
 	((option(outControls(OutCtrls), Options, _),ladspa_set_output_controls(Plugin, OutCtrls),!) ; true),
 	((option(parameters(Params), Options, _),ladspa_set_parameters(Plugin, Params),!) ; true),
 	ldpl_connect_ports(Plugin),
-	ldpl_run_plugin_framing(Data, Plugin, 10000, Block),
-	ldpl_collect_output(Plugin, Block).
+	ldpl_run_plugin_framing(Data, Plugin, 10000, Block).
+	%		ldpl_collect_output(Plugin, Block).
 
 /** works for one block but fails from there on...*/
 /**

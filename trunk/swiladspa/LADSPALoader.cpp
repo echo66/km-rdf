@@ -568,6 +568,8 @@ LADSPALoader::connect_audio_ports(LADSPAPlugin::LADSPAPlugin *plugin){
 	std::vector<int> input = inputAudio_ports(name);
 	std::vector<int> output = outputAudio_ports(name);
 
+	std::cerr <<"LOADER::connectin ports"<<std::endl;
+
 	for(int j=0; j<input.size(); j++){
 		
 		plugin->LADSPAPlugin::connect_input_port(input[j], in);

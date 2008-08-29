@@ -66,6 +66,8 @@ LADSPAPlugin::activate(){
 void
 LADSPAPlugin::run(size_t blockSize){
 
+	std::cerr<<blockSize<<std::endl;
+
 	std::cerr<<"port in1 val"<<inputbuffers[0][0]<<std::endl;
 	std::cerr<<"port out1 val"<<outputbuffers[0][0]<<std::endl;
 
@@ -80,6 +82,16 @@ LADSPAPlugin::run(size_t blockSize){
 	std::cerr << "se supone q debe funcionar"<< std::endl;
 	m_descriptor -> run(plugin, (unsigned long)blockSize);
 	std::cerr << "block processed"<<std::endl;
+
+	std::cerr << "printing in first channel "<<std::endl;
+	for(int j=1020; j<blockSize; j++){
+		std::cerr << inputbuffers[0][j] << std::endl;
+	}	
+
+	std::cerr << "printing out first channel "<<std::endl;
+	for(int j=1020; j<blockSize; j++){
+		std::cerr << outputbuffers[0][j] << std::endl;
+	}	
 }
 
 /**
@@ -107,6 +119,21 @@ LADSPAPlugin::cleanup(){
 		return;
 	}
 	m_descriptor -> cleanup(plugin);
+	
+	for(int k=0;k<m_inAudio;k++){
+
+		delete[] inputbuffers[k];
+	}
+	delete[] inputbuffers;
+	inputbuffers=0;
+	for(int k=0;k<m_outAudio;k++){
+
+		delete[] outputbuffers[k];
+	}
+	delete[] outputbuffers;
+	outputbuffers=0;
+
+	//We should also dlclose the library
 	plugin = 0;
 }
 
@@ -137,11 +164,18 @@ LADSPAPlugin::init_buffers(){
 		inputbuffers[i] = new LADSPA_Data[m_blockSize];
 	}
 
-
-	outputbuffers = (LADSPA_Data **)calloc(m_outAudio, sizeof(LADSPA_Data *));
+	if (m_outAudio == 0) {
+		outputbuffers = 0;
+	} else {
+		outputbuffers  = new LADSPA_Data*[m_outAudio];
+	}
+	for (size_t i = 0; i < m_outAudio; ++i) {
+		outputbuffers[i] = new LADSPA_Data[m_blockSize];
+	}
+	/**outputbuffers = (LADSPA_Data **)calloc(m_outAudio, sizeof(LADSPA_Data *));
   	for (int s = 0; s<m_outAudio; s++){
 	    outputbuffers[s]     = (LADSPA_Data *)calloc(m_blockSize, sizeof(LADSPA_Data));
-	}
+	}*/
 	//Fill with zeros???
 
 	std::cerr<<"port in1 ad"<<inputbuffers[0]<<std::endl;
