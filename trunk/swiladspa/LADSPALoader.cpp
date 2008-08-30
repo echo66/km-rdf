@@ -162,14 +162,14 @@ LADSPALoader::inputControl_ports(std::string name){
 std::vector<int>
 LADSPALoader::outputAudio_ports(std::string name){
 
-	std::vector<int> input;
+	std::vector<int> output;
 	for(int j = 0; j < plugins_sys; j++){
 
 		if(name.compare(ladspa_plugins_db[j].key) == 0){
-			input = ladspa_plugins_db[j].outAudio;
+			output = ladspa_plugins_db[j].outAudio;
 		}
 	}
-	return input;
+	return output;
 
 }
 
@@ -540,6 +540,7 @@ LADSPAPlugin::LADSPAPlugin *
 LADSPALoader::instantiate(std::string name, size_t sr, size_t blockSize)
 {
 
+	std::cerr<< "LOADER: instantiating "<<name<<std::endl;
 	const LADSPA_Descriptor *desc = getLADSPADescriptor(name);
 	if(!desc){
 		std::cerr << "LADSPALoader::instantiate_plugin: failed to instantiate plugin" << std::endl;
@@ -549,6 +550,12 @@ LADSPALoader::instantiate(std::string name, size_t sr, size_t blockSize)
 						outputAudio_ports(name).size(),
 						inputControl_ports(name).size(),
 						outputControl_ports(name).size(), blockSize); 
+
+	const char *son = plugin_soname(name).data();
+	//std::cerr << son << std::endl;
+   	QString soname(son);
+	//unloadLibrary(son);//need to unload library now or when cleaning plugin??	
+	
 	return plugin;
 	//need to unload lib?
 }
@@ -616,7 +623,9 @@ LADSPALoader::set_default_controls(LADSPAPlugin::LADSPAPlugin *plugin){
 void
 LADSPALoader::set_parameter(LADSPAPlugin::LADSPAPlugin *plugin, int parameter, LADSPA_Data value){
 
-	plugin->LADSPAPlugin::set_control_port(parameter, value);
+	LADSPA_Data *v;
+	v = &value;
+	plugin->LADSPAPlugin::set_control_port(parameter, v);
 }
 
 /**
@@ -625,7 +634,9 @@ LADSPALoader::set_parameter(LADSPAPlugin::LADSPAPlugin *plugin, int parameter, L
 void
 LADSPALoader::set_output_control(LADSPAPlugin::LADSPAPlugin *plugin, int c, LADSPA_Data value){
 
-	plugin->LADSPAPlugin::set_control_port(c, value);
+	LADSPA_Data *v;
+	v = &value;
+	plugin->LADSPAPlugin::set_control_port(c, v);
 }
 
 #endif

@@ -33,7 +33,7 @@ public:
 	size_t get_blockSize();
 
 	//dynamic ports management
-	void set_control_port(int, LADSPA_Data);
+	void set_control_port(int, LADSPA_Data *);
 
 	//static ports management
 	void init_buffers();

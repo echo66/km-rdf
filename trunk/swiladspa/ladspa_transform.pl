@@ -41,18 +41,18 @@ transform(Signal, Lib, Id, _TrickyOutputs, OutputSignal, Options):-
 	plugin_key(Lib, Id, Key),
 	option(block(Block), Options, 1024),
         ldpl_instantiate_plugin(Key, Sr, Block, Plugin),
-	ldpl_connect_ports(Plugin),
-	adapt_input(Signal, Key, S2),
-	%S2 = signal(Sr, Data),	
-	((ldpl_activate_plugin(Plugin),ldpl_connect_ports(Plugin),!) ; true),
-	%This default set up may not be enough!!!
-	ldpl_set_default_controls(Plugin),
+	%ldpl_set_default_controls(Plugin),
 	((option(outControls(OutCtrls), Options, _),ladspa_set_output_controls(Plugin, OutCtrls),!) ; true),
 	((option(parameters(Params), Options, _),ladspa_set_parameters(Plugin, Params),!) ; true),
 	ldpl_connect_ports(Plugin),
+	adapt_input(Signal, Key, S2),
+	%S2 = signal(Sr, Data),	
+	((ldpl_activate_plugin(Plugin),!) ; true),
+	%This default set up may not be enough!!!	
+	%ldpl_connect_ports(Plugin),
 	%ldpl_run_plugin_framing(Data, Plugin, 10000, Block),
 	%ldpl_collect_output(Plugin, Block),	
-	%ldpl_processed_signal(Sr, OutputSignal).
+	%ldpl_processed_signal(Sr, OutputSignal),
 	ldpl_process_signal(S2, Plugin, Block, OutputSignal),
 	ldpl_cleanup_plugin(Plugin).
 

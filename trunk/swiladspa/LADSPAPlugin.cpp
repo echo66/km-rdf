@@ -38,6 +38,7 @@ LADSPAPlugin::LADSPAPlugin(std::string name, const LADSPA_Descriptor *des, size_
 	
 	init_buffers();
 	plugin = des->instantiate(des, sr);
+	std::cerr<<"plugAdd"<<plugin<<std::endl;
 }
 
 /***********************************************
@@ -55,7 +56,7 @@ LADSPAPlugin::activate(){
 		return -1;
 	}
 	m_descriptor -> activate(plugin);
-	std::cerr << "Plugin activated"<<std::endl;
+	std::cerr << "LADSPAPlugin: activated"<<std::endl;
 
 	return 0;
 }
@@ -67,7 +68,7 @@ void
 LADSPAPlugin::run(size_t blockSize){
 
 	std::cerr<<blockSize<<std::endl;
-
+	std::cerr<<"plugAdd"<<plugin<<std::endl;
 	std::cerr<<"port in1 val"<<inputbuffers[0][0]<<std::endl;
 	std::cerr<<"port out1 val"<<outputbuffers[0][0]<<std::endl;
 
@@ -105,7 +106,7 @@ LADSPAPlugin::deactivate(){
 		return;
 	}
 	m_descriptor -> deactivate(plugin);
-	std::cerr << "Plugin deactivated"<<std::endl;
+	std::cerr << "LADSPAPlugin: deactivated"<<std::endl;
 }
 
 /**
@@ -147,7 +148,7 @@ LADSPAPlugin::cleanup(){
 void
 LADSPAPlugin::init_buffers(){
 
-	std::cerr<<"init buffers"<<std::endl;	
+	std::cerr<<"LADSPAPlugin: initializing buffers"<<std::endl;	
 
 	//std::cerr<<m_inAudio<<std::endl;
 	//std::cerr<<m_outAudio<<std::endl;
@@ -168,6 +169,9 @@ LADSPAPlugin::init_buffers(){
 	}
 	for (size_t i = 0; i < m_outAudio; ++i) {
 		outputbuffers[i] = new LADSPA_Data[m_blockSize];
+		for(size_t k = 0; k<m_blockSize; k++){
+			outputbuffers[i][k]=0;//init value is set to 0 (may work better)
+		}
 	}
 	/**outputbuffers = (LADSPA_Data **)calloc(m_outAudio, sizeof(LADSPA_Data *));
   	for (int s = 0; s<m_outAudio; s++){
@@ -194,11 +198,21 @@ LADSPAPlugin::init_buffers(){
 void
 LADSPAPlugin::connect_input_port(int port, int index){
 
-	if(m_descriptor -> connect_port){
-		std::cerr<< "LADSPAPlugin: connecting input port "<<port<<" to the buffer at "<<inputbuffers[index]<<std::endl;
-		m_descriptor -> connect_port(plugin, port, inputbuffers[index]);	
+	LADSPA_PortDescriptor pd = m_descriptor->PortDescriptors[port];
+      	std::cerr<<"plugAdd"<<plugin<<std::endl;
+        if (LADSPA_IS_PORT_AUDIO(pd)) {
+	 	if (LADSPA_IS_PORT_INPUT(pd)) {
+			if(m_descriptor -> connect_port){
+				std::cerr<< "LADSPAPlugin: connecting input port "<<port<<" to the buffer at "<<inputbuffers[index]<<std::endl;
+				m_descriptor -> connect_port(plugin, 0, inputbuffers[index]);	
+			}else{
+				std::cerr<<"no port connection routine"<<std::endl;
+			}
+		}else{
+			std::cerr<<"WARNING: this port is not an input port"<<std::endl;
+		}
 	}else{
-		std::cerr<<"no port connection routine"<<std::endl;
+		std::cerr<<"WARNING: this port is not an audio port"<<std::endl;
 	}
 }
 
@@ -208,11 +222,22 @@ LADSPAPlugin::connect_input_port(int port, int index){
 void
 LADSPAPlugin::connect_output_port(int port, int index){
 
-	std::cerr<< "LADSPAPlugin: connecting output port "<<port<<" to the buffer at "<<outputbuffers[index]<<std::endl;
-	if(m_descriptor -> connect_port){
-		m_descriptor -> connect_port(plugin, port, outputbuffers[index]);	
+	LADSPA_PortDescriptor pd = m_descriptor->PortDescriptors[port];
+      
+        if (LADSPA_IS_PORT_AUDIO(pd)) {
+	 	if (LADSPA_IS_PORT_OUTPUT(pd)) {
+	
+			std::cerr<< "LADSPAPlugin: connecting output port "<<port<<" to the buffer at "<<outputbuffers[index]<<std::endl;
+			if(m_descriptor -> connect_port){
+				m_descriptor -> connect_port(plugin, port, outputbuffers[index]);	
+			}else{
+				std::cerr<<"no port connection routine"<<std::endl;
+			}
+		}else{
+			std::cerr<<"WARNING: this port is not an output port"<<std::endl;
+		}
 	}else{
-			std::cerr<<"no port connection routine"<<std::endl;
+		std::cerr<<"WARNING: this port is not an audio port"<<std::endl;
 	}
 }
 
@@ -220,15 +245,20 @@ LADSPAPlugin::connect_output_port(int port, int index){
 	Set control port (in (parameter) or out (outputcontrol))
 */
 void
-LADSPAPlugin::set_control_port(int port, LADSPA_Data value){
+LADSPAPlugin::set_control_port(int port, LADSPA_Data *value){
 
-	if(m_descriptor -> connect_port){
+	LADSPA_PortDescriptor pd = m_descriptor->PortDescriptors[port];
+	if (LADSPA_IS_PORT_CONTROL(pd)) {
+	 	if(m_descriptor -> connect_port){
 
-		std::cerr<<"LADSPAPlugin: setting control port "<<port<<" to "<<value<<std::endl;
-		m_descriptor -> connect_port(plugin, port, &value);	
+			std::cerr<<"LADSPAPlugin: setting control port "<<port<<" to "<<*value<<std::endl;
+			m_descriptor -> connect_port(plugin, 2, value);	
+		}else{
+			std::cerr<<"LADSPAPlugin: no port connection routine"<<std::endl;
+		}
 	}else{
-		std::cerr<<"no port connection routine"<<std::endl;
-	}
+		std::cerr<<"WARNING: this port is not a control port"<<std::endl;
+	}	
 }
 
 
