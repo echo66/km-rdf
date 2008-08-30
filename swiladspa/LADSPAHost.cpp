@@ -251,6 +251,11 @@ PREDICATE(ldpl_instantiate_plugin, 4)
 	plugin_t = PL_new_term_ref();
 	ldpl_register_plugin(plugin, ident, plugin_t);
 
+	char *id;
+	PL_get_atom_chars(plugin_t,&id);
+	string qid((const char*)id);
+	std::cerr<<qid<<std::endl;
+
 	out1 = new std::vector<float>();
 	out2 = new std::vector<float>();
 
@@ -342,18 +347,29 @@ PREDICATE(ldpl_run_plugin_framing, 4)
 	//+Start
 	//+BlockSize
 
+	
+
 	string ident;
 	LADSPAPlugin::LADSPAPlugin *plugin;	
 	ldpl_get_plugin(term_t(A2), plugin, ident);
+
+	char *id;
+	PL_get_atom_chars(term_t(A2),&id);
+	string qid((const char*)id);
+
+	std::cerr<<"checking run"<<std::endl;
+	std::cerr<<qid<<std::endl;
+	std::cerr<<(size_t)(long)A3<<std::endl;
+	std::cerr<<(size_t)(long)A4<<std::endl;
 
 	LADSPA_Data **bufs = plugin -> LADSPAPlugin::get_audio_input();
 		
 	//cleaning buffers (in case)
 	int ports = l_loader->LADSPALoader::inputAudio_ports(ident).size();
-	for (size_t j=0; j<ports; j++){
-		delete [] bufs[j]; //is ok like this?
-		bufs[j] = new LADSPA_Data[(long)A4];
-	}	
+	//for (size_t j=0; j<ports; j++){
+	//	delete[] bufs[j]; //is ok like this?
+	//	bufs[j] = new LADSPA_Data[(long)A4];
+	//}	
 
 	//Setting input buffers 
 	if(ldpl_set_input_buffers(term_t(A1), bufs, l_loader->LADSPALoader::inputAudio_ports(ident).size(), (size_t)(long)A3, (size_t)(long)A4)<0) return false;

@@ -104,6 +104,11 @@ ldpl_get_plugin(term_t id_t, LADSPAPlugin::LADSPAPlugin * &plugin, string &type)
 int
 ldpl_set_input_buffers(term_t data, LADSPA_Data **buf, int ports, size_t start, size_t block){
 
+
+	std::cerr<<"checking reading data"<<std::endl;
+	std::cerr<<start<<std::endl;
+	std::cerr<<block<<std::endl;
+	std::cerr<<ports<<std::endl;
 	PlTail tail(data);
 	PlTerm ch;
 	unsigned int chCount=0;
