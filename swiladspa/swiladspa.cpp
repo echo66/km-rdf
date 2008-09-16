@@ -134,6 +134,7 @@ ldpl_set_input_buffers(term_t data, LADSPA_Data **buf, int ports, size_t start, 
 		//Now we retrieve the pointers to the raw data in memory
 		vector<float> *ch;
 		BLOBID::get_data_for_id((const char *)id, ch);
+		std::cerr<<(const char *)id<<std::endl;
 
 		vector<float> *f;
 		f = ldpl_select_frame(start, start+block-1, ch);

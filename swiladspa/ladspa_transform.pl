@@ -35,7 +35,7 @@ transform(Signal,Lib,Id,Outputs,FinalOutputs):-
 %	block
 %	outControls (List) where outControl(Name, Value)
 
-transform(Signal, Lib, Id, _TrickyOutputs, OutputSignal, Options):-
+transform(Signal, Lib, Id, _TrickyOutputs, Data2, Options):-
 	is_list(Options),
 	Signal = signal(Sr, _D),
 	plugin_key(Lib, Id, Key),
@@ -47,13 +47,18 @@ transform(Signal, Lib, Id, _TrickyOutputs, OutputSignal, Options):-
 	ldpl_connect_ports(Plugin),
 	adapt_input(Signal, Key, S2),
 	%S2 = signal(Sr, Data),	
+	get_frame(S2, 100000, 2048, F),
+	F = frame(Sr, 100000, Data),	
 	((ldpl_activate_plugin(Plugin),!) ; true),
 	%This default set up may not be enough!!!	
 	%ldpl_connect_ports(Plugin),
-	%ldpl_run_plugin_framing(Data, Plugin, 10000, Block),
+	Data = [Blob|_C],
+	blob_size(Blob, L),
+	ldpl_run_plugin(Data, Plugin, L, Block),
 	%ldpl_collect_output(Plugin, Block),	
 	%ldpl_processed_signal(Sr, OutputSignal),
-	ldpl_process_signal(S2, Plugin, Block, OutputSignal),
+	%ldpl_process_signal(S2, Plugin, Block, OutputSignal),
+	ldpl_processed_data(Data2),
 	ldpl_cleanup_plugin(Plugin).
 
 /** works for one block but fails from there on...*/

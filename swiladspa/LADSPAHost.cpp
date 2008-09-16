@@ -337,6 +337,78 @@ PREDICATE(ldpl_activate_plugin, 1)
 	return true;
 }
 
+PREDICATE(ldpl_run_plugin, 4)
+{
+	//+Signal data list
+	//+pluginblob
+	//+data length
+	//+BlockSize	
+
+	string ident;
+	LADSPAPlugin::LADSPAPlugin *plugin;	
+	ldpl_get_plugin(term_t(A2), plugin, ident);
+
+	char *id;
+	PL_get_atom_chars(term_t(A2),&id);
+	string qid((const char*)id);
+
+	size_t dsize = (size_t)(long)A3;
+	size_t block = (size_t)(long)A4;
+
+	std::cerr<<"checking run"<<std::endl;
+	std::cerr<<qid<<std::endl;
+	std::cerr<<(size_t)(long)A3<<std::endl;
+	std::cerr<<(size_t)(long)A4<<std::endl;
+
+	LADSPA_Data **bufs = plugin -> LADSPAPlugin::get_audio_input();
+	size_t start = 0;
+	int in_ch = l_loader->LADSPALoader::inputAudio_ports(ident).size();
+	std::vector<int> outputs = l_loader->LADSPALoader::outputAudio_ports(ident);
+
+	while(start<dsize){
+
+		std::cerr<< "beginning of process: "<<start <<std::endl;
+		//zero padding (may change to another block size)
+		if(ldpl_set_input_buffers(term_t(A1), bufs, in_ch, start, block)<0) return false;
+		start+=block;
+		
+		//processing	
+		plugin->LADSPAPlugin::run(block);
+
+		LADSPA_Data **data = plugin->LADSPAPlugin::get_output();
+
+		//only process 2 channels
+		for(int j=0; j<outputs.size(); j++){
+			if(j==0){					
+				
+				//int l = sizeof(*data)/sizeof(float);
+				//std::cerr<<"port"<<outputs[j]<<std::endl;
+				//std::cerr<<l<<std::endl;
+					
+				for(int r = 0; r<block; r++){
+					out1->push_back((float)data[j][r]);
+					//	std::cerr<<"datum"<<(float)data[r]<<std::endl;		
+				}
+						
+			}else if(j==1){
+				
+				for(int r = 0; r<block; r++){
+					out2->push_back((float)data[j][r]);
+					//	std::cerr<<"datum"<<(float)data[r]<<std::endl;		
+				}	
+			}else{
+
+				std::cerr<<"LADSPAHost: error (2 channels max)"<<std::endl;
+				return false;
+			}
+			std::cerr<<"size of out1: "<<out1->size()<<std::endl;
+			std::cerr<<"size of out2: "<<out2->size()<<std::endl;
+		}
+	}	
+	return true;
+}
+
+
 /**
 	Run
 */
@@ -345,9 +417,7 @@ PREDICATE(ldpl_run_plugin_framing, 4)
 	//+Signal data list
 	//+pluginblob
 	//+Start
-	//+BlockSize
-
-	
+	//+BlockSize	
 
 	string ident;
 	LADSPAPlugin::LADSPAPlugin *plugin;	
@@ -377,6 +447,7 @@ PREDICATE(ldpl_run_plugin_framing, 4)
 	plugin->LADSPAPlugin::run((size_t)(long)A4);
 
 	return true;
+
 }
 
 /**
@@ -392,7 +463,7 @@ PREDICATE(ldpl_run_plugin_frame, 3)
 	LADSPAPlugin::LADSPAPlugin *plugin;	
 	ldpl_get_plugin(term_t(A2), plugin, ident);
 
-		LADSPA_Data **bufs = plugin -> LADSPAPlugin::get_audio_input();
+	LADSPA_Data **bufs = plugin -> LADSPAPlugin::get_audio_input();
 		
 	//cleaning buffers (in case)
 	int ports = l_loader->LADSPALoader::inputAudio_ports(ident).size();

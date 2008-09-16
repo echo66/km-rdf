@@ -29,12 +29,14 @@
 		,	ldpl_connect_ports/1
 		,	ldpl_set_default_controls/1
 		,	ldpl_activate_plugin/1
+		, 	ldpl_run_plugin/4
 		,	ldpl_run_plugin_frame/3
 		,	ldpl_run_plugin_framing/4
 		,	ldpl_deactivate_plugin/1
 		, 	ldpl_cleanup_plugin/1
 		,	ldpl_collect_output/2
 		,	ldpl_processed_signal/2
+		,	ldpl_processed_data/1
 		]).
 
 :- style_check(-discontiguous).

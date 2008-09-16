@@ -85,12 +85,12 @@ LADSPAPlugin::run(size_t blockSize){
 	std::cerr << "block processed"<<std::endl;
 
 	std::cerr << "printing in first channel "<<std::endl;
-	for(int j=1020; j<blockSize; j++){
+	for(int j=0; j<5; j++){
 		std::cerr << inputbuffers[0][j] << std::endl;
 	}	
 
 	std::cerr << "printing out first channel "<<std::endl;
-	for(int j=1020; j<blockSize; j++){
+	for(int j=0; j<5; j++){
 		std::cerr << outputbuffers[0][j] << std::endl;
 	}	
 }
@@ -186,10 +186,9 @@ LADSPAPlugin::init_buffers(){
 	std::cerr<<"port out2 ad"<<outputbuffers[1]<<std::endl;
 
 	std::cerr<<"port in1,1value"<<inputbuffers[0][0]<<std::endl; //Random value!!!!!!
-	std::cerr<<"port in1,6 value"<<inputbuffers[0][5]<<std::endl;
-	std::cerr<<"port in2,6 value"<<inputbuffers[1][5]<<std::endl;
+	std::cerr<<"port in2,1 value"<<inputbuffers[1][0]<<std::endl;
 	std::cerr<<"port out1,1 value"<<outputbuffers[0][0]<<std::endl; 
-	std::cerr<<"port out2,2 value"<<outputbuffers[1][1]<<std::endl; 
+	std::cerr<<"port out2,1 value"<<outputbuffers[1][0]<<std::endl; 
 }
 
 /**
@@ -273,17 +272,16 @@ LADSPA_Data **
 LADSPAPlugin::get_output(){
 
 	std::cerr<<"port out1 ad"<<outputbuffers[0]<<std::endl;
-	std::cerr<<"port out 2ad"<<outputbuffers[1]<<std::endl;
+	std::cerr<<"port out2 ad"<<outputbuffers[1]<<std::endl;
 
 	std::cerr<<"port in1 ad"<<inputbuffers[0]<<std::endl;
 	std::cerr<<"port in2 ad"<<inputbuffers[1]<<std::endl;
 
-	std::cerr<<"port in1,1value"<<inputbuffers[0][0]<<std::endl; //Random value!!!!!!
-	std::cerr<<"port in1,6 value"<<inputbuffers[0][5]<<std::endl;
-	std::cerr<<"port in2,6 value"<<inputbuffers[1][5]<<std::endl;
+	std::cerr<<"port in1,1 value"<<inputbuffers[0][0]<<std::endl; //Random value!!!!!!
+	std::cerr<<"port in2,1 value"<<inputbuffers[1][0]<<std::endl;
 	std::cerr<<"port out1,1 value"<<outputbuffers[0][0]<<std::endl; 
-	std::cerr<<"port out2,2 value"<<outputbuffers[1][1]<<std::endl; 
-	std::cerr<<"port out2,1000 value"<<outputbuffers[1][999]<<std::endl; 
+	std::cerr<<"port out2,1 value"<<outputbuffers[1][0]<<std::endl; 
+
 	return outputbuffers;
 }
 
